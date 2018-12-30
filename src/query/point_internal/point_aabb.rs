@@ -1,10 +1,10 @@
-use bounding_volume::AABB;
-use math::{Isometry, Point, Vector, DIM};
+use crate::bounding_volume::AABB;
+use crate::math::{Isometry, Point, Vector, DIM};
 use na::{self, Real};
-use num::{Bounded, Zero};
-use query::{PointProjection, PointQuery};
-use shape::FeatureId;
-use utils::IsometryOps;
+use crate::num::{Bounded, Zero};
+use crate::query::{PointProjection, PointQuery};
+use crate::shape::FeatureId;
+use crate::utils::IsometryOps;
 
 impl<N: Real> AABB<N> {
     fn local_point_projection(

@@ -1,5 +1,5 @@
 use na::Real;
-use partitioning::{
+use crate::partitioning::{
     BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor, SimultaneousVisitor,
     VisitStatus, Visitor, BVT, DBVT,
 };

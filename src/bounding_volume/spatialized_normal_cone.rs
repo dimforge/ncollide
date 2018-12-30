@@ -1,5 +1,5 @@
-use bounding_volume::{BoundingVolume, CircularCone, AABB};
-use math::Point;
+use crate::bounding_volume::{BoundingVolume, CircularCone, AABB};
+use crate::math::Point;
 use na::Real;
 
 /// The combination of an AABB with a circular cone to bound both the space occupied by an geometry and its normals.

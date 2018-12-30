@@ -3,8 +3,8 @@ use std::marker::PhantomData;
 use alga::general::Real;
 use na::{self, Point2, Vector2};
 #[cfg(feature = "dim2")]
-use procedural::Polyline;
-use transformation::convex_hull_utils::{indexed_support_point_id, support_point_id};
+use crate::procedural::Polyline;
+use crate::transformation::convex_hull_utils::{indexed_support_point_id, support_point_id};
 
 /// Computes the convex hull of a set of 2d points.
 #[cfg(feature = "dim2")]

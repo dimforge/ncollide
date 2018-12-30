@@ -1,8 +1,8 @@
 use na::Real;
 
-use math::{Isometry, Point, Vector};
-use query::time_of_impact_internal;
-use shape::{Ball, Plane, Shape};
+use crate::math::{Isometry, Point, Vector};
+use crate::query::time_of_impact_internal;
+use crate::shape::{Ball, Plane, Shape};
 
 /// Computes the smallest time of impact of two shapes under translational movement.
 ///

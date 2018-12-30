@@ -1,8 +1,8 @@
 use na::Real;
 
-use math::{Point, Vector};
-use query::{ray_internal, Ray};
-use shape::Ball;
+use crate::math::{Point, Vector};
+use crate::query::{ray_internal, Ray};
+use crate::shape::Ball;
 
 /// Time Of Impact of two balls under translational movement.
 #[inline]

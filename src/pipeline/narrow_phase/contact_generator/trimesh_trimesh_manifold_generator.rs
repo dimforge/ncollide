@@ -1,20 +1,20 @@
-use bounding_volume::{BoundingVolume, AABB};
-use math::{Isometry, Vector};
+use crate::bounding_volume::{BoundingVolume, AABB};
+use crate::math::{Isometry, Vector};
 use na::{self, Real, Unit};
-use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
-use query::closest_points_internal;
-use query::{
+use crate::pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
+use crate::query::closest_points_internal;
+use crate::query::{
     visitors::AABBSetsInterferencesCollector, Contact, ContactKinematic, ContactManifold,
     ContactPrediction, ContactTrackingMode, NeighborhoodGeometry, ContactPreprocessor
 };
-use shape::{
+use crate::shape::{
     ClippingCache, CompositeShape, ConvexPolygonalFeature, FeatureId, Segment,
     SegmentPointLocation, Shape, TriMesh, Triangle,
 };
 use std::collections::{hash_map::Entry, HashMap};
 use std::mem;
-use utils::DeterministicState;
-use utils::IdAllocator;
+use crate::utils::DeterministicState;
+use crate::utils::IdAllocator;
 
 /// Collision detector between a concave shape and another shape.
 pub struct TriMeshTriMeshManifoldGenerator<N: Real> {

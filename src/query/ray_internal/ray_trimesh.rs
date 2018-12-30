@@ -1,9 +1,9 @@
-use bounding_volume::AABB;
-use math::Isometry;
+use crate::bounding_volume::AABB;
+use crate::math::Isometry;
 use na::{Point2, Real, Vector3};
-use partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
-use query::{ray_internal, Ray, RayCast, RayIntersection};
-use shape::{CompositeShape, TriMesh, FeatureId};
+use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
+use crate::query::{ray_internal, Ray, RayCast, RayIntersection};
+use crate::shape::{CompositeShape, TriMesh, FeatureId};
 
 impl<N: Real> RayCast<N> for TriMesh<N> {
     #[inline]

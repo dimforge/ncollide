@@ -1,8 +1,8 @@
-use bounding_volume;
-use bounding_volume::{BoundingSphere, HasBoundingVolume};
-use math::Isometry;
+use crate::bounding_volume;
+use crate::bounding_volume::{BoundingSphere, HasBoundingVolume};
+use crate::math::Isometry;
 use na::Real;
-use shape::ConvexHull;
+use crate::shape::ConvexHull;
 
 impl<N: Real> HasBoundingVolume<N, BoundingSphere<N>> for ConvexHull<N> {
     #[inline]

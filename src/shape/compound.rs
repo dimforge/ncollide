@@ -3,12 +3,12 @@
 //!
 
 use std::mem;
-use bounding_volume::{BoundingVolume, AABB};
-use math::Isometry;
+use crate::bounding_volume::{BoundingVolume, AABB};
+use crate::math::Isometry;
 use na::{self, Real};
-use partitioning::{BVHImpl, BVT};
-use shape::{CompositeShape, Shape, ShapeHandle, FeatureId};
-use query::{ContactPrediction, ContactPreprocessor, Contact, ContactKinematic};
+use crate::partitioning::{BVHImpl, BVT};
+use crate::shape::{CompositeShape, Shape, ShapeHandle, FeatureId};
+use crate::query::{ContactPrediction, ContactPreprocessor, Contact, ContactKinematic};
 
 /// A compound shape with an aabb bounding volume.
 ///
@@ -36,7 +36,7 @@ impl<N: Real> Compound<N> {
             bvs.push(bv.clone());
             leaves.push((i, bv));
 
-            if let Some(comp) = shape.as_composite_shape() {
+            if let Some(_comp) = shape.as_composite_shape() {
                 panic!("Nested composite shapes are not allowed.");
             }
         }
@@ -120,7 +120,7 @@ impl<N: Real> CompositeShape<N> for Compound<N> {
         &self,
         i: usize,
         m: &Isometry<N>,
-        prediction: &ContactPrediction<N>,
+        _prediction: &ContactPrediction<N>,
         f: &mut FnMut(&Isometry<N>, &Shape<N>, &ContactPreprocessor<N>),
     ) {
         let elt = &self.shapes()[i];
@@ -159,7 +159,7 @@ impl<'a, N: Real> CompoundContactProcessor<'a, N> {
 impl<'a, N: Real> ContactPreprocessor<N> for CompoundContactProcessor<'a, N> {
     fn process_contact(
         &self,
-        c: &mut Contact<N>,
+        _c: &mut Contact<N>,
         kinematic: &mut ContactKinematic<N>,
         is_first: bool)
         -> bool {

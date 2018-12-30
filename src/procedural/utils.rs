@@ -1,6 +1,6 @@
 //! Utilities useful for various generations tasks.
 
-use math::{Point, Vector};
+use crate::math::{Point, Vector};
 #[cfg(feature = "dim3")]
 use na;
 use na::Real;
@@ -13,7 +13,7 @@ use std::collections::HashMap;
 #[cfg(feature = "dim3")]
 use std::iter;
 #[cfg(feature = "dim3")]
-use utils::{DeterministicState, HashablePartialEq};
+use crate::utils::{DeterministicState, HashablePartialEq};
 
 // FIXME: remove that in favor of `push_xy_circle` ?
 /// Pushes a discretized counterclockwise circle to a buffer.

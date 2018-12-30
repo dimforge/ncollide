@@ -1,8 +1,8 @@
 //! Axis Aligned Bounding Box.
 
-use bounding_volume::{BoundingVolume, HasBoundingVolume, BoundingSphere};
-use math::{Isometry, Point, Vector};
-use utils::IsometryOps;
+use crate::bounding_volume::{BoundingVolume, HasBoundingVolume, BoundingSphere};
+use crate::math::{Isometry, Point, Vector};
+use crate::utils::IsometryOps;
 use na::{self, Real};
 
 // Seems useful to help type inference. See issue #84.

@@ -1,7 +1,7 @@
-use bounding_volume::{BoundingSphere, HasBoundingVolume};
-use math::{Isometry, Point};
+use crate::bounding_volume::{BoundingSphere, HasBoundingVolume};
+use crate::math::{Isometry, Point};
 use na::Real;
-use shape::Ball;
+use crate::shape::Ball;
 
 impl<N: Real> HasBoundingVolume<N, BoundingSphere<N>> for Ball<N> {
     #[inline]

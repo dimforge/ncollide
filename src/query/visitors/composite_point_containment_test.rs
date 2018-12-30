@@ -1,9 +1,9 @@
-use bounding_volume::BoundingVolume;
-use math::{Isometry, Point};
+use crate::bounding_volume::BoundingVolume;
+use crate::math::{Isometry, Point};
 use na::Real;
-use partitioning::{VisitStatus, Visitor};
-use query::PointQuery;
-use shape::CompositeShape;
+use crate::partitioning::{VisitStatus, Visitor};
+use crate::query::PointQuery;
+use crate::shape::CompositeShape;
 
 /// Visitor for checking if a composite shape contains a specific point.
 pub struct CompositePointContainmentTest<'a, N: 'a + Real, S: 'a + CompositeShape<N>> {

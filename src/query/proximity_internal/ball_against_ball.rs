@@ -1,7 +1,7 @@
-use math::Point;
+use crate::math::Point;
 use na::{self, Real};
-use query::Proximity;
-use shape::Ball;
+use crate::query::Proximity;
+use crate::shape::Ball;
 
 /// Proximity between balls.
 #[inline]

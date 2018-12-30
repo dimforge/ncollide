@@ -1,9 +1,9 @@
 use na::Real;
 
-use bounding_volume;
-use bounding_volume::{BoundingSphere, HasBoundingVolume};
-use math::Isometry;
-use shape::Polyline;
+use crate::bounding_volume;
+use crate::bounding_volume::{BoundingSphere, HasBoundingVolume};
+use crate::math::Isometry;
+use crate::shape::Polyline;
 
 impl<N: Real> HasBoundingVolume<N, BoundingSphere<N>> for Polyline<N> {
     #[inline]

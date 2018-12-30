@@ -1,4 +1,4 @@
-use math::Point;
+use crate::math::Point;
 use na::{Point3, Real};
 use std::iter;
 

@@ -1,20 +1,20 @@
-use bounding_volume::{self, BoundingVolume, AABB};
-use math::{Isometry, Point};
+use crate::bounding_volume::{self, BoundingVolume, AABB};
+use crate::math::{Isometry, Point};
 use na::Real;
-use pipeline::broad_phase::{
+use crate::pipeline::broad_phase::{
     BroadPhase, BroadPhasePairFilter, BroadPhasePairFilters, DBVTBroadPhase, ProxyHandle,
 };
-use pipeline::events::{ContactEvent, ContactEvents, ProximityEvents};
-use pipeline::narrow_phase::{
+use crate::pipeline::events::{ContactEvent, ContactEvents, ProximityEvents};
+use crate::pipeline::narrow_phase::{
     ContactAlgorithm, ContactPairs, DefaultContactDispatcher, DefaultNarrowPhase,
     DefaultProximityDispatcher, NarrowPhase, ProximityPairs,
 };
-use pipeline::world::{
+use crate::pipeline::world::{
     CollisionGroups, CollisionGroupsPairFilter, CollisionObject, CollisionObjectHandle,
     CollisionObjectSlab, CollisionObjects, GeometricQueryType,
 };
-use query::{ContactManifold, PointQuery, Ray, RayCast, RayIntersection};
-use shape::ShapeHandle;
+use crate::query::{ContactManifold, PointQuery, Ray, RayCast, RayIntersection};
+use crate::shape::ShapeHandle;
 use std::mem;
 use std::vec::IntoIter;
 

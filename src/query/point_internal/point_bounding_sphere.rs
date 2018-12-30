@@ -1,9 +1,9 @@
-use bounding_volume::BoundingSphere;
-use math::{Isometry, Point};
+use crate::bounding_volume::BoundingSphere;
+use crate::math::{Isometry, Point};
 use na::Real;
-use query::{PointProjection, PointQuery};
-use shape::{Ball, FeatureId};
-use utils::IsometryOps;
+use crate::query::{PointProjection, PointQuery};
+use crate::shape::{Ball, FeatureId};
+use crate::utils::IsometryOps;
 
 impl<N: Real> PointQuery<N> for BoundingSphere<N> {
     #[inline]

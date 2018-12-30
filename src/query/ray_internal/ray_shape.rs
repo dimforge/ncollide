@@ -1,7 +1,7 @@
-use math::Isometry;
+use crate::math::Isometry;
 use na::Real;
-use query::{Ray, RayCast, RayIntersection};
-use shape::Shape;
+use crate::query::{Ray, RayCast, RayIntersection};
+use crate::shape::Shape;
 
 impl<N: Real> RayCast<N> for Shape<N> {
     #[inline]

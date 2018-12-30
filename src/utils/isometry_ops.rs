@@ -1,5 +1,5 @@
 use alga::linear::ProjectiveTransformation;
-use math::{Point, Vector};
+use crate::math::{Point, Vector};
 #[cfg(feature = "dim2")]
 use na::Isometry2;
 #[cfg(feature = "dim3")]

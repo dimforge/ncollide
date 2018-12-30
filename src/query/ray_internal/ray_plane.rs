@@ -1,8 +1,8 @@
 use na::{self, Real};
 
-use math::{Isometry, Point, Vector};
-use query::{Ray, RayCast, RayIntersection};
-use shape::{Plane, FeatureId};
+use crate::math::{Isometry, Point, Vector};
+use crate::query::{Ray, RayCast, RayIntersection};
+use crate::shape::{Plane, FeatureId};
 
 /// Computes the toi of an unbounded line with a plane described by its center and normal.
 #[inline]

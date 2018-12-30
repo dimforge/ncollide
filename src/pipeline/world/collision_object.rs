@@ -1,9 +1,9 @@
 use alga::general::Real;
-use math::Isometry;
-use pipeline::broad_phase::ProxyHandle;
-use pipeline::world::CollisionGroups;
-use query::ContactPrediction;
-use shape::ShapeHandle;
+use crate::math::Isometry;
+use crate::pipeline::broad_phase::ProxyHandle;
+use crate::pipeline::world::CollisionGroups;
+use crate::query::ContactPrediction;
+use crate::shape::ShapeHandle;
 use slab::{Iter, Slab};
 use std::ops::{Index, IndexMut};
 

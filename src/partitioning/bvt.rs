@@ -1,13 +1,13 @@
 //! A read-only Bounding Volume Tree.
 
 use alga::general::Real;
-use bounding_volume::BoundingVolume;
-use math::{Point, DIM};
-use partitioning::BVH;
+use crate::bounding_volume::BoundingVolume;
+use crate::math::{Point, DIM};
+use crate::partitioning::BVH;
 use std::collections::VecDeque;
 use std::iter;
 use std::usize;
-use utils;
+use crate::utils;
 
 /// A Bounding Volume Tree.
 #[derive(Clone)]

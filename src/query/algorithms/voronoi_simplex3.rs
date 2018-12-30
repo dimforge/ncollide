@@ -1,8 +1,8 @@
-use math::{Isometry, Point};
+use crate::math::{Isometry, Point};
 use na::{self, Real};
-use query::algorithms::{gjk, CSOPoint};
-use query::{PointQuery, PointQueryWithLocation};
-use shape::{
+use crate::query::algorithms::{gjk, CSOPoint};
+use crate::query::{PointQuery, PointQueryWithLocation};
+use crate::shape::{
     Segment, SegmentPointLocation, Tetrahedron, TetrahedronPointLocation, Triangle,
     TrianglePointLocation,
 };

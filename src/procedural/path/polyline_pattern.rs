@@ -1,7 +1,7 @@
 use na::{self, Isometry3, Point2, Point3, Real, Vector3};
-use procedural::path::{CurveSampler, PathSample, StrokePattern};
-use procedural::trimesh::{IndexBuffer, TriMesh};
-use procedural::utils;
+use crate::procedural::path::{CurveSampler, PathSample, StrokePattern};
+use crate::procedural::trimesh::{IndexBuffer, TriMesh};
+use crate::procedural::utils;
 
 /// A pattern composed of polyline and two caps.
 pub struct PolylinePattern<N: Real, C1, C2> {

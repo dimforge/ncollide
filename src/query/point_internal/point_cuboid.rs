@@ -1,8 +1,8 @@
-use bounding_volume::AABB;
-use math::{Isometry, Point};
+use crate::bounding_volume::AABB;
+use crate::math::{Isometry, Point};
 use na::Real;
-use query::{PointProjection, PointQuery};
-use shape::{Cuboid, FeatureId};
+use crate::query::{PointProjection, PointQuery};
+use crate::shape::{Cuboid, FeatureId};
 
 impl<N: Real> PointQuery<N> for Cuboid<N> {
     #[inline]

@@ -1,12 +1,12 @@
 //! Support mapping based Cuboid shape.
 
 use arrayvec::ArrayVec;
-use bounding_volume::ConicalApproximation;
-use math::{Isometry, Point, Vector, DIM};
+use crate::bounding_volume::ConicalApproximation;
+use crate::math::{Isometry, Point, Vector, DIM};
 use na::{self, Real, Unit};
-use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
+use crate::shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
 use std::f64;
-use utils::IsometryOps;
+use crate::utils::IsometryOps;
 
 /// Shape of a box.
 #[derive(PartialEq, Debug, Clone)]

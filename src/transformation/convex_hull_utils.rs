@@ -1,8 +1,8 @@
 use alga::linear::EuclideanSpace;
-use bounding_volume;
-use math::{Isometry, Point};
+use crate::bounding_volume;
+use crate::math::{Isometry, Point};
 use na::{self, Real};
-use num::Bounded;
+use crate::num::Bounded;
 
 /// Returns the index of the support point of a list of points.
 pub fn support_point_id<P: EuclideanSpace>(

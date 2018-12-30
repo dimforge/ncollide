@@ -1,13 +1,13 @@
 use na::{self, Real};
 
-use math::Isometry;
-use query::algorithms::{gjk, CSOPoint, VoronoiSimplex};
-use query::{Ray, RayCast, RayIntersection};
+use crate::math::Isometry;
+use crate::query::algorithms::{gjk, CSOPoint, VoronoiSimplex};
+use crate::query::{Ray, RayCast, RayIntersection};
 #[cfg(feature = "dim2")]
-use shape::ConvexPolygon;
-use shape::{Capsule, Segment, SupportMap, FeatureId};
+use crate::shape::ConvexPolygon;
+use crate::shape::{Capsule, Segment, SupportMap, FeatureId};
 #[cfg(feature = "dim3")]
-use shape::{Cone, ConvexHull, Cylinder};
+use crate::shape::{Cone, ConvexHull, Cylinder};
 
 /// Cast a ray on a shape using the GJK algorithm.
 pub fn implicit_toi_and_normal_with_ray<N, G: ?Sized>(

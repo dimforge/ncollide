@@ -1,12 +1,12 @@
-use bounding_volume::AABB;
-use math::{Isometry, Point};
+use crate::bounding_volume::AABB;
+use crate::math::{Isometry, Point};
 use na::{self, Real};
-use partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
-use query::{
+use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
+use crate::query::{
     visitors::CompositePointContainmentTest, PointProjection, PointQuery, PointQueryWithLocation,
 };
-use shape::{CompositeShape, FeatureId, TriMesh, TrianglePointLocation};
-use utils::IsometryOps;
+use crate::shape::{CompositeShape, FeatureId, TriMesh, TrianglePointLocation};
+use crate::utils::IsometryOps;
 
 impl<N: Real> PointQuery<N> for TriMesh<N> {
     #[inline]

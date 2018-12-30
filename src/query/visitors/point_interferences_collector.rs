@@ -1,7 +1,7 @@
-use math::{Isometry, Point};
+use crate::math::{Isometry, Point};
 use na::Real;
-use partitioning::{VisitStatus, Visitor};
-use query::PointQuery;
+use crate::partitioning::{VisitStatus, Visitor};
+use crate::query::PointQuery;
 
 // FIXME: add a point cost fn.
 

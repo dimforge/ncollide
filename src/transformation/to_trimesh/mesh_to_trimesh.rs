@@ -1,8 +1,8 @@
 use alga::general::Real;
 use na;
 use na::Point3;
-use shape;
-use procedural::{IndexBuffer, TriMesh, TriMesh3};
+use crate::shape;
+use crate::procedural::{IndexBuffer, TriMesh, TriMesh3};
 use super::ToTriMesh;
 
 impl<N: Real> ToTriMesh<Point3<N>, ()> for shape::TriMesh3<N> {

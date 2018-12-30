@@ -1,7 +1,7 @@
 //! Bounding sphere.
 
-use bounding_volume::{BoundingVolume, HasBoundingVolume};
-use math::{Isometry, Point};
+use crate::bounding_volume::{BoundingVolume, HasBoundingVolume};
+use crate::math::{Isometry, Point};
 use na::{self, Real};
 
 // Seems useful to help type inference. See issue #84.

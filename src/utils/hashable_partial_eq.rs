@@ -1,5 +1,5 @@
 use std::hash::{Hash, Hasher};
-use utils::AsBytes;
+use crate::utils::AsBytes;
 
 /// A structure that implements `Eq` and is hashable even if the wrapped data implements only
 /// `PartialEq`.

@@ -1,7 +1,7 @@
 //! Structures for describing and storing collision-related events.
 
-use pipeline::world::CollisionObjectHandle;
-use query::Proximity;
+use crate::pipeline::world::CollisionObjectHandle;
+use crate::query::Proximity;
 use std::iter::IntoIterator;
 use std::slice::Iter;
 

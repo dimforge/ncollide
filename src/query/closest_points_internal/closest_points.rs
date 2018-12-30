@@ -1,4 +1,4 @@
-use math::Point;
+use crate::math::Point;
 use na::Real;
 use std::mem;
 

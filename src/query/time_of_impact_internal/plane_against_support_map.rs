@@ -1,9 +1,9 @@
 use na::Real;
 
-use math::{Isometry, Vector};
-use query::{Ray, RayCast};
-use shape::Plane;
-use shape::SupportMap;
+use crate::math::{Isometry, Vector};
+use crate::query::{Ray, RayCast};
+use crate::shape::Plane;
+use crate::shape::SupportMap;
 
 /// Time Of Impact of a plane with a support-mapped shape under translational movement.
 pub fn plane_against_support_map<N, G: ?Sized>(

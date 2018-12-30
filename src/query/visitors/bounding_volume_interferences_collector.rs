@@ -1,6 +1,6 @@
-use bounding_volume::BoundingVolume;
+use crate::bounding_volume::BoundingVolume;
 use na::Real;
-use partitioning::{VisitStatus, Visitor};
+use crate::partitioning::{VisitStatus, Visitor};
 use std::marker::PhantomData;
 
 /// Spatial partitioning data structure visitor collecting interferences with a given bounding volume.

@@ -1,10 +1,10 @@
 // Queries.
-use bounding_volume::{BoundingSphere, AABB};
-use math::{Isometry, Point, Vector};
+use crate::bounding_volume::{BoundingSphere, AABB};
+use crate::math::{Isometry, Point, Vector};
 use na::{self, Real, Unit};
-use query::{PointQuery, RayCast};
+use crate::query::{PointQuery, RayCast};
 // Repr.
-use shape::{CompositeShape, ConvexPolyhedron, DeformableShape, FeatureId, SupportMap};
+use crate::shape::{CompositeShape, ConvexPolyhedron, DeformableShape, FeatureId, SupportMap};
 use std::any::{Any, TypeId};
 use std::mem;
 use std::ops::Deref;

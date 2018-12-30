@@ -1,12 +1,12 @@
-use bounding_volume::ConicalApproximation;
-use math::{Isometry, Point};
+use crate::bounding_volume::ConicalApproximation;
+use crate::math::{Isometry, Point};
 use na::Real;
-use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
-use query::contacts_internal;
-use query::{ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry, ContactPreprocessor};
-use shape::{Ball, FeatureId, Shape};
+use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
+use crate::query::contacts_internal;
+use crate::query::{ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry, ContactPreprocessor};
+use crate::shape::{Ball, FeatureId, Shape};
 use std::marker::PhantomData;
-use utils::IdAllocator;
+use crate::utils::IdAllocator;
 
 /// Collision detector between two balls.
 #[derive(Clone)]

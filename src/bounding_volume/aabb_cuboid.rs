@@ -1,9 +1,9 @@
 use alga::linear::Translation;
-use bounding_volume::{HasBoundingVolume, AABB};
-use math::{Isometry, Point};
+use crate::bounding_volume::{HasBoundingVolume, AABB};
+use crate::math::{Isometry, Point};
 use na::Real;
-use shape::Cuboid;
-use utils::IsometryOps;
+use crate::shape::Cuboid;
+use crate::utils::IsometryOps;
 
 impl<N: Real> HasBoundingVolume<N, AABB<N>> for Cuboid<N> {
     #[inline]

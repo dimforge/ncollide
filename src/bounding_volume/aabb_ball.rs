@@ -1,8 +1,8 @@
 use alga::linear::Translation;
-use bounding_volume::{HasBoundingVolume, AABB};
-use math::{Isometry, Point, Vector};
+use crate::bounding_volume::{HasBoundingVolume, AABB};
+use crate::math::{Isometry, Point, Vector};
 use na::Real;
-use shape::Ball;
+use crate::shape::Ball;
 
 /// Computes the Axis-Aligned Bounding Box of a ball.
 #[inline]

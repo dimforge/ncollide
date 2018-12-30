@@ -1,8 +1,8 @@
 //! Definition of the tetrahedron shape.
 
-use math::{Point, Matrix};
+use crate::math::{Point, Matrix};
 use na::Real;
-use shape::{Segment, Triangle};
+use crate::shape::{Segment, Triangle};
 use std::mem;
 
 /// A tetrahedron with 4 vertices.

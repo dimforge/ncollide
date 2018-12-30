@@ -1,5 +1,5 @@
 use na::Real;
-use query::LocalShapeApproximation;
+use crate::query::LocalShapeApproximation;
 
 /// The type of elements used to describe a deformation on a collision object.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]

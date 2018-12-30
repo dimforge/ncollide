@@ -1,7 +1,7 @@
 use na::Real;
 use std::any::Any;
 
-use pipeline::world::CollisionObject;
+use crate::pipeline::world::CollisionObject;
 
 /// A signal handler for contact detection.
 pub trait BroadPhasePairFilter<N: Real, T>: Any + Send + Sync {

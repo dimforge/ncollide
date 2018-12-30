@@ -1,6 +1,6 @@
 #[cfg(feature = "dim3")]
 use super::TriMesh;
-use math::Point;
+use crate::math::Point;
 use na::{self, Real};
 use std::iter;
 use std::ptr;

@@ -1,20 +1,20 @@
-use bounding_volume::{self, BoundingVolume, AABB};
-use math::Isometry;
+use crate::bounding_volume::{self, BoundingVolume, AABB};
+use crate::math::Isometry;
 use na::{self, Id, Point3, Real, Translation3, Vector2, Vector3};
-use num::{Bounded, Zero};
-use partitioning::{BVH, BVT};
-use procedural::{IndexBuffer, TriMesh};
-use query::algorithms::VoronoiSimplex;
-use query::{
+use crate::num::{Bounded, Zero};
+use crate::partitioning::{BVH, BVT};
+use crate::procedural::{IndexBuffer, TriMesh};
+use crate::query::algorithms::VoronoiSimplex;
+use crate::query::{
     ray_internal, visitors::BoundingVolumeInterferencesCollector, Ray, RayCast, RayIntersection,
 };
-use shape::SupportMap;
+use crate::shape::SupportMap;
 use std::cmp::Ordering;
 use std::collections::hash_map::Entry;
 use std::collections::{BinaryHeap, HashMap, HashSet};
 use std::mem;
-use transformation;
-use utils;
+use crate::transformation;
+use crate::utils;
 
 /// Approximate convex decomposition of a triangle mesh.
 pub fn hacd<N: Real>(

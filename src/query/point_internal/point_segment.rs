@@ -1,8 +1,8 @@
-use math::{Isometry, Point};
+use crate::math::{Isometry, Point};
 use na::{self, Real};
-use query::{PointProjection, PointQuery, PointQueryWithLocation};
-use shape::{FeatureId, Segment, SegmentPointLocation};
-use utils::IsometryOps;
+use crate::query::{PointProjection, PointQuery, PointQueryWithLocation};
+use crate::shape::{FeatureId, Segment, SegmentPointLocation};
+use crate::utils::IsometryOps;
 
 impl<N: Real> PointQuery<N> for Segment<N> {
     #[inline]

@@ -1,9 +1,9 @@
-use math::{Isometry, Point};
+use crate::math::{Isometry, Point};
 use na::Real;
-use pipeline::narrow_phase::{ProximityDetector, ProximityDispatcher};
-use query::proximity_internal;
-use query::Proximity;
-use shape::{Ball, Shape};
+use crate::pipeline::narrow_phase::{ProximityDetector, ProximityDispatcher};
+use crate::query::proximity_internal;
+use crate::query::Proximity;
+use crate::shape::{Ball, Shape};
 
 /// Proximity detector between two balls.
 pub struct BallBallProximityDetector {

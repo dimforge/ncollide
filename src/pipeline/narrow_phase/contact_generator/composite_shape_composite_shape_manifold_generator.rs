@@ -1,12 +1,12 @@
-use bounding_volume::{BoundingVolume, AABB};
-use math::Isometry;
+use crate::bounding_volume::{BoundingVolume, AABB};
+use crate::math::Isometry;
 use na::Real;
-use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
-use query::{visitors::AABBSetsInterferencesCollector, ContactManifold, ContactPrediction, ContactPreprocessor};
-use shape::{CompositeShape, FeatureId, Shape};
+use crate::pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
+use crate::query::{visitors::AABBSetsInterferencesCollector, ContactManifold, ContactPrediction, ContactPreprocessor};
+use crate::shape::{CompositeShape, FeatureId, Shape};
 use std::collections::{hash_map::Entry, HashMap};
-use utils::DeterministicState;
-use utils::IdAllocator;
+use crate::utils::DeterministicState;
+use crate::utils::IdAllocator;
 
 /// Collision detector between a concave shape and another shape.
 pub struct CompositeShapeCompositeShapeManifoldGenerator<N> {
@@ -32,10 +32,10 @@ impl<N: Real> CompositeShapeCompositeShapeManifoldGenerator<N> {
         dispatcher: &ContactDispatcher<N>,
         m1: &Isometry<N>,
         g1: &CompositeShape<N>,
-        proc1: Option<&ContactPreprocessor<N>>,
+        _proc1: Option<&ContactPreprocessor<N>>,
         m2: &Isometry<N>,
         g2: &CompositeShape<N>,
-        proc2: Option<&ContactPreprocessor<N>>,
+        _proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,

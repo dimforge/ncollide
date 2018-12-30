@@ -1,6 +1,6 @@
-use math::Point;
+use crate::math::Point;
 use na::{self, Real};
-use shape::Ball;
+use crate::shape::Ball;
 
 /// Distance between balls.
 #[inline]

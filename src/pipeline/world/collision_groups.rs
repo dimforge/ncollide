@@ -1,6 +1,6 @@
 use na::Real;
-use pipeline::broad_phase::BroadPhasePairFilter;
-use pipeline::world::CollisionObject;
+use crate::pipeline::broad_phase::BroadPhasePairFilter;
+use crate::pipeline::world::CollisionObject;
 
 const SELF_COLLISION: u32 = 1 << 31;
 const ALL_GROUPS: u32 = (1 << 30) - 1;

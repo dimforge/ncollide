@@ -1,19 +1,19 @@
 //! 2d line strip, 3d triangle mesh, and nd subsimplex mesh.
 
-use bounding_volume::{self, BoundingVolume, AABB};
-use math::{Isometry, Point, Vector, DIM};
+use crate::bounding_volume::{self, BoundingVolume, AABB};
+use crate::math::{Isometry, Point, Vector, DIM};
 use na::{self, Id, Point2, Point3, Real, Unit};
-use partitioning::{BVHImpl, BVT};
-use procedural;
-use query::{LocalShapeApproximation, NeighborhoodGeometry, ContactPrediction, ContactPreprocessor, Contact, ContactKinematic};
-use shape::{
+use crate::partitioning::{BVHImpl, BVT};
+use crate::procedural;
+use crate::query::{LocalShapeApproximation, NeighborhoodGeometry, ContactPrediction, ContactPreprocessor, Contact, ContactKinematic};
+use crate::shape::{
     CompositeShape, DeformableShape, DeformationsType, FeatureId, Segment, Shape, Triangle,
 };
 use std::collections::{hash_map::Entry, HashMap};
 use std::iter;
 use std::ops::Range;
 use std::slice;
-use utils::{DeterministicState, IsometryOps};
+use crate::utils::{DeterministicState, IsometryOps};
 
 #[derive(Clone)]
 struct DeformationInfos<N: Real> {

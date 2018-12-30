@@ -1,12 +1,12 @@
-use bounding_volume::AABB;
-use math::{Isometry, Point};
+use crate::bounding_volume::AABB;
+use crate::math::{Isometry, Point};
 use na::{self, Real};
-use partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor, BVH};
-use query::{
+use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor, BVH};
+use crate::query::{
     visitors::CompositePointContainmentTest, PointProjection, PointQuery, PointQueryWithLocation,
 };
-use shape::{FeatureId, Polyline, SegmentPointLocation};
-use utils::IsometryOps;
+use crate::shape::{FeatureId, Polyline, SegmentPointLocation};
+use crate::utils::IsometryOps;
 
 impl<N: Real> PointQuery<N> for Polyline<N> {
     #[inline]

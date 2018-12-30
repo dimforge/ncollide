@@ -2,12 +2,12 @@ use num::Bounded;
 use std::cmp::Ordering;
 
 use na::{self, Matrix3, Point2, Point3, Real, Vector3};
-use procedural::{IndexBuffer, TriMesh};
-use transformation::{
+use crate::procedural::{IndexBuffer, TriMesh};
+use crate::transformation::{
     self,
     convex_hull_utils::{denormalize, indexed_support_point_id, normalize, support_point_id},
 };
-use utils;
+use crate::utils;
 
 /// Computes the convariance matrix of a set of points.
 fn cov<N: Real>(pts: &[Point3<N>]) -> Matrix3<N> {
@@ -649,8 +649,8 @@ mod test {
     #[cfg(feature = "dim2")]
     use na::Point2;
     #[cfg(feature = "dim3")]
-    use procedural;
-    use transformation;
+    use crate::procedural;
+    use crate::transformation;
 
     #[cfg(feature = "dim2")]
     #[test]

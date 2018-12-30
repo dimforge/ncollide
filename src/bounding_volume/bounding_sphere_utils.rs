@@ -1,6 +1,6 @@
-use math::Point;
+use crate::math::Point;
 use na::{self, Real};
-use utils;
+use crate::utils;
 
 /// Computes the bounding sphere of a set of point, given its center.
 // FIXME: return a bounding sphere?

@@ -4,10 +4,10 @@ use na;
 use na::Point2;
 
 #[cfg(feature = "dim3")]
-use math::Vector;
-use math::{Isometry, Point};
-use query::{Ray, RayCast, RayIntersection};
-use shape::{Ball, FeatureId};
+use crate::math::Vector;
+use crate::math::{Isometry, Point};
+use crate::query::{Ray, RayCast, RayIntersection};
+use crate::shape::{Ball, FeatureId};
 
 #[cfg(feature = "dim3")]
 #[inline]

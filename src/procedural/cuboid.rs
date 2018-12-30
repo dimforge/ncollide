@@ -3,7 +3,7 @@ use super::Polyline;
 #[cfg(feature = "dim3")]
 use super::{IndexBuffer, TriMesh};
 use alga::general::Real;
-use math::{Point, Vector};
+use crate::math::{Point, Vector};
 use na;
 #[cfg(feature = "dim3")]
 use na::Point2;

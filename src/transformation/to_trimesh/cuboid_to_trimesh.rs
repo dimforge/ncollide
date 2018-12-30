@@ -1,9 +1,9 @@
 use super::ToTriMesh;
 use alga::general::Real;
 use na;
-use procedural;
-use procedural::TriMesh;
-use shape::Cuboid;
+use crate::procedural;
+use crate::procedural::TriMesh;
+use crate::shape::Cuboid;
 
 impl<N: Real> ToTriMesh<N> for Cuboid<N> {
     type DiscretizationParameter = ();

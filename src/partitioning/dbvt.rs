@@ -1,7 +1,7 @@
-use bounding_volume::BoundingVolume;
-use math::Point;
+use crate::bounding_volume::BoundingVolume;
+use crate::math::Point;
 use na::{self, Real};
-use partitioning::BVH;
+use crate::partitioning::BVH;
 use slab::Slab;
 use std::ops::Index;
 

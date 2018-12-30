@@ -10,6 +10,7 @@ repository = "https://github.com/sebcrozet/ncollide"
 readme = "README.md"
 keywords = [ "collision", "geometry", "distance", "ray", "convex" ]
 license = "BSD-3-Clause"
+edition = "2018"
 
 [features]
 default = [ "dim2" ]

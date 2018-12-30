@@ -1,14 +1,14 @@
 //! Definition of the segment shape.
 
-use bounding_volume::ConicalApproximation;
-use math::{Isometry, Point, Vector};
+use crate::bounding_volume::ConicalApproximation;
+use crate::math::{Isometry, Point, Vector};
 use na::{self, Real, Unit};
-use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
+use crate::shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
 use std::f64;
 use std::mem;
 #[cfg(feature = "dim2")]
-use utils;
-use utils::IsometryOps;
+use crate::utils;
+use crate::utils::IsometryOps;
 
 /// A segment shape.
 #[derive(PartialEq, Debug, Clone)]

@@ -1,14 +1,14 @@
 //! Three-dimensional penetration depth queries using the Expanding Polytope Algorithm.
 
 use alga::linear::FiniteDimInnerSpace;
-use math::{Isometry, Point, Vector};
+use crate::math::{Isometry, Point, Vector};
 use na::{self, Real, Unit};
-use query::algorithms::{gjk, CSOPoint, VoronoiSimplex};
-use query::PointQueryWithLocation;
-use shape::{ConstantOrigin, SupportMap, Triangle, TrianglePointLocation};
+use crate::query::algorithms::{gjk, CSOPoint, VoronoiSimplex};
+use crate::query::PointQueryWithLocation;
+use crate::shape::{ConstantOrigin, SupportMap, Triangle, TrianglePointLocation};
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
-use utils;
+use crate::utils;
 
 #[derive(Copy, Clone, PartialEq)]
 struct FaceId<N: Real> {

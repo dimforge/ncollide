@@ -1,8 +1,8 @@
-use bounding_volume::BoundingSphere;
-use math::Isometry;
+use crate::bounding_volume::BoundingSphere;
+use crate::math::Isometry;
 use na::Real;
-use query::{Ray, RayCast, RayIntersection};
-use shape::Ball;
+use crate::query::{Ray, RayCast, RayIntersection};
+use crate::shape::Ball;
 
 impl<N: Real> RayCast<N> for BoundingSphere<N> {
     #[inline]

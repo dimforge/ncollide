@@ -1,7 +1,7 @@
-use math::Isometry;
+use crate::math::Isometry;
 use na::Real;
-use query::Proximity;
-use shape::Shape;
+use crate::query::Proximity;
+use crate::shape::Shape;
 use std::any::Any;
 
 /// Trait implemented by algorithms that determine if two objects are in close proximity.

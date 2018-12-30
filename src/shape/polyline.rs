@@ -1,19 +1,19 @@
 //! 2d line strip, 3d polyline.
 
-use bounding_volume::{self, BoundingVolume, AABB};
-use math::{Isometry, Point, Vector, DIM};
+use crate::bounding_volume::{self, BoundingVolume, AABB};
+use crate::math::{Isometry, Point, Vector, DIM};
 use na::{self, Id, Point2, Point3, Real, Unit};
-use partitioning::{BVHImpl, BVT};
-use procedural;
-use query::{LocalShapeApproximation, NeighborhoodGeometry, ContactPreprocessor, ContactPrediction, Contact, ContactKinematic};
-use shape::{
+use crate::partitioning::{BVHImpl, BVT};
+use crate::procedural;
+use crate::query::{LocalShapeApproximation, NeighborhoodGeometry, ContactPreprocessor, ContactPrediction, Contact, ContactKinematic};
+use crate::shape::{
     CompositeShape, DeformableShape, DeformationsType, FeatureId, Segment, Shape, Triangle,
 };
 use std::collections::{hash_map::Entry, HashMap};
 use std::iter;
 use std::ops::Range;
 use std::slice;
-use utils::DeterministicState;
+use crate::utils::DeterministicState;
 
 #[derive(Clone)]
 struct DeformationInfos<N: Real> {
@@ -408,7 +408,7 @@ impl<N: Real> Polyline<N> {
         normal.dot(dir) >= cos_ang_tol
     }
 
-    pub fn tangent_cone_polar_contains_dir(&self, feature: FeatureId, dir: &Unit<Vector<N>>, sin_ang_tol: N, cos_ang_tol: N) -> bool {
+    pub fn tangent_cone_polar_contains_dir(&self, _feature: FeatureId, _dir: &Unit<Vector<N>>, _sin_ang_tol: N, _cos_ang_tol: N) -> bool {
         unimplemented!()
         /*
         match feature {
@@ -633,7 +633,7 @@ impl<'a, N: Real> PolylineContactProcessor<'a, N> {
 impl<'a, N: Real> ContactPreprocessor<N> for PolylineContactProcessor<'a, N> {
     fn process_contact(
         &self,
-        c: &mut Contact<N>,
+        _c: &mut Contact<N>,
         kinematic: &mut ContactKinematic<N>,
         is_first: bool)
         -> bool {

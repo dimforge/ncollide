@@ -1,8 +1,8 @@
-use bounding_volume::ConicalApproximation;
-use math::{Isometry, Point, Vector};
+use crate::bounding_volume::ConicalApproximation;
+use crate::math::{Isometry, Point, Vector};
 use na::{Real, Unit};
-use shape::{ConvexPolygonalFeature, SupportMap};
-use query::ContactPreprocessor;
+use crate::shape::{ConvexPolygonalFeature, SupportMap};
+use crate::query::ContactPreprocessor;
 
 /// An identifier of a feature of a convex polyhedron.
 ///

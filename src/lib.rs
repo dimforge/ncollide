@@ -59,7 +59,7 @@ extern crate num_traits as num;
 extern crate slab;
 extern crate smallvec;
 
-pub use pipeline::{broad_phase, events, narrow_phase, world};
+pub use crate::pipeline::{broad_phase, events, narrow_phase, world};
 
 pub mod bounding_volume;
 pub mod partitioning;

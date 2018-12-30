@@ -1,10 +1,10 @@
-use bounding_volume::AABB;
-use math::{Isometry, Point, Vector};
+use crate::bounding_volume::AABB;
+use crate::math::{Isometry, Point, Vector};
 use na::{self, Real};
-use partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
-use query::proximity_internal;
-use query::{PointQuery, Proximity};
-use shape::{CompositeShape, Shape};
+use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
+use crate::query::proximity_internal;
+use crate::query::{PointQuery, Proximity};
+use crate::shape::{CompositeShape, Shape};
 
 /// Proximity between a composite shape (`Mesh`, `Compound`) and any other shape.
 pub fn composite_shape_against_shape<N: Real, G1: ?Sized>(

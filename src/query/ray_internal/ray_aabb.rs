@@ -1,14 +1,14 @@
-use num::Bounded;
+use crate::num::Bounded;
 use std::mem;
 
 #[cfg(feature = "dim3")]
 use na::Point2;
 use na::{self, Real};
 
-use bounding_volume::AABB;
-use shape::{FeatureId, Segment};
-use math::{Isometry, Vector, Point};
-use query::{Ray, RayCast, RayIntersection};
+use crate::bounding_volume::AABB;
+use crate::shape::{FeatureId, Segment};
+use crate::math::{Isometry, Vector, Point};
+use crate::query::{Ray, RayCast, RayIntersection};
 
 impl<N: Real> RayCast<N> for AABB<N> {
     fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, solid: bool) -> Option<N> {

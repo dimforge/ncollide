@@ -1,6 +1,6 @@
 use arrayvec::ArrayVec;
-use bounding_volume::{self, CircularCone};
-use math::{Isometry, Vector};
+use crate::bounding_volume::{self, CircularCone};
+use crate::math::{Isometry, Vector};
 use na::{self, Real, Unit};
 use std::f64;
 

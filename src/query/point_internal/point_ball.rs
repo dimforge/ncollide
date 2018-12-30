@@ -1,10 +1,10 @@
 use alga::general::Real;
 use na;
 
-use math::{Isometry, Point};
-use query::{PointProjection, PointQuery};
-use shape::{Ball, FeatureId};
-use utils::IsometryOps;
+use crate::math::{Isometry, Point};
+use crate::query::{PointProjection, PointQuery};
+use crate::shape::{Ball, FeatureId};
+use crate::utils::IsometryOps;
 
 impl<N: Real> PointQuery<N> for Ball<N> {
     #[inline]

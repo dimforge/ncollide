@@ -1,8 +1,8 @@
-use bounding_volume::{HasBoundingVolume, AABB};
-use math::Isometry;
+use crate::bounding_volume::{HasBoundingVolume, AABB};
+use crate::math::Isometry;
 use na::{self, Real};
-use shape::TriMesh;
-use utils::IsometryOps;
+use crate::shape::TriMesh;
+use crate::utils::IsometryOps;
 
 impl<N: Real> HasBoundingVolume<N, AABB<N>> for TriMesh<N> {
     #[inline]

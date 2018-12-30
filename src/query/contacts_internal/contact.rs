@@ -1,8 +1,8 @@
-use math::{Point, Vector};
+use crate::math::{Point, Vector};
 use na::{self, Real, Unit};
-use query::ContactKinematic;
+use crate::query::ContactKinematic;
 use std::mem;
-use utils::GenerationalId;
+use crate::utils::GenerationalId;
 
 /// Geometric description of a contact.
 #[derive(Debug, PartialEq, Clone)]

@@ -2,13 +2,13 @@ use alga::linear::FiniteDimInnerSpace;
 use na::{self, Point2, Real, Unit};
 use std::iter;
 
-use math::{Isometry, Point, Vector};
-use query::closest_points_internal;
-use query::ray_internal;
-use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry};
-use shape::{FeatureId, Segment, SegmentPointLocation};
-use query::ContactPreprocessor;
-use utils::{self, IdAllocator, IsometryOps};
+use crate::math::{Isometry, Point, Vector};
+use crate::query::closest_points_internal;
+use crate::query::ray_internal;
+use crate::query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry};
+use crate::shape::{FeatureId, Segment, SegmentPointLocation};
+use crate::query::ContactPreprocessor;
+use crate::utils::{self, IdAllocator, IsometryOps};
 
 /// A cache used for polygonal clipping.
 #[derive(Clone)]

@@ -1,10 +1,10 @@
-use bounding_volume::BoundingVolume;
-use math::Isometry;
+use crate::bounding_volume::BoundingVolume;
+use crate::math::Isometry;
 use na::{self, Real};
-use query::contacts_internal;
-use query::visitors::BoundingVolumeInterferencesCollector;
-use query::Contact;
-use shape::{CompositeShape, Shape};
+use crate::query::contacts_internal;
+use crate::query::visitors::BoundingVolumeInterferencesCollector;
+use crate::query::Contact;
+use crate::shape::{CompositeShape, Shape};
 
 /// Best contact between a composite shape (`Mesh`, `Compound`) and any other shape.
 pub fn composite_shape_against_shape<N: Real, G1: ?Sized>(

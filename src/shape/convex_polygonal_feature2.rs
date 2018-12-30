@@ -1,11 +1,11 @@
 use na::{self, Real, Unit};
 
-use math::{Isometry, Point, Vector};
-use query::{Contact, ContactPrediction};
-use query::{ContactKinematic, ContactManifold, NeighborhoodGeometry};
-use shape::{FeatureId, Segment, SegmentPointLocation};
-use query::ContactPreprocessor;
-use utils::{IdAllocator, IsometryOps};
+use crate::math::{Isometry, Point, Vector};
+use crate::query::{Contact, ContactPrediction};
+use crate::query::{ContactKinematic, ContactManifold, NeighborhoodGeometry};
+use crate::shape::{FeatureId, Segment, SegmentPointLocation};
+use crate::query::ContactPreprocessor;
+use crate::utils::{IdAllocator, IsometryOps};
 
 /// A feature (face or vertex) of a 2D convex polygon.
 #[derive(Clone, Debug)]
@@ -210,7 +210,7 @@ impl<N: Real> ConvexPolygonalFeature<N> {
         m2: &Isometry<N>,
         f2: FeatureId,
         proc2: Option<&ContactPreprocessor<N>>,
-        prediction: &ContactPrediction<N>,
+        _prediction: &ContactPrediction<N>,
         ids: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
     )

@@ -1,15 +1,15 @@
-use bounding_volume::AABB;
-use math::{Isometry, Point};
+use crate::bounding_volume::AABB;
+use crate::math::{Isometry, Point};
 use na::{self, Real};
-use query::{
+use crate::query::{
     PointProjection, PointQuery, PointQueryWithLocation,
 };
-use shape::{CompositeShape, FeatureId, HeightField, TrianglePointLocation};
-use utils::IsometryOps;
+use crate::shape::{CompositeShape, FeatureId, HeightField, TrianglePointLocation};
+use crate::utils::IsometryOps;
 
 impl<N: Real> PointQuery<N> for HeightField<N> {
     #[inline]
-    fn project_point(&self, m: &Isometry<N>, point: &Point<N>, solid: bool) -> PointProjection<N> {
+    fn project_point(&self, _m: &Isometry<N>, _point: &Point<N>, _solid: bool) -> PointProjection<N> {
         unimplemented!()
     }
 
@@ -26,7 +26,7 @@ impl<N: Real> PointQuery<N> for HeightField<N> {
     // FIXME: implement distance_to_point too?
 
     #[inline]
-    fn contains_point(&self, m: &Isometry<N>, point: &Point<N>) -> bool {
+    fn contains_point(&self, _m: &Isometry<N>, _point: &Point<N>) -> bool {
         false
 //        unimplemented!()
 
@@ -39,8 +39,8 @@ impl<N: Real> PointQueryWithLocation<N> for HeightField<N> {
     #[inline]
     fn project_point_with_location(
         &self,
-        m: &Isometry<N>,
-        point: &Point<N>,
+        _m: &Isometry<N>,
+        _point: &Point<N>,
         _: bool,
     ) -> (PointProjection<N>, Self::Location)
     {

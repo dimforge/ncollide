@@ -1,10 +1,10 @@
-use math::Isometry;
+use crate::math::Isometry;
 use na::Real;
-use query::{ContactManifold, ContactPrediction};
-use shape::{FeatureId, Shape};
-use query::ContactPreprocessor;
+use crate::query::{ContactManifold, ContactPrediction};
+use crate::shape::{FeatureId, Shape};
+use crate::query::ContactPreprocessor;
 use std::any::Any;
-use utils::IdAllocator;
+use crate::utils::IdAllocator;
 
 /// Trait implemented algorithms that compute contact points, normals and penetration depths.
 pub trait ContactManifoldGenerator<N: Real>: Any + Send + Sync {

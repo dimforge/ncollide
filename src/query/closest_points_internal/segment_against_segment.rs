@@ -1,10 +1,10 @@
 use approx::AbsDiffEq;
 
 use alga::linear::EuclideanSpace;
-use math::Isometry;
+use crate::math::Isometry;
 use na::{self, Real};
-use query::ClosestPoints;
-use shape::{Segment, SegmentPointLocation};
+use crate::query::ClosestPoints;
+use crate::shape::{Segment, SegmentPointLocation};
 
 /// Closest points between segments.
 #[inline]

@@ -1,10 +1,10 @@
 use na::Real;
-use pipeline::narrow_phase::proximity_detector::{
+use crate::pipeline::narrow_phase::proximity_detector::{
     BallBallProximityDetector, CompositeShapeShapeProximityDetector,
     PlaneSupportMapProximityDetector, ProximityAlgorithm, ProximityDispatcher,
     SupportMapPlaneProximityDetector, SupportMapSupportMapProximityDetector,
 };
-use shape::{Ball, Plane, Shape};
+use crate::shape::{Ball, Plane, Shape};
 
 /// Proximity dispatcher for shapes defined by `ncollide_entities`.
 pub struct DefaultProximityDispatcher {}

@@ -1,7 +1,7 @@
 use alga::general::Real;
-use math::Point;
+use crate::math::Point;
 use na;
-use utils;
+use crate::utils;
 
 /// Computes the area of a triangle.
 #[inline]

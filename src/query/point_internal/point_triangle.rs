@@ -1,8 +1,8 @@
-use math::{Isometry, Point, Vector};
+use crate::math::{Isometry, Point, Vector};
 use na::{self, Real};
-use query::{PointProjection, PointQuery, PointQueryWithLocation};
-use shape::{FeatureId, Triangle, TrianglePointLocation};
-use utils::IsometryOps;
+use crate::query::{PointProjection, PointQuery, PointQueryWithLocation};
+use crate::shape::{FeatureId, Triangle, TrianglePointLocation};
+use crate::utils::IsometryOps;
 
 #[inline]
 fn compute_result<N: Real>(pt: &Point<N>, proj: Point<N>) -> PointProjection<N> {

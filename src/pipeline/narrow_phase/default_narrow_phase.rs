@@ -1,15 +1,15 @@
 use na::Real;
-use pipeline::events::{ContactEvent, ContactEvents, ProximityEvent, ProximityEvents};
-use pipeline::narrow_phase::{
+use crate::pipeline::events::{ContactEvent, ContactEvents, ProximityEvent, ProximityEvents};
+use crate::pipeline::narrow_phase::{
     ContactAlgorithm, ContactDispatcher, ContactPairs, NarrowPhase, ProximityAlgorithm,
     ProximityDispatcher, ProximityPairs,
 };
-use pipeline::world::{CollisionObjectHandle, CollisionObjectSlab, GeometricQueryType};
-use query::{ContactManifold, Proximity};
+use crate::pipeline::world::{CollisionObjectHandle, CollisionObjectSlab, GeometricQueryType};
+use crate::query::{ContactManifold, Proximity};
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
-use utils::IdAllocator;
-use utils::{DeterministicState, SortedPair};
+use crate::utils::IdAllocator;
+use crate::utils::{DeterministicState, SortedPair};
 
 // FIXME: move this to the `narrow_phase` module.
 /// Collision detector dispatcher for collision objects.

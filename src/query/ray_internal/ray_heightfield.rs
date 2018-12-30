@@ -1,9 +1,9 @@
-use bounding_volume::AABB;
-use math::Isometry;
+use crate::bounding_volume::AABB;
+use crate::math::Isometry;
 use na::{Point2, Real, Vector3};
-use partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
-use query::{closest_points_internal, Ray, RayCast, RayIntersection};
-use shape::{CompositeShape, HeightField, FeatureId};
+use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
+use crate::query::{closest_points_internal, Ray, RayCast, RayIntersection};
+use crate::shape::{CompositeShape, HeightField, FeatureId};
 
 #[cfg(feature = "dim2")]
 impl<N: Real> RayCast<N> for HeightField<N> {
@@ -18,7 +18,7 @@ impl<N: Real> RayCast<N> for HeightField<N> {
         let aabb = self.aabb();
         let ls_ray = ray.inverse_transform_by(m);
         let (min_t, max_t) = aabb.clip_ray_parameters(&ls_ray)?;
-        let (clip_ray_a, clip_ray_b) = (ls_ray.point_at(min_t), ls_ray.point_at(max_t));
+        let (clip_ray_a, _clip_ray_b) = (ls_ray.point_at(min_t), ls_ray.point_at(max_t));
         let mut curr = match self.cell_at_point(&clip_ray_a) {
             Some(cell) => cell,
             // None may happen due to slight numerical errors.

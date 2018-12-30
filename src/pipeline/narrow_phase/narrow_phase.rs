@@ -1,13 +1,13 @@
 use na::Real;
-use pipeline::events::{ContactEvents, ProximityEvents};
-use pipeline::narrow_phase::{
+use crate::pipeline::events::{ContactEvents, ProximityEvents};
+use crate::pipeline::narrow_phase::{
     ContactAlgorithm, ContactManifoldGenerator, ProximityAlgorithm, ProximityDetector,
 };
-use pipeline::world::{CollisionObject, CollisionObjectHandle, CollisionObjectSlab};
-use query::ContactManifold;
+use crate::pipeline::world::{CollisionObject, CollisionObjectHandle, CollisionObjectSlab};
+use crate::query::ContactManifold;
 use std::any::Any;
 use std::collections::hash_map::Iter;
-use utils::SortedPair;
+use crate::utils::SortedPair;
 
 /// Trait implemented by the narrow phase manager.
 ///

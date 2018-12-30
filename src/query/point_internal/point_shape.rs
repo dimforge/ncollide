@@ -1,7 +1,7 @@
-use math::{Isometry, Point};
+use crate::math::{Isometry, Point};
 use na::Real;
-use query::{PointProjection, PointQuery};
-use shape::{FeatureId, Shape};
+use crate::query::{PointProjection, PointQuery};
+use crate::shape::{FeatureId, Shape};
 
 impl<N: Real> PointQuery<N> for Shape<N> {
     #[inline]

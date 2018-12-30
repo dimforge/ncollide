@@ -1,10 +1,10 @@
-use bounding_volume::AABB;
-use math::{Isometry, Point, Vector};
+use crate::bounding_volume::AABB;
+use crate::math::{Isometry, Point, Vector};
 use na::{self, Real};
-use partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
-use query::distance_internal;
-use query::PointQuery;
-use shape::{CompositeShape, Shape};
+use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
+use crate::query::distance_internal;
+use crate::query::PointQuery;
+use crate::shape::{CompositeShape, Shape};
 
 /// Smallest distance between a composite shape and any other shape.
 pub fn composite_shape_against_shape<N, G1: ?Sized>(

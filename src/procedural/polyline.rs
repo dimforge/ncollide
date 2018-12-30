@@ -1,5 +1,5 @@
 use alga::linear::{Rotation, Translation};
-use math::{Isometry, Point, Vector};
+use crate::math::{Isometry, Point, Vector};
 use na::{self, Real};
 
 /// Geometric description of a polyline.

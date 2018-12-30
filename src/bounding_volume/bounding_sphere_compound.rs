@@ -1,7 +1,7 @@
-use bounding_volume::{BoundingSphere, BoundingVolume, HasBoundingVolume};
-use math::Isometry;
+use crate::bounding_volume::{BoundingSphere, BoundingVolume, HasBoundingVolume};
+use crate::math::Isometry;
 use na::Real;
-use shape::Compound;
+use crate::shape::Compound;
 
 impl<N: Real> HasBoundingVolume<N, BoundingSphere<N>> for Compound<N> {
     #[inline]

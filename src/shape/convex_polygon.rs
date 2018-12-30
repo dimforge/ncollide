@@ -1,11 +1,11 @@
 use arrayvec::ArrayVec;
-use bounding_volume::ConicalApproximation;
-use math::{Isometry, Point, Vector};
+use crate::bounding_volume::ConicalApproximation;
+use crate::math::{Isometry, Point, Vector};
 use na::{self, Real, Unit};
-use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
+use crate::shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
 use std::f64;
-use transformation;
-use utils::{self, IsometryOps};
+use crate::transformation;
+use crate::utils::{self, IsometryOps};
 
 /// A 2D convex polygon.
 #[derive(Clone, Debug)]

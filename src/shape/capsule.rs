@@ -2,10 +2,10 @@
 
 use na::{self, Real, Unit};
 
-use math::{Isometry, Point, Vector};
-use shape::{SupportMap, FeatureId, Segment};
-use utils::IsometryOps;
-use query::{ContactPreprocessor, Contact, ContactKinematic};
+use crate::math::{Isometry, Point, Vector};
+use crate::shape::{SupportMap, FeatureId, Segment};
+use crate::utils::IsometryOps;
+use crate::query::{ContactPreprocessor, Contact, ContactKinematic};
 
 
 /// SupportMap description of a capsule shape with its principal axis aligned with the `y` axis.

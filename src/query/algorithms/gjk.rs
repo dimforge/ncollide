@@ -1,15 +1,15 @@
 //! The Gilbert–Johnson–Keerthi distance algorithm.
 
-use num::Bounded;
+use crate::num::Bounded;
 
 use alga::general::Real;
 use na::{self, Unit};
 
-use query::algorithms::{CSOPoint, VoronoiSimplex};
-use shape::{ConstantOrigin, SupportMap};
+use crate::query::algorithms::{CSOPoint, VoronoiSimplex};
+use crate::shape::{ConstantOrigin, SupportMap};
 // use query::Proximity;
-use math::{Isometry, Point, Vector, DIM};
-use query::{ray_internal, Ray};
+use crate::math::{Isometry, Point, Vector, DIM};
+use crate::query::{ray_internal, Ray};
 
 /// Results of the GJK algorithm.
 #[derive(Clone, Debug, PartialEq)]

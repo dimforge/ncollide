@@ -1,9 +1,9 @@
-use bounding_volume::AABB;
-use math::{Isometry, Point};
+use crate::bounding_volume::AABB;
+use crate::math::{Isometry, Point};
 use na::{self, Real};
-use partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
-use query::{PointProjection, PointQuery};
-use shape::CompositeShape;
+use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
+use crate::query::{PointProjection, PointQuery};
+use crate::shape::CompositeShape;
 
 /// Best-fisrt traversal visitor for computin the point closest to a composite shape.
 pub struct CompositeClosestPointVisitor<'a, N: 'a + Real, S: 'a + CompositeShape<N>> {

@@ -1,7 +1,7 @@
-use math::{Isometry, Point};
+use crate::math::{Isometry, Point};
 use na::Real;
-use query::distance_internal;
-use shape::{Ball, Plane, Shape};
+use crate::query::distance_internal;
+use crate::shape::{Ball, Plane, Shape};
 
 /// Computes the minimum distance separating two shapes.
 ///

@@ -6,11 +6,11 @@ use alga::general::Id;
 use alga::linear::{NormedSpace, Translation};
 use na::{self, Unit};
 
-use shape::{AnnotatedPoint, MinkowskiSum, Reflection};
-use shape::SupportMap;
-use query::algorithms::gjk;
-use query::algorithms::simplex::Simplex;
-use math::{Isometry, Point, Vector};
+use crate::shape::{AnnotatedPoint, MinkowskiSum, Reflection};
+use crate::shape::SupportMap;
+use crate::query::algorithms::gjk;
+use crate::query::algorithms::simplex::Simplex;
+use crate::math::{Isometry, Point, Vector};
 
 /// Computes the closest points between two implicit inter-penetrating shapes. Returns None if the
 /// shapes are not in penetration. This can be used as a fallback algorithm for the GJK algorithm.

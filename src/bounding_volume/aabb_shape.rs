@@ -1,7 +1,7 @@
-use bounding_volume::{HasBoundingVolume, AABB};
-use math::Isometry;
+use crate::bounding_volume::{HasBoundingVolume, AABB};
+use crate::math::Isometry;
 use na::Real;
-use shape::Shape;
+use crate::shape::Shape;
 
 impl<N: Real> HasBoundingVolume<N, AABB<N>> for Shape<N> {
     #[inline]

@@ -1,9 +1,9 @@
-use bounding_volume::AABB;
-use math::Isometry;
+use crate::bounding_volume::AABB;
+use crate::math::Isometry;
 use na::Real;
-use partitioning::BVHImpl;
-use shape::{FeatureId, Shape};
-use query::{ContactPreprocessor, ContactPrediction};
+use crate::partitioning::BVHImpl;
+use crate::shape::{FeatureId, Shape};
+use crate::query::{ContactPreprocessor, ContactPrediction};
 
 /// Trait implemented by shapes composed of multiple simpler shapes.
 ///
@@ -17,19 +17,19 @@ pub trait CompositeShape<N: Real> {
     /// shape.
     fn map_part_at(
         &self,
-        usize,
+        _: usize,
         m: &Isometry<N>,
-        &mut FnMut(&Isometry<N>, &Shape<N>),
+        _: &mut FnMut(&Isometry<N>, &Shape<N>),
     );
 
     /// Applies a transformation matrix and a function to each sub-shape of this concave
     /// shape.
     fn map_part_and_preprocessor_at(
         &self,
-        usize,
+        _: usize,
         m: &Isometry<N>,
         prediction: &ContactPrediction<N>,
-        &mut FnMut(&Isometry<N>, &Shape<N>, &ContactPreprocessor<N>),
+        _: &mut FnMut(&Isometry<N>, &Shape<N>, &ContactPreprocessor<N>),
     );
 
 

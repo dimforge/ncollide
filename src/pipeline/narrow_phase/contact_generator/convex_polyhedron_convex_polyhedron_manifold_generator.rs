@@ -1,23 +1,23 @@
 #[cfg(feature = "dim3")]
 use alga::linear::FiniteDimInnerSpace;
-use math::{Isometry, Vector};
+use crate::math::{Isometry, Vector};
 use na::{self, Point2, Real, Unit};
-use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
-use query::algorithms::gjk::GJKResult;
-use query::algorithms::VoronoiSimplex;
+use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
+use crate::query::algorithms::gjk::GJKResult;
+use crate::query::algorithms::VoronoiSimplex;
 #[cfg(feature = "dim3")]
-use query::closest_points_internal;
-use query::contacts_internal;
+use crate::query::closest_points_internal;
+use crate::query::contacts_internal;
 #[cfg(feature = "dim3")]
-use query::ray_internal;
-use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry, ContactPreprocessor};
+use crate::query::ray_internal;
+use crate::query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry, ContactPreprocessor};
 #[cfg(feature = "dim3")]
-use shape::ClippingCache;
-use shape::ConvexPolygonalFeature;
-use shape::{ConvexPolyhedron, FeatureId, Segment, SegmentPointLocation, Shape};
+use crate::shape::ClippingCache;
+use crate::shape::ConvexPolygonalFeature;
+use crate::shape::{ConvexPolyhedron, FeatureId, Segment, SegmentPointLocation, Shape};
 #[cfg(feature = "dim3")]
-use utils;
-use utils::{IdAllocator, IsometryOps};
+use crate::utils;
+use crate::utils::{IdAllocator, IsometryOps};
 
 #[cfg(feature = "dim2")]
 #[derive(Clone)]

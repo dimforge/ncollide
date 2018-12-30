@@ -1,11 +1,11 @@
-use bounding_volume::{self, BoundingVolume};
-use math::Isometry;
+use crate::bounding_volume::{self, BoundingVolume};
+use crate::math::Isometry;
 use na::{self, Real};
-use pipeline::narrow_phase::{ProximityAlgorithm, ProximityDetector, ProximityDispatcher};
-use query::{visitors::BoundingVolumeInterferencesCollector, Proximity};
-use shape::{CompositeShape, Shape};
+use crate::pipeline::narrow_phase::{ProximityAlgorithm, ProximityDetector, ProximityDispatcher};
+use crate::query::{visitors::BoundingVolumeInterferencesCollector, Proximity};
+use crate::shape::{CompositeShape, Shape};
 use std::collections::{hash_map::Entry, HashMap};
-use utils::DeterministicState;
+use crate::utils::DeterministicState;
 
 /// Proximity detector between a concave shape and another shape.
 pub struct CompositeShapeShapeProximityDetector<N> {

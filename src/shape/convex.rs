@@ -1,14 +1,14 @@
 use arrayvec::ArrayVec;
-use bounding_volume::{CircularCone, ConicalApproximation};
-use math::{Isometry, Point, Vector};
+use crate::bounding_volume::{CircularCone, ConicalApproximation};
+use crate::math::{Isometry, Point, Vector};
 use na::{self, Point2, Point3, Real, Unit};
-use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
-use smallvec::SmallVec;
+use crate::shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
+use crate::smallvec::SmallVec;
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::f64;
-use transformation;
-use utils::{self, IsometryOps, SortedPair};
+use crate::transformation;
+use crate::utils::{self, IsometryOps, SortedPair};
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 struct Vertex {

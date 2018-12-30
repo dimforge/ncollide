@@ -1,10 +1,10 @@
-use bounding_volume::ConicalApproximation;
-use math::{Isometry, Point};
+use crate::bounding_volume::ConicalApproximation;
+use crate::math::{Isometry, Point};
 use na::{self, Real};
-use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
-use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry, ContactPreprocessor};
-use shape::{Ball, FeatureId, Plane, Shape};
-use utils::{IdAllocator, IsometryOps};
+use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
+use crate::query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry, ContactPreprocessor};
+use crate::shape::{Ball, FeatureId, Plane, Shape};
+use crate::utils::{IdAllocator, IsometryOps};
 
 /// Collision detector between g1 plane and g1 shape implementing the `SupportMap` trait.
 #[derive(Clone)]
@@ -96,7 +96,7 @@ impl<N: Real> ContactManifoldGenerator<N> for PlaneBallManifoldGenerator<N> {
         proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
-        manifold: &mut ContactManifold<N>,
+        _manifold: &mut ContactManifold<N>,
     ) -> bool
     {
         if !self.flip {

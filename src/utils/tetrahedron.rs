@@ -2,8 +2,8 @@ use num;
 
 use na::{self, Matrix3, Real};
 
-use math::Point;
-use utils;
+use crate::math::Point;
+use crate::utils;
 
 /// Computes the volume of a tetrahedron.
 #[inline]

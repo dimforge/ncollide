@@ -1,9 +1,9 @@
-use bounding_volume::AABB;
-use math::Isometry;
+use crate::bounding_volume::AABB;
+use crate::math::Isometry;
 use na::Real;
-use partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor, BVH};
-use query::{Ray, RayCast, RayIntersection};
-use shape::Compound;
+use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor, BVH};
+use crate::query::{Ray, RayCast, RayIntersection};
+use crate::shape::Compound;
 
 // XXX: if solid == false, this might return internal intersection.
 impl<N: Real> RayCast<N> for Compound<N> {

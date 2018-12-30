@@ -1,9 +1,9 @@
-use bounding_volume::AABB;
-use math::Isometry;
+use crate::bounding_volume::AABB;
+use crate::math::Isometry;
 use na::Real;
-use partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor, BVH};
-use query::{Ray, RayCast, RayIntersection};
-use shape::Polyline;
+use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor, BVH};
+use crate::query::{Ray, RayCast, RayIntersection};
+use crate::shape::Polyline;
 
 impl<N: Real> RayCast<N> for Polyline<N> {
     #[inline]

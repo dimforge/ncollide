@@ -1,5 +1,5 @@
 use super::{IndexBuffer, TriMesh};
-use math::{Point, Vector};
+use crate::math::{Point, Vector};
 use na::{self, Point2, Point3, Real};
 
 /// Adds a double-sided quad to the scene.

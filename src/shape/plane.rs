@@ -1,5 +1,5 @@
 //! Support mapping based Plane shape.
-use math::Vector;
+use crate::math::Vector;
 use na::{Real, Unit};
 
 /// SupportMap description of a plane.

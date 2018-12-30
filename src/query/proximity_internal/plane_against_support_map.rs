@@ -1,9 +1,9 @@
 use na::{self, Real};
 
-use math::{Isometry, Point};
-use query::Proximity;
-use shape::Plane;
-use shape::SupportMap;
+use crate::math::{Isometry, Point};
+use crate::query::Proximity;
+use crate::shape::Plane;
+use crate::shape::SupportMap;
 
 /// Proximity between a plane and a support-mapped shape (Cuboid, ConvexHull, etc.)
 pub fn plane_against_support_map<N: Real, G: ?Sized + SupportMap<N>>(

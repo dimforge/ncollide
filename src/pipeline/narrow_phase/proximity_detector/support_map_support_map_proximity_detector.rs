@@ -1,10 +1,10 @@
-use math::{Isometry, Vector};
+use crate::math::{Isometry, Vector};
 use na::{Real, Unit};
-use pipeline::narrow_phase::{ProximityDetector, ProximityDispatcher};
-use query::algorithms::VoronoiSimplex;
-use query::proximity_internal;
-use query::Proximity;
-use shape::Shape;
+use crate::pipeline::narrow_phase::{ProximityDetector, ProximityDispatcher};
+use crate::query::algorithms::VoronoiSimplex;
+use crate::query::proximity_internal;
+use crate::query::Proximity;
+use crate::shape::Shape;
 
 /// Persistent proximity detector between two shapes having a support mapping function.
 ///

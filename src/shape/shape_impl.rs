@@ -1,16 +1,16 @@
-use bounding_volume::{self, BoundingSphere, AABB};
-use math::{Isometry, Point, Vector};
+use crate::bounding_volume::{self, BoundingSphere, AABB};
+use crate::math::{Isometry, Point, Vector};
 use na::{Real, Unit};
-use query::{PointQuery, RayCast};
+use crate::query::{PointQuery, RayCast};
 #[cfg(feature = "dim2")]
-use shape::ConvexPolygon;
-use shape::{
+use crate::shape::ConvexPolygon;
+use crate::shape::{
     Ball, CompositeShape, Compound, ConvexPolyhedron, Cuboid, FeatureId, Plane, Polyline, Segment,
     Capsule, Shape, SupportMap, DeformableShape, HeightField
 };
 #[cfg(feature = "dim3")]
-use shape::{ConvexHull, TriMesh, Triangle};
-use utils::IsometryOps;
+use crate::shape::{ConvexHull, TriMesh, Triangle};
+use crate::utils::IsometryOps;
 
 macro_rules! impl_as_convex_polyhedron (
     () => {
@@ -254,17 +254,17 @@ impl<N: Real> Shape<N> for HeightField<N> {
 
     fn tangent_cone_contains_dir(
         &self,
-        fid: FeatureId,
-        m: &Isometry<N>,
-        deformations: Option<&[N]>,
-        dir: &Unit<Vector<N>>,
+        _fid: FeatureId,
+        _m: &Isometry<N>,
+        _deformations: Option<&[N]>,
+        _dir: &Unit<Vector<N>>,
     ) -> bool
     {
         // FIXME
         false
     }
 
-    fn subshape_containing_feature(&self, id: FeatureId) -> usize {
+    fn subshape_containing_feature(&self, _id: FeatureId) -> usize {
         // FIXME
         0
     }

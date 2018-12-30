@@ -1,9 +1,9 @@
 use super::utils;
 use alga::linear::Translation;
-use math::{Isometry, Point, Vector};
+use crate::math::{Isometry, Point, Vector};
 use na::{self, Point2, Point3, Real};
 use std::collections::HashMap;
-use utils::DeterministicState;
+use crate::utils::DeterministicState;
 
 /// Different representations of the index buffer.
 #[derive(Clone, Debug)]

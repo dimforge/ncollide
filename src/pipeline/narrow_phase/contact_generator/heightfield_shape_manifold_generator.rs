@@ -1,12 +1,12 @@
-use bounding_volume::{self, BoundingVolume};
-use math::Isometry;
+use crate::bounding_volume::{self, BoundingVolume};
+use crate::math::Isometry;
 use na::{self, Real};
-use pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
-use query::{visitors::BoundingVolumeInterferencesCollector, ContactManifold, ContactPrediction, ContactPreprocessor, ContactTrackingMode};
-use shape::{CompositeShape, FeatureId, Shape, HeightField};
+use crate::pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
+use crate::query::{visitors::BoundingVolumeInterferencesCollector, ContactManifold, ContactPrediction, ContactPreprocessor, ContactTrackingMode};
+use crate::shape::{CompositeShape, FeatureId, Shape, HeightField};
 use std::collections::{hash_map::Entry, HashMap};
-use utils::DeterministicState;
-use utils::IdAllocator;
+use crate::utils::DeterministicState;
+use crate::utils::IdAllocator;
 
 /// Collision detector between an heightfield and another shape.
 pub struct HeightFieldShapeManifoldGenerator<N: Real> {
@@ -32,7 +32,7 @@ impl<N: Real> HeightFieldShapeManifoldGenerator<N> {
         dispatcher: &ContactDispatcher<N>,
         m1: &Isometry<N>,
         g1: &HeightField<N>,
-        proc1: Option<&ContactPreprocessor<N>>,
+        _proc1: Option<&ContactPreprocessor<N>>,
         m2: &Isometry<N>,
         g2: &Shape<N>,
         proc2: Option<&ContactPreprocessor<N>>,

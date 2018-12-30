@@ -1,4 +1,4 @@
-use math::{Point, Vector};
+use crate::math::{Point, Vector};
 use na::{Real, Unit};
 
 /// Computes the direction pointing toward the right-hand-side of an oriented segment.

@@ -1,7 +1,7 @@
 use alga::general::Real;
 use na::{self, Isometry3, Point3, Vector3};
-use procedural::path::PolylineCompatibleCap;
-use procedural::utils;
+use crate::procedural::path::PolylineCompatibleCap;
+use crate::procedural::utils;
 
 /// A cap that looks like an arrow.
 pub struct ArrowheadCap<N> {

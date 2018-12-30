@@ -1,8 +1,8 @@
-use bounding_volume::AABB;
-use math::{Isometry, Point};
+use crate::bounding_volume::AABB;
+use crate::math::{Isometry, Point};
 use na::Real;
-use query::{Ray, RayCast, RayIntersection};
-use shape::Cuboid;
+use crate::query::{Ray, RayCast, RayIntersection};
+use crate::shape::Cuboid;
 
 impl<N: Real> RayCast<N> for Cuboid<N> {
     #[inline]

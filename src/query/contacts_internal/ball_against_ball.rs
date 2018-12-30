@@ -1,7 +1,7 @@
-use math::{Point, Vector};
+use crate::math::{Point, Vector};
 use na::{self, Real, Unit};
-use query::Contact;
-use shape::Ball;
+use crate::query::Contact;
+use crate::shape::Ball;
 
 /// Contact between balls.
 #[inline]

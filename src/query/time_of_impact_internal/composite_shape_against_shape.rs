@@ -1,10 +1,10 @@
-use bounding_volume::AABB;
-use math::{Isometry, Point, Vector};
+use crate::bounding_volume::AABB;
+use crate::math::{Isometry, Point, Vector};
 use na::{self, Real};
-use partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
-use query::{time_of_impact_internal, Ray, RayCast};
-use shape::{CompositeShape, Shape};
-use utils::IsometryOps;
+use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
+use crate::query::{time_of_impact_internal, Ray, RayCast};
+use crate::shape::{CompositeShape, Shape};
+use crate::utils::IsometryOps;
 
 /// Time Of Impact of a composite shape with any other shape, under translational movement.
 pub fn composite_shape_against_shape<N, G1: ?Sized>(

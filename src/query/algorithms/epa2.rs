@@ -6,10 +6,10 @@ use std::collections::BinaryHeap;
 use alga::general::Real;
 use na::{self, Unit};
 
-use math::{Isometry, Point, Vector};
-use query::algorithms::{gjk, CSOPoint, VoronoiSimplex};
-use shape::{ConstantOrigin, SupportMap};
-use utils;
+use crate::math::{Isometry, Point, Vector};
+use crate::query::algorithms::{gjk, CSOPoint, VoronoiSimplex};
+use crate::shape::{ConstantOrigin, SupportMap};
+use crate::utils;
 
 #[derive(Copy, Clone, PartialEq)]
 struct FaceId<N: Real> {

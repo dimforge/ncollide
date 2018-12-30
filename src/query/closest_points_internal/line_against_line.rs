@@ -1,4 +1,4 @@
-use math::{Point, Vector};
+use crate::math::{Point, Vector};
 use na::{self, Real};
 
 /// Closest points between two segments.

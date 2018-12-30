@@ -1,7 +1,7 @@
-use bounding_volume::{BoundingVolume, AABB};
-use math::{Isometry, Matrix, Vector};
+use crate::bounding_volume::{BoundingVolume, AABB};
+use crate::math::{Isometry, Matrix, Vector};
 use na::Real;
-use partitioning::{SimultaneousVisitor, VisitStatus};
+use crate::partitioning::{SimultaneousVisitor, VisitStatus};
 
 /// Spatial partitioning data structure visitor collecting interferences with a given bounding volume.
 pub struct AABBSetsInterferencesCollector<'a, N: 'a + Real, T: 'a> {

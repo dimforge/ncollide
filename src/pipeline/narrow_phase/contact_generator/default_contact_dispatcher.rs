@@ -1,5 +1,5 @@
 use na::Real;
-use pipeline::narrow_phase::{
+use crate::pipeline::narrow_phase::{
     BallBallManifoldGenerator, BallConvexPolyhedronManifoldGenerator,
     CompositeShapeCompositeShapeManifoldGenerator, CompositeShapeShapeManifoldGenerator,
     ContactAlgorithm, ContactDispatcher, ConvexPolyhedronConvexPolyhedronManifoldGenerator,
@@ -7,10 +7,10 @@ use pipeline::narrow_phase::{
     CapsuleCapsuleManifoldGenerator, HeightFieldShapeManifoldGenerator
 };
 #[cfg(feature = "dim3")]
-use pipeline::narrow_phase::TriMeshTriMeshManifoldGenerator;
+use crate::pipeline::narrow_phase::TriMeshTriMeshManifoldGenerator;
 #[cfg(feature = "dim3")]
-use shape::TriMesh;
-use shape::{Ball, Plane, Shape, Capsule, HeightField};
+use crate::shape::TriMesh;
+use crate::shape::{Ball, Plane, Shape, Capsule, HeightField};
 
 /// Collision dispatcher for shapes defined by `ncollide_entities`.
 pub struct DefaultContactDispatcher {}

@@ -1,6 +1,6 @@
 //! Traits for support mapping based shapes.
 
-use math::{Isometry, Point, Vector};
+use crate::math::{Isometry, Point, Vector};
 use na::{Real, Unit};
 
 /// Traits of convex shapes representable by a support mapping function.

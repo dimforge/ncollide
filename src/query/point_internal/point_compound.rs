@@ -1,10 +1,10 @@
-use bounding_volume::AABB;
-use math::{Isometry, Point};
+use crate::bounding_volume::AABB;
+use crate::math::{Isometry, Point};
 use na::{self, Real};
-use partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor, BVH};
-use query::{visitors::CompositePointContainmentTest, PointProjection, PointQuery};
-use shape::{CompositeShape, Compound, FeatureId};
-use utils::IsometryOps;
+use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor, BVH};
+use crate::query::{visitors::CompositePointContainmentTest, PointProjection, PointQuery};
+use crate::shape::{CompositeShape, Compound, FeatureId};
+use crate::utils::IsometryOps;
 
 impl<N: Real> PointQuery<N> for Compound<N> {
     // XXX: if solid == false, this might return internal projection.

@@ -1,9 +1,9 @@
 use na::Real;
 
-use math::{Isometry, Point};
-use query::closest_points_internal;
-use query::closest_points_internal::ClosestPoints;
-use shape::{Ball, Plane, Segment, Shape};
+use crate::math::{Isometry, Point};
+use crate::query::closest_points_internal;
+use crate::query::closest_points_internal::ClosestPoints;
+use crate::shape::{Ball, Plane, Segment, Shape};
 
 /// Computes the pair of closest points between two shapes.
 ///

@@ -1,11 +1,11 @@
 //! Traits and structure needed to cast rays.
 
-use math::{Isometry, Point, Vector};
+use crate::math::{Isometry, Point, Vector};
 #[cfg(feature = "dim3")]
 use na::Point2;
 use na::Real;
-use utils::IsometryOps;
-use shape::FeatureId;
+use crate::utils::IsometryOps;
+use crate::shape::FeatureId;
 
 /// A Ray.
 #[derive(Debug, Clone, Copy)]

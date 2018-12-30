@@ -3,20 +3,20 @@
 #[cfg(feature = "dim3")]
 use arrayvec::ArrayVec;
 #[cfg(feature = "dim3")]
-use bounding_volume::ConicalApproximation;
-use math::{Isometry, Point, Vector};
+use crate::bounding_volume::ConicalApproximation;
+use crate::math::{Isometry, Point, Vector};
 use na::Real;
 use na::{self, Unit};
 #[cfg(feature = "dim3")]
-use query::{LocalShapeApproximation, NeighborhoodGeometry};
-use shape::Segment;
-use shape::SupportMap;
+use crate::query::{LocalShapeApproximation, NeighborhoodGeometry};
+use crate::shape::Segment;
+use crate::shape::SupportMap;
 #[cfg(feature = "dim3")]
-use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId};
+use crate::shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId};
 #[cfg(feature = "dim3")]
 use std::f64;
 use std::mem;
-use utils::IsometryOps;
+use crate::utils::IsometryOps;
 
 /// A triangle shape.
 #[derive(PartialEq, Debug, Clone)]

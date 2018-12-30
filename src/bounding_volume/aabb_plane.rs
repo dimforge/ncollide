@@ -1,8 +1,8 @@
-use bounding_volume::{HasBoundingVolume, AABB};
-use math::{Isometry, Point};
+use crate::bounding_volume::{HasBoundingVolume, AABB};
+use crate::math::{Isometry, Point};
 use na::{self, Real};
-use num::Bounded;
-use shape::Plane;
+use crate::num::Bounded;
+use crate::shape::Plane;
 
 impl<N: Real> HasBoundingVolume<N, AABB<N>> for Plane<N> {
     #[inline]

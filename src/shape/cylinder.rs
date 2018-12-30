@@ -1,9 +1,9 @@
 //! Support mapping based Cylinder shape.
 
-use math::{Isometry, Point, Vector};
+use crate::math::{Isometry, Point, Vector};
 use na::{self, Real};
-use shape::SupportMap;
-use utils::IsometryOps;
+use crate::shape::SupportMap;
+use crate::utils::IsometryOps;
 
 /// SupportMap description of a cylinder shape with its principal axis aligned with the `y` axis.
 #[derive(PartialEq, Debug, Clone)]

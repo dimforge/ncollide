@@ -1,6 +1,6 @@
 use alga::general::Real;
 use na::{Point3, Vector3};
-use procedural::path::PolylineCompatibleCap;
+use crate::procedural::path::PolylineCompatibleCap;
 
 /// A cap that renders nothing.
 pub struct NoCap;

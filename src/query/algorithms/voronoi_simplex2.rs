@@ -1,8 +1,8 @@
-use math::{Isometry, Point};
+use crate::math::{Isometry, Point};
 use na::{self, Real};
-use query::algorithms::CSOPoint;
-use query::{PointQuery, PointQueryWithLocation};
-use shape::{Segment, SegmentPointLocation, Triangle, TrianglePointLocation};
+use crate::query::algorithms::CSOPoint;
+use crate::query::{PointQuery, PointQueryWithLocation};
+use crate::shape::{Segment, SegmentPointLocation, Triangle, TrianglePointLocation};
 
 /// A simplex of dimension up to 2 using Voronoï regions for computing point projections.
 #[derive(Clone, Debug)]

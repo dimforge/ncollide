@@ -1,8 +1,8 @@
 use na::{self, Real, Vector3};
 
-use math::{Isometry, Point};
-use query::{Ray, RayCast, RayIntersection};
-use shape::{Triangle, FeatureId};
+use crate::math::{Isometry, Point};
+use crate::query::{Ray, RayCast, RayIntersection};
+use crate::shape::{Triangle, FeatureId};
 
 impl<N: Real> RayCast<N> for Triangle<N> {
     #[inline]

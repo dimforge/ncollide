@@ -1,7 +1,7 @@
-use math::{Isometry, Point, Vector};
+use crate::math::{Isometry, Point, Vector};
 use na::{self, Real, Unit};
-use query::{PointProjection, PointQuery};
-use shape::{Capsule, FeatureId, Segment};
+use crate::query::{PointProjection, PointQuery};
+use crate::shape::{Capsule, FeatureId, Segment};
 
 impl<N: Real> PointQuery<N> for Capsule<N> {
     #[inline]

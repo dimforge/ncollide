@@ -1,12 +1,12 @@
-use math::{Point, Isometry};
+use crate::math::{Point, Isometry};
 use na::{self, Real};
-use query::{Contact, ContactKinematic, TrackedContact};
-use shape::{Shape, FeatureId};
+use crate::query::{Contact, ContactKinematic, TrackedContact};
+use crate::shape::{Shape, FeatureId};
 use slab::Slab;
 use std::collections::{hash_map::Entry, HashMap};
 use std::mem;
-use utils::{GenerationalId, IdAllocator};
-use query::ContactPreprocessor;
+use crate::utils::{GenerationalId, IdAllocator};
+use crate::query::ContactPreprocessor;
 
 /// The technique used for contact tracking.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -132,13 +132,13 @@ impl<N: Real> ContactManifold<N> {
             }
             ContactCache::FeatureBased(cache) => {
                 let ctcts = &self.contacts;
-                cache.retain(|k, v| ctcts[*v].1 != 0);
+                cache.retain(|_k, v| ctcts[*v].1 != 0);
             }
         }
 
         self.deepest = 0;
         self.ncontacts = 0;
-        self.contacts.retain(|i, c| {
+        self.contacts.retain(|_i, c| {
             if c.1 == 0 {
                 gen.free(c.0.id);
                 false

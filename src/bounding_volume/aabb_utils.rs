@@ -1,10 +1,10 @@
 use std::iter::IntoIterator;
 
 use alga::linear::Transformation;
-use bounding_volume::AABB;
-use math::{Isometry, Point, Vector, DIM};
+use crate::bounding_volume::AABB;
+use crate::math::{Isometry, Point, Vector, DIM};
 use na::{self, Real};
-use shape::SupportMap;
+use crate::shape::SupportMap;
 
 /// Computes the AABB of an support mapped shape.
 pub fn support_map_aabb<N, G>(m: &Isometry<N>, i: &G) -> AABB<N>
