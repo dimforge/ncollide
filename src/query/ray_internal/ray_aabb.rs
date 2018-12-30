@@ -60,7 +60,7 @@ impl<N: Real> RayCast<N> for AABB<N> {
 
         ray_aabb(self, &ls_ray, solid).map(|(t, n, i)| {
             let feature = if i < 0 {
-                FeatureId::Face(i as usize - 1 + 3)
+                FeatureId::Face(-i as usize - 1 + 3)
             } else {
                 FeatureId::Face(i as usize - 1)
             };
