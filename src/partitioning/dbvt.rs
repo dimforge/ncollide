@@ -45,7 +45,7 @@ enum DBVTNodeId {
     Internal(usize),
 }
 
-/// A boundin volume hierarchy on which objects can be added or removed after construction.
+/// A bounding volume hierarchy on which objects can be added or removed after construction.
 pub struct DBVT<N: Real, B, BV> {
     root: DBVTNodeId,
     leaves: Slab<DBVTLeaf<N, B, BV>>,
