@@ -65,7 +65,7 @@ impl<N: Real, T> CollisionWorld<N, T> {
         collision_groups: CollisionGroups,
         query_type: GeometricQueryType<N>,
         data: T,
-    ) -> CollisionObjectHandle
+    ) -> &mut CollisionObject<N, T>
     {
         let mut co = CollisionObject::new(
             CollisionObjectHandle::invalid(),
@@ -87,8 +87,7 @@ impl<N: Real, T> CollisionWorld<N, T> {
 
         co.set_handle(handle);
         co.set_proxy_handle(proxy_handle);
-
-        handle
+        co
     }
 
     /// Updates the collision world.

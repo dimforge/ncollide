@@ -225,3 +225,10 @@ impl<N: Real, T> BroadPhasePairFilter<N, T> for CollisionGroupsPairFilter {
         }
     }
 }
+
+impl Default for CollisionGroups {
+    #[inline]
+    fn default() -> Self {
+        CollisionGroups::new()
+    }
+}
