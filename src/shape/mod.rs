@@ -20,7 +20,7 @@ pub use self::convex_polyhedron::{ConvexPolyhedron, FeatureId};
 pub use self::cuboid::Cuboid;
 #[cfg(feature = "dim3")]
 pub use self::cylinder::Cylinder;
-pub use self::deformable_shape::{DeformableShape, DeformationIndex, DeformationsType};
+pub use self::deformable_shape::{DeformableShape, DeformationsType};
 //#[cfg(feature = "dim3")]
 //pub use self::deformable_trimesh::DeformableTriMesh;
 pub use self::plane::Plane;

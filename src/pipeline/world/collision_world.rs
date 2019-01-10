@@ -169,14 +169,13 @@ impl<N: Real, T> CollisionWorld<N, T> {
         &mut self,
         handle: CollisionObjectHandle,
         coords: &[N],
-        indices: Option<&[usize]>,
     )
     {
         let co = self
             .objects
             .get_mut(handle)
             .expect("Set deformations: collision object not found.");
-        co.set_deformations(coords, indices);
+        co.set_deformations(coords);
         co.timestamp = self.timestamp;
         let mut aabb = bounding_volume::aabb(co.shape().as_ref(), co.position());
         aabb.loosen(co.query_type().query_limit());

@@ -327,6 +327,18 @@ impl<N: Real> TriMesh<N> {
         &self.edges
     }
 
+    pub fn transform_by(&mut self, transform: &Isometry<N>) {
+        for pt in &mut self.points {
+            *pt = transform * *pt
+        }
+    }
+
+    pub fn scale_by(&mut self, scale: &Vector<N>) {
+        for pt in &mut self.points {
+            pt.coords.component_mul_assign(scale)
+        }
+    }
+
     /// Whether this trimesh is considered is oriented or not.
     ///
     /// By default a trimesh is not oriented.
@@ -680,28 +692,23 @@ impl<N: Real> DeformableShape<N> for TriMesh<N> {
     }
 
     /// Updates all the degrees of freedom of this shape.
-    fn set_deformations(&mut self, coords: &[N], indices: Option<&[usize]>) {
+    fn set_deformations(&mut self, coords: &[N]) {
+        assert!(coords.len() == self.points.len() * DIM, "Set deformations error: dimension mismatch.");
+
         let is_first_init = self.init_deformation_infos();
         self.deformations.curr_timestamp += 1;
 
-        if indices.is_none() {
-            // There is a bit of unsafe code in order to perform a memcopy for
-            // efficiency reasons when the mapping between degrees of freedom
-            // is trivial.
-            unsafe {
-                let len = coords.len() / DIM;
-                let coords_ptr = coords.as_ptr() as *const Point<N>;
-                let coords_pt: &[Point<N>] = slice::from_raw_parts(coords_ptr, len);
-                self.points.copy_from_slice(coords_pt);
-            }
+        // There is a bit of unsafe code in order to perform a memcopy for
+        // efficiency reasons when the mapping between degrees of freedom
+        // is trivial.
+        unsafe {
+            let len = coords.len() / DIM;
+            let coords_ptr = coords.as_ptr() as *const Point<N>;
+            let coords_pt: &[Point<N>] = slice::from_raw_parts(coords_ptr, len);
+            self.points.copy_from_slice(coords_pt);
         }
 
         for (target, pt) in self.points.iter_mut().enumerate() {
-            if let Some(idx) = indices {
-                let source = idx[target];
-                pt.coords.copy_from_slice(&coords[source..source + DIM]);
-            }
-
             let ref_pt = &mut self.deformations.ref_vertices[target];
             let sq_dist_to_ref = na::distance_squared(pt, ref_pt);
 
@@ -760,15 +767,9 @@ impl<N: Real> DeformableShape<N> for TriMesh<N> {
     fn update_local_approximation(
         &self,
         coords: &[N],
-        indices: Option<&[usize]>,
         approx: &mut LocalShapeApproximation<N>,
     )
     {
-        assert!(
-            indices.is_none(),
-            "Remapping indices are not yet supported."
-        );
-
         match approx.feature {
             FeatureId::Vertex(i) => {
                 approx.point = Point::from_slice(&coords[i * DIM..(i + 1) * DIM]);

@@ -104,13 +104,13 @@ impl<N: Real, T> CollisionObject<N, T> {
     ) -> CollisionObject<N, T>
     {
         CollisionObject {
-            handle: handle,
-            proxy_handle: proxy_handle,
-            position: position,
-            shape: shape,
+            handle,
+            proxy_handle,
+            position,
+            shape,
             collision_groups: groups,
-            data: data,
-            query_type: query_type,
+            data,
+            query_type,
             timestamp: 0,
         }
     }
@@ -154,12 +154,12 @@ impl<N: Real, T> CollisionObject<N, T> {
     ///
     /// Panics if the shape is not deformable.
     #[inline]
-    pub fn set_deformations(&mut self, coords: &[N], indices: Option<&[usize]>) {
+    pub fn set_deformations(&mut self, coords: &[N]) {
         self.shape
             .make_mut()
             .as_deformable_shape_mut()
             .expect("Attempting to deform a non-deformable shape.")
-            .set_deformations(coords, indices)
+            .set_deformations(coords)
     }
 
     /// The collision object shape.

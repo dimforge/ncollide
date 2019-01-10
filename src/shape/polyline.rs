@@ -183,6 +183,32 @@ impl<N: Real> Polyline<N> {
         adj_edge_list
     }
 
+    #[cfg(feature = "dim2")]
+    pub fn quad(nx: usize, ny: usize) -> Self {
+        let mut vertices = Vec::new();
+        let step_x = N::one() / na::convert(nx as f64);
+        let step_y = N::one() / na::convert(ny as f64);
+        let _0_5: N = na::convert(0.5);
+
+        for i in 0..=nx {
+            vertices.push(Point::new(step_x * na::convert(i as f64) - _0_5, -_0_5));
+        }
+        for j in 1..=ny {
+            vertices.push(Point::new(_0_5, step_y * na::convert(j as f64) - _0_5));
+        }
+        for i in 1..=nx {
+            vertices.push(Point::new(_0_5 - step_x * na::convert(i as f64), _0_5));
+        }
+        for j in 1..ny {
+            vertices.push(Point::new(-_0_5, _0_5 - step_y * na::convert(j as f64)));
+        }
+
+        let mut indices: Vec<_> = (0..).map(|i| Point2::new(i, i + 1)).take(vertices.len() - 1).collect();
+        indices.push(Point2::new(vertices.len() - 1, 0));
+
+        Polyline::new(vertices, Some(indices))
+    }
+
     /// The polyline's AABB.
     #[inline]
     pub fn aabb(&self) -> &AABB<N> {
@@ -305,6 +331,18 @@ impl<N: Real> Polyline<N> {
         }
 
         true
+    }
+
+    pub fn transform_by(&mut self, transform: &Isometry<N>) {
+        for pt in &mut self.points {
+            *pt = transform * *pt
+        }
+    }
+
+    pub fn scale_by(&mut self, scale: &Vector<N>) {
+        for pt in &mut self.points {
+            pt.coords.component_mul_assign(scale)
+        }
     }
 
     /// Tests that the given `dir` is on the polar of the tangent cone of the `i`th vertex
@@ -480,28 +518,22 @@ impl<N: Real> DeformableShape<N> for Polyline<N> {
     }
 
     /// Updates all the degrees of freedom of this shape.
-    fn set_deformations(&mut self, coords: &[N], indices: Option<&[usize]>) {
+    fn set_deformations(&mut self, coords: &[N]) {
+        assert!(coords.len() == self.points.len() * DIM, "Set deformations error: dimension mismatch.");
         let is_first_init = self.init_deformation_infos();
         self.deformations.curr_timestamp += 1;
 
-        if indices.is_none() {
-            // There is a bit of unsafe code in order to perform a memcopy for
-            // efficiency reasons when the mapping between degrees of freedom
-            // is trivial.
-            unsafe {
-                let len = coords.len() / DIM;
-                let coords_ptr = coords.as_ptr() as *const Point<N>;
-                let coords_pt: &[Point<N>] = slice::from_raw_parts(coords_ptr, len);
-                self.points.copy_from_slice(coords_pt);
-            }
+        // There is a bit of unsafe code in order to perform a memcopy for
+        // efficiency reasons when the mapping between degrees of freedom
+        // is trivial.
+        unsafe {
+            let len = coords.len() / DIM;
+            let coords_ptr = coords.as_ptr() as *const Point<N>;
+            let coords_pt: &[Point<N>] = slice::from_raw_parts(coords_ptr, len);
+            self.points.copy_from_slice(coords_pt);
         }
 
         for (target, pt) in self.points.iter_mut().enumerate() {
-            if let Some(idx) = indices {
-                let source = idx[target];
-                pt.coords.copy_from_slice(&coords[source..source + DIM]);
-            }
-
             let ref_pt = &mut self.deformations.ref_vertices[target];
             let sq_dist_to_ref = na::distance_squared(pt, ref_pt);
 
@@ -547,15 +579,9 @@ impl<N: Real> DeformableShape<N> for Polyline<N> {
     fn update_local_approximation(
         &self,
         coords: &[N],
-        indices: Option<&[usize]>,
         approx: &mut LocalShapeApproximation<N>,
     )
     {
-        assert!(
-            indices.is_none(),
-            "Remapping indices are not yet supported."
-        );
-
         match approx.feature {
             FeatureId::Vertex(i) => {
                 approx.point = Point::from_slice(&coords[i * DIM..(i + 1) * DIM]);
