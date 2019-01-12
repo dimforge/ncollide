@@ -11,7 +11,6 @@ use crate::utils::{IdAllocator, IsometryOps};
 pub struct PlaneConvexPolyhedronManifoldGenerator<N: Real> {
     flip: bool,
     feature: ConvexPolygonalFeature<N>,
-    manifold: ContactManifold<N>,
 }
 
 impl<N: Real> PlaneConvexPolyhedronManifoldGenerator<N> {
@@ -22,7 +21,6 @@ impl<N: Real> PlaneConvexPolyhedronManifoldGenerator<N> {
         PlaneConvexPolyhedronManifoldGenerator {
             flip,
             feature: ConvexPolygonalFeature::new(),
-            manifold: ContactManifold::new(),
         }
     }
 
@@ -95,7 +93,7 @@ impl<N: Real> ContactManifoldGenerator<N> for PlaneConvexPolyhedronManifoldGener
         proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
-        _manifold: &mut ContactManifold<N>,
+        manifold: &mut ContactManifold<N>,
     ) -> bool
     {
         if !self.flip {
@@ -109,7 +107,7 @@ impl<N: Real> ContactManifoldGenerator<N> for PlaneConvexPolyhedronManifoldGener
                 prediction,
                 &mut self.feature,
                 id_alloc,
-                &mut self.manifold,
+                manifold,
                 false,
             )
         } else {
@@ -123,7 +121,7 @@ impl<N: Real> ContactManifoldGenerator<N> for PlaneConvexPolyhedronManifoldGener
                 prediction,
                 &mut self.feature,
                 id_alloc,
-                &mut self.manifold,
+                manifold,
                 true,
             )
         }

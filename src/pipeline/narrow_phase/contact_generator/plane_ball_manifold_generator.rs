@@ -1,3 +1,5 @@
+
+use std::marker::PhantomData;
 use crate::bounding_volume::ConicalApproximation;
 use crate::math::{Isometry, Point};
 use na::{self, Real};
@@ -10,7 +12,7 @@ use crate::utils::{IdAllocator, IsometryOps};
 #[derive(Clone)]
 pub struct PlaneBallManifoldGenerator<N: Real> {
     flip: bool,
-    manifold: ContactManifold<N>,
+    phantom: PhantomData<N>
 }
 
 impl<N: Real> PlaneBallManifoldGenerator<N> {
@@ -20,7 +22,7 @@ impl<N: Real> PlaneBallManifoldGenerator<N> {
     pub fn new(flip: bool) -> PlaneBallManifoldGenerator<N> {
         PlaneBallManifoldGenerator {
             flip,
-            manifold: ContactManifold::new(),
+            phantom: PhantomData
         }
     }
 
@@ -96,7 +98,7 @@ impl<N: Real> ContactManifoldGenerator<N> for PlaneBallManifoldGenerator<N> {
         proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
-        _manifold: &mut ContactManifold<N>,
+        manifold: &mut ContactManifold<N>,
     ) -> bool
     {
         if !self.flip {
@@ -109,7 +111,7 @@ impl<N: Real> ContactManifoldGenerator<N> for PlaneBallManifoldGenerator<N> {
                 proc2,
                 prediction,
                 id_alloc,
-                &mut self.manifold,
+                manifold,
                 false,
             )
         } else {
@@ -122,7 +124,7 @@ impl<N: Real> ContactManifoldGenerator<N> for PlaneBallManifoldGenerator<N> {
                 proc1,
                 prediction,
                 id_alloc,
-                &mut self.manifold,
+                manifold,
                 true,
             )
         }
