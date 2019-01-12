@@ -1,11 +1,10 @@
-use crate::math::{Point, Isometry};
+use crate::math::Point;
 use na::{self, Real};
 use crate::query::{Contact, ContactKinematic, TrackedContact};
-use crate::shape::{Shape, FeatureId};
+use crate::shape::FeatureId;
 use slab::Slab;
 use std::collections::{hash_map::Entry, HashMap};
-use std::mem;
-use crate::utils::{GenerationalId, IdAllocator};
+use crate::utils::IdAllocator;
 use crate::query::ContactPreprocessor;
 
 /// The technique used for contact tracking.

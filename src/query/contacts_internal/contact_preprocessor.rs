@@ -1,8 +1,5 @@
 use na::Real;
-use crate::math::Isometry;
-use crate::shape::FeatureId;
-use crate::utils::IsometryOps;
-use crate::query::{Contact, ContactPrediction, ContactKinematic};
+use crate::query::{Contact, ContactKinematic};
 
 
 /// Pre-process a contact before it is added to a contact manifold.

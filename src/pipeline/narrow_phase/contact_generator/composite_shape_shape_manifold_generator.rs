@@ -3,7 +3,7 @@ use crate::math::Isometry;
 use na::{self, Real};
 use crate::pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
 use crate::query::{visitors::BoundingVolumeInterferencesCollector, ContactManifold, ContactPrediction, ContactPreprocessor, ContactTrackingMode};
-use crate::shape::{CompositeShape, FeatureId, Shape};
+use crate::shape::{CompositeShape, Shape};
 use std::collections::{hash_map::Entry, HashMap};
 use crate::utils::DeterministicState;
 use crate::utils::IdAllocator;

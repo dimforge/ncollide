@@ -173,7 +173,7 @@ impl<N: Real> HeightField<N> {
 }
 
 
-
+#[allow(dead_code)]
 pub struct HeightFieldTriangleContactPreprocessor<'a, N: Real> {
     heightfield: &'a HeightField<N>,
     triangle: usize

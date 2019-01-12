@@ -1,5 +1,4 @@
-use crate::bounding_volume::BoundingVolume;
-use crate::math::{Point, Vector};
+use crate::math::Vector;
 use na::{self, Real, Unit};
 
 /// A cone with a circular basis and its apex at the origin.

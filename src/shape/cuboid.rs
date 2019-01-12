@@ -86,8 +86,6 @@ impl<N: Real> Cuboid<N> {
 
         match feature {
             FeatureId::Face(id) => {
-                let mut dir: Vector<N> = na::zero();
-
                 if id < 3 {
                     ls_dir[id] <= N::zero()
                 } else {

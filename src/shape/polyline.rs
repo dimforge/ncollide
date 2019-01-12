@@ -2,18 +2,15 @@
 
 use crate::bounding_volume::{self, BoundingVolume, AABB};
 use crate::math::{Isometry, Point, Vector, DIM};
-use na::{self, Id, Point2, Point3, Real, Unit};
+use na::{self, Id, Point2, Real, Unit};
 use crate::partitioning::{BVHImpl, BVT};
-use crate::procedural;
 use crate::query::{LocalShapeApproximation, NeighborhoodGeometry, ContactPreprocessor, ContactPrediction, Contact, ContactKinematic};
 use crate::shape::{
-    CompositeShape, DeformableShape, DeformationsType, FeatureId, Segment, Shape, Triangle,
+    CompositeShape, DeformableShape, DeformationsType, FeatureId, Segment, Shape,
 };
-use std::collections::{hash_map::Entry, HashMap};
 use std::iter;
 use std::ops::Range;
 use std::slice;
-use crate::utils::DeterministicState;
 
 #[derive(Clone)]
 struct DeformationInfos<N: Real> {
@@ -282,9 +279,9 @@ impl<N: Real> Polyline<N> {
     #[cfg(feature = "dim3")]
     pub fn vertex_tangent_cone_contains_dir(
         &self,
-        i: usize,
-        deformations: Option<&[N]>,
-        dir: &Unit<Vector<N>>,
+        _i: usize,
+        _deformations: Option<&[N]>,
+        _dir: &Unit<Vector<N>>,
     ) -> bool
     {
         return false;
@@ -373,9 +370,9 @@ impl<N: Real> Polyline<N> {
     #[cfg(feature = "dim3")]
     pub fn edge_tangent_cone_contains_dir(
         &self,
-        i: usize,
-        deformations: Option<&[N]>,
-        dir: &Unit<Vector<N>>,
+        _i: usize,
+        _deformations: Option<&[N]>,
+        _dir: &Unit<Vector<N>>,
     ) -> bool
     {
         return false;
@@ -641,6 +638,7 @@ impl<N: Real> DeformableShape<N> for Polyline<N> {
     }
 }
 
+#[allow(dead_code)]
 struct PolylineContactProcessor<'a, N: Real> {
     polyline: &'a Polyline<N>,
     pos: &'a Isometry<N>,

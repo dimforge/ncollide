@@ -545,7 +545,7 @@ impl<N: Real> TriMesh<N> {
         i: usize,
         dir: &Unit<Vector<N>>,
         sin_ang_tol: N,
-        cos_ang_tol: N,
+        _cos_ang_tol: N,
     ) -> bool
     {
         let e = &self.edges[i];

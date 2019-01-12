@@ -1,5 +1,5 @@
 use crate::bounding_volume::{self, BoundingSphere, AABB};
-use crate::math::{Isometry, Point, Vector};
+use crate::math::{Isometry, Vector};
 use na::{Real, Unit};
 use crate::query::{PointQuery, RayCast};
 #[cfg(feature = "dim2")]

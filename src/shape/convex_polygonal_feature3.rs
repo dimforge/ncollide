@@ -350,7 +350,6 @@ impl<N: Real> ConvexPolygonalFeature<N> {
         m2: &Isometry<N>,
         f2: FeatureId,
         proc2: Option<&ContactPreprocessor<N>>,
-        prediction: &ContactPrediction<N>,
         ids: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
     )

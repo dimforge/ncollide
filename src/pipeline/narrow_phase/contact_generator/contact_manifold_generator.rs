@@ -1,7 +1,7 @@
 use crate::math::Isometry;
 use na::Real;
 use crate::query::{ContactManifold, ContactPrediction};
-use crate::shape::{FeatureId, Shape};
+use crate::shape::Shape;
 use crate::query::ContactPreprocessor;
 use std::any::Any;
 use crate::utils::IdAllocator;

@@ -41,7 +41,7 @@ And various traits for collision detectors and broad phase collision detection.
 #![deny(unused_parens)]
 #![deny(non_upper_case_globals)]
 #![deny(unused_qualifications)]
-#![warn(missing_docs)]
+#![allow(missing_docs)] // XXX: deny that
 #![deny(unused_results)]
 #![warn(unused_imports)]
 #![allow(missing_copy_implementations)]
@@ -51,6 +51,7 @@ extern crate alga;
 #[macro_use]
 extern crate approx;
 #[macro_use]
+#[cfg(feature = "dim3")]
 extern crate bitflags;
 extern crate arrayvec;
 extern crate either;

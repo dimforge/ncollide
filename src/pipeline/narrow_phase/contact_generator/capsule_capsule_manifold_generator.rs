@@ -1,11 +1,8 @@
-use crate::bounding_volume::{self, BoundingVolume};
 use crate::math::Isometry;
 use na::{self, Real};
-use crate::pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator, ConvexPolyhedronConvexPolyhedronManifoldGenerator};
-use crate::query::{visitors::BoundingVolumeInterferencesCollector, ContactManifold, ContactPrediction, ContactPreprocessor, ContactTrackingMode};
-use crate::shape::{Capsule, FeatureId, Shape};
-use std::collections::{hash_map::Entry, HashMap};
-use crate::utils::DeterministicState;
+use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator, ConvexPolyhedronConvexPolyhedronManifoldGenerator};
+use crate::query::{ContactManifold, ContactPrediction, ContactPreprocessor};
+use crate::shape::{Capsule, Shape};
 use crate::utils::IdAllocator;
 
 /// Collision detector between a concave shape and another shape.

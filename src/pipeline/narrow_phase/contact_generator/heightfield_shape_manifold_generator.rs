@@ -2,8 +2,8 @@ use crate::bounding_volume::{self, BoundingVolume};
 use crate::math::Isometry;
 use na::{self, Real};
 use crate::pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
-use crate::query::{visitors::BoundingVolumeInterferencesCollector, ContactManifold, ContactPrediction, ContactPreprocessor, ContactTrackingMode};
-use crate::shape::{CompositeShape, FeatureId, Shape, HeightField};
+use crate::query::{ContactManifold, ContactPrediction, ContactPreprocessor};
+use crate::shape::{Shape, HeightField};
 use std::collections::{hash_map::Entry, HashMap};
 use crate::utils::DeterministicState;
 use crate::utils::IdAllocator;
@@ -11,7 +11,6 @@ use crate::utils::IdAllocator;
 /// Collision detector between an heightfield and another shape.
 pub struct HeightFieldShapeManifoldGenerator<N: Real> {
     sub_detectors: HashMap<usize, (ContactAlgorithm<N>, usize), DeterministicState>,
-    interferences: Vec<usize>,
     flip: bool,
     timestamp: usize
 }
@@ -21,7 +20,6 @@ impl<N: Real> HeightFieldShapeManifoldGenerator<N> {
     pub fn new(flip: bool) -> HeightFieldShapeManifoldGenerator<N> {
         HeightFieldShapeManifoldGenerator {
             sub_detectors: HashMap::with_hasher(DeterministicState),
-            interferences: Vec::new(),
             flip,
             timestamp: 0
         }
@@ -84,13 +82,11 @@ impl<N: Real> HeightFieldShapeManifoldGenerator<N> {
                     }
                 }
                 Entry::Vacant(entry) => {
-                    let mut new_detector = None;
-
-                    if flip {
-                        new_detector = dispatcher.get_contact_algorithm(g2, elt1)
+                    let new_detector = if flip {
+                        dispatcher.get_contact_algorithm(g2, elt1)
                     } else {
-                        new_detector = dispatcher.get_contact_algorithm(elt1, g2)
-                    }
+                        dispatcher.get_contact_algorithm(elt1, g2)
+                    };
 
                     if let Some(mut new_detector) = new_detector {
                         if flip {

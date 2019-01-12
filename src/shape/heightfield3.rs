@@ -379,7 +379,7 @@ impl<N: Real> HeightField<N> {
 }
 
 
-
+#[allow(dead_code)]
 pub struct HeightFieldTriangleContactPreprocessor<'a, N: Real> {
     heightfield: &'a HeightField<N>,
     triangle: usize
@@ -398,9 +398,9 @@ impl<'a, N: Real> HeightFieldTriangleContactPreprocessor<'a, N> {
 impl<'a, N: Real> ContactPreprocessor<N> for HeightFieldTriangleContactPreprocessor<'a, N> {
     fn process_contact(
         &self,
-        c: &mut Contact<N>,
-        kinematic: &mut ContactKinematic<N>,
-        is_first: bool)
+        _c: &mut Contact<N>,
+        _kinematic: &mut ContactKinematic<N>,
+        _is_first: bool)
         -> bool {
         /*
         // Fix the feature ID.

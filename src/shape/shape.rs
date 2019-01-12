@@ -1,6 +1,6 @@
 // Queries.
 use crate::bounding_volume::{BoundingSphere, AABB};
-use crate::math::{Isometry, Point, Vector};
+use crate::math::{Isometry, Vector};
 use na::{self, Real, Unit};
 use crate::query::{PointQuery, RayCast};
 // Repr.

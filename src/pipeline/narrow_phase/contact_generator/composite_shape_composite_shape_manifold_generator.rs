@@ -1,9 +1,8 @@
-use crate::bounding_volume::{BoundingVolume, AABB};
 use crate::math::Isometry;
 use na::Real;
 use crate::pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
 use crate::query::{visitors::AABBSetsInterferencesCollector, ContactManifold, ContactPrediction, ContactPreprocessor};
-use crate::shape::{CompositeShape, FeatureId, Shape};
+use crate::shape::{CompositeShape, Shape};
 use std::collections::{hash_map::Entry, HashMap};
 use crate::utils::DeterministicState;
 use crate::utils::IdAllocator;

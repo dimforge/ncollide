@@ -7,8 +7,6 @@ use crate::bounding_volume::ConicalApproximation;
 use crate::math::{Isometry, Point, Vector};
 use na::Real;
 use na::{self, Unit};
-#[cfg(feature = "dim3")]
-use crate::query::{LocalShapeApproximation, NeighborhoodGeometry};
 use crate::shape::Segment;
 use crate::shape::SupportMap;
 #[cfg(feature = "dim3")]

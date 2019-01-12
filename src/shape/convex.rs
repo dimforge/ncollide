@@ -3,7 +3,6 @@ use crate::bounding_volume::{CircularCone, ConicalApproximation};
 use crate::math::{Isometry, Point, Vector};
 use na::{self, Point2, Point3, Real, Unit};
 use crate::shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
-use crate::smallvec::SmallVec;
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::f64;

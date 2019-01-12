@@ -2,7 +2,6 @@ use crate::bounding_volume::{HasBoundingVolume, AABB};
 use crate::math::Isometry;
 use na::{self, Real};
 use crate::shape::Polyline;
-use crate::utils::IsometryOps;
 
 impl<N: Real> HasBoundingVolume<N, AABB<N>> for Polyline<N> {
     #[inline]

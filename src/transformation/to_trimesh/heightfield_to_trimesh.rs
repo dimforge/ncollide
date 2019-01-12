@@ -1,8 +1,7 @@
 use alga::general::Real;
 use na;
-use na::Point3;
 use crate::shape;
-use crate::procedural::{self, IndexBuffer, TriMesh};
+use crate::procedural::TriMesh;
 use super::ToTriMesh;
 
 impl<N: Real> ToTriMesh<N> for shape::HeightField<N> {

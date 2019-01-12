@@ -1,4 +1,3 @@
-use crate::bounding_volume;
 use crate::bounding_volume::{BoundingSphere, HasBoundingVolume};
 use crate::math::Isometry;
 use na::Real;

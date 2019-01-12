@@ -1,6 +1,5 @@
 //! The Gilbert–Johnson–Keerthi distance algorithm.
 
-use crate::num::Bounded;
 
 use alga::general::Real;
 use na::{self, Unit};
@@ -281,7 +280,6 @@ where
                     ltoi += t;
                     let shift = curr_ray.dir * t;
                     curr_ray.origin = curr_ray.origin + shift;
-                    dir = curr_ray.origin - support_point.point;
                     // FIXME: could we simply translate the simplex by old_origin - new_origin ?
                     simplex.modify_pnts(&|pt| pt.translate1_mut(&-shift));
                     ray_advanced = true;

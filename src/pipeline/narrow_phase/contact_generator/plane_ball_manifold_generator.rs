@@ -1,6 +1,5 @@
 
 use std::marker::PhantomData;
-use crate::bounding_volume::ConicalApproximation;
 use crate::math::{Isometry, Point};
 use na::{self, Real};
 use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};

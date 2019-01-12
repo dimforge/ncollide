@@ -2,7 +2,6 @@ use crate::bounding_volume::ConicalApproximation;
 use crate::math::{Isometry, Point, Vector};
 use na::{Real, Unit};
 use crate::shape::{ConvexPolygonalFeature, SupportMap};
-use crate::query::ContactPreprocessor;
 
 /// An identifier of a feature of a convex polyhedron.
 ///

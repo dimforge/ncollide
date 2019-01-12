@@ -1,4 +1,3 @@
-use crate::bounding_volume::ConicalApproximation;
 use crate::math::{Isometry, Point};
 use na::{Real, Unit};
 use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};

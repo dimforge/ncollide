@@ -1,23 +1,15 @@
-#[cfg(feature = "dim3")]
-use alga::linear::FiniteDimInnerSpace;
 use crate::math::{Isometry, Vector};
-use na::{self, Point2, Real, Unit};
+use na::{self, Real, Unit};
 use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 use crate::query::algorithms::gjk::GJKResult;
 use crate::query::algorithms::VoronoiSimplex;
-#[cfg(feature = "dim3")]
-use crate::query::closest_points_internal;
 use crate::query::contacts_internal;
-#[cfg(feature = "dim3")]
-use crate::query::ray_internal;
-use crate::query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry, ContactPreprocessor};
+use crate::query::{Contact, ContactManifold, ContactPrediction, ContactPreprocessor};
 #[cfg(feature = "dim3")]
 use crate::shape::ClippingCache;
 use crate::shape::ConvexPolygonalFeature;
-use crate::shape::{ConvexPolyhedron, FeatureId, Segment, SegmentPointLocation, Shape};
-#[cfg(feature = "dim3")]
-use crate::utils;
-use crate::utils::{IdAllocator, IsometryOps};
+use crate::shape::{FeatureId, Shape};
+use crate::utils::IdAllocator;
 
 #[cfg(feature = "dim2")]
 #[derive(Clone)]
@@ -166,7 +158,6 @@ impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronMa
                     mb,
                     f2,
                     proc2,
-                    prediction,
                     id_alloc,
                     manifold,
                 )

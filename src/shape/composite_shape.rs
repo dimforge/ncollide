@@ -2,7 +2,7 @@ use crate::bounding_volume::AABB;
 use crate::math::Isometry;
 use na::Real;
 use crate::partitioning::BVHImpl;
-use crate::shape::{FeatureId, Shape};
+use crate::shape::Shape;
 use crate::query::{ContactPreprocessor, ContactPrediction};
 
 /// Trait implemented by shapes composed of multiple simpler shapes.

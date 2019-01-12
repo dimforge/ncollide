@@ -1,7 +1,6 @@
-use crate::bounding_volume::{BoundingVolume, AABB};
 use crate::math::{Isometry, Vector};
 use na::{self, Real, Unit};
-use crate::pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
+use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 use crate::query::closest_points_internal;
 use crate::query::{
     visitors::AABBSetsInterferencesCollector, Contact, ContactKinematic, ContactManifold,
@@ -11,14 +10,11 @@ use crate::shape::{
     ClippingCache, CompositeShape, ConvexPolygonalFeature, FeatureId, Segment,
     SegmentPointLocation, Shape, TriMesh, Triangle,
 };
-use std::collections::{hash_map::Entry, HashMap};
 use std::mem;
-use crate::utils::DeterministicState;
 use crate::utils::IdAllocator;
 
 /// Collision detector between a concave shape and another shape.
 pub struct TriMeshTriMeshManifoldGenerator<N: Real> {
-    manifold: ContactManifold<N>,
     clip_cache: ClippingCache<N>,
     new_contacts: Vec<(Contact<N>, FeatureId, FeatureId)>,
     convex_feature1: ConvexPolygonalFeature<N>,
@@ -30,7 +26,6 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
     /// Creates a new collision detector between a concave shape and another shape.
     pub fn new() -> TriMeshTriMeshManifoldGenerator<N> {
         TriMeshTriMeshManifoldGenerator {
-            manifold: ContactManifold::new(),
             clip_cache: ClippingCache::new(),
             new_contacts: Vec::new(),
             convex_feature1: ConvexPolygonalFeature::with_size(3),
@@ -80,8 +75,6 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
             /*
              * Start with the SAT.
              */
-            let mut sep_axis = None;
-
             #[inline(always)]
             fn penetration<N: Real>(a: (N, N), b: (N, N)) -> Option<(N, bool)> {
                 assert!(a.0 <= a.1 && b.0 <= b.1);
@@ -120,7 +113,7 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
                 // First, test normals.
                 let proj1 = t1.a().coords.dot(&n1);
                 let mut interval1 = (proj1, proj1);
-                let mut interval2 = t2.extents_on_dir(&n1);
+                let interval2 = t2.extents_on_dir(&n1);
 
                 if mesh1.oriented() {
                     interval1.0 = -_big;
@@ -133,13 +126,12 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
                     }
                 } else {
                     // The triangles are disjoint.
-                    sep_axis = Some(n1);
                     break;
                 }
 
                 let proj2 = t2.a().coords.dot(&n2);
                 let mut interval2 = (proj2, proj2);
-                let mut interval1 = t1.extents_on_dir(&n2);
+                let interval1 = t1.extents_on_dir(&n2);
 
                 if mesh2.oriented() {
                     interval2.0 = -_big;
@@ -152,7 +144,6 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
                     }
                 } else {
                     // The triangles are disjoint.
-                    sep_axis = Some(n2);
                     break;
                 }
 
@@ -202,7 +193,6 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
                                 }
                             } else {
                                 // Triangles are disjoint.
-                                sep_axis = Some(dir);
                                 break 'search;
                             }
                         }
@@ -280,7 +270,6 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
                             m2,
                             f2,
                             None,
-                            prediction,
                             id_alloc,
                             manifold,
                         );
@@ -376,7 +365,7 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
                                 }
                             }
                             (
-                                SegmentPointLocation::OnEdge(ecoords),
+                                SegmentPointLocation::OnEdge(_),
                                 SegmentPointLocation::OnVertex(j),
                             ) => {
                                 let ip2 = e2.indices[j];
@@ -532,7 +521,7 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
 impl<N: Real> ContactManifoldGenerator<N> for TriMeshTriMeshManifoldGenerator<N> {
     fn generate_contacts(
         &mut self,
-        d: &ContactDispatcher<N>,
+        _: &ContactDispatcher<N>,
         m1: &Isometry<N>,
         g1: &Shape<N>,
         proc1: Option<&ContactPreprocessor<N>>,

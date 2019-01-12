@@ -1,10 +1,8 @@
-use crate::bounding_volume::ConicalApproximation;
 use crate::math::{Isometry, Point, Vector};
 use na::{self, Real, Unit};
 use crate::query::closest_points_internal;
 use crate::query::Contact;
 use crate::shape::{FeatureId, Shape};
-use crate::utils::IsometryOps;
 
 /// A shape geometry type at the neighborhood of a point.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
