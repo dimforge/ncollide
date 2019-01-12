@@ -1,4 +1,3 @@
-use crate::bounding_volume::ConicalApproximation;
 use crate::math::{Isometry, Point, Vector};
 use na::{Real, Unit};
 use crate::shape::{ConvexPolygonalFeature, SupportMap};
@@ -58,9 +57,6 @@ pub trait ConvexPolyhedron<N: Real>: SupportMap<N> {
     #[cfg(feature = "dim3")]
     /// Get the specified edge's vertices (in the shape local-space) and the vertices' identifiers.
     fn edge(&self, id: FeatureId) -> (Point<N>, Point<N>, FeatureId, FeatureId);
-
-    /// Get the normal cone of the specified feature, in the shape's local-space.
-    fn normal_cone(&self, feature: FeatureId) -> ConicalApproximation<N>;
 
     /// Retrieve the face (in world-space) with a normal that maximizes the scalar product with `dir`.
     fn support_face_toward(

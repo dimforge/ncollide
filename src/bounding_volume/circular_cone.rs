@@ -202,19 +202,19 @@ impl<N: Real> CircularCone<N> {
     }
 }
 
-/// Checks if the unit vector `dir` is inside of the circular cone described by the given `axis` and apex half-angle `angle`.
-pub fn cone_contains_dir<N: Real>(axis: &Unit<Vector<N>>, angle: N, dir: &Unit<Vector<N>>) -> bool {
-    let ang = axis.dot(dir).acos();
-    ang <= angle
-}
-
-/// Checks if the unit vector `dir` is inside of the polar of the circular cone described by the given `axis` and apex half-angle `angle`.
-pub fn cone_polar_contains_dir<N: Real>(
-    axis: &Unit<Vector<N>>,
-    angle: N,
-    dir: &Unit<Vector<N>>,
-) -> bool
-{
-    let ang = axis.dot(dir).acos();
-    ang >= angle + N::frac_pi_2()
-}
+///// Checks if the unit vector `dir` is inside of the circular cone described by the given `axis` and apex half-angle `angle`.
+//pub fn cone_contains_dir<N: Real>(axis: &Unit<Vector<N>>, angle: N, dir: &Unit<Vector<N>>) -> bool {
+//    let ang = axis.dot(dir).acos();
+//    ang <= angle
+//}
+//
+///// Checks if the unit vector `dir` is inside of the polar of the circular cone described by the given `axis` and apex half-angle `angle`.
+//pub fn cone_polar_contains_dir<N: Real>(
+//    axis: &Unit<Vector<N>>,
+//    angle: N,
+//    dir: &Unit<Vector<N>>,
+//) -> bool
+//{
+//    let ang = axis.dot(dir).acos();
+//    ang >= angle + N::frac_pi_2()
+//}

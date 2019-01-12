@@ -36,7 +36,9 @@ impl<N: Real> BallConvexPolyhedronManifoldGenerator<N> {
         manifold: &mut ContactManifold<N>,
     ) -> bool
     {
-        if let (Some(ball), Some(pq2), Some(cp2)) = (
+        // NOTE: we use an underscore to silence a warning
+        // for _cp2 because it is used in 3D but not in 2D.
+        if let (Some(ball), Some(pq2), Some(_cp2)) = (
             a.as_shape::<Ball<N>>(),
             b.as_point_query(),
             b.as_convex_polyhedron(),
@@ -84,17 +86,16 @@ impl<N: Real> BallConvexPolyhedronManifoldGenerator<N> {
                     }
 
                     let local2 = m2.inverse_transform_point(&world2);
-                    let n2 = cp2.normal_cone(f2);
                     let geom2;
 
                     match f2 {
                         FeatureId::Face { .. } => {
-                            let n = n2.unwrap_half_line();
+                            let n = m2.inverse_transform_unit_vector(&-normal);
                             geom2 = NeighborhoodGeometry::Plane(n);
                         }
                         #[cfg(feature = "dim3")]
                         FeatureId::Edge { .. } => {
-                            let edge = cp2.edge(f2);
+                            let edge = _cp2.edge(f2);
                             let dir = Unit::new_normalize(edge.1 - edge.0);
                             geom2 = NeighborhoodGeometry::Line(dir);
                         }

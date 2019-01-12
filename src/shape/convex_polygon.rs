@@ -1,5 +1,3 @@
-use arrayvec::ArrayVec;
-use crate::bounding_volume::ConicalApproximation;
 use crate::math::{Isometry, Point, Vector};
 use na::{self, Real, Unit};
 use crate::shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
@@ -135,21 +133,6 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexPolygon<N> {
 
         out.set_normal(self.normals[ia]);
         out.set_feature_id(FeatureId::Face(ia));
-    }
-
-    fn normal_cone(&self, feature: FeatureId) -> ConicalApproximation<N> {
-        match feature {
-            FeatureId::Face(id) => ConicalApproximation::HalfLine(self.normals[id]),
-            FeatureId::Vertex(id2) => {
-                let id1 = if id2 == 0 {
-                    self.normals.len() - 1
-                } else {
-                    id2 - 1
-                };
-                ConicalApproximation::Span(ArrayVec::from([self.normals[id1], self.normals[id2]]))
-            }
-            _ => unreachable!(),
-        }
     }
 
     fn support_face_toward(

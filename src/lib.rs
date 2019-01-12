@@ -53,7 +53,6 @@ extern crate approx;
 #[macro_use]
 #[cfg(feature = "dim3")]
 extern crate bitflags;
-extern crate arrayvec;
 extern crate either;
 extern crate nalgebra as na;
 extern crate num_traits as num;

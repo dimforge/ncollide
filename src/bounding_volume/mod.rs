@@ -1,7 +1,6 @@
 //! Bounding volumes.
 
 pub use self::circular_cone::CircularCone;
-pub use self::conical_approximation::ConicalApproximation;
 pub use self::spatialized_normal_cone::SpatializedNormalCone;
 #[doc(inline)]
 pub use crate::bounding_volume::aabb::{aabb, AABB};
@@ -62,5 +61,4 @@ mod bounding_sphere_heightfield;
 mod bounding_sphere_utils;
 
 pub(crate) mod circular_cone;
-mod conical_approximation;
 mod spatialized_normal_cone;

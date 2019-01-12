@@ -1,6 +1,5 @@
 //! Definition of the segment shape.
 
-use crate::bounding_volume::ConicalApproximation;
 use crate::math::{Isometry, Point, Vector};
 use na::{self, Real, Unit};
 use crate::shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
@@ -230,36 +229,6 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
         } else {
             face.push(self.a, FeatureId::Vertex(0));
             face.set_feature_id(FeatureId::Vertex(0));
-        }
-    }
-
-    fn normal_cone(&self, feature: FeatureId) -> ConicalApproximation<N> {
-        if let Some(direction) = self.direction() {
-            match feature {
-                FeatureId::Vertex(id) => {
-                    if id == 0 {
-                        ConicalApproximation::HalfSpace(direction)
-                    } else {
-                        ConicalApproximation::HalfSpace(-direction)
-                    }
-                }
-                #[cfg(feature = "dim3")]
-                FeatureId::Edge(_) => ConicalApproximation::OrthogonalSubspace(direction),
-                FeatureId::Face(id) => {
-                    let mut dir = Vector::zeros();
-                    if id == 0 {
-                        dir[0] = direction[1];
-                        dir[1] = -direction[0];
-                    } else {
-                        dir[0] = -direction[1];
-                        dir[1] = direction[0];
-                    }
-                    ConicalApproximation::HalfLine(Unit::new_unchecked(dir))
-                }
-                _ => ConicalApproximation::Empty,
-            }
-        } else {
-            ConicalApproximation::Full
         }
     }
 

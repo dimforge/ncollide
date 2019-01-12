@@ -1,7 +1,5 @@
 //! Support mapping based Cuboid shape.
 
-use arrayvec::ArrayVec;
-use crate::bounding_volume::ConicalApproximation;
 use crate::math::{Isometry, Point, Vector, DIM};
 use na::{self, Real, Unit};
 use crate::shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
@@ -490,111 +488,5 @@ impl<N: Real> ConvexPolyhedron<N> for Cuboid<N> {
 
             FeatureId::Vertex(support_point_id)
         }
-    }
-
-    #[cfg(feature = "dim2")]
-    fn normal_cone(&self, feature: FeatureId) -> ConicalApproximation<N> {
-        match feature {
-            FeatureId::Face(id) => {
-                let mut dir: Vector<N> = na::zero();
-
-                if id < 2 {
-                    dir[id] = N::one();
-                } else {
-                    dir[id - 2] = -N::one();
-                }
-                return ConicalApproximation::HalfLine(Unit::new_unchecked(dir));
-            }
-            FeatureId::Vertex(id) => {
-                let mut dir1: Vector<N> = na::zero();
-                let mut dir2: Vector<N> = na::zero();
-
-                match id {
-                    0b00 => {
-                        dir1[0] = N::one();
-                        dir2[1] = N::one();
-                    }
-                    0b01 => {
-                        dir1[1] = N::one();
-                        dir2[0] = -N::one();
-                    }
-                    0b11 => {
-                        dir1[0] = -N::one();
-                        dir2[1] = -N::one();
-                    }
-                    0b10 => {
-                        dir1[1] = -N::one();
-                        dir2[0] = N::one();
-                    }
-                    _ => unreachable!(),
-                }
-
-                ConicalApproximation::Span(ArrayVec::from([
-                    Unit::new_unchecked(dir1),
-                    Unit::new_unchecked(dir2),
-                ]))
-            }
-            _ => panic!("Invalid feature ID {:?}.", feature),
-        }
-    }
-
-    #[cfg(feature = "dim3")]
-    fn normal_cone(&self, feature: FeatureId) -> ConicalApproximation<N> {
-        let mut generators = ArrayVec::new();
-
-        match feature {
-            FeatureId::Face(id) => {
-                let mut dir: Vector<N> = na::zero();
-
-                if id < 3 {
-                    dir[id] = N::one();
-                } else {
-                    dir[id - 3] = -N::one();
-                }
-                return ConicalApproximation::HalfLine(Unit::new_unchecked(dir));
-            }
-            FeatureId::Edge(id) => {
-                let edge = id & 0b011;
-                let face1 = (edge + 1) % 3;
-                let face2 = (edge + 2) % 3;
-                let signs = id >> 2;
-
-                let mut dir1: Vector<N> = na::zero();
-                let mut dir2: Vector<N> = na::zero();
-                let _1: N = na::one();
-
-                if signs & (1 << face1) != 0 {
-                    dir1[face1] = -_1
-                } else {
-                    dir1[face1] = _1
-                }
-
-                if signs & (1 << face2) != 0 {
-                    dir2[face2] = -_1
-                } else {
-                    dir2[face2] = _1;
-                }
-
-                generators.push(Unit::new_unchecked(dir1));
-                generators.push(Unit::new_unchecked(dir2));
-            }
-            FeatureId::Vertex(id) => {
-                for i in 0..3 {
-                    let mut dir: Vector<N> = na::zero();
-                    let _1: N = na::one();
-
-                    if id & (1 << i) != 0 {
-                        dir[i] = -_1;
-                    } else {
-                        dir[i] = _1
-                    }
-
-                    generators.push(Unit::new_unchecked(dir));
-                }
-            }
-            _ => {}
-        }
-
-        ConicalApproximation::Span(generators)
     }
 }

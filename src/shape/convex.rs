@@ -1,5 +1,3 @@
-use arrayvec::ArrayVec;
-use crate::bounding_volume::{CircularCone, ConicalApproximation};
 use crate::math::{Isometry, Point, Vector};
 use na::{self, Point2, Point3, Real, Unit};
 use crate::shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
@@ -427,39 +425,6 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexHull<N> {
         out.set_normal(face.normal);
         out.set_feature_id(id);
         out.recompute_edge_normals();
-    }
-
-    fn normal_cone(&self, feature: FeatureId) -> ConicalApproximation<N> {
-        match feature {
-            FeatureId::Face(id) => ConicalApproximation::HalfLine(self.faces[id].normal),
-            FeatureId::Edge(id) => {
-                let edge = &self.edges[id];
-                let mut generators = ArrayVec::new();
-                generators.push(self.faces[edge.faces[0]].normal);
-                generators.push(self.faces[edge.faces[1]].normal);
-                ConicalApproximation::Span(generators)
-            }
-            FeatureId::Vertex(id) => {
-                let vertex = &self.vertices[id];
-                let first = vertex.first_adj_face_or_edge;
-                let last = vertex.first_adj_face_or_edge + vertex.num_adj_faces_or_edge;
-
-                if last - first <= 4 {
-                    let mut generators = ArrayVec::new();
-                    for face in &self.faces_adj_to_vertex[first..last] {
-                        generators.push(self.faces[*face].normal)
-                    }
-                    ConicalApproximation::Span(generators)
-                } else {
-                    let mut cone = CircularCone::Empty;
-                    for face in &self.faces_adj_to_vertex[first..last] {
-                        cone.push(self.faces[*face].normal)
-                    }
-                    cone.into()
-                }
-            }
-            FeatureId::Unknown => ConicalApproximation::Full,
-        }
     }
 
     fn support_face_toward(

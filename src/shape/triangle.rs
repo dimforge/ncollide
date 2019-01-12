@@ -1,9 +1,5 @@
 //! Definition of the triangle shape.
 
-#[cfg(feature = "dim3")]
-use arrayvec::ArrayVec;
-#[cfg(feature = "dim3")]
-use crate::bounding_volume::ConicalApproximation;
 use crate::math::{Isometry, Point, Vector};
 use na::Real;
 use na::{self, Unit};
@@ -363,56 +359,6 @@ impl<N: Real> ConvexPolyhedron<N> for Triangle<N> {
         } else {
             face.push(self.a, FeatureId::Vertex(0));
             face.set_feature_id(FeatureId::Vertex(0));
-        }
-    }
-
-    fn normal_cone(&self, feature: FeatureId) -> ConicalApproximation<N> {
-        if let Some(normal) = self.normal() {
-            match feature {
-                FeatureId::Vertex(id2) => {
-                    let vtx = self.vertices();
-                    let mut generators = ArrayVec::new();
-                    let id1 = if id2 == 0 { 2 } else { id2 - 1 };
-                    let id3 = (id2 + 1) % 3;
-
-                    if let Some(side1) = Unit::try_new(vtx[id2] - vtx[id1], N::default_epsilon()) {
-                        generators.push(side1);
-                    }
-                    generators.push(-normal);
-                    if let Some(side2) = Unit::try_new(vtx[id3] - vtx[id2], N::default_epsilon()) {
-                        generators.push(side2);
-                    }
-                    generators.push(normal);
-
-                    // FIXME: is it meaningful not to push the sides if the triangle is degenerate?
-
-                    ConicalApproximation::Span(generators)
-                }
-                FeatureId::Edge(id1) => {
-                    // FIXME: We should be able to do much better here.
-                    let id2 = (id1 + 1) % 3;
-                    let vtx = self.vertices();
-                    let mut generators = ArrayVec::new();
-
-                    if let Some(side) = Unit::try_new(vtx[id2] - vtx[id1], N::default_epsilon()) {
-                        generators.push(side);
-                        generators.push(-normal);
-                        generators.push(side);
-                        generators.push(normal);
-                    } else {
-                        // FIXME: is this meaningful?
-                        generators.push(-normal);
-                        generators.push(normal);
-                    }
-
-                    ConicalApproximation::Span(generators)
-                }
-                FeatureId::Face(0) => ConicalApproximation::HalfLine(normal),
-                FeatureId::Face(1) => ConicalApproximation::HalfLine(-normal),
-                _ => panic!("Invalid feature ID."),
-            }
-        } else {
-            ConicalApproximation::Full
         }
     }
 
