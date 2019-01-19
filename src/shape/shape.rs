@@ -163,23 +163,21 @@ impl<N: Real> Clone for Box<Shape<N>> {
     }
 }
 
-/// A shared immutable handle to an abstract shape.
+/// A shared handle to an abstract shape.
+///
+/// This can be mutated using COW.
 #[derive(Clone)]
-pub struct ShapeHandle<N: Real> {
-    handle: Arc<Box<Shape<N>>>,
-}
+pub struct ShapeHandle<N: Real>(Arc<Box<Shape<N>>>);
 
 impl<N: Real> ShapeHandle<N> {
     /// Creates a sharable shape handle from a shape.
     #[inline]
     pub fn new<S: Shape<N> + Clone>(shape: S) -> ShapeHandle<N> {
-        ShapeHandle {
-            handle: Arc::new(Box::new(shape)),
-        }
+        ShapeHandle(Arc::new(Box::new(shape)))
     }
 
     pub(crate) fn make_mut(&mut self) -> &mut Shape<N> {
-        &mut **Arc::make_mut(&mut self.handle)
+        &mut **Arc::make_mut(&mut self.0)
     }
 }
 
@@ -195,7 +193,7 @@ impl<N: Real> Deref for ShapeHandle<N> {
 
     #[inline]
     fn deref(&self) -> &Shape<N> {
-        &**self.handle.deref()
+        &**self.0.deref()
     }
 }
 
