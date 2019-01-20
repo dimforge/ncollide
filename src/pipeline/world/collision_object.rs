@@ -1,6 +1,7 @@
 use alga::general::Real;
 use crate::math::Isometry;
 use crate::pipeline::broad_phase::ProxyHandle;
+use crate::pipeline::narrow_phase::InteractionGraphIndex;
 use crate::pipeline::world::CollisionGroups;
 use crate::query::ContactPrediction;
 use crate::shape::ShapeHandle;
@@ -81,6 +82,7 @@ impl<N: Real> GeometricQueryType<N> {
 pub struct CollisionObject<N: Real, T> {
     handle: CollisionObjectHandle,
     proxy_handle: ProxyHandle,
+    graph_index: InteractionGraphIndex,
     position: Isometry<N>,
     shape: ShapeHandle<N>,
     collision_groups: CollisionGroups,
@@ -96,6 +98,7 @@ impl<N: Real, T> CollisionObject<N, T> {
     pub fn new(
         handle: CollisionObjectHandle,
         proxy_handle: ProxyHandle,
+        graph_index: InteractionGraphIndex,
         position: Isometry<N>,
         shape: ShapeHandle<N>,
         groups: CollisionGroups,
@@ -106,6 +109,7 @@ impl<N: Real, T> CollisionObject<N, T> {
         CollisionObject {
             handle,
             proxy_handle,
+            graph_index,
             position,
             shape,
             collision_groups: groups,
@@ -121,9 +125,23 @@ impl<N: Real, T> CollisionObject<N, T> {
         self.handle
     }
 
+    /// The collision object non-stable graph index.
+    ///
+    /// This index may change whenever a collision object is removed from the world.
+    #[inline]
+    pub fn graph_index(&self) -> InteractionGraphIndex {
+        self.graph_index
+    }
+
     #[inline]
     pub(crate) fn set_handle(&mut self, handle: CollisionObjectHandle) {
         self.handle = handle
+    }
+
+    /// Sets the collision object unique but non-stable graph index.
+    #[inline]
+    pub(crate) fn set_graph_index(&mut self, index: InteractionGraphIndex) {
+        self.graph_index = index
     }
 
     /// The collision object's broad phase proxy unique identifier.

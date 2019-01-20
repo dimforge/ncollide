@@ -6,8 +6,8 @@ use crate::pipeline::broad_phase::{
 };
 use crate::pipeline::events::{ContactEvent, ContactEvents, ProximityEvents};
 use crate::pipeline::narrow_phase::{
-    ContactAlgorithm, ContactPairs, DefaultContactDispatcher, DefaultNarrowPhase,
-    DefaultProximityDispatcher, NarrowPhase, ProximityPairs,
+    ContactAlgorithm, DefaultContactDispatcher, NarrowPhase, DefaultProximityDispatcher,
+    ProximityAlgorithm, InteractionGraphIndex, Interaction
 };
 use crate::pipeline::world::{
     CollisionGroups, CollisionGroupsPairFilter, CollisionObject, CollisionObjectHandle,
@@ -18,8 +18,6 @@ use crate::shape::ShapeHandle;
 use std::mem;
 use std::vec::IntoIter;
 
-/// Type of the narrow phase trait-object used by the collision world.
-pub type NarrowPhaseObject<N, T> = Box<NarrowPhase<N, T>>;
 /// Type of the broad phase trait-object used by the collision world.
 pub type BroadPhaseObject<N> = Box<BroadPhase<N, AABB<N>, CollisionObjectHandle>>;
 
@@ -27,7 +25,7 @@ pub type BroadPhaseObject<N> = Box<BroadPhase<N, AABB<N>, CollisionObjectHandle>
 pub struct CollisionWorld<N: Real, T> {
     objects: CollisionObjectSlab<N, T>,
     broad_phase: BroadPhaseObject<N>,
-    narrow_phase: Box<NarrowPhase<N, T>>,
+    narrow_phase: NarrowPhase<N>,
     contact_events: ContactEvents,
     proximity_events: ProximityEvents,
     pair_filters: BroadPhasePairFilters<N, T>,
@@ -44,14 +42,14 @@ impl<N: Real, T> CollisionWorld<N, T> {
         let broad_phase = Box::new(DBVTBroadPhase::<N, AABB<N>, CollisionObjectHandle>::new(
             margin,
         ));
-        let narrow_phase = DefaultNarrowPhase::new(coll_dispatcher, prox_dispatcher);
+        let narrow_phase = NarrowPhase::new(coll_dispatcher, prox_dispatcher);
 
         CollisionWorld {
             contact_events: ContactEvents::new(),
             proximity_events: ProximityEvents::new(),
-            objects: objects,
-            broad_phase: broad_phase,
-            narrow_phase: Box::new(narrow_phase),
+            objects,
+            broad_phase,
+            narrow_phase,
             pair_filters: BroadPhasePairFilters::new(),
             timestamp: 0,
         }
@@ -70,6 +68,7 @@ impl<N: Real, T> CollisionWorld<N, T> {
         let mut co = CollisionObject::new(
             CollisionObjectHandle::invalid(),
             ProxyHandle::invalid(),
+            InteractionGraphIndex::new(0),
             position,
             shape,
             collision_groups,
@@ -84,9 +83,11 @@ impl<N: Real, T> CollisionWorld<N, T> {
         let mut aabb = bounding_volume::aabb(co.shape().as_ref(), co.position());
         aabb.loosen(co.query_type().query_limit());
         let proxy_handle = self.broad_phase.create_proxy(aabb, handle);
+        let graph_index = self.narrow_phase.handle_collision_object_added(handle);
 
         co.set_handle(handle);
         co.set_proxy_handle(proxy_handle);
+        co.set_graph_index(graph_index);
         co
     }
 
@@ -126,14 +127,18 @@ impl<N: Real, T> CollisionWorld<N, T> {
                     .objects
                     .get(*handle)
                     .expect("Removal: collision object not found.");
+                let graph_index = co.graph_index();
                 proxy_handles.push(co.proxy_handle());
+
+                if let Some(handle2) = self.narrow_phase.handle_collision_object_removed(co) {
+                    // Properly transfer the graph index.
+                    self.objects[handle2].set_graph_index(graph_index)
+                }
             }
 
-            let nf = &mut self.narrow_phase;
-            let objects = &mut self.objects;
-            self.broad_phase.remove(&proxy_handles, &mut |b1, b2| {
-                nf.handle_removal(objects, *b1, *b2)
-            });
+            // NOTE: no need to notify the narrow phase in the callback because
+            // the nodes have already been removed in the loop above.
+            self.broad_phase.remove(&proxy_handles, &mut |_, _| {});
         }
 
         for handle in handles {
@@ -231,43 +236,25 @@ impl<N: Real, T> CollisionWorld<N, T> {
         self.timestamp = self.timestamp + 1;
     }
 
-    /// Sets a new narrow phase and returns the previous one.
-    ///
-    /// Keep in mind that modifying the narrow-pase will have a non-trivial overhead during the
-    /// next update as it will force re-detection of all collision pairs and their associated
-    /// contacts.
-    pub fn set_narrow_phase(
-        &mut self,
-        narrow_phase: Box<NarrowPhase<N, T>>,
-    ) -> Box<NarrowPhase<N, T>>
-    {
-        let old = mem::replace(&mut self.narrow_phase, narrow_phase);
-        self.broad_phase.deferred_recompute_all_proximities();
-
-        old
-    }
-
-    /// The contact pair, if any, between the given collision objects.
+    /// The interaction pair, if any, between the given collision objects.
     #[inline]
-    pub fn contact_pair(
+    pub fn interaction_pair(
         &self,
         handle1: CollisionObjectHandle,
         handle2: CollisionObjectHandle,
-    ) -> Option<(&ContactAlgorithm<N>, &ContactManifold<N>)>
+    ) -> Option<(&CollisionObject<N, T>, &CollisionObject<N, T>, &Interaction<N>)>
     {
-        self.narrow_phase.contact_pair(handle1, handle2)
+        self.narrow_phase.interaction_pair(&self.objects, handle1, handle2)
     }
 
-    /// Iterates through all the contact pairs detected since the last update.
+    /// Iterates through all the interaction pairs detected since the last update.
     #[inline]
-    pub fn contact_pairs(&self) -> ContactPairs<N, T> {
-        self.narrow_phase.contact_pairs(&self.objects)
-    }
-
-    /// Iterates through all the proximity pairs detected since the last update.
-    #[inline]
-    pub fn proximity_pairs(&self) -> ProximityPairs<N, T> {
-        self.narrow_phase.proximity_pairs(&self.objects)
+    pub fn interaction_pairs(&self) -> impl Iterator<Item = (
+        &CollisionObject<N, T>,
+        &CollisionObject<N, T>,
+        &Interaction<N>,
+    )> {
+        self.narrow_phase.interaction_pairs(&self.objects)
     }
 
     /// Iterates through all collision objects.
