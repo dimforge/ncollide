@@ -693,7 +693,7 @@ impl<N: Real> DeformableShape<N> for TriMesh<N> {
 
     /// Updates all the degrees of freedom of this shape.
     fn set_deformations(&mut self, coords: &[N]) {
-        assert!(coords.len() == self.points.len() * DIM, "Set deformations error: dimension mismatch.");
+        assert!(coords.len() >= self.points.len() * DIM, "Set deformations error: dimension mismatch.");
 
         let is_first_init = self.init_deformation_infos();
         self.deformations.curr_timestamp += 1;
@@ -702,7 +702,7 @@ impl<N: Real> DeformableShape<N> for TriMesh<N> {
         // efficiency reasons when the mapping between degrees of freedom
         // is trivial.
         unsafe {
-            let len = coords.len() / DIM;
+            let len = self.points.len();
             let coords_ptr = coords.as_ptr() as *const Point<N>;
             let coords_pt: &[Point<N>] = slice::from_raw_parts(coords_ptr, len);
             self.points.copy_from_slice(coords_pt);
