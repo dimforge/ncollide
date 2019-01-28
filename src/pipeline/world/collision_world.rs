@@ -6,16 +6,15 @@ use crate::pipeline::broad_phase::{
 };
 use crate::pipeline::events::{ContactEvent, ContactEvents, ProximityEvents};
 use crate::pipeline::narrow_phase::{
-    ContactAlgorithm, DefaultContactDispatcher, NarrowPhase, DefaultProximityDispatcher,
-    ProximityAlgorithm, InteractionGraphIndex, Interaction
+    DefaultContactDispatcher, NarrowPhase, DefaultProximityDispatcher,
+    InteractionGraphIndex, Interaction, ContactAlgorithm, ProximityAlgorithm
 };
 use crate::pipeline::world::{
     CollisionGroups, CollisionGroupsPairFilter, CollisionObject, CollisionObjectHandle,
     CollisionObjectSlab, CollisionObjects, GeometricQueryType,
 };
-use crate::query::{ContactManifold, PointQuery, Ray, RayCast, RayIntersection};
+use crate::query::{PointQuery, Ray, RayCast, RayIntersection, ContactManifold, Proximity};
 use crate::shape::ShapeHandle;
-use std::mem;
 use std::vec::IntoIter;
 
 /// Type of the broad phase trait-object used by the collision world.
@@ -236,27 +235,6 @@ impl<N: Real, T> CollisionWorld<N, T> {
         self.timestamp = self.timestamp + 1;
     }
 
-    /// The interaction pair, if any, between the given collision objects.
-    #[inline]
-    pub fn interaction_pair(
-        &self,
-        handle1: CollisionObjectHandle,
-        handle2: CollisionObjectHandle,
-    ) -> Option<(&CollisionObject<N, T>, &CollisionObject<N, T>, &Interaction<N>)>
-    {
-        self.narrow_phase.interaction_pair(&self.objects, handle1, handle2)
-    }
-
-    /// Iterates through all the interaction pairs detected since the last update.
-    #[inline]
-    pub fn interaction_pairs(&self) -> impl Iterator<Item = (
-        &CollisionObject<N, T>,
-        &CollisionObject<N, T>,
-        &Interaction<N>,
-    )> {
-        self.narrow_phase.interaction_pairs(&self.objects)
-    }
-
     /// Iterates through all collision objects.
     #[inline]
     pub fn collision_objects(&self) -> CollisionObjects<N, T> {
@@ -354,6 +332,129 @@ impl<N: Real, T> CollisionWorld<N, T> {
         }
     }
 
+    /*
+     *
+     * Operations on the interaction graph.
+     *
+     */
+    pub fn interaction_pairs(&self, effective_only: bool) -> impl Iterator<Item = (
+        CollisionObjectHandle,
+        CollisionObjectHandle,
+        &Interaction<N>
+    )> {
+        self.narrow_phase
+            .interaction_graph()
+            .interaction_pairs(effective_only)
+    }
+
+    pub fn contact_pairs(&self, effective_only: bool) -> impl Iterator<Item = (
+        CollisionObjectHandle,
+        CollisionObjectHandle,
+        &ContactAlgorithm<N>,
+        &ContactManifold<N>,
+    )> {
+        self.narrow_phase
+            .interaction_graph()
+            .contact_pairs(effective_only)
+    }
+
+    pub fn proximity_pairs(&self, effective_only: bool) -> impl Iterator<Item = (
+        CollisionObjectHandle,
+        CollisionObjectHandle,
+        &ProximityAlgorithm<N>,
+    )> {
+        self.narrow_phase
+            .interaction_graph()
+            .proximity_pairs(effective_only)
+    }
+
+    pub fn interaction_pair(&self, handle1: CollisionObjectHandle, handle2: CollisionObjectHandle, effective_only: bool)
+        -> Option<(CollisionObjectHandle, CollisionObjectHandle, &Interaction<N>)> {
+        let co1 = self.objects.get(handle1)?;
+        let co2 = self.objects.get(handle2)?;
+        let id1 = co1.graph_index();
+        let id2 = co2.graph_index();
+        self.narrow_phase
+            .interaction_graph()
+            .interaction_pair(id1, id2, effective_only)
+    }
+
+    pub fn contact_pair(&self, handle1: CollisionObjectHandle, handle2: CollisionObjectHandle, effective_only: bool)
+        -> Option<(CollisionObjectHandle, CollisionObjectHandle, &ContactAlgorithm<N>, &ContactManifold<N>)> {
+        let co1 = self.objects.get(handle1)?;
+        let co2 = self.objects.get(handle2)?;
+        let id1 = co1.graph_index();
+        let id2 = co2.graph_index();
+        self.narrow_phase
+            .interaction_graph()
+            .contact_pair(id1, id2, effective_only)
+    }
+
+    pub fn proximity_pair(&self, handle1: CollisionObjectHandle, handle2: CollisionObjectHandle, effective_only: bool)
+        -> Option<(CollisionObjectHandle, CollisionObjectHandle, &ProximityAlgorithm<N>)> {
+        let co1 = self.objects.get(handle1)?;
+        let co2 = self.objects.get(handle2)?;
+        let id1 = co1.graph_index();
+        let id2 = co2.graph_index();
+        self.narrow_phase.interaction_graph().proximity_pair(id1, id2, effective_only)
+    }
+
+    pub fn interactions_with(&self, handle: CollisionObjectHandle, effective_only: bool)
+        -> Option<impl Iterator<Item = (CollisionObjectHandle, CollisionObjectHandle, &Interaction<N>)>> {
+        let co = self.objects.get(handle)?;
+        let id = co.graph_index();
+        Some(self.narrow_phase.interaction_graph().interactions_with(id, effective_only))
+    }
+
+    pub fn proximities_with(&self, handle: CollisionObjectHandle, effective_only: bool)
+        -> Option<impl Iterator<Item = (CollisionObjectHandle, CollisionObjectHandle, &ProximityAlgorithm<N>)>> {
+        let co = self.objects.get(handle)?;
+        let id = co.graph_index();
+        Some(self.narrow_phase.interaction_graph().proximities_with(id, effective_only))
+    }
+
+    pub fn contacts_with(&self, handle: CollisionObjectHandle, effective_only: bool)
+        -> Option<impl Iterator<Item = (CollisionObjectHandle, CollisionObjectHandle, &ContactAlgorithm<N>, &ContactManifold<N>)>> {
+        let co = self.objects.get(handle)?;
+        let id = co.graph_index();
+        Some(self.narrow_phase
+            .interaction_graph()
+            .contacts_with(id, effective_only))
+    }
+
+    pub fn collision_objects_interacting_with<'a>(&'a self, handle: CollisionObjectHandle)
+        -> Option<impl Iterator<Item = CollisionObjectHandle> + 'a> {
+        let co = self.objects.get(handle)?;
+        let id = co.graph_index();
+        Some(self.narrow_phase
+            .interaction_graph()
+            .collision_objects_interacting_with(id))
+    }
+
+    pub fn collision_objects_in_contact_with<'a>(&'a self, handle: CollisionObjectHandle)
+        -> Option<impl Iterator<Item = CollisionObjectHandle> + 'a> {
+        let co = self.objects.get(handle)?;
+        let id = co.graph_index();
+        Some(self.narrow_phase
+            .interaction_graph()
+            .collision_objects_in_contact_with(id))
+    }
+
+    pub fn collision_objects_in_proximity_of<'a>(&'a self, handle: CollisionObjectHandle)
+        -> Option<impl Iterator<Item = CollisionObjectHandle> + 'a> {
+        let co = self.objects.get(handle)?;
+        let id = co.graph_index();
+        Some(self.narrow_phase
+            .interaction_graph()
+            .collision_objects_in_proximity_of(id))
+    }
+
+
+    /*
+     *
+     * Events
+     *
+     */
     /// The contact events pool.
     pub fn contact_events(&self) -> &ContactEvents {
         &self.contact_events

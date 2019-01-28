@@ -1,17 +1,14 @@
 use na::Real;
-use std::collections::hash_map::Entry;
-use std::collections::HashMap;
 use petgraph::visit::EdgeRef;
 
 use crate::pipeline::events::{ContactEvent, ContactEvents, ProximityEvent, ProximityEvents};
 use crate::pipeline::narrow_phase::{
-    ContactAlgorithm, ContactDispatcher, ProximityAlgorithm,
-    ProximityDispatcher, InteractionGraph, Interaction, InteractionGraphIndex
+    ContactDispatcher, ProximityDispatcher, InteractionGraph, Interaction, InteractionGraphIndex
 };
 use crate::pipeline::world::{CollisionObjectHandle, CollisionObjectSlab, CollisionObject, GeometricQueryType};
-use crate::query::{ContactManifold, Proximity};
+use crate::query::Proximity;
 use crate::utils::IdAllocator;
-use crate::utils::{DeterministicState, SortedPair};
+use crate::utils::SortedPair;
 
 // FIXME: move this to the `narrow_phase` module.
 /// Collision detector dispatcher for collision objects.
@@ -208,37 +205,7 @@ impl<N: Real> NarrowPhase<N> {
         self.interactions.remove(object.graph_index())
     }
 
-    pub fn interaction_pair<'a, T>(
-        &'a self,
-        objects: &'a CollisionObjectSlab<N, T>,
-        handle1: CollisionObjectHandle,
-        handle2: CollisionObjectHandle,
-    ) -> Option<(&'a CollisionObject<N, T>, &'a CollisionObject<N, T>, &'a Interaction<N>)>
-    {
-        let key = SortedPair::new(handle1, handle2);
-        let obj1 = &objects[key.0];
-        let obj2 = &objects[key.1];
-        let id1 = obj1.graph_index();
-        let id2 = obj2.graph_index();
-
-        self.interactions.graph.find_edge(id1, id2).and_then(|edge| {
-            self.interactions.graph.edge_weight(edge).map(|e| (obj1, obj2, e))
-        })
-    }
-
-    pub fn interaction_pairs<'a, T>(
-        &'a self,
-        objects: &'a CollisionObjectSlab<N, T>,
-    ) -> impl Iterator<Item = (
-            &'a CollisionObject<N, T>,
-            &'a CollisionObject<N, T>,
-            &'a Interaction<N>
-        )>
-    {
-        self.interactions.graph.edge_references().map(move |e| {(
-            &objects[self.interactions.graph[e.source()]],
-            &objects[self.interactions.graph[e.target()]],
-            e.weight()
-        )})
+    pub fn interaction_graph(&self) -> &InteractionGraph<N> {
+        &self.interactions
     }
 }

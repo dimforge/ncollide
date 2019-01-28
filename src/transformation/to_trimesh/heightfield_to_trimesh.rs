@@ -1,5 +1,4 @@
 use alga::general::Real;
-use na;
 use crate::shape;
 use crate::procedural::TriMesh;
 use super::ToTriMesh;
