@@ -26,11 +26,10 @@ enum ContactCache<N: Real> {
 
 /// A contact manifold.
 ///
-/// A contact manifold is a set of contacts lying on the same plane.
-/// The convex hull of those contacts are often interpreted as a contact
-/// surface. This structure is responsible for matching new contacts with
-/// old ones in order to perform an approximate tracking of the contact
-/// points.
+/// A contact manifold is a set of contacts between two shapes.
+/// If the shapes are convex, then the convex hull of those contacts are often interpreted as surface.
+/// This structure is responsible for matching new contacts with old ones in order to perform an
+/// approximate tracking of the contact points.
 #[derive(Clone, Debug)]
 pub struct ContactManifold<N: Real> {
     ncontacts: usize,
@@ -177,6 +176,9 @@ impl<N: Real> ContactManifold<N> {
             }
         }
 
+        let is_deepest = self.ncontacts == 0
+            || contact.depth > self.contacts[self.deepest].0.contact.depth;
+
         match &mut self.cache {
             ContactCache::DistanceBased(cache, threshold) => {
                 let mut closest = cache.len();
@@ -189,9 +191,6 @@ impl<N: Real> ContactManifold<N> {
                         closest = i;
                     }
                 }
-
-                let is_deepest = self.ncontacts == 0
-                    || contact.depth > self.contacts[self.deepest].0.contact.depth;
 
                 if closest == cache.len() {
                     let tracked = TrackedContact::new(contact, kinematic, gen.alloc());
@@ -237,9 +236,17 @@ impl<N: Real> ContactManifold<N> {
                         let _ = e.insert(i);
                         self.ncontacts += 1;
 
+                        if is_deepest {
+                            self.deepest = i;
+                        }
+
                         false
                     }
                     Entry::Occupied(e) => {
+                        if is_deepest {
+                            self.deepest = *e.get();
+                        }
+
                         let c = &mut self.contacts[*e.get()];
 
                         if c.1 == self.persistence {
