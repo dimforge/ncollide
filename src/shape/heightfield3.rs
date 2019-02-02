@@ -110,6 +110,15 @@ impl<N: Real> HeightField<N> {
         (-_0_5 + self.unit_cell_height() * na::convert(i as f64)) * self.scale.z
     }
 
+    /// An iterator through all the triangles of this heightfield.
+    pub fn triangles<'a>(&'a self) -> impl Iterator<Item = Triangle<N>> + 'a {
+        HeightfieldTriangles {
+            heightfield: self,
+            curr: (0, 0),
+            tris: self.triangles_at(0, 0)
+        }
+    }
+
     pub fn triangles_at(&self, i: usize, j: usize) -> (Option<Triangle<N>>, Option<Triangle<N>>) {
         let status = self.status[(i, j)];
 
@@ -441,5 +450,39 @@ impl<'a, N: Real> ContactPreprocessor<N> for HeightFieldTriangleContactPreproces
         */
 
         true
+    }
+}
+
+struct HeightfieldTriangles<'a, N: Real> {
+    heightfield: &'a HeightField<N>,
+    curr: (usize, usize),
+    tris: (Option<Triangle<N>>, Option<Triangle<N>>)
+}
+
+impl<'a, N: Real> Iterator for HeightfieldTriangles<'a, N> {
+    type Item = Triangle<N>;
+
+    fn next(&mut self) -> Option<Triangle<N>> {
+        loop {
+            if let Some(tri1) = self.tris.0.take() {
+                return Some(tri1);
+            } else if let Some(tri2) = self.tris.1.take() {
+                return Some(tri2);
+            } else {
+                self.curr.0 += 1;
+
+                if self.curr.0 >= self.heightfield.nrows() {
+                    if self.curr.1 >= self.heightfield.ncols() - 1 {
+                        return None;
+                    }
+
+                    self.curr.0 = 0;
+                    self.curr.1 += 1;
+                }
+
+                // tri1 and tri2 are None
+                self.tris = self.heightfield.triangles_at(self.curr.0, self.curr.1);
+            }
+        }
     }
 }

@@ -158,16 +158,14 @@ impl<N: Real> ShapeHandle<N> {
     }
 
     pub(crate) fn make_mut(&mut self) -> &mut Shape<N> {
-        unimplemented!()
-//        &mut **Arc::make_mut(&mut self.0)
+        &mut **Arc::make_mut(&mut self.0)
     }
 }
 
 impl<N: Real> AsRef<Shape<N>> for ShapeHandle<N> {
     #[inline]
     fn as_ref(&self) -> &Shape<N> {
-        unimplemented!()
-//        &*self.deref()
+        &*self.deref()
     }
 }
 
@@ -176,7 +174,6 @@ impl<N: Real> Deref for ShapeHandle<N> {
 
     #[inline]
     fn deref(&self) -> &Shape<N> {
-        unimplemented!()
-//        &**self.0.deref()
+        &**self.0.deref()
     }
 }

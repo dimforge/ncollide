@@ -86,6 +86,13 @@ impl<N: Real> HeightField<N> {
         }
     }
 
+    /// Iterator through all the segments of this heightfield.
+    pub fn segments<'a>(&'a self) -> impl Iterator<Item = Segment<N>> + 'a {
+        // FIXME: this is not very efficient since this wil
+        // recompute shared points twice.
+        (0..self.num_cells()).filter_map(move |i| self.segment_at(i))
+    }
+
     pub fn segment_at(&self, i: usize) -> Option<Segment<N>> {
         if i >= self.num_cells() || self.is_segment_removed(i) {
             return None;
