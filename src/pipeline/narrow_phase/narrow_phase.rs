@@ -33,6 +33,10 @@ impl<N: Real> NarrowPhase<N> {
         }
     }
 
+    /// Updates the narrow-phase by actually computing contact points and proximities between the
+    /// interactions pairs reported by the broad-phase.
+    ///
+    /// This will push relevant events to `contact_events` and `proximity_events`.
     pub fn update<T>(
         &mut self,
         objects: &CollisionObjectSlab<N, T>,
@@ -110,6 +114,7 @@ impl<N: Real> NarrowPhase<N> {
         }
     }
 
+    /// Handles a pair of collision objects detected as either started or stopped interacting.
     pub fn handle_interaction<T>(
         &mut self,
         contact_events: &mut ContactEvents,
@@ -182,6 +187,7 @@ impl<N: Real> NarrowPhase<N> {
         }
     }
 
+    /// Handles the removal of a collision object.
     pub fn handle_removal<T>(
         &mut self,
         objects: &CollisionObjectSlab<N, T>,
@@ -201,14 +207,29 @@ impl<N: Real> NarrowPhase<N> {
         }
     }
 
+    /// Handles the addition of a new collision object.
     pub fn handle_collision_object_added(&mut self, object: CollisionObjectHandle) -> InteractionGraphIndex {
         self.interactions.insert(object)
     }
 
+    /// Handles the removal of a collision object.
     pub fn handle_collision_object_removed<T>(&mut self, object: &CollisionObject<N, T>) -> Option<CollisionObjectHandle> {
+        let id = object.graph_index();
+        let mut nbhs = self.interactions.graph.neighbors(id).detach();
+
+        // Clear all the manifold to avoid leaking contact IDs.
+        while let Some((eid, _)) = nbhs.next(&self.interactions.graph) {
+            match self.interactions.graph.edge_weight_mut(eid).unwrap() {
+                Interaction::Contact(_, manifold) => manifold.clear(&mut self.id_alloc),
+                Interaction::Proximity(_) => {}
+            }
+        }
+
         self.interactions.remove(object.graph_index())
     }
 
+    /// The graph where nodes are collision object handles and edges are their interactions
+    /// (contact or proximity algorithms).
     pub fn interaction_graph(&self) -> &InteractionGraph<N> {
         &self.interactions
     }

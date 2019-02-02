@@ -360,6 +360,11 @@ impl<N: Real, T> CollisionWorld<N, T> {
      * Operations on the interaction graph.
      *
      */
+
+    /// All the potential interactions pairs.
+    ///
+    /// Refer to the official [user guide](https://ncollide.org/interaction_handling_and_sensors/#interaction-iterators)
+    /// for details.
     pub fn interaction_pairs(&self, effective_only: bool) -> impl Iterator<Item = (
         CollisionObjectHandle,
         CollisionObjectHandle,
@@ -370,6 +375,10 @@ impl<N: Real, T> CollisionWorld<N, T> {
             .interaction_pairs(effective_only)
     }
 
+    /// All the potential contact pairs.
+    ///
+    /// Refer to the official [user guide](https://ncollide.org/interaction_handling_and_sensors/#interaction-iterators)
+    /// for details.
     pub fn contact_pairs(&self, effective_only: bool) -> impl Iterator<Item = (
         CollisionObjectHandle,
         CollisionObjectHandle,
@@ -381,6 +390,10 @@ impl<N: Real, T> CollisionWorld<N, T> {
             .contact_pairs(effective_only)
     }
 
+    /// All the potential proximity pairs.
+    ///
+    /// Refer to the official [user guide](https://ncollide.org/interaction_handling_and_sensors/#interaction-iterators)
+    /// for details.
     pub fn proximity_pairs(&self, effective_only: bool) -> impl Iterator<Item = (
         CollisionObjectHandle,
         CollisionObjectHandle,
@@ -391,6 +404,10 @@ impl<N: Real, T> CollisionWorld<N, T> {
             .proximity_pairs(effective_only)
     }
 
+    /// The potential interaction pair between the two specified collision objects.
+    ///
+    /// Refer to the official [user guide](https://ncollide.org/interaction_handling_and_sensors/#interaction-iterators)
+    /// for details.
     pub fn interaction_pair(&self, handle1: CollisionObjectHandle, handle2: CollisionObjectHandle, effective_only: bool)
         -> Option<(CollisionObjectHandle, CollisionObjectHandle, &Interaction<N>)> {
         let co1 = self.objects.get(handle1)?;
@@ -402,6 +419,10 @@ impl<N: Real, T> CollisionWorld<N, T> {
             .interaction_pair(id1, id2, effective_only)
     }
 
+    /// The potential contact pair between the two specified collision objects.
+    ///
+    /// Refer to the official [user guide](https://ncollide.org/interaction_handling_and_sensors/#interaction-iterators)
+    /// for details.
     pub fn contact_pair(&self, handle1: CollisionObjectHandle, handle2: CollisionObjectHandle, effective_only: bool)
         -> Option<(CollisionObjectHandle, CollisionObjectHandle, &ContactAlgorithm<N>, &ContactManifold<N>)> {
         let co1 = self.objects.get(handle1)?;
@@ -413,6 +434,11 @@ impl<N: Real, T> CollisionWorld<N, T> {
             .contact_pair(id1, id2, effective_only)
     }
 
+
+    /// The potential proximity pair between the two specified collision objects.
+    ///
+    /// Refer to the official [user guide](https://ncollide.org/interaction_handling_and_sensors/#interaction-iterators)
+    /// for details.
     pub fn proximity_pair(&self, handle1: CollisionObjectHandle, handle2: CollisionObjectHandle, effective_only: bool)
         -> Option<(CollisionObjectHandle, CollisionObjectHandle, &ProximityAlgorithm<N>)> {
         let co1 = self.objects.get(handle1)?;
@@ -422,6 +448,10 @@ impl<N: Real, T> CollisionWorld<N, T> {
         self.narrow_phase.interaction_graph().proximity_pair(id1, id2, effective_only)
     }
 
+    /// All the interaction pairs involving the specified collision object.
+    ///
+    /// Refer to the official [user guide](https://ncollide.org/interaction_handling_and_sensors/#interaction-iterators)
+    /// for details.
     pub fn interactions_with(&self, handle: CollisionObjectHandle, effective_only: bool)
         -> Option<impl Iterator<Item = (CollisionObjectHandle, CollisionObjectHandle, &Interaction<N>)>> {
         let co = self.objects.get(handle)?;
@@ -429,6 +459,10 @@ impl<N: Real, T> CollisionWorld<N, T> {
         Some(self.narrow_phase.interaction_graph().interactions_with(id, effective_only))
     }
 
+    /// All the proximity pairs involving the specified collision object.
+    ///
+    /// Refer to the official [user guide](https://ncollide.org/interaction_handling_and_sensors/#interaction-iterators)
+    /// for details.
     pub fn proximities_with(&self, handle: CollisionObjectHandle, effective_only: bool)
         -> Option<impl Iterator<Item = (CollisionObjectHandle, CollisionObjectHandle, &ProximityAlgorithm<N>)>> {
         let co = self.objects.get(handle)?;
@@ -436,6 +470,10 @@ impl<N: Real, T> CollisionWorld<N, T> {
         Some(self.narrow_phase.interaction_graph().proximities_with(id, effective_only))
     }
 
+    /// All the contact pairs involving the specified collision object.
+    ///
+    /// Refer to the official [user guide](https://ncollide.org/interaction_handling_and_sensors/#interaction-iterators)
+    /// for details.
     pub fn contacts_with(&self, handle: CollisionObjectHandle, effective_only: bool)
         -> Option<impl Iterator<Item = (CollisionObjectHandle, CollisionObjectHandle, &ContactAlgorithm<N>, &ContactManifold<N>)>> {
         let co = self.objects.get(handle)?;
@@ -445,6 +483,11 @@ impl<N: Real, T> CollisionWorld<N, T> {
             .contacts_with(id, effective_only))
     }
 
+    /// All the collision object handles of collision objects interacting with the collision object
+    /// with graph index `id`.
+    ///
+    /// Refer to the official [user guide](https://ncollide.org/interaction_handling_and_sensors/#interaction-iterators)
+    /// for details.
     pub fn collision_objects_interacting_with<'a>(&'a self, handle: CollisionObjectHandle)
         -> Option<impl Iterator<Item = CollisionObjectHandle> + 'a> {
         let co = self.objects.get(handle)?;
@@ -454,6 +497,11 @@ impl<N: Real, T> CollisionWorld<N, T> {
             .collision_objects_interacting_with(id))
     }
 
+    /// All the collision object handles of collision objects in potential contact with the collision
+    /// object with graph index `id`.
+    ///
+    /// Refer to the official [user guide](https://ncollide.org/interaction_handling_and_sensors/#interaction-iterators)
+    /// for details.
     pub fn collision_objects_in_contact_with<'a>(&'a self, handle: CollisionObjectHandle)
         -> Option<impl Iterator<Item = CollisionObjectHandle> + 'a> {
         let co = self.objects.get(handle)?;
@@ -463,6 +511,12 @@ impl<N: Real, T> CollisionWorld<N, T> {
             .collision_objects_in_contact_with(id))
     }
 
+
+    /// All the collision object handles of collision objects in potential proximity of with the
+    /// collision object with graph index `id`.
+    ///
+    /// Refer to the official [user guide](https://ncollide.org/interaction_handling_and_sensors/#interaction-iterators)
+    /// for details.
     pub fn collision_objects_in_proximity_of<'a>(&'a self, handle: CollisionObjectHandle)
         -> Option<impl Iterator<Item = CollisionObjectHandle> + 'a> {
         let co = self.objects.get(handle)?;

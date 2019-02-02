@@ -6,13 +6,25 @@ use crate::query::{ContactManifold, Proximity};
 use crate::world::CollisionObjectHandle;
 use crate::pipeline::narrow_phase::{ContactAlgorithm, ProximityAlgorithm};
 
+/// Index of a node of the interaction graph.
 pub type InteractionGraphIndex = NodeIndex<usize>;
+
+/// An interaction between two collision objects.
 pub enum Interaction<N: Real> {
+    /// A potential contact between two collision objects.
+    ///
+    /// Generated only for pairs of collision objects both configured
+    /// with a `GeometricQueryType::Contact(..)`.
     Contact(ContactAlgorithm<N>, ContactManifold<N>),
+    /// A proximity between two collision objects.
+    ///
+    /// Generated only for pairs of collision objects with at least one configured
+    /// with a `GeometricQueryType::Contact(..)`.
     Proximity(ProximityAlgorithm<N>)
 }
 
 impl<N: Real> Interaction<N> {
+    /// Checks if this interaction is a potential contact interaction.
     pub fn is_contact(&self) -> bool {
         match self {
             Interaction::Contact(..) => true,
@@ -20,6 +32,7 @@ impl<N: Real> Interaction<N> {
         }
     }
 
+    /// Checks if this interaction is a potential proximity interaction.
     pub fn is_proximity(&self) -> bool {
         match self {
             Interaction::Proximity(_) => true,
@@ -41,10 +54,12 @@ impl<N: Real> InteractionGraph<N> {
         }
     }
 
+    /// The raw underlying graph from the petgraph crate.
     pub fn raw_graph(&self) -> &UnGraph<CollisionObjectHandle, Interaction<N>, usize> {
         &self.graph
     }
 
+    /// Convents this interaction graph into the raw graph from the petgraph crate.
     pub fn into_inner(self) -> UnGraph<CollisionObjectHandle, Interaction<N>, usize> {
         self.graph
     }
@@ -64,6 +79,10 @@ impl<N: Real> InteractionGraph<N> {
         self.graph.node_weight(id).map(|h| *h)
     }
 
+    /// All the interactions pairs on this graph.
+    ///
+    /// Refer to the official [user guide](https://ncollide.org/interaction_handling_and_sensors/#interaction-iterators)
+    /// for details.
     pub fn interaction_pairs(&self, effective_only: bool) -> impl Iterator<Item = (
         CollisionObjectHandle,
         CollisionObjectHandle,
@@ -82,6 +101,10 @@ impl<N: Real> InteractionGraph<N> {
         })
     }
 
+    /// All the contact pairs on this graph.
+    ///
+    /// Refer to the official [user guide](https://ncollide.org/interaction_handling_and_sensors/#interaction-iterators)
+    /// for details.
     pub fn contact_pairs(&self, effective_only: bool) -> impl Iterator<Item = (
         CollisionObjectHandle,
         CollisionObjectHandle,
@@ -97,6 +120,10 @@ impl<N: Real> InteractionGraph<N> {
         })
     }
 
+    /// All the proximity pairs on this graph.
+    ///
+    /// Refer to the official [user guide](https://ncollide.org/interaction_handling_and_sensors/#interaction-iterators)
+    /// for details.
     pub fn proximity_pairs(&self, effective_only: bool) -> impl Iterator<Item = (
         CollisionObjectHandle,
         CollisionObjectHandle,
@@ -111,6 +138,10 @@ impl<N: Real> InteractionGraph<N> {
         })
     }
 
+    /// The interaction between the two collision objects identified by their graph index.
+    ///
+    /// Refer to the official [user guide](https://ncollide.org/interaction_handling_and_sensors/#interaction-iterators)
+    /// for details.
     pub fn interaction_pair(&self, id1: InteractionGraphIndex, id2: InteractionGraphIndex, effective_only: bool) -> Option<(CollisionObjectHandle, CollisionObjectHandle, &Interaction<N>)> {
         let inter = self.graph.find_edge(id1, id2).and_then(|edge| {
             let endpoints = self.graph.edge_endpoints(edge)?;
@@ -126,6 +157,11 @@ impl<N: Real> InteractionGraph<N> {
         }
     }
 
+
+    /// The contact pair between the two collision objects identified by their graph index.
+    ///
+    /// Refer to the official [user guide](https://ncollide.org/interaction_handling_and_sensors/#interaction-iterators)
+    /// for details.
     pub fn contact_pair(&self, id1: InteractionGraphIndex, id2: InteractionGraphIndex, effective_only: bool) -> Option<(CollisionObjectHandle, CollisionObjectHandle, &ContactAlgorithm<N>, &ContactManifold<N>)> {
         self.interaction_pair(id1, id2, effective_only).and_then(|inter| {
             match inter.2 {
@@ -135,6 +171,10 @@ impl<N: Real> InteractionGraph<N> {
         })
     }
 
+    /// The proximity pair between the two collision objects identified by their graph index.
+    ///
+    /// Refer to the official [user guide](https://ncollide.org/interaction_handling_and_sensors/#interaction-iterators)
+    /// for details.
     pub fn proximity_pair(&self, id1: InteractionGraphIndex, id2: InteractionGraphIndex, effective_only: bool) -> Option<(CollisionObjectHandle, CollisionObjectHandle, &ProximityAlgorithm<N>)> {
         self.interaction_pair(id1, id2, effective_only).and_then(|inter| {
             match inter.2 {
@@ -144,7 +184,10 @@ impl<N: Real> InteractionGraph<N> {
         })
     }
 
-
+    /// All the interaction involving the collision object with graph index `id`.
+    ///
+    /// Refer to the official [user guide](https://ncollide.org/interaction_handling_and_sensors/#interaction-iterators)
+    /// for details.
     pub fn interactions_with(&self, id: InteractionGraphIndex, effective_only: bool) -> impl Iterator<Item = (CollisionObjectHandle, CollisionObjectHandle, &Interaction<N>)> {
         self.graph.edges(id).filter_map(move |e| {
             let inter = e.weight();
@@ -157,6 +200,10 @@ impl<N: Real> InteractionGraph<N> {
         })
     }
 
+    /// All the proximity pairs involving the collision object with graph index `id`.
+    ///
+    /// Refer to the official [user guide](https://ncollide.org/interaction_handling_and_sensors/#interaction-iterators)
+    /// for details.
     pub fn proximities_with(&self, handle: InteractionGraphIndex, effective_only: bool) -> impl Iterator<Item = (CollisionObjectHandle, CollisionObjectHandle, &ProximityAlgorithm<N>)> {
         self.interactions_with(handle, effective_only)
             .filter_map(|(h1, h2, inter)| {
@@ -167,6 +214,11 @@ impl<N: Real> InteractionGraph<N> {
             })
     }
 
+
+    /// All the contact pairs involving the collision object with graph index `id`.
+    ///
+    /// Refer to the official [user guide](https://ncollide.org/interaction_handling_and_sensors/#interaction-iterators)
+    /// for details.
     pub fn contacts_with(&self, handle: InteractionGraphIndex, effective_only: bool) -> impl Iterator<Item = (CollisionObjectHandle, CollisionObjectHandle, &ContactAlgorithm<N>, &ContactManifold<N>)> {
         self.interactions_with(handle, effective_only)
             .filter_map(|(h1, h2, inter)| {
@@ -178,6 +230,10 @@ impl<N: Real> InteractionGraph<N> {
     }
 
 
+    /// All the collision object handles of collision objects interacting with the collision object with graph index `id`.
+    ///
+    /// Refer to the official [user guide](https://ncollide.org/interaction_handling_and_sensors/#interaction-iterators)
+    /// for details.
     pub fn collision_objects_interacting_with<'a>(&'a self, id: InteractionGraphIndex) -> impl Iterator<Item = CollisionObjectHandle> + 'a {
         self.graph.edges(id).filter_map(move |e| {
             let inter = e.weight();
@@ -194,6 +250,10 @@ impl<N: Real> InteractionGraph<N> {
         })
     }
 
+    /// All the collision object handles of collision objects in contact with the collision object with graph index `id`.
+    ///
+    /// Refer to the official [user guide](https://ncollide.org/interaction_handling_and_sensors/#interaction-iterators)
+    /// for details.
     pub fn collision_objects_in_contact_with<'a>(&'a self, id: InteractionGraphIndex) -> impl Iterator<Item = CollisionObjectHandle> + 'a {
         self.graph.edges(id).filter_map(move |e| {
             let inter = e.weight();
@@ -210,6 +270,10 @@ impl<N: Real> InteractionGraph<N> {
         })
     }
 
+    /// All the collision object handles of collision objects in proximity of with the collision object with graph index `id`.
+    ///
+    /// Refer to the official [user guide](https://ncollide.org/interaction_handling_and_sensors/#interaction-iterators)
+    /// for details.
     pub fn collision_objects_in_proximity_of<'a>(&'a self, id: InteractionGraphIndex) -> impl Iterator<Item = CollisionObjectHandle> + 'a {
         self.graph.edges(id).filter_map(move |e| {
             if let Interaction::Proximity(alg) = e.weight() {

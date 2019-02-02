@@ -84,11 +84,18 @@ impl<N: Real> RayCast<N> for AABB<N> {
 }
 
 impl<N: Real> AABB<N> {
+    /// Computes the parameters of the two intersection points between a line and this AABB.
+    ///
+    /// The parameters are such that the point are given by `orig + dir * parameter`.
+    /// Returns `None` if there is no intersection.
     #[inline]
     pub fn clip_line_parameters(&self, orig: &Point<N>, dir: &Vector<N>) -> Option<(N, N)> {
         clip_line(self, orig, dir).map(|clip| ((clip.0).0, (clip.1).0))
     }
 
+    /// Computes the intersection segment between a line and this AABB.
+    ///
+    /// Returns `None` if there is no intersection.
     #[inline]
     pub fn clip_line(&self, orig: &Point<N>, dir: &Vector<N>) -> Option<Segment<N>> {
         clip_line(self, orig, dir).map(|clip| {
@@ -96,6 +103,10 @@ impl<N: Real> AABB<N> {
         })
     }
 
+    /// Computes the parameters of the two intersection points between a ray and this AABB.
+    ///
+    /// The parameters are such that the point are given by `ray.orig + ray.dir * parameter`.
+    /// Returns `None` if there is no intersection.
     #[inline]
     pub fn clip_ray_parameters(&self, ray: &Ray<N>) -> Option<(N, N)> {
         match self.clip_line_parameters(&ray.origin, &ray.dir) {
@@ -113,6 +124,9 @@ impl<N: Real> AABB<N> {
         }
     }
 
+    /// Computes the intersection segment between a ray and this AABB.
+    ///
+    /// Returns `None` if there is no intersection.
     #[inline]
     pub fn clip_ray(&self, ray: &Ray<N>) -> Option<Segment<N>> {
         self.clip_ray_parameters(ray).map(|clip| {

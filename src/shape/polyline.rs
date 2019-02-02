@@ -334,12 +334,14 @@ impl<N: Real> Polyline<N> {
         true
     }
 
+    /// Applies a transformation to this polyline.
     pub fn transform_by(&mut self, transform: &Isometry<N>) {
         for pt in &mut self.points {
             *pt = transform * *pt
         }
     }
 
+    /// Applies a non-uniform scale to this polyline.
     pub fn scale_by(&mut self, scale: &Vector<N>) {
         for pt in &mut self.points {
             pt.coords.component_mul_assign(scale)
@@ -427,6 +429,8 @@ impl<N: Real> Polyline<N> {
         normal.dot(dir) <= N::zero()
     }
 
+    /// Tests whether the polar of the tangent cone of the i-th edge of this polyline
+    /// contains the direction `dir` considering the cosinus of an angular tolerance `cos_ang_tol`.
     pub fn edge_tangent_cone_polar_contains_dir(
         &self, i: usize, dir: &Unit<Vector<N>>, cos_ang_tol: N
     ) -> bool {
@@ -447,6 +451,8 @@ impl<N: Real> Polyline<N> {
         normal.dot(dir) >= cos_ang_tol
     }
 
+    /// (Not yet implemented) Tests whether the polar of the tangent cone of the specified feature of
+    /// this polyline contains the direction `dir` considering the sinus and cosinus of an angular tolerance.
     pub fn tangent_cone_polar_contains_dir(&self, _feature: FeatureId, _dir: &Unit<Vector<N>>, _sin_ang_tol: N, _cos_ang_tol: N) -> bool {
         unimplemented!()
         /*

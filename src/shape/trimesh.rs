@@ -27,9 +27,12 @@ struct DeformationInfos<N: Real> {
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
+/// Description of a face adjascent to an edge.
 pub struct FaceAdjacentToEdge {
-    pub face_id: usize,
-    pub edge_id: usize,
+    /// Index of the face.
+    face_id: usize,
+    /// Index of the edge the edge is adjascent to.
+    edge_id: usize,
 }
 
 impl FaceAdjacentToEdge {
@@ -40,27 +43,36 @@ impl FaceAdjacentToEdge {
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
+/// A face of a triangle mesh.
 pub struct TriMeshFace<N: Real> {
+    /// Indices of the vertices of this face.
     pub indices: Point3<usize>,
+    /// Indices of the edges of this face.
     pub edges: Point3<usize>,
     bvt_leaf: usize,
+    /// The normal of this face if it is not degenerate.
     pub normal: Option<Unit<Vector<N>>>,
-    // Outward edge normals on the face's plane.
+    /// Outward edge normals on the face's plane.
     pub side_normals: Option<[Unit<Vector<N>>; 3]>,
 }
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
 pub struct TriMeshEdge {
+    /// The indices of this edge.
     pub indices: Point2<usize>,
+    /// The faces adjascent nto this edg.
     pub adj_faces: (FaceAdjacentToEdge, FaceAdjacentToEdge),
 }
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
+/// A vertex of a triangle mesh.
 pub struct TriMeshVertex {
-    pub adj_faces: Range<usize>,
-    pub adj_vertices: Range<usize>,
+    /// Indirect indices of this vertex adjacent faces.
+    adj_faces: Range<usize>,
+    /// Indirect indices of this vertex adjacent vertices.
+    adj_vertices: Range<usize>,
 }
 
 /// A 3d triangle mesh.
@@ -333,12 +345,14 @@ impl<N: Real> TriMesh<N> {
         &self.edges
     }
 
+    /// Applies a transformation to this triangle mesh.
     pub fn transform_by(&mut self, transform: &Isometry<N>) {
         for pt in &mut self.points {
             *pt = transform * *pt
         }
     }
 
+    /// Applies a non-uniform scale to this triangle mesh.
     pub fn scale_by(&mut self, scale: &Vector<N>) {
         for pt in &mut self.points {
             pt.coords.component_mul_assign(scale)
@@ -606,6 +620,8 @@ impl<N: Real> TriMesh<N> {
         normal.dot(dir) <= N::zero()
     }
 
+    /// Checks if the polar of the tangent cone of the `i`-th face of this triangle mesh contains
+    /// the specified direction within an angular tolerence.
     pub fn face_tangent_cone_polar_contains_dir(
         &self, i: usize, dir: &Unit<Vector<N>>, cos_ang_tol: N
     ) -> bool {
@@ -626,6 +642,8 @@ impl<N: Real> TriMesh<N> {
         normal.dot(dir) >= cos_ang_tol
     }
 
+    /// Checks if the polar of the tangent cone of the specified feature of this triangle mesh contains
+    /// the specified direction within an angular tolerence.
     pub fn tangent_cone_polar_contains_dir(&self, feature: FeatureId, dir: &Unit<Vector<N>>, sin_ang_tol: N, cos_ang_tol: N) -> bool {
         match feature {
             FeatureId::Face(i) => {

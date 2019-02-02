@@ -60,6 +60,7 @@ impl<N: Real> Capsule<N> {
         Segment::new(a, b)
     }
 
+    /// The contact preprocessor to be used for contact determination with this capsule.
     #[inline]
     pub fn contact_preprocessor(&self) -> impl ContactPreprocessor<N> {
         CapsuleContactPreprocessor {

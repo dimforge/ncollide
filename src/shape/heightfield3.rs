@@ -8,16 +8,22 @@ use crate::math::Vector;
 bitflags! {
     #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
     #[derive(Default)]
+    /// The status of the cell of an heightfield.
     pub struct HeightFieldCellStatus: u8 {
+        /// If this bit is set, the concerned heightfield cell is subdivided using a Z pattern.
         const ZIGZAG_SUBDIVISION = 0b00000001;
+        /// If this bit is set, the leftmost triangle of the concerned heightfield cell is removed.
         const LEFT_TRIANGLE_REMOVED = 0b00000010;
+        /// If this bit is set, the rightmost triangle of the concerned heightfield cell is removed.
         const RIGHT_TRIANGLE_REMOVED = 0b00000100;
+        /// If this bit is set, both triangles of the concerned heightfield cell are removed.
         const CELL_REMOVED = Self::LEFT_TRIANGLE_REMOVED.bits | Self::RIGHT_TRIANGLE_REMOVED.bits;
     }
 }
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
+/// An heightfield implicitly discretized with triangles.
 pub struct HeightField<N: Real> {
     heights: DMatrix<N>,
     scale: Vector<N>,
@@ -27,6 +33,7 @@ pub struct HeightField<N: Real> {
 }
 
 impl<N: Real> HeightField<N> {
+    /// Initializes a new heightfield with the given heights and a scaling factor.
     pub fn new(heights: DMatrix<N>, scale: Vector<N>) -> Self {
         assert!(heights.nrows() > 1 && heights.ncols() > 1, "A heightfield heights must have at least 2 rows and columns.");
         let max = heights.max();
@@ -44,10 +51,12 @@ impl<N: Real> HeightField<N> {
         }
     }
 
+    /// The number of rows of this heightfield.
     pub fn nrows(&self) -> usize {
         self.heights.nrows() - 1
     }
 
+    /// The number of columns of this heightfield.
     pub fn ncols(&self) -> usize {
         self.heights.ncols() - 1
     }
@@ -82,6 +91,7 @@ impl<N: Real> HeightField<N> {
         unsafe { na::convert_unchecked::<N, f64>(i) as usize }
     }
 
+    /// The pair of index of the cell containing the vertical projection of the given point.
     pub fn cell_at_point(&self, pt: &Point3<N>) -> Option<(usize, usize)> {
         let _0_5: N = na::convert(0.5);
         let scaled_pt = pt.coords.component_div(&self.scale);
@@ -100,11 +110,13 @@ impl<N: Real> HeightField<N> {
         }
     }
 
+    /// The smallest x coordinate of the `j`-th column of this heightfield.
     pub fn x_at(&self, j: usize) -> N {
         let _0_5: N = na::convert(0.5);
         (-_0_5 + self.unit_cell_width() * na::convert(j as f64)) * self.scale.x
     }
 
+    /// The smallest z coordinate of the start of the `i`-th row of this heightfield.
     pub fn z_at(&self, i: usize) -> N {
         let _0_5: N = na::convert(0.5);
         (-_0_5 + self.unit_cell_height() * na::convert(i as f64)) * self.scale.z
@@ -119,6 +131,10 @@ impl<N: Real> HeightField<N> {
         }
     }
 
+    /// The two triangles at the cell (i, j) of this heightfield.
+    ///
+    /// Returns `None` fore triangles that have been removed because of their user-defined status
+    /// flags (described by the `HeightFieldCellStatus` bitfield).
     pub fn triangles_at(&self, i: usize, j: usize) -> (Option<Triangle<N>>, Option<Triangle<N>>) {
         let status = self.status[(i, j)];
 
@@ -183,50 +199,64 @@ impl<N: Real> HeightField<N> {
         }
     }
 
+    /// The status of the `(i, j)`-th cell.
     pub fn cell_status(&self, i: usize, j: usize) -> HeightFieldCellStatus {
         self.status[(i, j)]
     }
 
+    /// Set the status of the `(i, j)`-th cell.
     pub fn set_cell_status(&mut self, i: usize, j: usize, status: HeightFieldCellStatus) {
         self.status[(i, j)] = status
     }
 
+    /// The statuses of all the cells of this heightfield.
     pub fn cells_statuses(&self) -> &DMatrix<HeightFieldCellStatus> {
         &self.status
     }
 
+    /// The mutable statuses of all the cells of this heightfield.
     pub fn cells_statuses_mut(&mut self) -> &mut DMatrix<HeightFieldCellStatus> {
         &mut self.status
     }
 
+    /// The heights of this heightfield.
     pub fn heights(&self) -> &DMatrix<N> {
         &self.heights
     }
 
+    /// The scale factor applied to this heightfield.
     pub fn scale(&self) -> &Vector<N> {
         &self.scale
     }
 
+    /// The width (extent along its local `x` axis) of each cell of this heightmap, including the scale factor.
     pub fn cell_width(&self) -> N {
         self.unit_cell_width() * self.scale.x
     }
 
+    /// The height (extent along its local `z` axis) of each cell of this heightmap, including the scale factor.
     pub fn cell_height(&self) -> N {
         self.unit_cell_height() * self.scale.z
     }
 
+    /// The width (extent along its local `x` axis) of each cell of this heightmap, excluding the scale factor.
     pub fn unit_cell_width(&self) -> N {
         N::one() / na::convert(self.heights.ncols() as f64 - 1.0)
     }
 
+    /// The height (extent along its local `z` axis) of each cell of this heightmap, excluding the scale factor.
     pub fn unit_cell_height(&self) -> N {
         N::one() / na::convert(self.heights.nrows() as f64 - 1.0)
     }
 
+    /// The AABB of this heightmap.
     pub fn aabb(&self) -> &AABB<N> {
         &self.aabb
     }
 
+
+    /// Converts the FeatureID of the left or right triangle at the cell `(i, j)` into a FeatureId
+    /// of the whole heightfield.
     pub fn convert_triangle_feature_id(&self, i: usize, j: usize, left: bool, fid: FeatureId) -> FeatureId {
         match fid {
             FeatureId::Vertex(ivertex) => {
@@ -303,6 +333,7 @@ impl<N: Real> HeightField<N> {
         }
     }
 
+    /// Applies the function `f` to all the triangles of this heightfield intersecting the given AABB.
     pub fn map_elements_in_local_aabb(&self, aabb: &AABB<N>, f: &mut impl FnMut(usize, &Triangle<N>, &ContactPreprocessor<N>)) {
         let _0_5: N = na::convert(0.5);
         let ncells_x = self.ncols();

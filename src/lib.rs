@@ -41,7 +41,7 @@ And various traits for collision detectors and broad phase collision detection.
 #![deny(unused_parens)]
 #![deny(non_upper_case_globals)]
 #![deny(unused_qualifications)]
-#![allow(missing_docs)] // XXX: deny that
+#![deny(missing_docs)]
 #![deny(unused_results)]
 #![warn(unused_imports)]
 #![allow(missing_copy_implementations)]

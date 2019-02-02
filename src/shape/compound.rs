@@ -85,6 +85,8 @@ impl<N: Real> Compound<N> {
         &self.bvs[i]
     }
 
+    /// Transforms a FeatureId of this compound into a pair containing the index of the subshape
+    /// containing this feature, and the corresponding FeatureId on this subshape.
     pub fn subshape_feature_id(&self, fid: FeatureId) -> (usize, FeatureId) {
         match fid {
             FeatureId::Face(i) => ((i & !(usize::max_value() << self.nbits)), FeatureId::Face(i >> self.nbits)),
