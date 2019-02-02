@@ -121,6 +121,27 @@ impl CollisionGroups {
         CollisionGroups::set_mask(&mut self.blacklist, groups);
     }
 
+    /// Make this object member of the given groups only.
+    #[inline]
+    pub fn with_membership(mut self, groups: &[usize]) -> Self {
+        CollisionGroups::set_mask(&mut self.membership, groups);
+        self
+    }
+
+    /// Whitelists the given groups only (others will be un-whitelisted).
+    #[inline]
+    pub fn with_whitelist(mut self, groups: &[usize]) -> Self {
+        CollisionGroups::set_mask(&mut self.whitelist, groups);
+        self
+    }
+
+    /// Blacklists the given groups only (others will be un-blacklisted).
+    #[inline]
+    pub fn with_blacklist(mut self, groups: &[usize]) -> Self {
+        CollisionGroups::set_mask(&mut self.blacklist, groups);
+        self
+    }
+
     /// Copies the membership of another collision groups.
     #[inline]
     pub fn copy_membership(&mut self, other: &CollisionGroups) {
