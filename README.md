@@ -1,9 +1,12 @@
 <p align="center">
+    <a href="https://discord.gg/vt9DJSW">
+        <img src="https://img.shields.io/discord/507548572338880513.svg?logo=discord&colorB=7289DA">
+    </a>
     <a href="https://crates.io/crates/ncollide">
          <img src="http://meritbadge.herokuapp.com/ncollide?style=flat-square" alt="crates.io">
     </a>
-    <a href="https://travis-ci.org/sebcrozet/ncollide">
-        <img src="https://travis-ci.org/sebcrozet/ncollide.svg?branch=master" alt="Build status">
+    <a href="https://travis-ci.org/rustsim/ncollide">
+        <img src="https://travis-ci.org/rustsim/ncollide.svg?branch=master" alt="Build status">
     </a>
 </p>
 <p align = "center">
@@ -19,7 +22,7 @@ ncollide
 the rust programming language.
 
 The official user guide is available [here](http://ncollide.org).
-The rustdoc documentation is available [for 3D](http://ncollide.org/rustdoc/ncollide3d) and [for 2D](http://ncollide.org/rustdoc/ncollide3d).
+The rustdoc documentation is available [for 3D](http://ncollide.org/rustdoc/ncollide3d) and [for 2D](http://ncollide.org/rustdoc/ncollide2d).
 
 ## Compilation
 You will need the last stable build of the [rust compiler](http://www.rust-lang.org)

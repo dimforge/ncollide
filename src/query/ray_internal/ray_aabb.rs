@@ -36,6 +36,8 @@ impl<N: Real> RayCast<N> for AABB<N> {
                 tmax = tmax.min(inter_with_far_plane);
 
                 if tmin > tmax {
+                    // This covers the case where tmax is negative because tmin is
+                    // initialized at zero.
                     return None;
                 }
             }

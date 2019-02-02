@@ -5,7 +5,7 @@ authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "3D testbed for ncollide."
 homepage = "http://ncollide.org"
-repository = "https://github.com/sebcrozet/ncollide"
+repository = "https://github.com/rustsim/ncollide"
 keywords = [ "ncollide", "geometry", "3D", "graphics", "testbed" ]
 license = "BSD-3-Clause"
 
@@ -20,7 +20,7 @@ recording = [ "mpeg_encoder" ]
 time         = "0.1"
 rand         = "0.5"
 num-traits   = "0.2"
-kiss3d       = "0.15"
+kiss3d       = "0.16"
 mpeg_encoder = { version = "0.2", optional = true }
 nalgebra     = "0.16"
 ncollide3d   = "0.17"

@@ -489,4 +489,100 @@ impl<N: Real> ConvexPolyhedron<N> for Cuboid<N> {
             FeatureId::Vertex(support_point_id)
         }
     }
+
+    #[cfg(feature = "dim2")]
+    fn feature_normal(&self, feature: FeatureId) -> Unit<Vector<N>> {
+        match feature {
+            FeatureId::Face(id) => {
+                let mut dir: Vector<N> = na::zero();
+
+                if id < 2 {
+                    dir[id] = N::one();
+                } else {
+                    dir[id - 2] = -N::one();
+                }
+                Unit::new_unchecked(dir)
+            }
+            FeatureId::Vertex(id) => {
+                let mut dir: Vector<N> = na::zero();
+
+                match id {
+                    0b00 => {
+                        dir[0] = N::one();
+                        dir[1] = N::one();
+                    }
+                    0b01 => {
+                        dir[1] = N::one();
+                        dir[0] = -N::one();
+                    }
+                    0b11 => {
+                        dir[0] = -N::one();
+                        dir[1] = -N::one();
+                    }
+                    0b10 => {
+                        dir[1] = -N::one();
+                        dir[0] = N::one();
+                    }
+                    _ => panic!("Invalid feature ID: {:?}", feature),
+                }
+
+                Unit::new_normalize(dir)
+            }
+            _ => panic!("Invalid feature ID {:?}.", feature)
+        }
+    }
+
+    #[cfg(feature = "dim3")]
+    fn feature_normal(&self, feature: FeatureId) -> Unit<Vector<N>> {
+        match feature {
+            FeatureId::Face(id) => {
+                let mut dir: Vector<N> = na::zero();
+
+                if id < 3 {
+                    dir[id] = N::one();
+                } else {
+                    dir[id - 3] = -N::one();
+                }
+                Unit::new_unchecked(dir)
+            }
+            FeatureId::Edge(id) => {
+                let edge = id & 0b011;
+                let face1 = (edge + 1) % 3;
+                let face2 = (edge + 2) % 3;
+                let signs = id >> 2;
+
+                let mut dir: Vector<N> = na::zero();
+                let _1: N = na::one();
+
+                if signs & (1 << face1) != 0 {
+                    dir[face1] = -_1
+                } else {
+                    dir[face1] = _1
+                }
+
+                if signs & (1 << face2) != 0 {
+                    dir[face2] = -_1
+                } else {
+                    dir[face2] = _1;
+                }
+
+                Unit::new_normalize(dir)
+            }
+            FeatureId::Vertex(id) => {
+                let mut dir: Vector<N> = na::zero();
+                for i in 0..3 {
+                    let _1: N = na::one();
+
+                    if id & (1 << i) != 0 {
+                        dir[i] = -_1;
+                    } else {
+                        dir[i] = _1
+                    }
+                }
+
+                Unit::new_normalize(dir)
+            }
+            _ => panic!("Invalid feature ID: {:?}", feature)
+        }
+    }
 }

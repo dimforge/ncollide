@@ -92,7 +92,7 @@ impl<N: Real> ConvexHull<N> {
     }
     /// Attempts to create a new solid assumed to be convex from the set of points and indices.
     ///
-    /// The given points and index informations are assumed to describe a convex polyhedron.
+    /// The given points and index information are assumed to describe a convex polyhedron.
     /// It it is not, weird results may be produced.
     ///
     /// # Return
@@ -425,6 +425,29 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexHull<N> {
         out.set_normal(face.normal);
         out.set_feature_id(id);
         out.recompute_edge_normals();
+    }
+
+    fn feature_normal(&self, feature: FeatureId) -> Unit<Vector<N>> {
+        match feature {
+            FeatureId::Face(id) => self.faces[id].normal,
+            FeatureId::Edge(id) => {
+                let edge = &self.edges[id];
+                Unit::new_normalize(*self.faces[edge.faces[0]].normal + *self.faces[edge.faces[1]].normal)
+            }
+            FeatureId::Vertex(id) => {
+                let vertex = &self.vertices[id];
+                let first = vertex.first_adj_face_or_edge;
+                let last = vertex.first_adj_face_or_edge + vertex.num_adj_faces_or_edge;
+                let mut normal = Vector::zeros();
+
+                for face in &self.faces_adj_to_vertex[first..last] {
+                    normal += *self.faces[*face].normal
+                }
+
+                Unit::new_normalize(normal)
+            }
+            FeatureId::Unknown => panic!("Invalid feature ID: {:?}", feature)
+        }
     }
 
     fn support_face_toward(

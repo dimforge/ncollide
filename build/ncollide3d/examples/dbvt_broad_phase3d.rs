@@ -2,9 +2,24 @@ extern crate nalgebra as na;
 extern crate ncollide3d;
 
 use na::{Isometry3, Vector3};
-use ncollide3d::bounding_volume;
-use ncollide3d::broad_phase::{BroadPhase, DBVTBroadPhase};
 use ncollide3d::shape::Ball;
+use ncollide3d::bounding_volume;
+use ncollide3d::broad_phase::{BroadPhase, BroadPhaseInterferenceHandler, DBVTBroadPhase};
+
+struct InterferenceHandler;
+
+impl BroadPhaseInterferenceHandler<i32> for InterferenceHandler {
+    fn is_interference_allowed(&mut self, a: &i32, b: &i32) -> bool {
+        // Prevent self-collision.
+        *a != *b
+    }
+
+    fn interference_started(&mut self, _: &i32, _: &i32) {
+    }
+
+    fn interference_stopped(&mut self, _: &i32, _: &i32) {
+    }
+}
 
 fn main() {
     /*
@@ -34,7 +49,7 @@ fn main() {
 
     // Update the broad phase.
     // The collision filter (first closure) prevents self-collision.
-    bf.update(&mut |a, b| *a != *b, &mut |_, _, _| {});
+    bf.update(&mut InterferenceHandler);
 
     assert!(bf.num_interferences() == 6);
 
@@ -43,7 +58,7 @@ fn main() {
 
     // Update the broad phase.
     // The collision filter (first closure) prevents self-collision.
-    bf.update(&mut |a, b| *a != *b, &mut |_, _, _| {});
+    bf.update(&mut InterferenceHandler);
 
     assert!(bf.num_interferences() == 1)
 }

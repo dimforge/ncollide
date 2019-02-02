@@ -87,6 +87,20 @@ impl<N: Real> ContactManifold<N> {
         }
     }
 
+    /// Empty the manifold as well as its cache.
+    pub fn clear(&mut self, gen: &mut IdAllocator) {
+        for c in &self.contacts {
+            gen.free((c.1).0.id)
+        }
+
+        match &mut self.cache {
+            ContactCache::FeatureBased(h) => h.clear(),
+            ContactCache::DistanceBased(v, _) => v.clear()
+        }
+        self.contacts.clear();
+        self.ncontacts = 0;
+    }
+
     /// Gets the technique currently used for tracking contacts.
     pub fn tracking_mode(&self) -> ContactTrackingMode<N> {
         match self.cache {

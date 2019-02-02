@@ -68,8 +68,8 @@ pub enum ContactEvent {
     /// This event is generated whenever the narrow-phase finds a contact between two collision objects that did not have any contact at the last update.
     Started(CollisionObjectHandle, CollisionObjectHandle),
     /// Event occuring when two collision objects stop being in contact.    
-    ///
-    /// This event is generated whenever the narrow-phase fails to find any contact between two collision objects thit did have at least one contact at the last update.
+    /// 
+    /// This event is generated whenever the narrow-phase fails to find any contact between two collision objects that did have at least one contact at the last update.
     Stopped(CollisionObjectHandle, CollisionObjectHandle),
 }
 

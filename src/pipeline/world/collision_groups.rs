@@ -57,6 +57,57 @@ impl CollisionGroups {
         }
     }
 
+    /// Returns a copy of this object, updated with a new set of membership groups.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// const GROUP_A: usize = 0;
+    /// const GROUP_B: usize = 29;
+    /// const groups = CollisionGroups::new().with_membership(&[GROUP_A, GROUP_B]);
+    /// assert!(groups.is_member_of(GROUP_A);
+    /// assert!(groups.is_member_of(GROUP_B);
+    /// ```
+    #[inline]
+    pub fn with_membership(mut self, groups: &[usize]) -> CollisionGroups {
+        CollisionGroups::set_mask(&mut self.membership, groups);
+        self
+    }
+
+    /// Returns a copy of this object, updated with a new set of whitelisted groups.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// const GROUP_A: usize = 0;
+    /// const GROUP_B: usize = 29;
+    /// const group_a = CollisionGroups::new().with_whitelist(&[GROUP_B]);
+    /// assert!(!group_a.is_group_whitelisted(GROUP_A));
+    /// assert!(group_a.is_group_whitelisted(GROUP_B));
+    /// ```
+    #[inline]
+    pub fn with_whitelist(mut self, groups: &[usize]) -> CollisionGroups {
+        CollisionGroups::set_mask(&mut self.whitelist, groups);
+        self
+    }
+
+    /// Returns a copy of this object, updated with a new set of blacklisted groups.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// const GROUP_A: usize = 0;
+    /// const GROUP_B: usize = 29;
+    /// const group_a = CollisionGroups::new().with_blacklist(&[GROUP_B]);
+    /// assert!(!group_a.is_group_blacklisted(GROUP_A));
+    /// assert!(group_a.is_group_blacklisted(GROUP_B));
+    /// ```
+    #[inline]
+    pub fn with_blacklist(mut self, groups: &[usize]) -> CollisionGroups {
+        CollisionGroups::set_mask(&mut self.blacklist, groups);
+        self
+    }
+
     /// The maximum allowed group identifier.
     #[inline]
     pub fn max_group_id() -> usize {
@@ -121,27 +172,6 @@ impl CollisionGroups {
         CollisionGroups::set_mask(&mut self.blacklist, groups);
     }
 
-    /// Make this object member of the given groups only.
-    #[inline]
-    pub fn with_membership(mut self, groups: &[usize]) -> Self {
-        CollisionGroups::set_mask(&mut self.membership, groups);
-        self
-    }
-
-    /// Whitelists the given groups only (others will be un-whitelisted).
-    #[inline]
-    pub fn with_whitelist(mut self, groups: &[usize]) -> Self {
-        CollisionGroups::set_mask(&mut self.whitelist, groups);
-        self
-    }
-
-    /// Blacklists the given groups only (others will be un-blacklisted).
-    #[inline]
-    pub fn with_blacklist(mut self, groups: &[usize]) -> Self {
-        CollisionGroups::set_mask(&mut self.blacklist, groups);
-        self
-    }
-
     /// Copies the membership of another collision groups.
     #[inline]
     pub fn copy_membership(&mut self, other: &CollisionGroups) {
@@ -199,7 +229,7 @@ impl CollisionGroups {
         CollisionGroups::is_inside_mask(self.blacklist, group_id)
     }
 
-    /// Tests whether interactinos with a given group is possible.
+    /// Tests whether interactions with a given group is possible.
     ///
     /// Collision is possible if `group_id` is whitelisted but not blacklisted.
     #[inline]

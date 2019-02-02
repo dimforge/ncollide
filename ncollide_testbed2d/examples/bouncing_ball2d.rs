@@ -128,14 +128,13 @@ fn main() {
     let ball_pos = Isometry2::new(Vector2::new(5.0, 5.0), na::zero());
 
     // The ball is part of group 1 and can interact with everything.
-    let mut ball_groups = CollisionGroups::new();
-    ball_groups.set_membership(&[1]);
+    let ball_groups = CollisionGroups::new().with_membership(&[1]);
 
     // All the other objects are part of the group 2 and interact only with the ball (but not with
     // each other).
-    let mut others_groups = CollisionGroups::new();
-    others_groups.set_membership(&[2]);
-    others_groups.set_whitelist(&[1]);
+    let others_groups = CollisionGroups::new()
+        .with_membership(&[2])
+        .with_whitelist(&[1]);
 
     let plane_data = CollisionObjectData::new("ground", None);
     let rect_data_purple = CollisionObjectData::new("purple", None);

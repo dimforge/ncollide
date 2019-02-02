@@ -140,7 +140,7 @@ impl<N: Real> Shape<N> {
     /// Tests if this shape has a specific type `T`.
     #[inline]
     pub fn is_shape<T: Shape<N>>(&self) -> bool {
-        self.type_id() == TypeId::of::<T>()
+        self.type_id_compat() == TypeId::of::<T>()
     }
 
     /// Performs the cast.
@@ -200,15 +200,16 @@ impl<N: Real> Deref for ShapeHandle<N> {
 /// Trait to retrieve the `TypeId` of a shape.
 ///
 /// This exists only because `Any::get_type_id()` is unstable.
+/// TODO: once 1.33.0 is stable, remove this trait and use StdAny::type_id
 pub unsafe trait GetTypeId {
     /// Gets the dynamic type identifier of this shape.
     #[inline]
-    fn type_id(&self) -> TypeId;
+    fn type_id_compat(&self) -> TypeId;
 }
 
 unsafe impl<T: Any> GetTypeId for T {
     #[inline]
-    fn type_id(&self) -> TypeId {
+    fn type_id_compat(&self) -> TypeId {
         TypeId::of::<Self>()
     }
 }

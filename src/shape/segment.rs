@@ -232,6 +232,42 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
         }
     }
 
+    fn feature_normal(&self, feature: FeatureId) -> Unit<Vector<N>> {
+        if let Some(direction) = self.direction() {
+            match feature {
+                FeatureId::Vertex(id) => {
+                    if id == 0 {
+                        direction
+                    } else {
+                        -direction
+                    }
+                }
+                #[cfg(feature = "dim3")]
+                FeatureId::Edge(_) => {
+                    let iamin = direction.iamin();
+                    let mut normal = Vector::zeros();
+                    normal[iamin] = N::one();
+                    normal -= *direction * direction[iamin];
+                    Unit::new_normalize(normal)
+                }
+                FeatureId::Face(id) => {
+                    let mut dir = Vector::zeros();
+                    if id == 0 {
+                        dir[0] = direction[1];
+                        dir[1] = -direction[0];
+                    } else {
+                        dir[0] = -direction[1];
+                        dir[1] = direction[0];
+                    }
+                    Unit::new_unchecked(dir)
+                }
+                _ => panic!("Invalid feature ID: {:?}", feature),
+            }
+        } else {
+            Vector::y_axis()
+        }
+    }
+
     #[cfg(feature = "dim2")]
     fn support_face_toward(
         &self,
@@ -312,17 +348,17 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
 
             if dot <= seps {
                 #[cfg(feature = "dim2")]
-                {
-                    if local_dir.perp(seg_dir.as_ref()) >= na::zero() {
-                        FeatureId::Face(0)
-                    } else {
-                        FeatureId::Face(1)
+                    {
+                        if local_dir.perp(seg_dir.as_ref()) >= na::zero() {
+                            FeatureId::Face(0)
+                        } else {
+                            FeatureId::Face(1)
+                        }
                     }
-                }
                 #[cfg(feature = "dim3")]
-                {
-                    FeatureId::Edge(0)
-                }
+                    {
+                        FeatureId::Edge(0)
+                    }
             } else if dot >= na::zero() {
                 FeatureId::Vertex(1)
             } else {

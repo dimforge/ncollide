@@ -58,6 +58,9 @@ pub trait ConvexPolyhedron<N: Real>: SupportMap<N> {
     /// Get the specified edge's vertices (in the shape local-space) and the vertices' identifiers.
     fn edge(&self, id: FeatureId) -> (Point<N>, Point<N>, FeatureId, FeatureId);
 
+    /// Returns any normal from the normal cone of the given feature.
+    fn feature_normal(&self, feature: FeatureId) -> Unit<Vector<N>>;
+
     /// Retrieve the face (in world-space) with a normal that maximizes the scalar product with `dir`.
     fn support_face_toward(
         &self,

@@ -2,7 +2,7 @@ use crate::bounding_volume::BoundingVolume;
 use crate::math::Point;
 use na::Real;
 use crate::partitioning::{DBVTLeaf, DBVTLeafId, BVH, DBVT};
-use crate::pipeline::broad_phase::{BroadPhase, ProxyHandle};
+use crate::pipeline::broad_phase::{BroadPhase, ProxyHandle, BroadPhaseInterferenceHandler};
 use crate::query::visitors::{
     BoundingVolumeInterferencesCollector, PointInterferencesCollector, RayInterferencesCollector,
 };
@@ -18,8 +18,8 @@ use crate::utils::{DeterministicState, SortedPair};
 enum ProxyStatus {
     OnStaticTree(DBVTLeafId),
     OnDynamicTree(DBVTLeafId, usize),
-    Detached(Option<usize>),
     // The usize is the location of the corresponding on proxies_to_update
+    Detached(Option<usize>),
     Deleted,
 }
 
@@ -54,27 +54,26 @@ const DEACTIVATION_THRESHOLD: usize = 100;
 /// moving objects.
 pub struct DBVTBroadPhase<N: Real, BV, T> {
     proxies: Slab<DBVTBroadPhaseProxy<T>>,
-    tree: DBVT<N, ProxyHandle, BV>,
     // DBVT for moving objects.
-    stree: DBVT<N, ProxyHandle, BV>,
+    tree: DBVT<N, ProxyHandle, BV>,
     // DBVT for static objects.
-    pairs: HashMap<SortedPair<ProxyHandle>, bool, DeterministicState>,
+    stree: DBVT<N, ProxyHandle, BV>,
     // Pairs detected.
-    margin: N,
+    pairs: HashMap<SortedPair<ProxyHandle>, bool, DeterministicState>,
     // The margin added to each bounding volume.
+    margin: N,
     purge_all: bool,
 
     // Just to avoid dynamic allocations.
     collector: Vec<ProxyHandle>,
-    pairs_to_remove: Vec<SortedPair<ProxyHandle>>,
     leaves_to_update: Vec<DBVTLeaf<N, ProxyHandle, BV>>,
     proxies_to_update: Vec<(ProxyHandle, BV)>,
 }
 
 impl<N, BV, T> DBVTBroadPhase<N, BV, T>
-where
-    N: Real,
-    BV: 'static + BoundingVolume<N> + Clone,
+    where
+        N: Real,
+        BV: 'static + BoundingVolume<N> + Clone,
 {
     /// Creates a new broad phase based on a Dynamic Bounding Volume Tree.
     pub fn new(margin: N) -> DBVTBroadPhase<N, BV, T> {
@@ -86,7 +85,6 @@ where
             purge_all: false,
             collector: Vec::new(),
             leaves_to_update: Vec::new(),
-            pairs_to_remove: Vec::new(),
             proxies_to_update: Vec::new(),
             margin: margin,
         }
@@ -98,63 +96,49 @@ where
         self.pairs.len()
     }
 
-    fn purge_some_contact_pairs(
-        &mut self,
-        allow_proximity: &mut FnMut(&T, &T) -> bool,
-        handler: &mut FnMut(&T, &T, bool),
-    )
-    {
-        for (pair, up_to_date) in &mut self.pairs {
-            if self.purge_all || !*up_to_date {
-                *up_to_date = true;
-                let mut remove = true;
+    fn purge_some_contact_pairs(&mut self, handler: &mut BroadPhaseInterferenceHandler<T>) {
+        let purge_all = self.purge_all;
+        let proxies = &self.proxies;
+        let stree = &self.stree;
+        let tree = &self.tree;
+        self.pairs.retain(|pair, up_to_date| {
+            let mut retain = true;
 
-                let proxy1 = self
-                    .proxies
+            if purge_all || !*up_to_date {
+                *up_to_date = true;
+
+                let proxy1 = proxies
                     .get(pair.0.uid())
                     .expect("DBVT broad phase: internal error.");
-                let proxy2 = self
-                    .proxies
+                let proxy2 = proxies
                     .get(pair.1.uid())
                     .expect("DBVT broad phase: internal error.");
 
-                if self.purge_all || proxy1.updated || proxy2.updated {
-                    if allow_proximity(&proxy1.data, &proxy2.data) {
+                if purge_all || proxy1.updated || proxy2.updated {
+                    if handler.is_interference_allowed(&proxy1.data, &proxy2.data) {
                         let l1 = match proxy1.status {
-                            ProxyStatus::OnStaticTree(leaf) => &self.stree[leaf],
-                            ProxyStatus::OnDynamicTree(leaf, _) => &self.tree[leaf],
+                            ProxyStatus::OnStaticTree(leaf) => &stree[leaf],
+                            ProxyStatus::OnDynamicTree(leaf, _) => &tree[leaf],
                             _ => panic!("DBVT broad phase: internal error."),
                         };
 
                         let l2 = match proxy2.status {
-                            ProxyStatus::OnStaticTree(leaf) => &self.stree[leaf],
-                            ProxyStatus::OnDynamicTree(leaf, _) => &self.tree[leaf],
+                            ProxyStatus::OnStaticTree(leaf) => &stree[leaf],
+                            ProxyStatus::OnDynamicTree(leaf, _) => &tree[leaf],
                             _ => panic!("DBVT broad phase: internal error."),
                         };
 
-                        if l1.bounding_volume.intersects(&l2.bounding_volume) {
-                            remove = false
+                        if !l1.bounding_volume.intersects(&l2.bounding_volume) {
+                            handler.interference_stopped(&proxy1.data, &proxy2.data);
+                            retain = false;
                         }
                     }
-                } else {
-                    remove = false;
-                }
-
-                if remove {
-                    handler(&proxy1.data, &proxy2.data, false);
-                    self.pairs_to_remove.push(*pair);
                 }
             }
 
             *up_to_date = false;
-        }
-
-        /*
-         * Actually remove the pairs.
-         */
-        for pair in self.pairs_to_remove.drain(..) {
-            let _ = self.pairs.remove(&pair);
-        }
+            retain
+        });
     }
 
     fn update_activation_states(&mut self) {
@@ -177,17 +161,12 @@ where
 }
 
 impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
-where
-    N: Real,
-    BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
-    T: Any + Send + Sync,
+    where
+        N: Real,
+        BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
+        T: Any + Send + Sync,
 {
-    fn update(
-        &mut self,
-        allow_proximity: &mut FnMut(&T, &T) -> bool,
-        handler: &mut FnMut(&T, &T, bool),
-    )
-    {
+    fn update(&mut self, handler: &mut BroadPhaseInterferenceHandler<T>) {
         /*
          * Remove from the trees all nodes that have been deleted or modified.
          */
@@ -248,11 +227,11 @@ where
                 for proxy_key2 in self.collector.iter() {
                     let proxy2 = &self.proxies[proxy_key2.uid()];
 
-                    if allow_proximity(&proxy1.data, &proxy2.data) {
+                    if handler.is_interference_allowed(&proxy1.data, &proxy2.data) {
                         match self.pairs.entry(SortedPair::new(leaf.data, *proxy_key2)) {
                             Entry::Occupied(entry) => *entry.into_mut() = true,
                             Entry::Vacant(entry) => {
-                                handler(&proxy1.data, &proxy2.data, true);
+                                handler.interference_started(&proxy1.data, &proxy2.data);
                                 let _ = entry.insert(true);
                             }
                         }
@@ -269,7 +248,7 @@ where
         }
 
         if some_leaves_updated {
-            self.purge_some_contact_pairs(allow_proximity, handler);
+            self.purge_some_contact_pairs(handler);
         }
         self.update_activation_states();
     }
@@ -300,26 +279,24 @@ where
             }
         }
 
-        for (pair, _) in &mut self.pairs {
-            let proxy1 = self
-                .proxies
-                .get(pair.0.uid())
-                .expect("DBVT broad phase: internal error.");
-            let proxy2 = self
-                .proxies
-                .get(pair.1.uid())
-                .expect("DBVT broad phase: internal error.");
+        {
+            let proxies = &self.proxies;
+            self.pairs.retain(|pair, _| {
+                let proxy1 = proxies
+                    .get(pair.0.uid())
+                    .expect("DBVT broad phase: internal error.");
+                let proxy2 = proxies
+                    .get(pair.1.uid())
+                    .expect("DBVT broad phase: internal error.");
 
-            if proxy1.status == ProxyStatus::Deleted || proxy2.status == ProxyStatus::Deleted {
-                handler(&proxy1.data, &proxy2.data);
-                self.pairs_to_remove.push(*pair)
-            }
+                if proxy1.status == ProxyStatus::Deleted || proxy2.status == ProxyStatus::Deleted {
+                    handler(&proxy1.data, &proxy2.data);
+                    false
+                } else {
+                    true
+                }
+            });
         }
-
-        for pair in self.pairs_to_remove.iter() {
-            let _ = self.pairs.remove(pair);
-        }
-        self.pairs_to_remove.clear();
 
         for handle in handles {
             let _ = self.proxies.remove(handle.uid());

@@ -362,6 +362,15 @@ impl<N: Real> ConvexPolyhedron<N> for Triangle<N> {
         }
     }
 
+    fn feature_normal(&self, _: FeatureId) -> Unit<Vector<N>> {
+        if let Some(normal) = self.normal() {
+            // FIXME: We should be able to do much better here.
+            normal
+        } else {
+            Vector::y_axis()
+        }
+    }
+
     fn support_face_toward(
         &self,
         m: &Isometry<N>,

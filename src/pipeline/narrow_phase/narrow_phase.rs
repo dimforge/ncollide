@@ -1,5 +1,4 @@
 use na::Real;
-use petgraph::visit::EdgeRef;
 
 use crate::pipeline::events::{ContactEvent, ContactEvents, ProximityEvent, ProximityEvents};
 use crate::pipeline::narrow_phase::{
@@ -155,11 +154,13 @@ impl<N: Real> NarrowPhase<N> {
             if let Some(eid) = self.interactions.graph.find_edge(id1, id2) {
                 if let Some(detector) = self.interactions.graph.remove_edge(eid) {
                     match detector {
-                        Interaction::Contact(_, manifold) => {
+                        Interaction::Contact(_, mut manifold) => {
                             // Register a collision lost event if there was a contact.
                             if manifold.len() != 0 {
                                 contact_events.push(ContactEvent::Stopped(co1.handle(), co2.handle()));
                             }
+
+                            manifold.clear(&mut self.id_alloc);
                         }
                         Interaction::Proximity(detector) => {
                             // Register a proximity lost signal if they were not disjoint.
@@ -193,7 +194,10 @@ impl<N: Real> NarrowPhase<N> {
         let id2 = objects[key.1].graph_index();
 
         if let Some(edge) = self.interactions.graph.find_edge(id1, id2) {
-            let _ = self.interactions.graph.remove_edge(edge);
+            let interaction = self.interactions.graph.remove_edge(edge);
+            if let Some(Interaction::Contact(_, mut manifold)) = interaction {
+                manifold.clear(&mut self.id_alloc)
+            }
         }
     }
 

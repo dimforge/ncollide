@@ -25,7 +25,7 @@ impl<N: Real> ConvexPolygon<N> {
         Self::try_new(vertices)
     }
 
-    /// Creates a new 2D convex polygon from a set of points assumed to describe a convex polyline.
+    /// Creates a new 2D convex polygon from a set of points assumed to describe a counter-clockwise convex polyline.
     ///
     /// Convexity of the input polyline is not checked.
     /// Returns `None` if some consecutive points are identical (or too close to being so).
@@ -133,6 +133,21 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexPolygon<N> {
 
         out.set_normal(self.normals[ia]);
         out.set_feature_id(FeatureId::Face(ia));
+    }
+
+    fn feature_normal(&self, feature: FeatureId) -> Unit<Vector<N>> {
+        match feature {
+            FeatureId::Face(id) => self.normals[id],
+            FeatureId::Vertex(id2) => {
+                let id1 = if id2 == 0 {
+                    self.normals.len() - 1
+                } else {
+                    id2 - 1
+                };
+                Unit::new_normalize(*self.normals[id1] + *self.normals[id2])
+            }
+            _ => panic!("Invalid feature ID: {:?}", feature),
+        }
     }
 
     fn support_face_toward(
