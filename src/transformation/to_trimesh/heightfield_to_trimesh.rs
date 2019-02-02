@@ -15,26 +15,6 @@ impl<N: Real> ToTriMesh<N> for shape::HeightField<N> {
             vertices.push(*tri.c());
         }
 
-        /*
-        for i in 0..self.nrows() {
-            for j in 0..self.ncols() {
-                let triangles = self.triangles_at(i, j);
-
-                if let Some(tri) = triangles.0 {
-                    vertices.push(*tri.a());
-                    vertices.push(*tri.b());
-                    vertices.push(*tri.c());
-                }
-
-                if let Some(tri) = triangles.1 {
-                    vertices.push(*tri.a());
-                    vertices.push(*tri.b());
-                    vertices.push(*tri.c());
-                }
-            }
-        }
-        */
-
         TriMesh::new(vertices, None, None, None)
     }
 }
