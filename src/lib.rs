@@ -51,7 +51,7 @@ extern crate alga;
 #[macro_use]
 extern crate approx;
 #[macro_use]
-extern crate downcast;
+extern crate downcast_rs;
 #[macro_use]
 #[cfg(feature = "dim3")]
 extern crate bitflags;

@@ -6,7 +6,7 @@ use crate::query::{PointQuery, RayCast};
 use crate::shape::{CompositeShape, ConvexPolyhedron, DeformableShape, FeatureId, SupportMap};
 use std::ops::Deref;
 use std::sync::Arc;
-use downcast::Any;
+use downcast_rs::Downcast;
 
 pub trait ShapeClone<N: Real> {
     fn clone_box(&self) -> Box<Shape<N>> {
@@ -23,7 +23,7 @@ impl<N: Real, T: 'static + Shape<N> + Clone> ShapeClone<N> for T {
 /// Trait implemented by all shapes supported by ncollide.
 ///
 /// This allows dynamic inspection of the shape capabilities.
-pub trait Shape<N: Real>: Send + Sync + Any + ShapeClone<N> {
+pub trait Shape<N: Real>: Send + Sync + Downcast + ShapeClone<N> {
     /// The AABB of `self`.
     #[inline]
     fn aabb(&self, m: &Isometry<N>) -> AABB<N>;
@@ -121,7 +121,7 @@ pub trait Shape<N: Real>: Send + Sync + Any + ShapeClone<N> {
     }
 }
 
-downcast!(<N> Shape<N> where N: Real);
+impl_downcast!(Shape<N> where N: Real);
 
 /// Trait for casting shapes to its exact represetation.
 impl<N: Real> Shape<N> {
@@ -134,7 +134,7 @@ impl<N: Real> Shape<N> {
     /// Performs the cast.
     #[inline]
     pub fn as_shape<T: Shape<N>>(&self) -> Option<&T> {
-        self.downcast_ref().ok()
+        self.downcast_ref()
     }
 }
 
