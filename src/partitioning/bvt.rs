@@ -10,6 +10,7 @@ use std::usize;
 use crate::utils;
 
 /// A Bounding Volume Tree.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
 pub struct BVT<T, BV> {
     root: BVTNodeId,
@@ -25,6 +26,7 @@ pub struct BVT<T, BV> {
 }
 
 /// The identifier of a BVT node.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Copy, Clone, Hash, PartialEq, Eq)]
 pub enum BVTNodeId {
     /// Identifier of an internal node.
@@ -33,6 +35,7 @@ pub enum BVTNodeId {
     Leaf(usize),
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
 struct BVTInternal<BV> {
     bounding_volume: BV,
@@ -41,6 +44,7 @@ struct BVTInternal<BV> {
 }
 
 /// A leaf of the BVT.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
 pub struct BVTLeaf<T, BV> {
     bounding_volume: BV,
@@ -61,6 +65,7 @@ impl<T, BV> BVTLeaf<T, BV> {
     }
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
 struct BVTDeformationInfo {
     parent: usize,

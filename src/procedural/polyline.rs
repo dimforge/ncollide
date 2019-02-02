@@ -4,6 +4,7 @@ use na::{self, Real};
 
 /// Geometric description of a polyline.
 #[derive(Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Polyline<N: Real> {
     /// Coordinates of the polyline vertices.
     coords: Vec<Point<N>>,

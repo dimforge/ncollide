@@ -13,6 +13,7 @@ use std::mem;
 use crate::utils::IsometryOps;
 
 /// A triangle shape.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Clone)]
 pub struct Triangle<N: Real> {
     a: Point<N>,

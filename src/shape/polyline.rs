@@ -12,6 +12,7 @@ use std::iter;
 use std::ops::Range;
 use std::slice;
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
 struct DeformationInfos<N: Real> {
     margin: N,
@@ -21,6 +22,7 @@ struct DeformationInfos<N: Real> {
     seg_to_update: Vec<usize>,
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
 pub struct PolylineEdge<N: Real> {
     pub indices: Point2<usize>,
@@ -28,6 +30,7 @@ pub struct PolylineEdge<N: Real> {
     pub normal: Option<Unit<Vector<N>>>, // FIXME: useless in 3D
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
 pub struct PolylineVertex {
     pub adj_edges: Range<usize>,
@@ -35,6 +38,7 @@ pub struct PolylineVertex {
 }
 
 /// A polygonal line.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
 pub struct Polyline<N: Real> {
     bvt: BVT<usize, AABB<N>>,

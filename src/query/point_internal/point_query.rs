@@ -4,6 +4,7 @@ use crate::shape::FeatureId;
 
 /// Description of the projection of a point on a shape.
 #[derive(Copy, Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct PointProjection<N: Real> {
     /// Whether or not the point to project was inside of the shape.
     pub is_inside: bool,

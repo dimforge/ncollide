@@ -7,6 +7,7 @@ use crate::utils::DeterministicState;
 
 /// Different representations of the index buffer.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum IndexBuffer {
     /// The vertex, normal, and uvs share the same indices.
     Unified(Vec<Point3<u32>>),
@@ -35,6 +36,7 @@ impl IndexBuffer {
 }
 
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 /// Geometric description of a mesh.
 pub struct TriMesh<N: Real> {
     // FIXME: those should *not* be public.

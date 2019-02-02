@@ -7,6 +7,7 @@ use crate::shape::{ConvexPolygonalFeature, SupportMap};
 /// This identifier is shape-dependent and is seach that it
 /// allows an efficient retrieval of the geometric information of the
 /// feature.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Copy, Clone, Debug, Hash, PartialEq, Eq)]
 pub enum FeatureId {
     /// Shape-dependent identifier of a vertex.

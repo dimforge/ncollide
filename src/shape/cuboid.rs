@@ -7,6 +7,7 @@ use std::f64;
 use crate::utils::IsometryOps;
 
 /// Shape of a box.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Clone)]
 pub struct Cuboid<N: Real> {
     half_extents: Vector<N>,

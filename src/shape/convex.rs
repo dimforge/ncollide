@@ -7,12 +7,14 @@ use std::f64;
 use crate::transformation;
 use crate::utils::{self, IsometryOps, SortedPair};
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Copy, Clone)]
 struct Vertex {
     first_adj_face_or_edge: usize,
     num_adj_faces_or_edge: usize,
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Copy, Clone)]
 struct Edge<N: Real> {
     vertices: Point2<usize>,
@@ -31,6 +33,7 @@ impl<N: Real> Edge<N> {
     }
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Copy, Clone)]
 struct Face<N: Real> {
     first_vertex_or_edge: usize,
@@ -38,6 +41,7 @@ struct Face<N: Real> {
     normal: Unit<Vector<N>>,
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Copy, Clone)]
 struct Triangle<N: Real> {
     vertices: Point3<usize>,
@@ -58,6 +62,7 @@ impl<N: Real> Triangle<N> {
     }
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Clone)]
 /// A convex polyhedron without degenerate faces.
 pub struct ConvexHull<N: Real> {

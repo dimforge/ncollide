@@ -6,6 +6,7 @@ use crate::shape::{Triangle, FeatureId};
 use crate::math::Vector;
 
 bitflags! {
+    #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
     #[derive(Default)]
     pub struct HeightFieldCellStatus: u8 {
         const ZIGZAG_SUBDIVISION = 0b00000001;
@@ -15,6 +16,7 @@ bitflags! {
     }
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
 pub struct HeightField<N: Real> {
     heights: DMatrix<N>,

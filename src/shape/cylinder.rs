@@ -6,6 +6,7 @@ use crate::shape::SupportMap;
 use crate::utils::IsometryOps;
 
 /// SupportMap description of a cylinder shape with its principal axis aligned with the `y` axis.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Clone)]
 pub struct Cylinder<N> {
     half_height: N,

@@ -6,6 +6,7 @@ use crate::shape::{Segment, Triangle};
 use std::mem;
 
 /// A tetrahedron with 4 vertices.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Copy, Clone, Debug)]
 pub struct Tetrahedron<N: Real> {
     a: Point<N>,

@@ -15,10 +15,12 @@ edition = "2018"
 [features]
 default = [ "dim2" ]
 dim2    = [ ]
+serde-serialize = [ "serde", "nalgebra/serde-serialize" ]
 
 [lib]
 name = "ncollide2d"
 path = "../../src/lib.rs"
+required-features = [ "dim2" ]
 
 [dependencies]
 either          = "1.0"
@@ -32,3 +34,4 @@ alga            = "0.7"
 nalgebra        = "0.16"
 approx          = { version = "0.3", default-features = false }
 rand            = { version = "0.5", default-features = false }
+serde           = { version = "1.0", optional = true, features = ["derive"]}

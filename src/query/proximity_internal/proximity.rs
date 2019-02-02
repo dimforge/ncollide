@@ -1,5 +1,6 @@
 /// Proximity information.
 #[derive(Debug, PartialEq, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum Proximity {
     /// The two objects are intersecting.
     Intersecting,

@@ -218,6 +218,7 @@ impl<N: Real, T> CollisionObject<N, T> {
 
 /// The unique identifier of a collision object.
 #[derive(Copy, Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct CollisionObjectHandle(pub usize);
 
 impl CollisionObjectHandle {

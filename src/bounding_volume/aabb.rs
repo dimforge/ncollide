@@ -18,6 +18,7 @@ where
 }
 
 /// An Axis Aligned Bounding Box.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, PartialEq, Clone)]
 pub struct AABB<N: Real> {
     mins: Point<N>,

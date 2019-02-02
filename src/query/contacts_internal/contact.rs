@@ -6,6 +6,7 @@ use crate::utils::GenerationalId;
 
 /// Geometric description of a contact.
 #[derive(Debug, PartialEq, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Contact<N: Real> {
     /// Position of the contact on the first object. The position is expressed in world space.
     pub world1: Point<N>,

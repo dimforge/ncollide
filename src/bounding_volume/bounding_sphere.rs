@@ -17,6 +17,7 @@ where
 }
 
 /// A Bounding Sphere.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, PartialEq, Clone)]
 pub struct BoundingSphere<N: Real> {
     center: Point<N>,

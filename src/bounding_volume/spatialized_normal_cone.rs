@@ -4,6 +4,7 @@ use na::Real;
 
 /// The combination of an AABB with a circular cone to bound both the space occupied by an geometry and its normals.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct SpatializedNormalCone<N: Real> {
     /// An AABB bounding the space occupied by a geometry.
     pub aabb: AABB<N>,

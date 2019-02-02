@@ -9,6 +9,7 @@ use crate::query::{ContactPreprocessor, Contact, ContactKinematic};
 
 
 /// SupportMap description of a capsule shape with its principal axis aligned with the `y` axis.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Clone)]
 pub struct Capsule<N> {
     half_height: N,

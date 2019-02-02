@@ -7,6 +7,7 @@ use crate::shape::Segment;
 use crate::math::Vector;
 
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
 pub struct HeightField<N: Real> {
     heights: DVector<N>,

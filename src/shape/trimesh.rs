@@ -15,6 +15,7 @@ use std::ops::Range;
 use std::slice;
 use crate::utils::{DeterministicState, IsometryOps};
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
 struct DeformationInfos<N: Real> {
     margin: N,
@@ -24,6 +25,7 @@ struct DeformationInfos<N: Real> {
     tri_to_update: Vec<usize>,
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
 pub struct FaceAdjacentToEdge {
     pub face_id: usize,
@@ -36,6 +38,7 @@ impl FaceAdjacentToEdge {
     }
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
 pub struct TriMeshFace<N: Real> {
     pub indices: Point3<usize>,
@@ -46,12 +49,14 @@ pub struct TriMeshFace<N: Real> {
     pub side_normals: Option<[Unit<Vector<N>>; 3]>,
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
 pub struct TriMeshEdge {
     pub indices: Point2<usize>,
     pub adj_faces: (FaceAdjacentToEdge, FaceAdjacentToEdge),
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
 pub struct TriMeshVertex {
     pub adj_faces: Range<usize>,
@@ -59,6 +64,7 @@ pub struct TriMeshVertex {
 }
 
 /// A 3d triangle mesh.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
 pub struct TriMesh<N: Real> {
     bvt: BVT<usize, AABB<N>>,

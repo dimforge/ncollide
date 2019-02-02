@@ -10,6 +10,7 @@ use crate::utils;
 use crate::utils::IsometryOps;
 
 /// A segment shape.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Clone)]
 pub struct Segment<N: Real> {
     a: Point<N>,

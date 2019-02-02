@@ -6,6 +6,7 @@ use crate::transformation;
 use crate::utils::{self, IsometryOps};
 
 /// A 2D convex polygon.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
 pub struct ConvexPolygon<N: Real> {
     points: Vec<Point<N>>,

@@ -7,6 +7,7 @@ use na::{self, Real, Unit};
 /// It is usually used to bound a set of directions like normals and tangents.
 /// It is convex and have a circular basis.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum CircularCone<N: Real> {
     /// A cone which is the whole space.
     Full,

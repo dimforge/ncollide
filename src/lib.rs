@@ -47,6 +47,9 @@ And various traits for collision detectors and broad phase collision detection.
 #![allow(missing_copy_implementations)]
 #![doc(html_root_url = "http://ncollide.org/rustdoc")]
 
+#[cfg(feature = "serde")]
+#[macro_use]
+extern crate serde;
 extern crate alga;
 #[macro_use]
 extern crate approx;
