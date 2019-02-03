@@ -1,11 +1,10 @@
+use crate::bounding_volume::AABB;
+use crate::math::{Isometry, Point, Vector};
 use na::{self, Real};
-
-use bounding_volume::AABB;
-use math::{Isometry, Point, Vector};
-use partitioning::BVTCostFn;
-use query::{time_of_impact_internal, Ray, RayCast};
-use shape::{CompositeShape, Shape};
-use utils::IsometryOps;
+use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
+use crate::query::{time_of_impact_internal, Ray, RayCast};
+use crate::shape::{CompositeShape, Shape};
+use crate::utils::IsometryOps;
 
 /// Time Of Impact of a composite shape with any other shape, under translational movement.
 pub fn composite_shape_against_shape<N, G1: ?Sized>(
@@ -20,9 +19,9 @@ where
     N: Real,
     G1: CompositeShape<N>,
 {
-    let mut cost_fn = CompositeShapeAgainstAnyTOICostFn::new(m1, vel1, g1, m2, vel2, g2);
+    let mut visitor = CompositeShapeAgainstAnyTOIVisitor::new(m1, vel1, g1, m2, vel2, g2);
 
-    g1.bvt().best_first_search(&mut cost_fn).map(|(_, res)| res)
+    g1.bvh().best_first_search(&mut visitor)
 }
 
 /// Time Of Impact of any shape with a composite shape, under translational movement.
@@ -41,7 +40,7 @@ where
     composite_shape_against_shape(m2, vel2, g2, m1, vel1, g1)
 }
 
-struct CompositeShapeAgainstAnyTOICostFn<'a, N: 'a + Real, G1: ?Sized + 'a> {
+struct CompositeShapeAgainstAnyTOIVisitor<'a, N: 'a + Real, G1: ?Sized + 'a> {
     msum_shift: Vector<N>,
     msum_margin: Vector<N>,
     ray: Ray<N>,
@@ -54,7 +53,7 @@ struct CompositeShapeAgainstAnyTOICostFn<'a, N: 'a + Real, G1: ?Sized + 'a> {
     g2: &'a Shape<N>,
 }
 
-impl<'a, N, G1: ?Sized> CompositeShapeAgainstAnyTOICostFn<'a, N, G1>
+impl<'a, N, G1: ?Sized> CompositeShapeAgainstAnyTOIVisitor<'a, N, G1>
 where
     N: Real,
     G1: CompositeShape<N>,
@@ -66,11 +65,12 @@ where
         m2: &'a Isometry<N>,
         vel2: &'a Vector<N>,
         g2: &'a Shape<N>,
-    ) -> CompositeShapeAgainstAnyTOICostFn<'a, N, G1> {
+    ) -> CompositeShapeAgainstAnyTOIVisitor<'a, N, G1>
+    {
         let ls_m2 = na::inverse(m1) * m2.clone();
         let ls_aabb2 = g2.aabb(&ls_m2);
 
-        CompositeShapeAgainstAnyTOICostFn {
+        CompositeShapeAgainstAnyTOIVisitor {
             msum_shift: -ls_aabb2.center().coords,
             msum_margin: ls_aabb2.half_extents(),
             ray: Ray::new(
@@ -87,16 +87,16 @@ where
     }
 }
 
-impl<'a, N, G1: ?Sized> BVTCostFn<N, usize, AABB<N>>
-    for CompositeShapeAgainstAnyTOICostFn<'a, N, G1>
+impl<'a, N, G1: ?Sized> BestFirstVisitor<N, usize, AABB<N>>
+    for CompositeShapeAgainstAnyTOIVisitor<'a, N, G1>
 where
     N: Real,
     G1: CompositeShape<N>,
 {
-    type UserData = N;
+    type Result = N;
 
     #[inline]
-    fn compute_bv_cost(&mut self, bv: &AABB<N>) -> Option<N> {
+    fn visit_bv(&mut self, bv: &AABB<N>) -> BestFirstBVVisitStatus<N> {
         // Compute the minkowski sum of the two AABBs.
         let msum = AABB::new(
             *bv.mins() + self.msum_shift + (-self.msum_margin),
@@ -104,18 +104,23 @@ where
         );
 
         // Compute the TOI.
-        msum.toi_with_ray(&Isometry::identity(), &self.ray, true)
+        match msum.toi_with_ray(&Isometry::identity(), &self.ray, true) {
+            Some(toi) => BestFirstBVVisitStatus::ContinueWithCost(toi),
+            None => BestFirstBVVisitStatus::Stop,
+        }
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &usize) -> Option<(N, N)> {
-        let mut res = None;
+    fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, N> {
+        let mut res = BestFirstDataVisitStatus::Continue;
 
         self.g1
-            .map_transformed_part_at(*b, self.m1, &mut |_, m1, g1| {
-                res = time_of_impact_internal::time_of_impact(
+            .map_part_at(*b, self.m1, &mut |m1, g1| {
+                if let Some(toi) = time_of_impact_internal::time_of_impact(
                     m1, self.vel1, g1, self.m2, self.vel2, self.g2,
-                ).map(|toi| (toi, toi))
+                ) {
+                    res = BestFirstDataVisitStatus::ContinueWithResult(toi, toi)
+                }
             });
 
         res

@@ -1,5 +1,5 @@
+use crate::math::Point;
 use na::{self, Real};
-use math::Point;
 
 /// Computes the center of a set of point.
 #[inline]

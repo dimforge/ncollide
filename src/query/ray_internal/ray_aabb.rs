@@ -1,13 +1,14 @@
+use crate::num::Bounded;
 use std::mem;
-use num::Bounded;
 
 #[cfg(feature = "dim3")]
 use na::Point2;
 use na::{self, Real};
 
-use query::{Ray, RayCast, RayIntersection};
-use bounding_volume::AABB;
-use math::{Isometry, Vector};
+use crate::bounding_volume::AABB;
+use crate::shape::{FeatureId, Segment};
+use crate::math::{Isometry, Vector, Point};
+use crate::query::{Ray, RayCast, RayIntersection};
 
 impl<N: Real> RayCast<N> for AABB<N> {
     fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, solid: bool) -> Option<N> {
@@ -55,10 +56,19 @@ impl<N: Real> RayCast<N> for AABB<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>> {
+    ) -> Option<RayIntersection<N>>
+    {
         let ls_ray = ray.inverse_transform_by(m);
 
-        ray_aabb(self, &ls_ray, solid).map(|(t, n, _)| RayIntersection::new(t, m * n))
+        ray_aabb(self, &ls_ray, solid).map(|(t, n, i)| {
+            let feature = if i < 0 {
+                FeatureId::Face(-i as usize - 1 + 3)
+            } else {
+                FeatureId::Face(i as usize - 1)
+            };
+
+            RayIntersection::new(t, m * n, feature)
+        })
     }
 
     #[cfg(feature = "dim3")]
@@ -67,8 +77,61 @@ impl<N: Real> RayCast<N> for AABB<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>> {
+    ) -> Option<RayIntersection<N>>
+    {
         do_toi_and_normal_and_uv_with_ray(m, self, ray, solid)
+    }
+}
+
+impl<N: Real> AABB<N> {
+    /// Computes the parameters of the two intersection points between a line and this AABB.
+    ///
+    /// The parameters are such that the point are given by `orig + dir * parameter`.
+    /// Returns `None` if there is no intersection.
+    #[inline]
+    pub fn clip_line_parameters(&self, orig: &Point<N>, dir: &Vector<N>) -> Option<(N, N)> {
+        clip_line(self, orig, dir).map(|clip| ((clip.0).0, (clip.1).0))
+    }
+
+    /// Computes the intersection segment between a line and this AABB.
+    ///
+    /// Returns `None` if there is no intersection.
+    #[inline]
+    pub fn clip_line(&self, orig: &Point<N>, dir: &Vector<N>) -> Option<Segment<N>> {
+        clip_line(self, orig, dir).map(|clip| {
+            Segment::new(orig + dir * (clip.0).0, orig + dir * (clip.1).0)
+        })
+    }
+
+    /// Computes the parameters of the two intersection points between a ray and this AABB.
+    ///
+    /// The parameters are such that the point are given by `ray.orig + ray.dir * parameter`.
+    /// Returns `None` if there is no intersection.
+    #[inline]
+    pub fn clip_ray_parameters(&self, ray: &Ray<N>) -> Option<(N, N)> {
+        match self.clip_line_parameters(&ray.origin, &ray.dir) {
+            Some(clip) => {
+                let t0 = clip.0;
+                let t1 = clip.1;
+
+                if t1 < N::zero() {
+                    None
+                } else {
+                    Some((na::sup(&t0, &N::zero()), t1))
+                }
+            }
+            None => None
+        }
+    }
+
+    /// Computes the intersection segment between a ray and this AABB.
+    ///
+    /// Returns `None` if there is no intersection.
+    #[inline]
+    pub fn clip_ray(&self, ray: &Ray<N>) -> Option<Segment<N>> {
+        self.clip_ray_parameters(ray).map(|clip| {
+            Segment::new(ray.point_at(clip.0), ray.point_at(clip.1))
+        })
     }
 }
 
@@ -78,7 +141,8 @@ fn do_toi_and_normal_and_uv_with_ray<N: Real>(
     aabb: &AABB<N>,
     ray: &Ray<N>,
     solid: bool,
-) -> Option<RayIntersection<N>> {
+) -> Option<RayIntersection<N>>
+{
     if na::dimension::<Vector<N>>() != 3 {
         aabb.toi_and_normal_with_ray(m, ray, solid)
     } else {
@@ -88,25 +152,33 @@ fn do_toi_and_normal_and_uv_with_ray<N: Real>(
             let pt = ls_ray.origin + ls_ray.dir * t;
             let dpt = pt - *aabb.mins();
             let scale = *aabb.maxs() - *aabb.mins();
-            let id = na::abs(&s);
+            let id = s.abs();
             let gs_n = m * n;
+            let feature = if s < 0 {
+                FeatureId::Face(id as usize - 1 + 3)
+            } else {
+                FeatureId::Face(id as usize - 1)
+            };
 
             if id == 1 {
                 RayIntersection::new_with_uvs(
                     t,
                     gs_n,
+                    feature,
                     Some(Point2::new(dpt[1] / scale[1], dpt[2] / scale[2])),
                 )
             } else if id == 2 {
                 RayIntersection::new_with_uvs(
                     t,
                     gs_n,
+                    feature,
                     Some(Point2::new(dpt[2] / scale[2], dpt[0] / scale[0])),
                 )
             } else {
                 RayIntersection::new_with_uvs(
                     t,
                     gs_n,
+                    feature,
                     Some(Point2::new(dpt[0] / scale[0], dpt[1] / scale[1])),
                 )
             }
@@ -114,9 +186,7 @@ fn do_toi_and_normal_and_uv_with_ray<N: Real>(
     }
 }
 
-fn ray_aabb<N: Real>(aabb: &AABB<N>, ray: &Ray<N>, solid: bool) -> Option<(N, Vector<N>, isize)> {
-    // NOTE: we don't start with tmin = 0 so we can return the correct normal
-    // when the ray starts exactly on the object contour.
+fn clip_line<N: Real>(aabb: &AABB<N>, origin: &Point<N>, dir: &Vector<N>) -> Option<((N, Vector<N>, isize), (N, Vector<N>, isize))> {
     let mut tmax: N = Bounded::max_value();
     let mut tmin: N = -tmax;
     let mut near_side = 0;
@@ -125,16 +195,16 @@ fn ray_aabb<N: Real>(aabb: &AABB<N>, ray: &Ray<N>, solid: bool) -> Option<(N, Ve
     let mut far_diag = false;
 
     for i in 0usize..na::dimension::<Vector<N>>() {
-        if ray.dir[i].is_zero() {
-            if ray.origin[i] < aabb.mins()[i] || ray.origin[i] > aabb.maxs()[i] {
+        if dir[i].is_zero() {
+            if origin[i] < aabb.mins()[i] || origin[i] > aabb.maxs()[i] {
                 return None;
             }
         } else {
             let _1: N = na::one();
-            let denom = _1 / ray.dir[i];
+            let denom = _1 / dir[i];
             let flip_sides;
-            let mut inter_with_near_plane = (aabb.mins()[i] - ray.origin[i]) * denom;
-            let mut inter_with_far_plane = (aabb.maxs()[i] - ray.origin[i]) * denom;
+            let mut inter_with_near_plane = (aabb.mins()[i] - origin[i]) * denom;
+            let mut inter_with_far_plane = (aabb.maxs()[i] - origin[i]) * denom;
 
             if inter_with_near_plane > inter_with_far_plane {
                 flip_sides = true;
@@ -167,43 +237,55 @@ fn ray_aabb<N: Real>(aabb: &AABB<N>, ray: &Ray<N>, solid: bool) -> Option<(N, Ve
                 far_diag = true;
             }
 
-            if tmax < N::zero() || tmin > tmax {
+            if tmin > tmax {
                 return None;
             }
         }
     }
 
-    if tmin < N::zero() {
-        // the ray starts inside of the box
-        if solid {
-            Some((na::zero(), na::zero(), far_side))
+    let near = if near_diag {
+        (tmin, -dir.normalize(), near_side)
+    } else {
+        let mut normal = Vector::zeros();
+
+        if near_side < 0 {
+            normal[(-near_side - 1) as usize] = N::one();
         } else {
-            if far_diag {
-                Some((tmax, -na::normalize(&ray.dir), far_side))
+            normal[(near_side - 1) as usize] = -N::one();
+        }
+
+        (tmin, normal, near_side)
+    };
+
+    let far = if far_diag {
+        (tmax, -dir.normalize(), far_side)
+    } else {
+        let mut normal = Vector::zeros();
+
+        if far_side < 0 {
+            normal[(-far_side - 1) as usize] = -N::one();
+        } else {
+            normal[(far_side - 1) as usize] = N::one();
+        }
+
+        (tmax, normal, far_side)
+    };
+
+    Some((near, far))
+}
+
+fn ray_aabb<N: Real>(aabb: &AABB<N>, ray: &Ray<N>, solid: bool) -> Option<(N, Vector<N>, isize)> {
+    if let Some((near, far)) = clip_line(aabb, &ray.origin, &ray.dir) {
+        if near.0 < N::zero() {
+            if solid {
+                Some((na::zero(), na::zero(), far.2))
             } else {
-                let mut normal = Vector::zeros();
-
-                if far_side < 0 {
-                    normal[(-far_side - 1) as usize] = -N::one();
-                } else {
-                    normal[(far_side - 1) as usize] = N::one();
-                }
-
-                Some((tmax, normal, far_side))
+                Some(far)
             }
+        } else {
+            Some(near)
         }
     } else {
-        if near_diag {
-            Some((tmin, -na::normalize(&ray.dir), near_side))
-        } else {
-            let mut normal = Vector::zeros();
-
-            if near_side < 0 {
-                normal[(-near_side - 1) as usize] = N::one();
-            } else {
-                normal[(near_side - 1) as usize] = -N::one();
-            }
-            Some((tmin, normal, near_side))
-        }
+        None
     }
 }

@@ -1,14 +1,14 @@
 use na::{Real, Unit};
 
-use query::algorithms::{gjk, VoronoiSimplex, EPA, CSOPoint};
-use query::{PointProjection, PointQuery};
-use utils::IsometryOps;
-use shape::{ConvexPolyhedron, FeatureId, SupportMap, ConstantOrigin};
-#[cfg(feature = "dim3")]
-use shape::{Cone, ConvexHull, Cylinder};
+use crate::math::{Isometry, Point, Translation, Vector};
+use crate::query::algorithms::{gjk, CSOPoint, VoronoiSimplex, EPA};
+use crate::query::{PointProjection, PointQuery};
 #[cfg(feature = "dim2")]
-use shape::ConvexPolygon;
-use math::{Isometry, Point, Translation, Vector};
+use crate::shape::ConvexPolygon;
+#[cfg(feature = "dim3")]
+use crate::shape::{Cone, ConvexHull, Cylinder};
+use crate::shape::{ConstantOrigin, ConvexPolyhedron, FeatureId, SupportMap};
+use crate::utils::IsometryOps;
 
 /// Projects a point on a shape using the GJK algorithm.
 pub fn support_map_point_projection<N, G>(
@@ -23,7 +23,7 @@ where
     G: SupportMap<N>,
 {
     let id = Isometry::identity();
-    let m = Translation::from_vector(-point.coords) * m;
+    let m = Translation::from(-point.coords) * m;
 
     let dir =
         Unit::try_new(-m.translation.vector, N::default_epsilon()).unwrap_or(Vector::x_axis());
@@ -63,7 +63,8 @@ impl<N: Real> PointQuery<N> for Cylinder<N> {
         &self,
         m: &Isometry<N>,
         point: &Point<N>,
-    ) -> (PointProjection<N>, FeatureId) {
+    ) -> (PointProjection<N>, FeatureId)
+    {
         (self.project_point(m, point, false), FeatureId::Unknown)
     }
 }
@@ -73,7 +74,6 @@ impl<N: Real> PointQuery<N> for Cone<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, point: &Point<N>, solid: bool) -> PointProjection<N> {
         support_map_point_projection(m, self, &mut VoronoiSimplex::new(), point, solid)
-
     }
 
     #[inline]
@@ -81,7 +81,8 @@ impl<N: Real> PointQuery<N> for Cone<N> {
         &self,
         m: &Isometry<N>,
         point: &Point<N>,
-    ) -> (PointProjection<N>, FeatureId) {
+    ) -> (PointProjection<N>, FeatureId)
+    {
         (self.project_point(m, point, false), FeatureId::Unknown)
     }
 }
@@ -98,7 +99,8 @@ impl<N: Real> PointQuery<N> for ConvexHull<N> {
         &self,
         m: &Isometry<N>,
         point: &Point<N>,
-    ) -> (PointProjection<N>, FeatureId) {
+    ) -> (PointProjection<N>, FeatureId)
+    {
         let proj = self.project_point(m, point, false);
         let dpt = *point - proj.point;
         let local_dir = if proj.is_inside {
@@ -128,7 +130,8 @@ impl<N: Real> PointQuery<N> for ConvexPolygon<N> {
         &self,
         m: &Isometry<N>,
         point: &Point<N>,
-    ) -> (PointProjection<N>, FeatureId) {
+    ) -> (PointProjection<N>, FeatureId)
+    {
         let proj = self.project_point(m, point, false);
         let dpt = *point - proj.point;
         let local_dir = if proj.is_inside {

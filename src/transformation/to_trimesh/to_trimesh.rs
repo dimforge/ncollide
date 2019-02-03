@@ -1,6 +1,6 @@
 use na::Real;
 
-use procedural::TriMesh;
+use crate::procedural::TriMesh;
 
 /// Trait implemented by shapes that can be approximated by a triangle mesh.
 pub trait ToTriMesh<N: Real> {

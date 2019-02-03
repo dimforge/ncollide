@@ -1,9 +1,10 @@
 use alga::linear::{Rotation, Translation};
+use crate::math::{Isometry, Point, Vector};
 use na::{self, Real};
-use math::{Isometry, Point, Vector};
 
 /// Geometric description of a polyline.
 #[derive(Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Polyline<N: Real> {
     /// Coordinates of the polyline vertices.
     coords: Vec<Point<N>>,

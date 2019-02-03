@@ -1,6 +1,6 @@
-use na::{self, Real, Point2, Point3};
 use super::{IndexBuffer, TriMesh};
-use math::{Point, Vector};
+use crate::math::{Point, Vector};
+use na::{self, Point2, Point3, Real};
 
 /// Adds a double-sided quad to the scene.
 ///
@@ -38,7 +38,12 @@ pub fn quad<N: Real>(width: N, height: N, usubdivs: usize, vsubdivs: usize) -> T
 /// # Arguments
 /// * `nhpoints` - number of columns on the grid.
 /// * `nvpoints` - number of lines on the grid.
-pub fn quad_with_vertices<N: Real>(vertices: &[Point<N>], nhpoints: usize, nvpoints: usize) -> TriMesh<N> {
+pub fn quad_with_vertices<N: Real>(
+    vertices: &[Point<N>],
+    nhpoints: usize,
+    nvpoints: usize,
+) -> TriMesh<N>
+{
     assert!(
         nhpoints > 1 && nvpoints > 1,
         "The number of points must be at least 2 in each dimension."

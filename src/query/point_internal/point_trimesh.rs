@@ -1,10 +1,12 @@
+use crate::bounding_volume::AABB;
+use crate::math::{Isometry, Point};
 use na::{self, Real};
-use query::{PointProjection, PointQuery, PointQueryWithLocation};
-use shape::{FeatureId, TriMesh, TrianglePointLocation};
-use bounding_volume::AABB;
-use partitioning::{BVTCostFn, BVTVisitor};
-use utils::IsometryOps;
-use math::{Isometry, Point};
+use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
+use crate::query::{
+    visitors::CompositePointContainmentTest, PointProjection, PointQuery, PointQueryWithLocation,
+};
+use crate::shape::{CompositeShape, FeatureId, TriMesh, TrianglePointLocation};
+use crate::utils::IsometryOps;
 
 impl<N: Real> PointQuery<N> for TriMesh<N> {
     #[inline]
@@ -18,7 +20,8 @@ impl<N: Real> PointQuery<N> for TriMesh<N> {
         &self,
         _: &Isometry<N>,
         _: &Point<N>,
-    ) -> (PointProjection<N>, FeatureId) {
+    ) -> (PointProjection<N>, FeatureId)
+    {
         unimplemented!()
     }
 
@@ -27,15 +30,15 @@ impl<N: Real> PointQuery<N> for TriMesh<N> {
     #[inline]
     fn contains_point(&self, m: &Isometry<N>, point: &Point<N>) -> bool {
         let ls_pt = m.inverse_transform_point(point);
-        let mut test = PointContainementTest {
-            polyline: self,
+        let mut visitor = CompositePointContainmentTest {
+            shape: self,
             point: &ls_pt,
             found: false,
         };
 
-        self.bvt().visit(&mut test);
+        self.bvh().visit(&mut visitor);
 
-        test.found
+        visitor.found
     }
 }
 
@@ -48,14 +51,15 @@ impl<N: Real> PointQueryWithLocation<N> for TriMesh<N> {
         m: &Isometry<N>,
         point: &Point<N>,
         _: bool,
-    ) -> (PointProjection<N>, Self::Location) {
+    ) -> (PointProjection<N>, Self::Location)
+    {
         let ls_pt = m.inverse_transform_point(point);
-        let mut cost_fn = TriMeshPointProjCostFn {
+        let mut visitor = TriMeshPointProjVisitor {
             polyline: self,
             point: &ls_pt,
         };
 
-        let (mut proj, extra_info) = self.bvt().best_first_search(&mut cost_fn).unwrap().1;
+        let (mut proj, extra_info) = self.bvh().best_first_search(&mut visitor).unwrap();
         proj.point = m * proj.point;
 
         (proj, extra_info)
@@ -63,23 +67,27 @@ impl<N: Real> PointQueryWithLocation<N> for TriMesh<N> {
 }
 
 /*
- * Costs function.
+ * Visitors
  */
-struct TriMeshPointProjCostFn<'a, N: 'a + Real> {
+struct TriMeshPointProjVisitor<'a, N: 'a + Real> {
     polyline: &'a TriMesh<N>,
     point: &'a Point<N>,
 }
 
-impl<'a, N: Real> BVTCostFn<N, usize, AABB<N>> for TriMeshPointProjCostFn<'a, N> {
-    type UserData = (PointProjection<N>, (usize, TrianglePointLocation<N>));
+impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for TriMeshPointProjVisitor<'a, N> {
+    type Result = (PointProjection<N>, (usize, TrianglePointLocation<N>));
 
     #[inline]
-    fn compute_bv_cost(&mut self, aabb: &AABB<N>) -> Option<N> {
-        Some(aabb.distance_to_point(&Isometry::identity(), self.point, true))
+    fn visit_bv(&mut self, aabb: &AABB<N>) -> BestFirstBVVisitStatus<N> {
+        BestFirstBVVisitStatus::ContinueWithCost(aabb.distance_to_point(
+            &Isometry::identity(),
+            self.point,
+            true,
+        ))
     }
 
     #[inline]
-    fn compute_b_cost(&mut self, b: &usize) -> Option<(N, Self::UserData)> {
+    fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, Self::Result> {
         let (proj, extra_info) = self.polyline.triangle_at(*b).project_point_with_location(
             &Isometry::identity(),
             self.point,
@@ -87,34 +95,9 @@ impl<'a, N: Real> BVTCostFn<N, usize, AABB<N>> for TriMeshPointProjCostFn<'a, N>
         );
 
         let extra_info = (*b, extra_info);
-        Some((na::distance(self.point, &proj.point), (proj, extra_info)))
-    }
-}
-
-/*
- * Visitor.
- */
-/// Bounding Volume Tree visitor collecting nodes that may contain a given point.
-struct PointContainementTest<'a, N: 'a + Real> {
-    polyline: &'a TriMesh<N>,
-    point: &'a Point<N>,
-    found: bool,
-}
-
-impl<'a, N: Real> BVTVisitor<usize, AABB<N>> for PointContainementTest<'a, N> {
-    #[inline]
-    fn visit_internal(&mut self, bv: &AABB<N>) -> bool {
-        !self.found && bv.contains_point(&Isometry::identity(), self.point)
-    }
-
-    #[inline]
-    fn visit_leaf(&mut self, b: &usize, bv: &AABB<N>) {
-        if !self.found && bv.contains_point(&Isometry::identity(), self.point)
-            && self.polyline
-                .triangle_at(*b)
-                .contains_point(&Isometry::identity(), self.point)
-        {
-            self.found = true;
-        }
+        BestFirstDataVisitStatus::ContinueWithResult(
+            na::distance(self.point, &proj.point),
+            (proj, extra_info),
+        )
     }
 }

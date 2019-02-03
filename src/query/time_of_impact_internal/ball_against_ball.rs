@@ -1,8 +1,8 @@
 use na::Real;
 
-use math::{Point, Vector};
-use query::{ray_internal, Ray};
-use shape::Ball;
+use crate::math::{Point, Vector};
+use crate::query::{ray_internal, Ray};
+use crate::shape::Ball;
 
 /// Time Of Impact of two balls under translational movement.
 #[inline]
@@ -13,7 +13,8 @@ pub fn ball_against_ball<N: Real>(
     center2: &Point<N>,
     vel2: &Vector<N>,
     b2: &Ball<N>,
-) -> Option<N> {
+) -> Option<N>
+{
     let vel = *vel1 - *vel2;
     let radius = b1.radius() + b2.radius();
     let center = *center1 + (-center2.coords);

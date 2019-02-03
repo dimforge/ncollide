@@ -1,9 +1,9 @@
+use super::ToPolyline;
 use alga::general::Real;
 use na;
-use shape::Cuboid;
-use procedural::Polyline;
-use super::ToPolyline;
-use procedural;
+use crate::procedural;
+use crate::procedural::Polyline;
+use crate::shape::Cuboid;
 
 impl<N: Real> ToPolyline<N> for Cuboid<N> {
     type DiscretizationParameter = ();

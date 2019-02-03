@@ -1,8 +1,8 @@
-use math::{Isometry, Vector};
+use crate::math::{Isometry, Vector};
 use na::{self, Real, Unit};
-use query::algorithms::{gjk, CSOPoint, gjk::GJKResult};
-use query::algorithms::VoronoiSimplex;
-use shape::SupportMap;
+use crate::query::algorithms::VoronoiSimplex;
+use crate::query::algorithms::{gjk, gjk::GJKResult, CSOPoint};
+use crate::shape::SupportMap;
 
 /// Distance between support-mapped shapes.
 pub fn support_map_against_support_map<N, G1: ?Sized, G2: ?Sized>(
@@ -16,14 +16,7 @@ where
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
-    support_map_against_support_map_with_params(
-        m1,
-        g1,
-        m2,
-        g2,
-        &mut VoronoiSimplex::new(),
-        None,
-    )
+    support_map_against_support_map_with_params(m1, g1, m2, g2, &mut VoronoiSimplex::new(), None)
 }
 
 /// Distance between support-mapped shapes.

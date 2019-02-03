@@ -1,21 +1,23 @@
-use num::Bounded;
 use alga::linear::EuclideanSpace;
-
+use crate::bounding_volume;
+use crate::math::{Isometry, Point};
 use na::{self, Real};
-use math::{Isometry, Point};
-use bounding_volume;
+use crate::num::Bounded;
 
 /// Returns the index of the support point of a list of points.
 pub fn support_point_id<P: EuclideanSpace>(
     direction: &P::Coordinates,
     points: &[P],
-) -> Option<usize> {
+) -> Option<usize>
+{
+    use alga::linear::FiniteDimVectorSpace;
+
     let mut argmax = None;
     let _max: P::Real = Bounded::max_value();
     let mut max = -_max;
 
     for (id, pt) in points.iter().enumerate() {
-        let dot = na::dot(direction, &pt.coordinates());
+        let dot = direction.dot(&pt.coordinates());
 
         if dot > max {
             argmax = Some(id);
@@ -31,13 +33,16 @@ pub fn indexed_support_point_id<P: EuclideanSpace>(
     direction: &P::Coordinates,
     points: &[P],
     idx: &[usize],
-) -> Option<usize> {
+) -> Option<usize>
+{
+    use alga::linear::FiniteDimVectorSpace;
+
     let mut argmax = None;
     let _max: P::Real = Bounded::max_value();
     let mut max = -_max;
 
     for i in idx.iter() {
-        let dot = na::dot(direction, &points[*i].coordinates());
+        let dot = direction.dot(&points[*i].coordinates());
 
         if dot > max {
             argmax = Some(*i);
@@ -50,9 +55,9 @@ pub fn indexed_support_point_id<P: EuclideanSpace>(
 
 /// Scale and center the given set of point depending on their AABB.
 pub fn normalize<N: Real>(coords: &mut [Point<N>]) -> (Point<N>, N) {
-    let (mins, maxs) = bounding_volume::point_cloud_aabb(&Isometry::identity(), &coords[..]);
-    let diag = na::distance(&mins, &maxs);
-    let center = na::center(&mins, &maxs);
+    let aabb = bounding_volume::point_cloud_aabb(&Isometry::identity(), &coords[..]);
+    let diag = na::distance(aabb.mins(), aabb.maxs());
+    let center = aabb.center();
 
     for c in coords.iter_mut() {
         *c = (*c + (-center.coords)) / diag;

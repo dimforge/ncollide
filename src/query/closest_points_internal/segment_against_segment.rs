@@ -1,10 +1,10 @@
 use approx::AbsDiffEq;
 
 use alga::linear::EuclideanSpace;
-use math::Isometry;
+use crate::math::Isometry;
 use na::{self, Real};
-use query::ClosestPoints;
-use shape::{Segment, SegmentPointLocation};
+use crate::query::ClosestPoints;
+use crate::shape::{Segment, SegmentPointLocation};
 
 /// Closest points between segments.
 #[inline]
@@ -14,7 +14,8 @@ pub fn segment_against_segment<N: Real>(
     m2: &Isometry<N>,
     seg2: &Segment<N>,
     margin: N,
-) -> ClosestPoints<N> {
+) -> ClosestPoints<N>
+{
     let (loc1, loc2) = segment_against_segment_with_locations(m1, seg1, m2, seg2);
     let p1 = seg1.point_at(&loc1);
     let p2 = seg2.point_at(&loc2);
@@ -34,7 +35,8 @@ pub fn segment_against_segment_with_locations<N: Real>(
     seg1: &Segment<N>,
     m2: &Isometry<N>,
     seg2: &Segment<N>,
-) -> (SegmentPointLocation<N>, SegmentPointLocation<N>) {
+) -> (SegmentPointLocation<N>, SegmentPointLocation<N>)
+{
     let seg1 = seg1.transformed(m1);
     let seg2 = seg2.transformed(m2);
 
@@ -51,14 +53,17 @@ pub fn segment_against_segment_with_locations_nD<P>(
 where
     P: EuclideanSpace + Copy,
 {
+    use alga::linear::NormedSpace;
+    use alga::linear::FiniteDimVectorSpace;
+
     // Inspired by Real-time collision detection by Christer Ericson.
     let d1 = *seg1.1 - *seg1.0;
     let d2 = *seg2.1 - *seg2.0;
     let r = *seg1.0 - *seg2.0;
 
-    let a = na::norm_squared(&d1);
-    let e = na::norm_squared(&d2);
-    let f = na::dot(&d2, &r);
+    let a = d1.norm_squared();
+    let e = d2.norm_squared();
+    let f = d2.dot(&r);
 
     let _0: P::Real = na::zero();
     let _1: P::Real = na::one();
@@ -74,12 +79,12 @@ where
         s = _0;
         t = na::clamp(f / e, _0, _1);
     } else {
-        let c = na::dot(&d1, &r);
+        let c = d1.dot(&r);
         if e <= _eps {
             t = _0;
             s = na::clamp(-c / a, _0, _1);
         } else {
-            let b = na::dot(&d1, &d2);
+            let b = d1.dot(&d2);
             let ae = a * e;
             let bb = b * b;
             let denom = ae - bb;

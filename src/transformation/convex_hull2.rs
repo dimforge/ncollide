@@ -2,9 +2,9 @@ use std::marker::PhantomData;
 
 use alga::general::Real;
 use na::{self, Point2, Vector2};
-use transformation::convex_hull_utils::{indexed_support_point_id, support_point_id};
 #[cfg(feature = "dim2")]
-use procedural::Polyline;
+use crate::procedural::Polyline;
+use crate::transformation::convex_hull_utils::{indexed_support_point_id, support_point_id};
 
 /// Computes the convex hull of a set of 2d points.
 #[cfg(feature = "dim2")]
@@ -84,7 +84,8 @@ pub fn convex_hull2_idx<N: Real>(points: &[Point2<N>]) -> Vec<usize> {
 fn get_initial_polyline<N: Real>(
     points: &[Point2<N>],
     undecidable: &mut Vec<usize>,
-) -> Vec<SegmentFacet<N>> {
+) -> Vec<SegmentFacet<N>>
+{
     let mut res = Vec::new();
 
     assert!(points.len() >= 2);
@@ -99,7 +100,7 @@ fn get_initial_polyline<N: Real>(
 
         let p1p2 = points[p2] - points[p1];
 
-        if !na::norm_squared(&p1p2).is_zero() {
+        if !p1p2.norm_squared().is_zero() {
             break;
         }
     }
@@ -142,7 +143,8 @@ fn attach_and_push_facets2<N: Real>(
     segments: &mut Vec<SegmentFacet<N>>,
     removed_facet: usize,
     undecidable: &mut Vec<usize>,
-) {
+)
+{
     let new_facet1_id = segments.len();
     let new_facet2_id = new_facet1_id + 1;
     let prev_pt = segments[prev_facet].pts[1];
@@ -204,7 +206,8 @@ impl<N: Real> SegmentFacet<N> {
         prev: usize,
         next: usize,
         points: &[Point2<N>],
-    ) -> SegmentFacet<N> {
+    ) -> SegmentFacet<N>
+    {
         let p1p2 = points[p2] - points[p1];
 
         let mut normal = Vector2::new(-p1p2.y, p1p2.x);
@@ -230,6 +233,6 @@ impl<N: Real> SegmentFacet<N> {
 
         let _eps = N::default_epsilon();
 
-        na::dot(&(*pt - *p0), &self.normal) > _eps * na::convert(100.0f64)
+        (*pt - *p0).dot(&self.normal) > _eps * na::convert(100.0f64)
     }
 }

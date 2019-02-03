@@ -1,7 +1,7 @@
 use slab::Slab;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
-/// A unique idetifier given by a usize id and a generation number.
+/// A unique identifier given by a usize id and a generation number.
 pub struct GenerationalId {
     /// The identifier.
     pub id: usize,
@@ -10,6 +10,7 @@ pub struct GenerationalId {
 
 impl GenerationalId {
     /// An identifier that cannot be constructed by `IdAlloc` and that is not equal to any other identifier.
+    #[inline]
     pub fn invalid() -> Self {
         GenerationalId {
             id: usize::max_value(),
@@ -18,6 +19,7 @@ impl GenerationalId {
     }
 
     /// Checks if this identifier is invalid.
+    #[inline]
     pub fn is_invalid(&self) -> bool {
         self.id == usize::max_value() && self.tag == 0
     }
@@ -40,7 +42,14 @@ impl IdAllocator {
         }
     }
 
+    /// The number of allocated identifiers.
+    #[inline]
+    pub fn len(&self) -> usize {
+        self.generator.len()
+    }
+
     /// Allocates a new identifier.
+    #[inline]
     pub fn alloc(&mut self) -> GenerationalId {
         let id = self.generator.insert(());
         let tag = self.generation;
@@ -49,6 +58,7 @@ impl IdAllocator {
     }
 
     /// Marks the given identifier as re-usable.
+    #[inline]
     pub fn free(&mut self, id: GenerationalId) {
         // FIXME: this is not a robust way of handling this.
         if self.generation_used {

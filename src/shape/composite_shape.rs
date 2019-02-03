@@ -1,25 +1,42 @@
+use crate::bounding_volume::AABB;
+use crate::math::Isometry;
 use na::Real;
-use math::Isometry;
-use partitioning::BVT;
-use bounding_volume::AABB;
-use shape::Shape;
+use crate::partitioning::BVHImpl;
+use crate::shape::Shape;
+use crate::query::{ContactPreprocessor, ContactPrediction};
 
 /// Trait implemented by shapes composed of multiple simpler shapes.
 ///
 /// A composite shape is composed of several shapes. Typically, it is a convex decomposition of
 /// a concave shape.
 pub trait CompositeShape<N: Real> {
-    /// The number of sub-shape in this composide sahpe.
+    /// The number of sub-shape in this composide shape.
     fn nparts(&self) -> usize;
-    /// Applies a function to each sub-shape of this concave shape.
-    fn map_part_at(&self, usize, &mut FnMut(usize, &Isometry<N>, &Shape<N>));
+
     /// Applies a transformation matrix and a function to each sub-shape of this concave
     /// shape.
-    fn map_transformed_part_at(&self, usize, m: &Isometry<N>, &mut FnMut(usize, &Isometry<N>, &Shape<N>));
+    fn map_part_at(
+        &self,
+        _: usize,
+        m: &Isometry<N>,
+        _: &mut FnMut(&Isometry<N>, &Shape<N>),
+    );
 
-    // FIXME: the following two methods really are not generic enough.
+    /// Applies a transformation matrix and a function to each sub-shape of this concave
+    /// shape.
+    fn map_part_and_preprocessor_at(
+        &self,
+        _: usize,
+        m: &Isometry<N>,
+        prediction: &ContactPrediction<N>,
+        _: &mut FnMut(&Isometry<N>, &Shape<N>, &ContactPreprocessor<N>),
+    );
+
+
+    // FIXME: the following two methods are not generic enough.
     /// Gets the AABB of the shape identified by the index `i`.
     fn aabb_at(&self, i: usize) -> AABB<N>;
+
     /// Gets the acceleration structure of the concave shape.
-    fn bvt(&self) -> &BVT<usize, AABB<N>>;
+    fn bvh(&self) -> BVHImpl<N, usize, AABB<N>>;
 }

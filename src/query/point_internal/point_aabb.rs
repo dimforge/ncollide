@@ -1,10 +1,10 @@
-use num::{Bounded, Zero};
+use crate::bounding_volume::AABB;
+use crate::math::{Isometry, Point, Vector, DIM};
 use na::{self, Real};
-use utils::IsometryOps;
-use shape::FeatureId;
-use query::{PointProjection, PointQuery};
-use bounding_volume::AABB;
-use math::{Isometry, Point, Vector, DIM};
+use crate::num::{Bounded, Zero};
+use crate::query::{PointProjection, PointQuery};
+use crate::shape::FeatureId;
+use crate::utils::IsometryOps;
 
 impl<N: Real> AABB<N> {
     fn local_point_projection(
@@ -12,7 +12,8 @@ impl<N: Real> AABB<N> {
         m: &Isometry<N>,
         pt: &Point<N>,
         solid: bool,
-    ) -> (bool, Point<N>, Vector<N>) {
+    ) -> (bool, Point<N>, Vector<N>)
+    {
         let ls_pt = m.inverse_transform_point(pt);
         let mins_pt = *self.mins() - ls_pt;
         let pt_maxs = ls_pt - *self.maxs();
@@ -71,7 +72,8 @@ impl<N: Real> PointQuery<N> for AABB<N> {
         &self,
         m: &Isometry<N>,
         pt: &Point<N>,
-    ) -> (PointProjection<N>, FeatureId) {
+    ) -> (PointProjection<N>, FeatureId)
+    {
         let (inside, ls_pt, shift) = self.local_point_projection(m, pt, false);
         let proj = PointProjection::new(inside, m * ls_pt);
         let mut nzero_shifts = 0;
@@ -140,7 +142,7 @@ impl<N: Real> PointQuery<N> for AABB<N> {
         let shift = na::sup(&na::zero(), &na::sup(&mins_pt, &pt_maxs));
 
         if solid || !shift.is_zero() {
-            na::norm(&shift)
+            shift.norm()
         } else {
             // FIXME: optimize that.
             -na::distance(pt, &self.project_point(m, pt, solid).point)

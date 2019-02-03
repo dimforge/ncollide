@@ -1,15 +1,18 @@
-use bounding_volume::{BoundingVolume, BoundingVolumeInterferencesCollector};
-use math::Point;
+use crate::bounding_volume::BoundingVolume;
+use crate::math::Point;
 use na::Real;
-use partitioning::{DBVT, DBVTLeaf, DBVTLeafId};
-use pipeline::broad_phase::{BroadPhase, BroadPhaseInterferenceHandler, ProxyHandle};
-use query::{PointInterferencesCollector, PointQuery, Ray, RayCast, RayInterferencesCollector};
+use crate::partitioning::{DBVTLeaf, DBVTLeafId, BVH, DBVT};
+use crate::pipeline::broad_phase::{BroadPhase, ProxyHandle, BroadPhaseInterferenceHandler};
+use crate::query::visitors::{
+    BoundingVolumeInterferencesCollector, PointInterferencesCollector, RayInterferencesCollector,
+};
+use crate::query::{PointQuery, Ray, RayCast};
 use slab::Slab;
 use std::any::Any;
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::mem;
-use utils::{DeterministicState, SortedPair};
+use crate::utils::{DeterministicState, SortedPair};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 enum ProxyStatus {

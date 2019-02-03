@@ -1,10 +1,9 @@
+use crate::bounding_volume::AABB;
+use crate::math::{Isometry, Point, Vector};
 use na::{self, Real};
-
-use bounding_volume::AABB;
-use partitioning::BVTCostFn;
-use shape::{CompositeShape, Shape};
-use query::{self, ClosestPoints, PointQuery};
-use math::{Isometry, Point, Vector};
+use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
+use crate::query::{self, ClosestPoints, PointQuery};
+use crate::shape::{CompositeShape, Shape};
 
 /// Closest points between a composite shape and any other shape.
 pub fn composite_shape_against_shape<N, G1: ?Sized>(
@@ -18,11 +17,10 @@ where
     N: Real,
     G1: CompositeShape<N>,
 {
-    let mut cost_fn = CompositeShapeAgainstClosestPointsCostFn::new(m1, g1, m2, g2, margin);
+    let mut visitor = CompositeShapeAgainstShapeClosestPointsVisitor::new(m1, g1, m2, g2, margin);
 
-    g1.bvt()
-        .best_first_search(&mut cost_fn)
-        .map(|(_, res)| res)
+    g1.bvh()
+        .best_first_search(&mut visitor)
         .expect("The composite shape must not be empty.")
 }
 
@@ -43,11 +41,10 @@ where
     res
 }
 
-struct CompositeShapeAgainstClosestPointsCostFn<'a, N: 'a + Real, G1: ?Sized + 'a> {
+struct CompositeShapeAgainstShapeClosestPointsVisitor<'a, N: 'a + Real, G1: ?Sized + 'a> {
     msum_shift: Vector<N>,
     msum_margin: Vector<N>,
     margin: N,
-    stop: bool,
 
     m1: &'a Isometry<N>,
     g1: &'a G1,
@@ -55,7 +52,7 @@ struct CompositeShapeAgainstClosestPointsCostFn<'a, N: 'a + Real, G1: ?Sized + '
     g2: &'a Shape<N>,
 }
 
-impl<'a, N, G1: ?Sized> CompositeShapeAgainstClosestPointsCostFn<'a, N, G1>
+impl<'a, N, G1: ?Sized> CompositeShapeAgainstShapeClosestPointsVisitor<'a, N, G1>
 where
     N: Real,
     G1: CompositeShape<N>,
@@ -66,15 +63,15 @@ where
         m2: &'a Isometry<N>,
         g2: &'a Shape<N>,
         margin: N,
-    ) -> CompositeShapeAgainstClosestPointsCostFn<'a, N, G1> {
+    ) -> CompositeShapeAgainstShapeClosestPointsVisitor<'a, N, G1>
+    {
         let ls_m2 = na::inverse(m1) * m2.clone();
         let ls_aabb2 = g2.aabb(&ls_m2);
 
-        CompositeShapeAgainstClosestPointsCostFn {
+        CompositeShapeAgainstShapeClosestPointsVisitor {
             msum_shift: -ls_aabb2.center().coords,
             msum_margin: ls_aabb2.half_extents(),
             margin: margin,
-            stop: false,
             m1: m1,
             g1: g1,
             m2: m2,
@@ -83,46 +80,44 @@ where
     }
 }
 
-impl<'a, N, G1: ?Sized> BVTCostFn<N, usize, AABB<N>>
-    for CompositeShapeAgainstClosestPointsCostFn<'a, N, G1>
+impl<'a, N, G1: ?Sized> BestFirstVisitor<N, usize, AABB<N>>
+    for CompositeShapeAgainstShapeClosestPointsVisitor<'a, N, G1>
 where
     N: Real,
     G1: CompositeShape<N>,
 {
-    type UserData = ClosestPoints<N>;
-    #[inline]
-    fn compute_bv_cost(&mut self, bv: &AABB<N>) -> Option<N> {
+    type Result = ClosestPoints<N>;
+
+    fn visit_bv(&mut self, bv: &AABB<N>) -> BestFirstBVVisitStatus<N> {
         // Compute the minkowski sum of the two AABBs.
         let msum = AABB::new(
             *bv.mins() + self.msum_shift + (-self.msum_margin),
             *bv.maxs() + self.msum_shift + self.msum_margin,
         );
 
-        if self.stop {
-            None // No need to look further.
-        } else {
-            // Compute the distance to the origin.
-            Some(msum.distance_to_point(&Isometry::identity(), &Point::origin(), true))
-        }
+        // Compute the distance to the origin.
+        BestFirstBVVisitStatus::ContinueWithCost(msum.distance_to_point(
+            &Isometry::identity(),
+            &Point::origin(),
+            true,
+        ))
     }
 
-    #[inline]
-    fn compute_b_cost(&mut self, b: &usize) -> Option<(N, ClosestPoints<N>)> {
-        let mut res = None;
+    fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, ClosestPoints<N>> {
+        let mut res = BestFirstDataVisitStatus::Continue;
 
         self.g1
-            .map_transformed_part_at(*b, self.m1, &mut |_, m1, g1| {
+            .map_part_at(*b, self.m1, &mut |m1, g1| {
                 let pts = query::closest_points(m1, g1, self.m2, self.g2, self.margin);
-                let dist = match pts {
-                    ClosestPoints::WithinMargin(ref p1, ref p2) => na::distance(p1, p2),
-                    ClosestPoints::Intersecting => {
-                        self.stop = true;
-                        na::zero()
+                res = match pts {
+                    ClosestPoints::WithinMargin(ref p1, ref p2) => {
+                        BestFirstDataVisitStatus::ContinueWithResult(na::distance(p1, p2), pts)
                     }
-                    ClosestPoints::Disjoint => self.margin,
+                    ClosestPoints::Intersecting => {
+                        BestFirstDataVisitStatus::ExitEarlyWithResult(pts)
+                    }
+                    ClosestPoints::Disjoint => BestFirstDataVisitStatus::Continue,
                 };
-
-                res = Some((dist, pts))
             });
 
         res

@@ -1,10 +1,11 @@
 //! Traits and structure needed to cast rays.
 
+use crate::math::{Isometry, Point, Vector};
 #[cfg(feature = "dim3")]
 use na::Point2;
 use na::Real;
-use utils::IsometryOps;
-use math::{Isometry, Point, Vector};
+use crate::utils::IsometryOps;
+use crate::shape::FeatureId;
 
 /// A Ray.
 #[derive(Debug, Clone, Copy)]
@@ -45,13 +46,21 @@ impl<N: Real> Ray<N> {
     pub fn translate_by(&self, v: Vector<N>) -> Self {
         Self::new(self.origin + v, self.dir)
     }
+
+    /// Computes the point at the given parameter on this line.
+    ///
+    /// This computes `self.origin + self.dir * t`.
+    #[inline]
+    pub fn point_at(&self, t: N) -> Point<N> {
+        self.origin + self.dir * t
+    }
 }
 
 /// Structure containing the result of a successful ray cast.
 pub struct RayIntersection<N: Real> {
     /// The time of impact of the ray with the object.  The exact contact point can be computed
-    /// with: `origin + dir * toi` where `origin` is the origin of the ray; `dir` is its direction and
-    /// `toi` is the value of this field.
+    /// with: `ray.point_at(toi)` or equivalently `origin + dir * toi` where `origin` is the origin of the ray;
+    /// `dir` is its direction and `toi` is the value of this field.
     pub toi: N,
 
     /// The normal at the intersection point.
@@ -59,6 +68,9 @@ pub struct RayIntersection<N: Real> {
     /// If the `toi` is exactly zero, the normal might not be reliable.
     // XXX: use a Unit<Vetor<N>> instead.
     pub normal: Vector<N>,
+
+    /// Feature at the intersection point.
+    pub feature: FeatureId,
 
     /// The textures coordinates at the intersection point.  This is an `Option` because some shape
     /// do not support texture coordinates.
@@ -70,25 +82,23 @@ impl<N: Real> RayIntersection<N> {
     #[inline]
     /// Creates a new `RayIntersection`.
     #[cfg(feature = "dim3")]
-    pub fn new_with_uvs(
-        toi: N,
-        normal: Vector<N>,
-        uvs: Option<Point2<N>>,
-    ) -> RayIntersection<N> {
+    pub fn new_with_uvs(toi: N, normal: Vector<N>, feature: FeatureId, uvs: Option<Point2<N>>) -> RayIntersection<N> {
         RayIntersection {
-            toi: toi,
-            normal: normal,
-            uvs: uvs,
+            toi,
+            normal,
+            feature,
+            uvs,
         }
     }
 
     #[inline]
     /// Creates a new `RayIntersection`.
     #[cfg(feature = "dim3")]
-    pub fn new(toi: N, normal: Vector<N>) -> RayIntersection<N> {
+    pub fn new(toi: N, normal: Vector<N>, feature: FeatureId) -> RayIntersection<N> {
         RayIntersection {
-            toi: toi,
-            normal: normal,
+            toi,
+            normal,
+            feature,
             uvs: None,
         }
     }
@@ -96,10 +106,11 @@ impl<N: Real> RayIntersection<N> {
     #[inline]
     /// Creates a new `RayIntersection`.
     #[cfg(feature = "dim2")]
-    pub fn new(toi: N, normal: Vector<N>) -> RayIntersection<N> {
+    pub fn new(toi: N, normal: Vector<N>, feature: FeatureId) -> RayIntersection<N> {
         RayIntersection {
-            toi: toi,
-            normal: normal,
+            toi,
+            normal,
+            feature
         }
     }
 }
@@ -130,7 +141,8 @@ pub trait RayCast<N: Real> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>> {
+    ) -> Option<RayIntersection<N>>
+    {
         self.toi_and_normal_with_ray(m, ray, solid)
     }
 

@@ -1,9 +1,10 @@
-use std::mem;
+use crate::math::Point;
 use na::Real;
-use math::Point;
+use std::mem;
 
 /// Closest points information.
 #[derive(Debug, PartialEq, Clone, Copy)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum ClosestPoints<N: Real> {
     /// The two objects are intersecting.
     Intersecting,

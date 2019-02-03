@@ -1,9 +1,9 @@
+use super::ToTriMesh;
 use alga::general::Real;
 use na;
-use shape::Cylinder;
-use procedural::TriMesh;
-use procedural;
-use super::ToTriMesh;
+use crate::procedural;
+use crate::procedural::TriMesh;
+use crate::shape::Cylinder;
 
 impl<N: Real> ToTriMesh<N> for Cylinder<N> {
     type DiscretizationParameter = u32;

@@ -1,11 +1,12 @@
-use std::mem;
-use utils::GenerationalId;
+use crate::math::{Point, Vector};
 use na::{self, Real, Unit};
-use query::ContactKinematic;
-use math::{Point, Vector};
+use crate::query::ContactKinematic;
+use std::mem;
+use crate::utils::GenerationalId;
 
 /// Geometric description of a contact.
 #[derive(Debug, PartialEq, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Contact<N: Real> {
     /// Position of the contact on the first object. The position is expressed in world space.
     pub world1: Point<N>,
@@ -35,7 +36,7 @@ impl<N: Real> Contact<N> {
     /// Creates a new contact, computing automatically the penetration depth.
     #[inline]
     pub fn new_wo_depth(world1: Point<N>, world2: Point<N>, normal: Unit<Vector<N>>) -> Contact<N> {
-        let depth = -na::dot(normal.as_ref(), &(world2 - world1));
+        let depth = -normal.dot(&(world2 - world1));
         Self::new(world1, world2, normal, depth)
     }
 }
@@ -50,7 +51,7 @@ impl<N: Real> Contact<N> {
 }
 
 /// A contact combined with contact kinematic information as well as a persistant identifier.
-/// 
+///
 /// When ncollide is used to compute contact points between moving solids, it will attempt to
 /// match contact points found at successive frames. Two contact points are said to "match" if
 /// they can be seen as the same contact point that moved in-between frames. Two matching
@@ -76,15 +77,18 @@ impl<N: Real> TrackedContact<N> {
     }
 }
 
-/// The prediction parameters for contact determination.n
+/// The prediction parameters for contact determination.
+#[derive(Clone, Debug, PartialEq)]
 pub struct ContactPrediction<N: Real> {
-    /// The linear prediction.
-    pub linear: N,
-    /// The angular regularization for the first solid.
-    pub angular1: N,
-    /// The angular regularization for the second solid.
-    pub angular2: N,
+    linear: N,
+    angular1: N,
+    angular2: N,
+    cos_angular1: N,
+    cos_angular2: N,
+    sin_angular1: N,
+    sin_angular2: N,
 }
+
 impl<N: Real> ContactPrediction<N> {
     /// Initialize prediction parameters.
     pub fn new(linear: N, angular1: N, angular2: N) -> Self {
@@ -92,6 +96,59 @@ impl<N: Real> ContactPrediction<N> {
             linear,
             angular1,
             angular2,
+            cos_angular1: angular1.cos(),
+            cos_angular2: angular2.cos(),
+            sin_angular1: angular1.sin(),
+            sin_angular2: angular2.sin(),
         }
+    }
+
+    /// The linear prediction.
+    #[inline]
+    pub fn linear(&self) -> N {
+        self.linear
+    }
+
+
+    /// Sets linear prediction.
+    #[inline]
+    pub fn set_linear(&mut self, val: N) {
+        self.linear = val
+    }
+
+    /// The angular regularization for the first solid.
+    #[inline]
+    pub fn angular1(&self) -> N {
+        self.angular1
+    }
+
+    /// The angular regularization for the second solid.
+    #[inline]
+    pub fn angular2(&self) -> N {
+        self.angular2
+    }
+
+    /// The cosine of angular regularization for the first solid.
+    #[inline]
+    pub fn cos_angular1(&self) -> N {
+        self.cos_angular1
+    }
+
+    /// The cosine angular regularization for the second solid.
+    #[inline]
+    pub fn cos_angular2(&self) -> N {
+        self.cos_angular2
+    }
+
+    /// The sine of angular regularization for the first solid.
+    #[inline]
+    pub fn sin_angular1(&self) -> N {
+        self.sin_angular1
+    }
+
+    /// The sine angular regularization for the second solid.
+    #[inline]
+    pub fn sin_angular2(&self) -> N {
+        self.sin_angular2
     }
 }

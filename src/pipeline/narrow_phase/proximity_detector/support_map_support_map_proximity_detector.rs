@@ -1,10 +1,10 @@
+use crate::math::{Isometry, Vector};
 use na::{Real, Unit};
-use math::{Isometry, Vector};
-use shape::Shape;
-use query::algorithms::VoronoiSimplex;
-use query::proximity_internal;
-use query::Proximity;
-use pipeline::narrow_phase::{ProximityDetector, ProximityDispatcher};
+use crate::pipeline::narrow_phase::{ProximityDetector, ProximityDispatcher};
+use crate::query::algorithms::VoronoiSimplex;
+use crate::query::proximity_internal;
+use crate::query::Proximity;
+use crate::shape::Shape;
 
 /// Persistent proximity detector between two shapes having a support mapping function.
 ///
@@ -40,7 +40,8 @@ impl<N: Real> ProximityDetector<N> for SupportMapSupportMapProximityDetector<N> 
         mb: &Isometry<N>,
         b: &Shape<N>,
         margin: N,
-    ) -> bool {
+    ) -> bool
+    {
         if let (Some(sma), Some(smb)) = (a.as_support_map(), b.as_support_map()) {
             let initial_direction;
             if self.proximity == Proximity::Disjoint {

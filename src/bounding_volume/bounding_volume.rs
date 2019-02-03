@@ -1,5 +1,5 @@
+use crate::math::{Isometry, Point};
 use na::Real;
-use math::{Point, Isometry};
 
 /// Traits of objects having a bounding volume.
 pub trait HasBoundingVolume<N: Real, BV> {
@@ -19,26 +19,26 @@ pub trait BoundingVolume<N: Real> {
     fn center(&self) -> Point<N>;
 
     /// Checks if this bounding volume intersect with another one.
-    fn intersects(&self, &Self) -> bool;
+    fn intersects(&self, _: &Self) -> bool;
 
     /// Checks if this bounding volume contains another one.
-    fn contains(&self, &Self) -> bool;
+    fn contains(&self, _: &Self) -> bool;
 
     /// Merges this bounding volume with another one. The merge is done in-place.
-    fn merge(&mut self, &Self);
+    fn merge(&mut self, _: &Self);
 
     /// Merges this bounding volume with another one.
-    fn merged(&self, &Self) -> Self;
+    fn merged(&self, _: &Self) -> Self;
 
     /// Enlarges this bounding volume.
-    fn loosen(&mut self, N);
+    fn loosen(&mut self, _: N);
 
     /// Creates a new, enlarged version, of this bounding volume.
-    fn loosened(&self, N) -> Self;
+    fn loosened(&self, _: N) -> Self;
 
     /// Tighten this bounding volume.
-    fn tighten(&mut self, N);
+    fn tighten(&mut self, _: N);
 
     /// Creates a new, tightened version, of this bounding volume.
-    fn tightened(&self, N) -> Self;
+    fn tightened(&self, _: N) -> Self;
 }

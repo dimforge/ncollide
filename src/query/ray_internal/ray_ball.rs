@@ -3,11 +3,11 @@ use na;
 #[cfg(feature = "dim3")]
 use na::Point2;
 
-use query::{Ray, RayCast, RayIntersection};
-use shape::Ball;
-use math::{Isometry, Point};
 #[cfg(feature = "dim3")]
-use math::Vector;
+use crate::math::Vector;
+use crate::math::{Isometry, Point};
+use crate::query::{Ray, RayCast, RayIntersection};
+use crate::shape::{Ball, FeatureId};
 
 #[cfg(feature = "dim3")]
 #[inline]
@@ -24,7 +24,13 @@ fn ball_uv<N: Real>(normal: &Vector<N>) -> Point2<N> {
 impl<N: Real> RayCast<N> for Ball<N> {
     #[inline]
     fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, solid: bool) -> Option<N> {
-        ball_toi_with_ray(&Point::from_coordinates(m.translation.vector), self.radius(), ray, solid).1
+        ball_toi_with_ray(
+            &Point::from(m.translation.vector),
+            self.radius(),
+            ray,
+            solid,
+        )
+        .1
     }
 
     #[inline]
@@ -33,15 +39,16 @@ impl<N: Real> RayCast<N> for Ball<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>> {
-        let center = Point::from_coordinates(m.translation.vector);
+    ) -> Option<RayIntersection<N>>
+    {
+        let center = Point::from(m.translation.vector);
         let (inside, inter) = ball_toi_with_ray(&center, self.radius(), ray, solid);
 
         inter.map(|n| {
             let pos = ray.origin + ray.dir * n - center;
-            let normal = na::normalize(&pos);
+            let normal = pos.normalize();
 
-            RayIntersection::new(n, if inside { -normal } else { normal })
+            RayIntersection::new(n, if inside { -normal } else { normal }, FeatureId::Face(0))
         })
     }
 
@@ -52,16 +59,17 @@ impl<N: Real> RayCast<N> for Ball<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>> {
-        let center = Point::from_coordinates(m.translation.vector);
+    ) -> Option<RayIntersection<N>>
+    {
+        let center = Point::from(m.translation.vector);
         let (inside, inter) = ball_toi_with_ray(&center, self.radius(), ray, solid);
 
         inter.map(|n| {
             let pos = ray.origin + ray.dir * n - center;
-            let normal = na::normalize(&pos);
+            let normal = pos.normalize();
             let uv = ball_uv(&normal);
 
-            RayIntersection::new_with_uvs(n, if inside { -normal } else { normal }, Some(uv))
+            RayIntersection::new_with_uvs(n, if inside { -normal } else { normal }, FeatureId::Face(0), Some(uv))
         })
     }
 }
@@ -73,12 +81,13 @@ pub fn ball_toi_with_ray<N: Real>(
     radius: N,
     ray: &Ray<N>,
     solid: bool,
-) -> (bool, Option<N>) {
+) -> (bool, Option<N>)
+{
     let dcenter = ray.origin - *center;
 
-    let a = na::norm_squared(&ray.dir);
-    let b = na::dot(&dcenter, &ray.dir);
-    let c = na::norm_squared(&dcenter) - radius * radius;
+    let a = ray.dir.norm_squared();
+    let b = dcenter.dot(&ray.dir);
+    let c = dcenter.norm_squared() - radius * radius;
 
     if c > na::zero() && b > na::zero() {
         (false, None)

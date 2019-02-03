@@ -1,109 +1,109 @@
-use na::{self, Unit, Real};
-use utils::IsometryOps;
-use shape::FeatureId;
-use bounding_volume::PolyhedralCone;
-use query::Contact;
-use query::closest_points_internal;
-use math::{Isometry, Point, Vector};
+use crate::math::{Isometry, Point, Vector};
+use na::{self, Real, Unit};
+use crate::query::closest_points_internal;
+use crate::query::Contact;
+use crate::shape::{FeatureId, Shape};
 
+/// A shape geometry type at the neighborhood of a point.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-enum KinematicVariant<N: Real> {
-    PlanePoint,
-    PointPlane,
-    PointPoint,
-    PointLine(Unit<Vector<N>>),
-    LinePoint(Unit<Vector<N>>),
-    LineLine(Unit<Vector<N>>, Unit<Vector<N>>),
+pub enum NeighborhoodGeometry<N: Real> {
+    /// A punctual approximation.
+    Point,
+    /// A line approximation.
+    Line(Unit<Vector<N>>),
+    /// A planar approximation.
+    Plane(Unit<Vector<N>>),
+}
 
-    // NOTE: invalid cases
-    PlanePlane,
-    PlaneLine(Unit<Vector<N>>),
-    LinePlane(Unit<Vector<N>>),
+/// The approximation of a shape on the neighborhood of a point.
+#[derive(Clone, Debug)]
+pub struct LocalShapeApproximation<N: Real> {
+    // XXX: currently, there is no explicit representation
+    // of the point where the approximation occurs in terms
+    // of shape-specific parameters. That's because we work
+    // so far with polyhedral approximations. Thus, it is
+    // sufficient to known the feature alone to derive an
+    // approximation.
+    // In the future, we might want to:
+    // - Use `parameters` as a set of shape-dependent coordinates giving the location of the
+    //   point on it.
+    // - Use `point` as the local-space point where the approximation occurs. It should be
+    //   computed by the shape from the parameters.
+    /// The shape feature the point lies on.
+    pub feature: FeatureId,
+    /// The point where approximation is computed.
+    pub point: Point<N>,
+    /// The approximation geometry.
+    pub geometry: NeighborhoodGeometry<N>,
+}
+
+impl<N: Real> LocalShapeApproximation<N> {
+    /// Initializes a new local shape approximation at `point`.
+    pub fn new(feature: FeatureId, point: Point<N>, geometry: NeighborhoodGeometry<N>) -> Self {
+        LocalShapeApproximation {
+            feature,
+            point,
+            geometry,
+        }
+    }
 }
 
 /// Local contact kinematic of a pair of solids around two given points.
-/// 
+///
 /// This is used to update the localization of contact points between two solids
 /// from one frame to another. To achieve this, the local shape of the solids
 /// around the given points are approximated by either dilated lines (unbounded
 /// cylinders), planes, dilated points (spheres).
 #[derive(Clone, Debug)]
 pub struct ContactKinematic<N: Real> {
-    local1: Point<N>,
-    local2: Point<N>,
-
-    normals1: PolyhedralCone<N>,
-    normals2: PolyhedralCone<N>,
+    approx1: LocalShapeApproximation<N>,
+    approx2: LocalShapeApproximation<N>,
 
     margin1: N,
     margin2: N,
-
-    feature1: FeatureId,
-    feature2: FeatureId,
-
-    variant: KinematicVariant<N>,
 }
 
 impl<N: Real> ContactKinematic<N> {
     /// Initializes an empty contact kinematic.
-    /// 
+    ///
     /// All the contact kinematic information must be filled using methods
     /// prefixed by `set_`.
     pub fn new() -> Self {
+        let approx = LocalShapeApproximation::new(
+            FeatureId::Unknown,
+            Point::origin(),
+            NeighborhoodGeometry::Point,
+        );
+
         ContactKinematic {
-            local1: Point::origin(),
-            local2: Point::origin(),
             margin1: na::zero(),
             margin2: na::zero(),
-            normals1: PolyhedralCone::Full,
-            normals2: PolyhedralCone::Full,
-            feature1: FeatureId::Unknown,
-            feature2: FeatureId::Unknown,
-            variant: KinematicVariant::PointPoint,
+            approx1: approx.clone(),
+            approx2: approx,
         }
     }
 
     /// Applies the given transformation to the first set of contact information.
     pub fn transform1(&mut self, m: &Isometry<N>) {
-        self.local1 = m * self.local1;
-        self.normals1.transform_by(m);
+        self.approx1.point = m * self.approx1.point;
 
-        match self.variant {
-            KinematicVariant::LinePoint(ref mut dir)
-            | KinematicVariant::LineLine(ref mut dir, _)
-            | KinematicVariant::LinePlane(ref mut dir) => {
-                *dir = m * *dir;
+        match &mut self.approx1.geometry {
+            NeighborhoodGeometry::Point => {}
+            NeighborhoodGeometry::Plane(n) | NeighborhoodGeometry::Line(n) => {
+                *n = m * &*n;
             }
-            // We don't use the _ here pattern to we make sure
-            // we don't forget to change this if we add other variants.
-            KinematicVariant::PointLine(_)
-            | KinematicVariant::PlaneLine(_)
-            | KinematicVariant::PointPlane
-            | KinematicVariant::PointPoint
-            | KinematicVariant::PlanePoint
-            | KinematicVariant::PlanePlane => {}
         }
     }
 
     /// Applies the given transformation to the second set of contact information.
     pub fn transform2(&mut self, m: &Isometry<N>) {
-        self.local2 = m * self.local2;
-        self.normals2.transform_by(m);
+        self.approx2.point = m * self.approx2.point;
 
-        match self.variant {
-            KinematicVariant::PointLine(ref mut dir)
-            | KinematicVariant::LineLine(_, ref mut dir)
-            | KinematicVariant::PlaneLine(ref mut dir) => {
-                *dir = m * *dir;
+        match &mut self.approx2.geometry {
+            NeighborhoodGeometry::Point => {}
+            NeighborhoodGeometry::Plane(n) | NeighborhoodGeometry::Line(n) => {
+                *n = m * &*n;
             }
-            // We don't use the _ pattern here to we make sure
-            // we don't forget to change this if we add other variants.
-            KinematicVariant::PointPlane
-            | KinematicVariant::PointPoint
-            | KinematicVariant::LinePoint(..)
-            | KinematicVariant::LinePlane(_)
-            | KinematicVariant::PlanePoint
-            | KinematicVariant::PlanePlane => {}
         }
     }
 
@@ -122,8 +122,9 @@ impl<N: Real> ContactKinematic<N> {
     /// This may not correspond to the contact point in the local
     /// space of the first since it does not takes the dilation
     /// into account.
+    // FIXME: we might want to remove this in the future as it is not generalizable to surfaces.
     pub fn local1(&self) -> Point<N> {
-        self.local1
+        self.approx1.point
     }
 
     /// The tracked point in local space of the second solid.
@@ -131,20 +132,33 @@ impl<N: Real> ContactKinematic<N> {
     /// This may not correspond to the contact point in the local
     /// space of the second solid since it does not takes the dilation
     /// into account.
+    // FIXME: we might want to remove this in the future as it is not generalizable to surfaces.
     pub fn local2(&self) -> Point<N> {
-        self.local2
+        self.approx2.point
     }
 
     /// The shape-dependent identifier of the feature of the first solid
     /// on which lies the contact point.
     pub fn feature1(&self) -> FeatureId {
-        self.feature1
+        self.approx1.feature
     }
 
     /// The shape-dependent identifier of the feature of the second solid
     /// on which lies the contact point.
     pub fn feature2(&self) -> FeatureId {
-        self.feature2
+        self.approx2.feature
+    }
+
+    /// Sets the shape-dependent identifier of the feature of the first solid
+    /// on which lies the contact point.
+    pub fn set_feature1(&mut self, f: FeatureId) {
+        self.approx1.feature = f
+    }
+
+    /// Sets the shape-dependent identifier of the feature of the second solid
+    /// on which lies the contact point.
+    pub fn set_feature2(&mut self, f: FeatureId) {
+        self.approx2.feature = f
     }
 
     /// Sets the dilation of the first solid.
@@ -157,173 +171,93 @@ impl<N: Real> ContactKinematic<N> {
         self.margin2 = margin;
     }
 
-    /// Define as a plane the local approximation of the shape of the first solid.
-    pub fn set_plane1(&mut self, fid: FeatureId, pt: Point<N>, normal: Unit<Vector<N>>) {
-        self.feature1 = fid;
-        self.local1 = pt;
-        self.normals1 = PolyhedralCone::HalfLine(normal);
-
-        self.variant = match self.variant {
-            KinematicVariant::PointPlane => KinematicVariant::PlanePlane,
-            KinematicVariant::PointPoint => KinematicVariant::PlanePoint,
-            KinematicVariant::PointLine(dir2) => KinematicVariant::PlaneLine(dir2),
-            KinematicVariant::LinePoint(..) => KinematicVariant::PlanePoint,
-            KinematicVariant::LineLine(_, dir2) => KinematicVariant::PlaneLine(dir2),
-            KinematicVariant::LinePlane(_) => KinematicVariant::PlanePlane,
-            // Other cases don't change anthying.
-            KinematicVariant::PlanePoint
-            | KinematicVariant::PlaneLine(_)
-            | KinematicVariant::PlanePlane => self.variant,
-        }
+    /// The local approximation of the first shape.
+    pub fn approx1(&self) -> &LocalShapeApproximation<N> {
+        &self.approx1
     }
 
-    /// Define as a plane the local approximation of the shape of the second solid.
-    pub fn set_plane2(&mut self, fid: FeatureId, pt: Point<N>, normal: Unit<Vector<N>>) {
-        self.feature2 = fid;
-        self.local2 = pt;
-        self.normals2 = PolyhedralCone::HalfLine(normal);
-
-        self.variant = match self.variant {
-            KinematicVariant::PlanePoint => KinematicVariant::PlanePlane,
-            KinematicVariant::PointPoint => KinematicVariant::PointPlane,
-            KinematicVariant::PointLine(_) => KinematicVariant::PointPlane,
-            KinematicVariant::LinePoint(dir1) => KinematicVariant::LinePlane(dir1),
-            KinematicVariant::LineLine(dir1, _) => KinematicVariant::LinePlane(dir1),
-            KinematicVariant::PlaneLine(_) => KinematicVariant::PlanePlane,
-            // Other cases don't change anthying.
-            KinematicVariant::PointPlane
-            | KinematicVariant::PlanePlane
-            | KinematicVariant::LinePlane(_) => self.variant,
-        }
+    /// The local approximation of the first shape.
+    pub fn approx2(&self) -> &LocalShapeApproximation<N> {
+        &self.approx2
     }
 
-    /// Define as a line the local approximation of the shape of the second solid.
-    pub fn set_line1(
+    /// The local approximation of the first shape.
+    pub fn approx1_mut(&mut self) -> &mut LocalShapeApproximation<N> {
+        &mut self.approx1
+    }
+
+    /// The local approximation of the second shape.
+    pub fn approx2_mut(&mut self) -> &mut LocalShapeApproximation<N> {
+        &mut self.approx2
+    }
+
+    /// Sets the local approximation of the first shape.
+    pub fn set_approx1(
         &mut self,
-        fid: FeatureId,
-        pt: Point<N>,
-        dir: Unit<Vector<N>>,
-        normals: PolyhedralCone<N>,
-    ) {
-        self.feature1 = fid;
-        self.local1 = pt;
-        self.normals1 = normals;
-
-        self.variant = match self.variant {
-            KinematicVariant::PlanePoint => KinematicVariant::LinePoint(dir),
-            KinematicVariant::PointPlane => KinematicVariant::LinePlane(dir),
-            KinematicVariant::PointPoint => KinematicVariant::LinePoint(dir),
-            KinematicVariant::PointLine(dir2) => KinematicVariant::LineLine(dir, dir2),
-            KinematicVariant::LinePoint(_) => KinematicVariant::LinePoint(dir),
-            KinematicVariant::LineLine(_, dir2) => KinematicVariant::LineLine(dir, dir2),
-            KinematicVariant::PlanePlane => KinematicVariant::LinePlane(dir),
-            KinematicVariant::PlaneLine(dir2) => KinematicVariant::LineLine(dir, dir2),
-            KinematicVariant::LinePlane(_) => KinematicVariant::LinePlane(dir),
-        };
+        feature: FeatureId,
+        point: Point<N>,
+        geom: NeighborhoodGeometry<N>,
+    )
+    {
+        self.approx1 = LocalShapeApproximation::new(feature, point, geom);
     }
 
-    /// Define as a line the local approximation of the shape of the second solid.
-    pub fn set_line2(
+    /// Sets the local approximation of the second shape.
+    pub fn set_approx2(
         &mut self,
-        fid: FeatureId,
-        pt: Point<N>,
-        dir: Unit<Vector<N>>,
-        normals: PolyhedralCone<N>,
-    ) {
-        self.feature2 = fid;
-        self.local2 = pt;
-        self.normals2 = normals;
-
-        self.variant = match self.variant {
-            KinematicVariant::PlanePoint => KinematicVariant::PlaneLine(dir),
-            KinematicVariant::PointPlane => KinematicVariant::PointLine(dir),
-            KinematicVariant::PointPoint => KinematicVariant::PointLine(dir),
-            KinematicVariant::PointLine(_) => KinematicVariant::PointLine(dir),
-            KinematicVariant::LinePoint(dir1) => KinematicVariant::LineLine(dir1, dir),
-            KinematicVariant::LineLine(dir1, _) => KinematicVariant::LineLine(dir1, dir),
-            KinematicVariant::PlanePlane => KinematicVariant::PlaneLine(dir),
-            KinematicVariant::PlaneLine(_) => KinematicVariant::PlaneLine(dir),
-            KinematicVariant::LinePlane(dir1) => KinematicVariant::LineLine(dir1, dir),
-        };
-    }
-
-    /// Define as a point the local approximation of the shape of the second solid.
-    pub fn set_point1(&mut self, fid: FeatureId, pt: Point<N>, normals: PolyhedralCone<N>) {
-        self.feature1 = fid;
-        self.local1 = pt;
-        self.normals1 = normals;
-
-        self.variant = match self.variant {
-            KinematicVariant::PlanePoint => KinematicVariant::PointPoint,
-            KinematicVariant::LinePoint(_) => KinematicVariant::PointPoint,
-            KinematicVariant::LineLine(_, dir2) => KinematicVariant::PointLine(dir2),
-            KinematicVariant::PlanePlane => KinematicVariant::PointPlane,
-            KinematicVariant::PlaneLine(dir2) => KinematicVariant::PointLine(dir2),
-            KinematicVariant::LinePlane(_) => KinematicVariant::PointPlane,
-            // Other cases don't change anthying.
-            KinematicVariant::PointPlane
-            | KinematicVariant::PointLine(_)
-            | KinematicVariant::PointPoint => self.variant,
-        };
-    }
-
-    /// Define as a point the local approximation of the shape of the second solid.
-    pub fn set_point2(&mut self, fid: FeatureId, pt: Point<N>, normals: PolyhedralCone<N>) {
-        self.feature2 = fid;
-        self.local2 = pt;
-        self.normals2 = normals;
-
-        self.variant = match self.variant {
-            KinematicVariant::PointPlane => KinematicVariant::PointPoint,
-            KinematicVariant::PointLine(_) => KinematicVariant::PointPoint,
-            KinematicVariant::LineLine(dir1, _) => KinematicVariant::LinePoint(dir1),
-            KinematicVariant::PlanePlane => KinematicVariant::PlanePoint,
-            KinematicVariant::PlaneLine(_) => KinematicVariant::PlanePoint,
-            KinematicVariant::LinePlane(dir1) => KinematicVariant::LinePoint(dir1),
-            // Other cases don't change anthying.
-            KinematicVariant::PlanePoint
-            | KinematicVariant::PointPoint
-            | KinematicVariant::LinePoint(_) => self.variant,
-        };
+        feature: FeatureId,
+        point: Point<N>,
+        geom: NeighborhoodGeometry<N>,
+    )
+    {
+        self.approx2 = LocalShapeApproximation::new(feature, point, geom);
     }
 
     /// Computes the updated contact points with the new positions of the solids.
     ///
-    /// The vector `default_normal1` is the normal of the resulting contactc
+    /// The vector `default_normal1` is the normal of the resulting contact
     /// in the rare case where the contact normal cannot be determined by the update.
     /// Typically, this should be set to the latest contact normal known.
     pub fn contact(
         &self,
         m1: &Isometry<N>,
+        s1: &Shape<N>,
+        deformations1: Option<&[N]>,
         m2: &Isometry<N>,
+        s2: &Shape<N>,
+        deformations2: Option<&[N]>,
         default_normal1: &Unit<Vector<N>>,
-    ) -> Option<Contact<N>> {
-        let mut world1 = m1 * self.local1;
-        let mut world2 = m2 * self.local2;
+    ) -> Option<Contact<N>>
+    {
         let normal;
         let mut depth;
 
-        match self.variant {
-            KinematicVariant::PlanePoint => {
-                normal = m1 * self.normals1.unwrap_half_line();
-                depth = -na::dot(normal.as_ref(), &(world2 - world1));
+        let mut world1 = m1 * self.approx1.point;
+        let mut world2 = m2 * self.approx2.point;
+
+        match (&self.approx1.geometry, &self.approx2.geometry) {
+            (NeighborhoodGeometry::Plane(normal1), NeighborhoodGeometry::Point) => {
+                normal = m1 * normal1;
+                depth = -normal.dot(&(world2 - world1));
                 world1 = world2 + *normal * depth;
             }
-            KinematicVariant::PointPlane => {
-                let world_normal2 = m2 * self.normals2.unwrap_half_line();
-                depth = -na::dot(&*world_normal2, &(world1 - world2));
+            (NeighborhoodGeometry::Point, NeighborhoodGeometry::Plane(normal2)) => {
+                let world_normal2 = m2 * normal2;
+                depth = -world_normal2.dot(&(world1 - world2));
                 world2 = world1 + *world_normal2 * depth;
                 normal = -world_normal2;
             }
-            KinematicVariant::PointPoint => {
-                if let Some((n, d)) =
-                    Unit::try_new_and_get(world2 - world1, N::default_epsilon())
-                {
-                    let local_n1 = m1.inverse_transform_unit_vector(&n);
-                    let local_n2 = m2.inverse_transform_unit_vector(&-n);
-                    if self.normals1.polar_contains_dir(&local_n1)
-                        || self.normals2.polar_contains_dir(&local_n2)
-                    {
+            (NeighborhoodGeometry::Point, NeighborhoodGeometry::Point) => {
+                if let Some((n, d)) = Unit::try_new_and_get(world2 - world1, N::default_epsilon()) {
+                    if s1.tangent_cone_contains_dir(self.approx1.feature, m1, deformations1, &n)
+                        || s2.tangent_cone_contains_dir(
+                            self.approx2.feature,
+                            m2,
+                            deformations2,
+                            &-n,
+                        ) {
+//                        println!("Is in tangent cone 3.");
+
                         depth = d;
                         normal = -n;
                     } else {
@@ -335,20 +269,24 @@ impl<N: Real> ContactKinematic<N> {
                     normal = m1 * default_normal1;
                 }
             }
-            KinematicVariant::LinePoint(ref dir1) => {
+            (NeighborhoodGeometry::Line(dir1), NeighborhoodGeometry::Point) => {
                 let world_dir1 = m1 * dir1;
                 let mut shift = world2 - world1;
-                let proj = na::dot(world_dir1.as_ref(), &shift);
-                shift -= dir1.unwrap() * proj;
+                let proj = world_dir1.dot(&shift);
+                shift -= dir1.into_inner() * proj;
 
                 if let Some((n, d)) = Unit::try_new_and_get(shift, na::zero()) {
-                    let local_n1 = m1.inverse_transform_unit_vector(&n);
-                    let local_n2 = m2.inverse_transform_unit_vector(&-n);
                     world1 = world2 + (-shift);
 
-                    if self.normals1.polar_contains_dir(&local_n1)
-                        || self.normals2.polar_contains_dir(&local_n2)
-                    {
+                    if s1.tangent_cone_contains_dir(self.approx1.feature, m1, deformations1, &n)
+                        || s2.tangent_cone_contains_dir(
+                            self.approx2.feature,
+                            m2,
+                            deformations2,
+                            &-n,
+                        ) {
+//                        println!("Is in tangent cone 4.");
+
                         depth = d;
                         normal = -n;
                     } else {
@@ -360,23 +298,26 @@ impl<N: Real> ContactKinematic<N> {
                     normal = m1 * default_normal1;
                 }
             }
-            KinematicVariant::PointLine(ref dir2) => {
+            (NeighborhoodGeometry::Point, NeighborhoodGeometry::Line(dir2)) => {
                 let world_dir2 = m2 * dir2;
                 let mut shift = world1 - world2;
-                let proj = na::dot(world_dir2.as_ref(), &shift);
-                shift -= dir2.unwrap() * proj;
+                let proj = world_dir2.dot(&shift);
+                shift -= dir2.into_inner() * proj;
                 // NOTE: we set:
                 // shift = world2 - world1
                 let shift = -shift;
 
                 if let Some((n, d)) = Unit::try_new_and_get(shift, na::zero()) {
-                    let local_n1 = m1.inverse_transform_unit_vector(&n);
-                    let local_n2 = m2.inverse_transform_unit_vector(&-n);
                     world2 = world1 + shift;
 
-                    if self.normals1.polar_contains_dir(&local_n1)
-                        || self.normals2.polar_contains_dir(&local_n2)
-                    {
+                    if s1.tangent_cone_contains_dir(self.approx1.feature, m1, deformations1, &n)
+                        || s2.tangent_cone_contains_dir(
+                            self.approx2.feature,
+                            m2,
+                            deformations2,
+                            &-n,
+                        ) {
+//                        println!("Is in tangent cone 5.");
                         depth = d;
                         normal = -n;
                     } else {
@@ -388,7 +329,7 @@ impl<N: Real> ContactKinematic<N> {
                     normal = m1 * default_normal1;
                 }
             }
-            KinematicVariant::LineLine(ref dir1, ref dir2) => {
+            (NeighborhoodGeometry::Line(dir1), NeighborhoodGeometry::Line(dir2)) => {
                 let world_dir1 = m1 * dir1;
                 let world_dir2 = m2 * dir2;
                 let (pt1, pt2) = closest_points_internal::line_against_line(
@@ -402,12 +343,15 @@ impl<N: Real> ContactKinematic<N> {
                 world2 = pt2;
 
                 if let Some((n, d)) = Unit::try_new_and_get(world2 - world1, na::zero()) {
-                    let local_n1 = m1.inverse_transform_unit_vector(&n);
-                    let local_n2 = m2.inverse_transform_unit_vector(&-n);
+                    if s1.tangent_cone_contains_dir(self.approx1.feature, m1, deformations1, &n)
+                        || s2.tangent_cone_contains_dir(
+                            self.approx2.feature,
+                            m2,
+                            deformations2,
+                            &-n,
+                        ) {
+//                        println!("Is in tangent cone 6.");
 
-                    if self.normals1.polar_contains_dir(&local_n1)
-                        || self.normals2.polar_contains_dir(&local_n2)
-                    {
                         depth = d;
                         normal = -n;
                     } else {
@@ -424,8 +368,9 @@ impl<N: Real> ContactKinematic<N> {
             }
         }
 
-        world1 += normal.unwrap() * self.margin1;
-        world2 += normal.unwrap() * (-self.margin2);
+//        println!("Before margin: {:?}", Contact::new(world1, world2, normal, depth));
+        world1 += normal.into_inner() * self.margin1;
+        world2 += normal.into_inner() * (-self.margin2);
         depth += self.margin1 + self.margin2;
 
         Some(Contact::new(world1, world2, normal, depth))

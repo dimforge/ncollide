@@ -2,11 +2,12 @@ use num::Bounded;
 use std::cmp::Ordering;
 
 use na::{self, Matrix3, Point2, Point3, Real, Vector3};
-use procedural::{IndexBuffer, TriMesh};
-use transformation::{
-    self, convex_hull_utils::{denormalize, indexed_support_point_id, normalize, support_point_id},
+use crate::procedural::{IndexBuffer, TriMesh};
+use crate::transformation::{
+    self,
+    convex_hull_utils::{denormalize, indexed_support_point_id, normalize, support_point_id},
 };
-use utils;
+use crate::utils;
 
 /// Computes the convariance matrix of a set of points.
 fn cov<N: Real>(pts: &[Point3<N>]) -> Matrix3<N> {
@@ -100,7 +101,7 @@ pub fn convex_hull3<N: Real>(points: &[Point3<N>]) -> TriMesh<N> {
                     }
 
                     if any_valid {
-                        println!("Warning: exitting an unfinished work.");
+//                        println!("Warning: exitting an unfinished work.");
                     }
 
                     // FIXME: this is verry harsh.
@@ -184,7 +185,8 @@ fn build_degenerate_mesh_segment<N: Real>(dir: &Vector3<N>, points: &[Point3<N>]
 fn get_initial_mesh<N: Real>(
     points: &mut [Point3<N>],
     undecidable: &mut Vec<usize>,
-) -> InitialMesh<N> {
+) -> InitialMesh<N>
+{
     /*
      * Compute the eigenvectors to see if the input datas live on a subspace.
      */
@@ -245,8 +247,8 @@ fn get_initial_mesh<N: Real>(
 
             for point in points.iter() {
                 subspace_points.push(Point2::new(
-                    na::dot(&point.coords, axis1),
-                    na::dot(&point.coords, axis2),
+                    point.coords.dot(axis1),
+                    point.coords.dot(axis2),
                 ))
             }
 
@@ -364,7 +366,8 @@ fn compute_silhouette<N: Real>(
     points: &[Point3<N>],
     removed_facets: &mut Vec<usize>,
     triangles: &mut [TriangleFacet<N>],
-) {
+)
+{
     if triangles[facet].valid {
         if !triangles[facet].can_be_seen_by_or_is_affinely_dependent_with_contour(
             point,
@@ -425,7 +428,8 @@ fn attach_and_push_facets3<N: Real>(
     triangles: &mut Vec<TriangleFacet<N>>,
     removed_facets: &[usize],
     undecidable: &mut Vec<usize>,
-) {
+)
+{
     // The horizon is built to be in CCW order.
     let mut new_facets = Vec::with_capacity(horizon_loop_facets.len());
 
@@ -574,7 +578,7 @@ impl<N: Real> TriangleFacet<N> {
     }
 
     pub fn distance_to_point(&self, point: usize, points: &[Point3<N>]) -> N {
-        na::dot(&self.normal, &(points[point] - points[self.pts[0]]))
+        self.normal.dot(&(points[point] - points[self.pts[0]]))
     }
 
     pub fn set_facets_adjascency(
@@ -585,7 +589,8 @@ impl<N: Real> TriangleFacet<N> {
         id_adj1: usize,
         id_adj2: usize,
         id_adj3: usize,
-    ) {
+    )
+    {
         self.indirect_adj_id[0] = id_adj1;
         self.indirect_adj_id[1] = id_adj2;
         self.indirect_adj_id[2] = id_adj3;
@@ -611,7 +616,7 @@ impl<N: Real> TriangleFacet<N> {
 
         let _eps = N::default_epsilon();
 
-        na::dot(&(*pt - *p0), &self.normal) > _eps * na::convert(100.0f64)
+        (*pt - *p0).dot(&self.normal) > _eps * na::convert(100.0f64)
             && !utils::is_affinely_dependent_triangle(p0, p1, pt)
             && !utils::is_affinely_dependent_triangle(p0, p2, pt)
             && !utils::is_affinely_dependent_triangle(p1, p2, pt)
@@ -622,7 +627,8 @@ impl<N: Real> TriangleFacet<N> {
         point: usize,
         points: &[Point3<N>],
         edge: usize,
-    ) -> bool {
+    ) -> bool
+    {
         let p0 = &points[self.first_point_from_edge(edge)];
         let p1 = &points[self.second_point_from_edge(edge)];
         let pt = &points[point];
@@ -634,7 +640,7 @@ impl<N: Real> TriangleFacet<N> {
             || utils::is_affinely_dependent_triangle(pt, p0, p1)
             || utils::is_affinely_dependent_triangle(pt, p1, p0);
 
-        na::dot(&(*pt - *p0), &self.normal) >= na::zero() || aff_dep
+        (*pt - *p0).dot(&self.normal) >= na::zero() || aff_dep
     }
 }
 
@@ -643,8 +649,8 @@ mod test {
     #[cfg(feature = "dim2")]
     use na::Point2;
     #[cfg(feature = "dim3")]
-    use procedural;
-    use transformation;
+    use crate::procedural;
+    use crate::transformation;
 
     #[cfg(feature = "dim2")]
     #[test]

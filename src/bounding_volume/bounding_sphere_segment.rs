@@ -1,8 +1,8 @@
+use crate::bounding_volume;
+use crate::bounding_volume::{BoundingSphere, HasBoundingVolume};
+use crate::math::Isometry;
 use na::Real;
-use bounding_volume::{BoundingSphere, HasBoundingVolume};
-use bounding_volume;
-use shape::Segment;
-use math::{Isometry};
+use crate::shape::Segment;
 
 impl<N: Real> HasBoundingVolume<N, BoundingSphere<N>> for Segment<N> {
     #[inline]

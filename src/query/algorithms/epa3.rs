@@ -1,16 +1,14 @@
 //! Three-dimensional penetration depth queries using the Expanding Polytope Algorithm.
 
+use alga::linear::FiniteDimInnerSpace;
+use crate::math::{Isometry, Point, Vector};
+use na::{self, Real, Unit};
+use crate::query::algorithms::{gjk, CSOPoint, VoronoiSimplex};
+use crate::query::PointQueryWithLocation;
+use crate::shape::{ConstantOrigin, SupportMap, Triangle, TrianglePointLocation};
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
-
-use alga::linear::FiniteDimInnerSpace;
-use na::{self, Real, Unit};
-
-use math::{Isometry, Point, Vector};
-use query::PointQueryWithLocation;
-use query::algorithms::{gjk, CSOPoint, VoronoiSimplex};
-use shape::{ConstantOrigin, SupportMap, Triangle, TrianglePointLocation};
-use utils;
+use crate::utils;
 
 #[derive(Copy, Clone, PartialEq)]
 struct FaceId<N: Real> {
@@ -21,11 +19,11 @@ struct FaceId<N: Real> {
 impl<N: Real> FaceId<N> {
     fn new(id: usize, neg_dist: N) -> Option<Self> {
         if neg_dist > gjk::eps_tol() {
-            println!(
-                "EPA: the origin was outside of the CSO: {} > tolerence ({})",
-                neg_dist,
-                gjk::eps_tol::<N>()
-            );
+//            println!(
+//                "EPA: the origin was outside of the CSO: {} > tolerence ({})",
+//                neg_dist,
+//                gjk::eps_tol::<N>()
+//            );
             None
         } else {
             Some(FaceId { id, neg_dist })
@@ -72,7 +70,8 @@ impl<N: Real> Face<N> {
         bcoords: [N; 3],
         pts: [usize; 3],
         adj: [usize; 3],
-    ) -> Self {
+    ) -> Self
+    {
         let normal;
         let deleted;
 
@@ -108,7 +107,7 @@ impl<N: Real> Face<N> {
             tri.project_point_with_location(&Isometry::identity(), &Point::origin(), true);
 
         match loc {
-            TrianglePointLocation::OnFace(bcoords) => (
+            TrianglePointLocation::OnFace(_, bcoords) => (
                 Self::new_with_proj(vertices, proj.point, bcoords, pts, adj),
                 true,
             ),
@@ -150,7 +149,7 @@ impl<N: Real> Face<N> {
         let p1 = &vertices[self.pts[(opp_pt_id + 1) % 3]].point;
         let p2 = &vertices[self.pts[(opp_pt_id + 2) % 3]].point;
         let pt = &vertices[point].point;
-        na::dot(&(*pt - *p0), &self.normal) >= -gjk::eps_tol::<N>()
+        (*pt - *p0).dot(&self.normal) >= -gjk::eps_tol::<N>()
             || utils::is_affinely_dependent_triangle(p1, p2, pt)
     }
 }
@@ -248,7 +247,7 @@ impl<N: Real> EPA<N> {
             let dp2 = self.vertices[2] - self.vertices[0];
             let dp3 = self.vertices[3] - self.vertices[0];
 
-            if na::dot(&dp1.cross(&dp2), &dp3) > na::zero() {
+            if dp1.cross(&dp2).dot(&dp3) > na::zero() {
                 self.vertices.swap(1, 2)
             }
 
@@ -273,34 +272,22 @@ impl<N: Real> EPA<N> {
             self.faces.push(face4);
 
             if proj_inside1 {
-                let dist1 = na::dot(
-                    self.faces[0].normal.as_ref(),
-                    &self.vertices[0].point.coords,
-                );
+                let dist1 = self.faces[0].normal.dot(&self.vertices[0].point.coords);
                 self.heap.push(FaceId::new(0, -dist1)?);
             }
 
             if proj_inside2 {
-                let dist2 = na::dot(
-                    self.faces[1].normal.as_ref(),
-                    &self.vertices[1].point.coords,
-                );
+                let dist2 = self.faces[1].normal.dot(&self.vertices[1].point.coords);
                 self.heap.push(FaceId::new(1, -dist2)?);
             }
 
             if proj_inside3 {
-                let dist3 = na::dot(
-                    self.faces[2].normal.as_ref(),
-                    &self.vertices[2].point.coords,
-                );
+                let dist3 = self.faces[2].normal.dot(&self.vertices[2].point.coords);
                 self.heap.push(FaceId::new(2, -dist3)?);
             }
 
             if proj_inside4 {
-                let dist4 = na::dot(
-                    self.faces[3].normal.as_ref(),
-                    &self.vertices[3].point.coords,
-                );
+                let dist4 = self.faces[3].normal.dot(&self.vertices[3].point.coords);
                 self.heap.push(FaceId::new(3, -dist4)?);
             }
         } else {
@@ -350,7 +337,7 @@ impl<N: Real> EPA<N> {
             let support_point_id = self.vertices.len();
             self.vertices.push(cso_point);
 
-            let candidate_max_dist = na::dot(&cso_point.point.coords, &face.normal);
+            let candidate_max_dist = cso_point.point.coords.dot(&face.normal);
 
             if candidate_max_dist < max_dist {
                 best_face_id = face_id;
@@ -404,7 +391,7 @@ impl<N: Real> EPA<N> {
 
                     if new_face.1 {
                         let pt = self.vertices[self.faces[new_face_id].pts[0]].point.coords;
-                        let dist = na::dot(self.faces[new_face_id].normal.as_ref(), &pt);
+                        let dist = self.faces[new_face_id].normal.dot(&pt);
                         if dist < curr_dist {
                             // FIXME: if we reach this point, there were issues due to
                             // numerical errors.
@@ -425,7 +412,7 @@ impl<N: Real> EPA<N> {
 
             niter += 1;
             if niter > 10000 {
-                println!("EPA did not converge after 1000 iterations… stopping the iterations.");
+//                println!("EPA did not converge after 1000 iterations… stopping the iterations.");
                 return None;
             }
         }

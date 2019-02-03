@@ -83,11 +83,11 @@ fn handle_contact_event(world: &CollisionWorld<f32, CollisionObjectData>, event:
         // The ball is the one with a non-None velocity.
         if let Some(ref vel) = co1.data().velocity {
             let normal = collector[0].deepest_contact().unwrap().contact.normal;
-            vel.set(vel.get() - 2.0 * na::dot(&vel.get(), &normal) * *normal);
+            vel.set(vel.get() - 2.0 * vel.get().dot(&normal) * *normal);
         }
         if let Some(ref vel) = co2.data().velocity {
             let normal = -collector[0].deepest_contact().unwrap().contact.normal;
-            vel.set(vel.get() - 2.0 * na::dot(&vel.get(), &normal) * *normal);
+            vel.set(vel.get() - 2.0 * vel.get().dot(&normal) * *normal);
         }
     }
 }

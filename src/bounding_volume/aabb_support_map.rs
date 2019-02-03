@@ -1,10 +1,10 @@
+use crate::bounding_volume;
+use crate::bounding_volume::{HasBoundingVolume, AABB};
+use crate::math::Isometry;
 use na::Real;
-use bounding_volume::{HasBoundingVolume, AABB};
-use bounding_volume;
+use crate::shape::{Segment, Capsule};
 #[cfg(feature = "dim3")]
-use shape::{Capsule, Cone, Cylinder, Triangle};
-use shape::Segment;
-use math::Isometry;
+use crate::shape::{Cone, Cylinder, Triangle};
 
 #[cfg(feature = "dim3")]
 impl<N: Real> HasBoundingVolume<N, AABB<N>> for Cone<N> {
@@ -22,7 +22,6 @@ impl<N: Real> HasBoundingVolume<N, AABB<N>> for Cylinder<N> {
     }
 }
 
-#[cfg(feature = "dim3")]
 impl<N: Real> HasBoundingVolume<N, AABB<N>> for Capsule<N> {
     #[inline]
     fn bounding_volume(&self, m: &Isometry<N>) -> AABB<N> {

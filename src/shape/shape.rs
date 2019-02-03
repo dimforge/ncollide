@@ -1,21 +1,29 @@
-use std::mem;
-use std::any::{Any, TypeId};
+// Queries.
+use crate::bounding_volume::{BoundingSphere, AABB};
+use crate::math::{Isometry, Vector};
+use na::{self, Real, Unit};
+use crate::query::{PointQuery, RayCast};
+use crate::shape::{CompositeShape, ConvexPolyhedron, DeformableShape, FeatureId, SupportMap};
 use std::ops::Deref;
 use std::sync::Arc;
+use downcast_rs::Downcast;
 
-use na::{self, Real};
+pub trait ShapeClone<N: Real> {
+    fn clone_box(&self) -> Box<Shape<N>> {
+        unimplemented!()
+    }
+}
 
-// Repr.
-use shape::{CompositeShape, ConvexPolyhedron, SupportMap};
-// Queries.
-use bounding_volume::{BoundingSphere, AABB};
-use query::{PointQuery, RayCast};
-use math::Isometry;
+impl<N: Real, T: 'static + Shape<N> + Clone> ShapeClone<N> for T {
+    fn clone_box(&self) -> Box<Shape<N>> {
+        Box::new(self.clone())
+    }
+}
 
 /// Trait implemented by all shapes supported by ncollide.
 ///
 /// This allows dynamic inspection of the shape capabilities.
-pub trait Shape<N: Real>: Send + Sync + Any + GetTypeId {
+pub trait Shape<N: Real>: Send + Sync + Downcast + ShapeClone<N> {
     /// The AABB of `self`.
     #[inline]
     fn aabb(&self, m: &Isometry<N>) -> AABB<N>;
@@ -24,15 +32,26 @@ pub trait Shape<N: Real>: Send + Sync + Any + GetTypeId {
     #[inline]
     fn bounding_sphere(&self, m: &Isometry<N>) -> BoundingSphere<N> {
         let aabb = self.aabb(m);
-        BoundingSphere::new(aabb.center(), na::norm_squared(&aabb.half_extents()))
+        BoundingSphere::new(aabb.center(), aabb.half_extents().norm_squared())
     }
 
-    /// The transform of a specific subshape.
-    ///
-    /// Return `None` if the transform is known to be the identity.
+    /// Check if if the feature `_feature` of the `i-th` subshape of `self` transformed by `m` has a tangent
+    /// cone that contains `dir` at the point `pt`.
+    // NOTE: for the moment, we assume the tangent cone is the same for the whole feature.
     #[inline]
-    fn subshape_transform(&self, _: usize) -> Option<Isometry<N>> {
-        None
+    fn tangent_cone_contains_dir(
+        &self,
+        _feature: FeatureId,
+        _m: &Isometry<N>,
+        _deformations: Option<&[N]>,
+        _dir: &Unit<Vector<N>>,
+    ) -> bool;
+
+    /// Returns the id of the subshape containing the specified feature.
+    ///
+    /// If several subshape contains the same feature, any one is returned.
+    fn subshape_containing_feature(&self, _i: FeatureId) -> usize {
+        0
     }
 
     /// The `RayCast` implementation of `self`.
@@ -65,13 +84,25 @@ pub trait Shape<N: Real>: Send + Sync + Any + GetTypeId {
         None
     }
 
-    /// Whether `self` uses a conve polyhedron representation.
+    /// The deformable shape representation of `self` if applicable.
+    #[inline]
+    fn as_deformable_shape(&self) -> Option<&DeformableShape<N>> {
+        None
+    }
+
+    /// The mutable deformable shape representation of `self` if applicable.
+    #[inline]
+    fn as_deformable_shape_mut(&mut self) -> Option<&mut DeformableShape<N>> {
+        None
+    }
+
+    /// Whether `self` uses a convex polyhedron representation.
     #[inline]
     fn is_convex_polyhedron(&self) -> bool {
         self.as_convex_polyhedron().is_some()
     }
 
-    /// Whether `self` uses a supportmapping-based representation.
+    /// Whether `self` uses a support-mapping based representation.
     #[inline]
     fn is_support_map(&self) -> bool {
         self.as_support_map().is_some()
@@ -82,61 +113,59 @@ pub trait Shape<N: Real>: Send + Sync + Any + GetTypeId {
     fn is_composite_shape(&self) -> bool {
         self.as_composite_shape().is_some()
     }
+
+    /// Whether `self` uses a composite shape-based representation.
+    #[inline]
+    fn is_deformable_shape(&self) -> bool {
+        self.as_deformable_shape().is_some()
+    }
 }
 
-// Define our own because it is unstable.
-/// Raw representation of a trait-object.
-#[repr(C)]
-#[derive(Clone, Copy)]
-struct TraitObject {
-    /// Raw pointer to the trait object data.
-    pub data: *mut (),
-    /// Raw pointer to the trait object virtual table.
-    pub vtable: *mut (),
-}
+impl_downcast!(Shape<N> where N: Real);
 
 /// Trait for casting shapes to its exact represetation.
 impl<N: Real> Shape<N> {
     /// Tests if this shape has a specific type `T`.
     #[inline]
     pub fn is_shape<T: Shape<N>>(&self) -> bool {
-        self.type_id_compat() == TypeId::of::<T>()
+        self.is::<T>()
     }
 
     /// Performs the cast.
     #[inline]
     pub fn as_shape<T: Shape<N>>(&self) -> Option<&T> {
-        if self.is_shape::<T>() {
-            unsafe {
-                let to: TraitObject = mem::transmute(self);
-                mem::transmute(to.data)
-            }
-        } else {
-            None
-        }
+        self.downcast_ref()
     }
 }
 
-/// A shared immutable handle to an abstract shape.
-#[derive(Clone)]
-pub struct ShapeHandle<N: Real> {
-    handle: Arc<Shape<N>>,
+impl<N: Real> Clone for Box<Shape<N>> {
+    fn clone(&self) -> Box<Shape<N>> {
+        self.clone_box()
+    }
 }
+
+/// A shared handle to an abstract shape.
+///
+/// This can be mutated using COW.
+#[derive(Clone)]
+pub struct ShapeHandle<N: Real>(Arc<Box<Shape<N>>>);
 
 impl<N: Real> ShapeHandle<N> {
     /// Creates a sharable shape handle from a shape.
     #[inline]
-    pub fn new<S: Shape<N>>(shape: S) -> ShapeHandle<N> {
-        ShapeHandle {
-            handle: Arc::new(shape),
-        }
+    pub fn new<S: Shape<N> + Clone>(shape: S) -> ShapeHandle<N> {
+        ShapeHandle(Arc::new(Box::new(shape)))
+    }
+
+    pub(crate) fn make_mut(&mut self) -> &mut Shape<N> {
+        &mut **Arc::make_mut(&mut self.0)
     }
 }
 
 impl<N: Real> AsRef<Shape<N>> for ShapeHandle<N> {
     #[inline]
     fn as_ref(&self) -> &Shape<N> {
-        self.deref()
+        &*self.deref()
     }
 }
 
@@ -145,23 +174,6 @@ impl<N: Real> Deref for ShapeHandle<N> {
 
     #[inline]
     fn deref(&self) -> &Shape<N> {
-        self.handle.deref()
-    }
-}
-
-/// Trait to retrieve the `TypeId` of a shape.
-///
-/// This exists only because `Any::get_type_id()` is unstable.
-/// TODO: once 1.33.0 is stable, remove this trait and use StdAny::type_id
-pub unsafe trait GetTypeId {
-    /// Gets the dynamic type identifier of this shape.
-    #[inline]
-    fn type_id_compat(&self) -> TypeId;
-}
-
-unsafe impl<T: Any> GetTypeId for T {
-    #[inline]
-    fn type_id_compat(&self) -> TypeId {
-        TypeId::of::<Self>()
+        &**self.0.deref()
     }
 }

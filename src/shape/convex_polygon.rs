@@ -1,12 +1,12 @@
-use bounding_volume::PolyhedralCone;
-use math::{Isometry, Point, Vector};
+use crate::math::{Isometry, Point, Vector};
 use na::{self, Real, Unit};
-use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
+use crate::shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
 use std::f64;
-use transformation;
-use utils::{self, IsometryOps};
+use crate::transformation;
+use crate::utils::{self, IsometryOps};
 
 /// A 2D convex polygon.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
 pub struct ConvexPolygon<N: Real> {
     points: Vec<Point<N>>,
@@ -42,7 +42,7 @@ impl<N: Real> ConvexPolygon<N> {
 
         let mut nremoved = 0;
         // See if the first vexrtex must be removed.
-        if na::dot(&*normals[0], &*normals[normals.len() - 1]) > N::one() - eps {
+        if normals[0].dot(&*normals[normals.len() - 1]) > N::one() - eps {
             nremoved = 1;
         }
 
@@ -50,7 +50,7 @@ impl<N: Real> ConvexPolygon<N> {
         // of collinearity of adjascent faces.
         for i2 in 1..points.len() {
             let i1 = i2 - 1;
-            if na::dot(&*normals[i1], &*normals[i2]) > N::one() - eps {
+            if normals[i1].dot(&*normals[i2]) > N::one() - eps {
                 // Remove
                 nremoved += 1;
             } else {
@@ -81,6 +81,32 @@ impl<N: Real> ConvexPolygon<N> {
     pub fn normals(&self) -> &[Unit<Vector<N>>] {
         &self.normals
     }
+
+    /// Checks that the given direction in world-space is on the tangent cone of the given `feature`.
+    pub fn tangent_cone_contains_dir(
+        &self,
+        feature: FeatureId,
+        m: &Isometry<N>,
+        dir: &Unit<Vector<N>>,
+    ) -> bool
+    {
+        let local_dir = m.inverse_transform_unit_vector(dir);
+
+        match feature {
+            FeatureId::Face(id) => self.normals[id].dot(&local_dir) <= N::zero(),
+            FeatureId::Vertex(id2) => {
+                let id1 = if id2 == 0 {
+                    self.normals.len() - 1
+                } else {
+                    id2 - 1
+                };
+
+                self.normals[id1].dot(&local_dir) <= N::zero()
+                    && self.normals[id2].dot(&local_dir) <= N::zero()
+            }
+            _ => unreachable!(),
+        }
+    }
 }
 
 impl<N: Real> SupportMap<N> for ConvexPolygon<N> {
@@ -110,21 +136,6 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexPolygon<N> {
         out.set_feature_id(FeatureId::Face(ia));
     }
 
-    fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<N> {
-        match feature {
-            FeatureId::Face(id) => PolyhedralCone::HalfLine(self.normals[id]),
-            FeatureId::Vertex(id2) => {
-                let id1 = if id2 == 0 {
-                    self.normals.len() - 1
-                } else {
-                    id2 - 1
-                };
-                PolyhedralCone::Span([self.normals[id1], self.normals[id2]])
-            }
-            _ => panic!("Invalid feature ID: {:?}", feature),
-        }
-    }
-
     fn feature_normal(&self, feature: FeatureId) -> Unit<Vector<N>> {
         match feature {
             FeatureId::Face(id) => self.normals[id],
@@ -145,13 +156,14 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexPolygon<N> {
         m: &Isometry<N>,
         dir: &Unit<Vector<N>>,
         out: &mut ConvexPolygonalFeature<N>,
-    ) {
+    )
+    {
         let ls_dir = m.inverse_transform_vector(dir);
         let mut best_face = 0;
-        let mut max_dot = na::dot(&*self.normals[0], &ls_dir);
+        let mut max_dot = self.normals[0].dot(&ls_dir);
 
         for i in 1..self.points.len() {
-            let dot = na::dot(&*self.normals[i], &ls_dir);
+            let dot = self.normals[i].dot(&ls_dir);
 
             if dot > max_dot {
                 max_dot = dot;
@@ -169,7 +181,8 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexPolygon<N> {
         dir: &Unit<Vector<N>>,
         _angle: N,
         out: &mut ConvexPolygonalFeature<N>,
-    ) {
+    )
+    {
         out.clear();
         // FIXME: actualy find the support feature.
         self.support_face_toward(transform, dir, out)
@@ -183,7 +196,7 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexPolygon<N> {
         for i in 0..self.normals.len() {
             let normal = &self.normals[i];
 
-            if na::dot(normal.as_ref(), local_dir.as_ref()) >= ceps {
+            if normal.dot(local_dir.as_ref()) >= ceps {
                 return FeatureId::Face(i);
             }
         }

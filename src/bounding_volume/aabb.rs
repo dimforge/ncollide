@@ -1,9 +1,9 @@
 //! Axis Aligned Bounding Box.
 
+use crate::bounding_volume::{BoundingVolume, HasBoundingVolume, BoundingSphere};
+use crate::math::{Isometry, Point, Vector};
+use crate::utils::IsometryOps;
 use na::{self, Real};
-
-use bounding_volume::{BoundingVolume, HasBoundingVolume};
-use math::{Point, Vector, Isometry};
 
 // Seems useful to help type inference. See issue #84.
 /// Computes the axis-aligned bounding box of a shape `g` transformed by `m`.
@@ -18,6 +18,7 @@ where
 }
 
 /// An Axis Aligned Bounding Box.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, PartialEq, Clone)]
 pub struct AABB<N: Real> {
     mins: Point<N>,
@@ -31,12 +32,19 @@ impl<N: Real> AABB<N> {
     ///   * `mins` - position of the point with the smallest coordinates.
     ///   * `maxs` - position of the point with the highest coordinates. Each component of `mins`
     ///   must be smaller than the related components of `maxs`.
+    #[inline]
     pub fn new(mins: Point<N>, maxs: Point<N>) -> AABB<N> {
         // assert!(na::partial_le(&mins, &maxs));
         AABB {
             mins: mins,
             maxs: maxs,
         }
+    }
+
+    /// Creates a new AABB from its scenter and its half-extents.
+    #[inline]
+    pub fn from_half_extents(center: Point<N>, half_extents: Vector<N>) -> Self {
+        Self::new(center - half_extents, center + half_extents)
     }
 
     /// Reference to the AABB point with the smallest components along each axis.
@@ -62,6 +70,31 @@ impl<N: Real> AABB<N> {
     pub fn half_extents(&self) -> Vector<N> {
         let half: N = na::convert(0.5);
         (self.maxs - self.mins) * half
+    }
+
+    /// The extents of this AABB.
+    #[inline]
+    pub fn extents(&self) -> Vector<N> {
+        self.maxs - self.mins
+    }
+
+    /// Computes the AABB bounding `self` transformed by `m`.
+    #[inline]
+    pub fn transform_by(&self, m: &Isometry<N>) -> Self {
+        let ls_center = self.center();
+        let center = m * ls_center;
+        let ws_half_extents = m.absolute_transform_vector(&self.half_extents());
+
+        AABB::new(center + (-ws_half_extents), center + ws_half_extents)
+    }
+
+    /// The smallest bounding sphere containing this AABB.
+    #[inline]
+    pub fn bounding_sphere(&self) -> BoundingSphere<N> {
+        let center = self.center();
+        let rad = na::distance(self.mins(), self.maxs());
+
+        BoundingSphere::new(center, rad)
     }
 }
 

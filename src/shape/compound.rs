@@ -2,34 +2,25 @@
 //! Shape composed from the union of primitives.
 //!
 
+use std::mem;
+use crate::bounding_volume::{BoundingVolume, AABB};
+use crate::math::Isometry;
 use na::{self, Real};
-
-use bounding_volume::{BoundingVolume, AABB};
-use partitioning::BVT;
-use shape::{CompositeShape, Shape, ShapeHandle};
-use math::Isometry;
+use crate::partitioning::{BVHImpl, BVT};
+use crate::shape::{CompositeShape, Shape, ShapeHandle, FeatureId};
+use crate::query::{ContactPrediction, ContactPreprocessor, Contact, ContactKinematic};
 
 /// A compound shape with an aabb bounding volume.
 ///
 /// A compound shape is a shape composed of the union of several simpler shape. This is
 /// the main way of creating a concave shape from convex parts. Each parts can have its own
 /// delta transformation to shift or rotate it with regard to the other shapes.
+#[derive(Clone)]
 pub struct Compound<N: Real> {
     shapes: Vec<(Isometry<N>, ShapeHandle<N>)>,
     bvt: BVT<usize, AABB<N>>,
     bvs: Vec<AABB<N>>,
-    start_idx: Vec<usize>,
-}
-
-impl<N: Real> Clone for Compound<N> {
-    fn clone(&self) -> Compound<N> {
-        Compound {
-            shapes: self.shapes.clone(),
-            bvt: self.bvt.clone(),
-            bvs: self.bvs.clone(),
-            start_idx: self.start_idx.clone(),
-        }
-    }
+    nbits: usize
 }
 
 impl<N: Real> Compound<N> {
@@ -37,8 +28,6 @@ impl<N: Real> Compound<N> {
     pub fn new(shapes: Vec<(Isometry<N>, ShapeHandle<N>)>) -> Compound<N> {
         let mut bvs = Vec::new();
         let mut leaves = Vec::new();
-        let mut start_idx = Vec::new();
-        let mut start_id = 0;
 
         for (i, &(ref delta, ref shape)) in shapes.iter().enumerate() {
             // loosen for better persistancy
@@ -46,22 +35,20 @@ impl<N: Real> Compound<N> {
 
             bvs.push(bv.clone());
             leaves.push((i, bv));
-            start_idx.push(start_id);
 
-            if let Some(comp) = shape.as_composite_shape() {
-                start_id += comp.nparts();
-            } else {
-                start_id += 1;
+            if let Some(_comp) = shape.as_composite_shape() {
+                panic!("Nested composite shapes are not allowed.");
             }
         }
 
+        let nbits = mem::size_of::<usize>() * 8 - leaves.len().leading_zeros() as usize;
         let bvt = BVT::new_balanced(leaves);
 
         Compound {
             shapes: shapes,
             bvt: bvt,
             bvs: bvs,
-            start_idx,
+            nbits,
         }
     }
 }
@@ -79,6 +66,13 @@ impl<N: Real> Compound<N> {
         &self.bvt
     }
 
+    /// The AABB of this compound in its local-space.
+    #[inline]
+    pub fn aabb(&self) -> &AABB<N> {
+        self.bvt().root_bounding_volume()
+            .expect("An empty Compound has no AABB.")
+    }
+
     /// The shapes bounding volumes.
     #[inline]
     pub fn bounding_volumes(&self) -> &[AABB<N>] {
@@ -91,8 +85,16 @@ impl<N: Real> Compound<N> {
         &self.bvs[i]
     }
 
-    pub(crate) fn start_idx(&self) -> &[usize] {
-        &self.start_idx[..]
+    /// Transforms a FeatureId of this compound into a pair containing the index of the subshape
+    /// containing this feature, and the corresponding FeatureId on this subshape.
+    pub fn subshape_feature_id(&self, fid: FeatureId) -> (usize, FeatureId) {
+        match fid {
+            FeatureId::Face(i) => ((i & !(usize::max_value() << self.nbits)), FeatureId::Face(i >> self.nbits)),
+            #[cfg(feature = "dim3")]
+            FeatureId::Edge(i) => ((i & !(usize::max_value() << self.nbits)), FeatureId::Edge(i >> self.nbits)),
+            FeatureId::Vertex(i) => ((i & !(usize::max_value() << self.nbits)), FeatureId::Vertex(i >> self.nbits)),
+            FeatureId::Unknown => (0, FeatureId::Unknown)
+        }
     }
 }
 
@@ -103,19 +105,31 @@ impl<N: Real> CompositeShape<N> for Compound<N> {
     }
 
     #[inline(always)]
-    fn map_part_at(&self, i: usize, f: &mut FnMut(usize, &Isometry<N>, &Shape<N>)) {
-        let id = self.start_idx[i];
-        let &(ref m, ref g) = &self.shapes()[i];
+    fn map_part_at(
+        &self,
+        i: usize,
+        m: &Isometry<N>,
+        f: &mut FnMut(&Isometry<N>, &Shape<N>),
+    )
+    {
+        let elt = &self.shapes()[i];
+        let pos = m * elt.0;
 
-        f(id, m, g.as_ref())
+        f(&pos, elt.1.as_ref())
     }
 
-    #[inline(always)]
-    fn map_transformed_part_at(&self, i: usize, m: &Isometry<N>, f: &mut FnMut(usize, &Isometry<N>, &Shape<N>)) {
-        let id = self.start_idx[i];
+    fn map_part_and_preprocessor_at(
+        &self,
+        i: usize,
+        m: &Isometry<N>,
+        _prediction: &ContactPrediction<N>,
+        f: &mut FnMut(&Isometry<N>, &Shape<N>, &ContactPreprocessor<N>),
+    ) {
         let elt = &self.shapes()[i];
+        let pos = m * elt.0;
+        let proc = CompoundContactProcessor::new(&elt.0, i, self.nbits);
 
-        f(id, &(m.clone() * elt.0.clone()), elt.1.as_ref())
+        f(&pos, elt.1.as_ref(), &proc)
     }
 
     #[inline]
@@ -124,7 +138,60 @@ impl<N: Real> CompositeShape<N> for Compound<N> {
     }
 
     #[inline]
-    fn bvt(&self) -> &BVT<usize, AABB<N>> {
-        self.bvt()
+    fn bvh(&self) -> BVHImpl<N, usize, AABB<N>> {
+        BVHImpl::BVT(&self.bvt)
+    }
+}
+
+
+struct CompoundContactProcessor<'a, N: Real> {
+    part_pos: &'a Isometry<N>,
+    part_id: usize,
+    nbits: usize
+}
+
+impl<'a, N: Real> CompoundContactProcessor<'a, N> {
+    pub fn new(part_pos: &'a Isometry<N>, part_id: usize, nbits: usize) -> Self {
+        CompoundContactProcessor {
+            part_pos, part_id, nbits
+        }
+    }
+}
+
+impl<'a, N: Real> ContactPreprocessor<N> for CompoundContactProcessor<'a, N> {
+    fn process_contact(
+        &self,
+        _c: &mut Contact<N>,
+        kinematic: &mut ContactKinematic<N>,
+        is_first: bool)
+        -> bool {
+        // Fix the feature ID.
+        let feature = if is_first {
+            kinematic.feature1()
+        } else {
+            kinematic.feature2()
+        };
+
+        let actual_feature = match feature {
+            FeatureId::Vertex(i) => FeatureId::Vertex((i << self.nbits) | self.part_id),
+            #[cfg(feature = "dim3")]
+            FeatureId::Edge(i) => FeatureId::Edge((i << self.nbits) | self.part_id),
+            FeatureId::Face(i) => FeatureId::Face((i << self.nbits) | self.part_id),
+            FeatureId::Unknown => return false,
+        };
+
+        if is_first {
+            kinematic.set_feature1(actual_feature);
+            // The contact kinematics must be expressed on the local frame of
+            // the compound instead of the sub-shape.
+            kinematic.transform1(self.part_pos);
+        } else {
+            kinematic.set_feature2(actual_feature);
+            // The contact kinematics must be expressed on the local frame of
+            // the compound instead of the sub-shape.
+            kinematic.transform2(self.part_pos);
+        }
+
+        true
     }
 }

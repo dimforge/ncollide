@@ -1,9 +1,10 @@
 use na::{Real, Unit};
 
-use shape::SupportMap;
-use math::{Vector, Point, Isometry};
+use crate::math::{Isometry, Point, Vector};
+use crate::shape::SupportMap;
 
 /// A Ball shape.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Clone)]
 pub struct Ball<N: Real> {
     radius: N,

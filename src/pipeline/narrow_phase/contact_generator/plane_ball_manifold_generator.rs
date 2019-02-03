@@ -1,17 +1,17 @@
-use na::{self, Real};
 
-use math::{Isometry, Point};
-use utils::{IdAllocator, IsometryOps};
-use shape::{Ball, FeatureId, Plane, Shape};
-use bounding_volume::PolyhedralCone;
-use query::{Contact, ContactKinematic, ContactManifold, ContactPrediction};
-use pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
+use std::marker::PhantomData;
+use crate::math::{Isometry, Point};
+use na::{self, Real};
+use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
+use crate::query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry, ContactPreprocessor};
+use crate::shape::{Ball, FeatureId, Plane, Shape};
+use crate::utils::{IdAllocator, IsometryOps};
 
 /// Collision detector between g1 plane and g1 shape implementing the `SupportMap` trait.
 #[derive(Clone)]
 pub struct PlaneBallManifoldGenerator<N: Real> {
     flip: bool,
-    manifold: ContactManifold<N>,
+    phantom: PhantomData<N>
 }
 
 impl<N: Real> PlaneBallManifoldGenerator<N> {
@@ -21,35 +21,33 @@ impl<N: Real> PlaneBallManifoldGenerator<N> {
     pub fn new(flip: bool) -> PlaneBallManifoldGenerator<N> {
         PlaneBallManifoldGenerator {
             flip,
-            manifold: ContactManifold::new(),
+            phantom: PhantomData
         }
     }
 
     #[inline]
-    fn do_update(
-        &mut self,
+    fn do_update_to(
         m1: &Isometry<N>,
         g1: &Shape<N>,
+        proc1: Option<&ContactPreprocessor<N>>,
         m2: &Isometry<N>,
         g2: &Shape<N>,
+        proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
+        manifold: &mut ContactManifold<N>,
         flip: bool,
-    ) -> bool {
-        if let (Some(plane), Some(ball)) = (
-            g1.as_shape::<Plane<N>>(),
-            g2.as_shape::<Ball<N>>(),
-        ) {
-            self.manifold.save_cache_and_clear(id_alloc);
-
+    ) -> bool
+    {
+        if let (Some(plane), Some(ball)) = (g1.as_shape::<Plane<N>>(), g2.as_shape::<Ball<N>>()) {
             let plane_normal = m1 * plane.normal();
-            let plane_center = Point::from_coordinates(m1.translation.vector);
+            let plane_center = Point::from(m1.translation.vector);
 
-            let ball_center = Point::from_coordinates(m2.translation.vector);
-            let dist = na::dot(&(ball_center - plane_center), plane_normal.as_ref());
+            let ball_center = Point::from(m2.translation.vector);
+            let dist = (ball_center - plane_center).dot(plane_normal.as_ref());
             let depth = -dist + ball.radius();
 
-            if depth > -prediction.linear {
+            if depth > -prediction.linear() {
                 let world1 = ball_center + *plane_normal * (-dist);
                 let world2 = ball_center + *plane_normal * (-ball.radius());
 
@@ -61,19 +59,22 @@ impl<N: Real> PlaneBallManifoldGenerator<N> {
                 let mut kinematic = ContactKinematic::new();
                 let contact;
 
+                let approx_ball = NeighborhoodGeometry::Point;
+                let approx_plane = NeighborhoodGeometry::Plane(*plane.normal());
+
                 if !flip {
                     contact = Contact::new(world1, world2, plane_normal, depth);
-                    kinematic.set_plane1(f1, local1, *plane.normal());
-                    kinematic.set_point2(f2, local2, PolyhedralCone::Full);
+                    kinematic.set_approx1(f1, local1, approx_plane);
+                    kinematic.set_approx2(f2, local2, approx_ball);
                     kinematic.set_dilation2(ball.radius());
                 } else {
                     contact = Contact::new(world2, world1, -plane_normal, depth);
-                    kinematic.set_point1(f2, local2, PolyhedralCone::Full);
+                    kinematic.set_approx1(f2, local2, approx_ball);
                     kinematic.set_dilation1(ball.radius());
-                    kinematic.set_plane2(f1, local1, *plane.normal());
+                    kinematic.set_approx2(f1, local1, approx_plane);
                 }
 
-                let _ = self.manifold.push(contact, kinematic, id_alloc);
+                let _ = manifold.push(contact, kinematic, Point::origin(), proc1, proc2, id_alloc);
             }
 
             true
@@ -85,39 +86,46 @@ impl<N: Real> PlaneBallManifoldGenerator<N> {
 
 impl<N: Real> ContactManifoldGenerator<N> for PlaneBallManifoldGenerator<N> {
     #[inline]
-    fn update(
+    fn generate_contacts(
         &mut self,
         _: &ContactDispatcher<N>,
-        id1: usize,
         m1: &Isometry<N>,
         g1: &Shape<N>,
-        id2: usize,
+        proc1: Option<&ContactPreprocessor<N>>,
         m2: &Isometry<N>,
         g2: &Shape<N>,
+        proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
-    ) -> bool {
-        self.manifold.set_subshape_id1(id1);
-        self.manifold.set_subshape_id2(id2);
-
+        manifold: &mut ContactManifold<N>,
+    ) -> bool
+    {
         if !self.flip {
-            self.do_update(m1, g1, m2, g2, prediction, id_alloc, false)
+            Self::do_update_to(
+                m1,
+                g1,
+                proc1,
+                m2,
+                g2,
+                proc2,
+                prediction,
+                id_alloc,
+                manifold,
+                false,
+            )
         } else {
-            self.do_update(m2, g2, m1, g1, prediction, id_alloc, true)
+            Self::do_update_to(
+                m2,
+                g2,
+                proc2,
+                m1,
+                g1,
+                proc1,
+                prediction,
+                id_alloc,
+                manifold,
+                true,
+            )
         }
-    }
-
-    fn clear(&mut self, id_alloc: &mut IdAllocator) {
-        self.manifold.clear(id_alloc)
-    }
-
-    #[inline]
-    fn num_contacts(&self) -> usize {
-        self.manifold.len()
-    }
-
-    #[inline]
-    fn contacts<'a: 'b, 'b>(&'a self, out: &'b mut Vec<&'a ContactManifold<N>>) {
-        out.push(&self.manifold)
     }
 }

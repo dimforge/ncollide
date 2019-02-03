@@ -1,15 +1,14 @@
 //! The Gilbert–Johnson–Keerthi distance algorithm.
 
-use num::Bounded;
 
 use alga::general::Real;
 use na::{self, Unit};
 
-use query::algorithms::{CSOPoint, VoronoiSimplex};
-use shape::{ConstantOrigin, SupportMap};
+use crate::query::algorithms::{CSOPoint, VoronoiSimplex};
+use crate::shape::{ConstantOrigin, SupportMap};
 // use query::Proximity;
-use math::{Isometry, Point, Vector, DIM};
-use query::{ray_internal, Ray};
+use crate::math::{Isometry, Point, Vector, DIM};
+use crate::query::{ray_internal, Ray};
 
 /// Results of the GJK algorithm.
 #[derive(Clone, Debug, PartialEq)]
@@ -144,7 +143,7 @@ where
         }
 
         let cso_point = CSOPoint::from_shapes(m1, g1, m2, g2, &dir);
-        let min_bound = -na::dot(dir.as_ref(), &cso_point.point.coords);
+        let min_bound = -dir.dot(&cso_point.point.coords);
 
         assert!(min_bound == min_bound);
 
@@ -188,7 +187,7 @@ where
         }
         niter += 1;
         if niter == 10000 {
-            println!("Error: GJK did not converge.");
+//            println!("Error: GJK did not converge.");
             return GJKResult::NoIntersection(Vector::x_axis());
         }
     }
@@ -244,6 +243,7 @@ where
     G2: SupportMap<N>,
 {
     let mut ltoi: N = na::zero();
+    let mut old_max_bound = N::max_value();
     let _eps_tol = eps_tol();
 
     if relative_eq!(ray.dir.norm_squared(), N::zero()) {
@@ -252,13 +252,12 @@ where
 
     let mut curr_ray = *ray;
     let mut dir = -ray.dir;
-    let mut old_max_bound: N = Bounded::max_value();
     let mut ldir = dir;
     let mut simplex_init = false;
-    let mut niter = 0;
 
     loop {
-        niter += 1;
+        let mut ray_advanced = false;
+
         if dir.normalize_mut().is_zero() {
             return Some((ltoi, ldir));
         }
@@ -267,7 +266,7 @@ where
 
         // Clip the ray on the support plane (None <=> t < 0)
         // The configurations are:
-        //   dir.dot(ray.dir)  |   t   |               Action
+        //   dir.dot(curr_ray.dir)  |   t   |               Action
         // −−−−−−−−−−−−−−−−−−−−+−−−−−−−+−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−
         //          < 0        |  < 0  | Continue.
         //          < 0        |  > 0  | New lower bound, move the origin.
@@ -275,20 +274,19 @@ where
         //          > 0        |  > 0  | New higher bound.
         match ray_internal::plane_toi_with_ray(&support_point.point, &dir, &curr_ray) {
             Some(t) => {
-                if na::dot(&dir, &ray.dir) < na::zero() && t > _eps_tol {
+                if dir.dot(&curr_ray.dir) < na::zero() && t > N::zero() {
                     // new lower bound
                     ldir = dir;
-                    ltoi = ltoi + t;
-                    curr_ray.origin = ray.origin + ray.dir * ltoi;
-                    dir = curr_ray.origin - support_point.point;
+                    ltoi += t;
+                    let shift = curr_ray.dir * t;
+                    curr_ray.origin = curr_ray.origin + shift;
                     // FIXME: could we simply translate the simplex by old_origin - new_origin ?
-                    simplex.reset(support_point.translate1(&-curr_ray.origin.coords));
-                    old_max_bound = Bounded::max_value();
-                    continue;
+                    simplex.modify_pnts(&|pt| pt.translate1_mut(&-shift));
+                    ray_advanced = true;
                 }
             }
             None => {
-                if na::dot(&dir, &ray.dir) > N::zero() {
+                if dir.dot(&curr_ray.dir) > N::default_epsilon() {
                     // miss
                     return None;
                 }
@@ -298,23 +296,25 @@ where
         if !simplex_init {
             simplex.reset(support_point.translate1(&-curr_ray.origin.coords));
             simplex_init = true;
-        } else if !simplex.add_point(support_point.translate1(&-curr_ray.origin.coords)) {
-            return None;
+        } else if !simplex.add_point(support_point.translate1(&-curr_ray.origin.coords)) && !ray_advanced {
+            return Some((ltoi, ldir));
         }
 
         let proj = simplex.project_origin_and_reduce().coords;
-        let max_bound = na::norm_squared(&proj);
+        let max_bound = proj.norm_squared();
 
         if simplex.dimension() == DIM {
             return Some((ltoi, ldir));
         } else if max_bound <= _eps_tol || max_bound <= _eps_tol * simplex.max_sq_len() {
-            // FIXME: we use the same tolerence for absolute and relative epsilons. This could be improved.
-            // Return ldir: the last projection plane is tangeant to the intersected surface.
+            // FIXME: we use the same tolerance for absolute and relative epsilons. This could be improved.
+            // Return ldir: the last projection plane is tangent to the intersected surface.
             return Some((ltoi, ldir));
         } else if max_bound >= old_max_bound {
-            // Use dir instead of proj since this situations means that the new projection is less
-            // accurate than the last one (which is stored on dir).
-            return Some((ltoi, dir));
+            if max_bound <= old_max_bound + _eps_tol {
+                return Some((ltoi, ldir))
+            } else {
+                return None;
+            }
         }
 
         old_max_bound = max_bound;

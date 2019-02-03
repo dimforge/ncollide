@@ -1,9 +1,9 @@
 use na::Real;
 
-use math::{Isometry, Point};
-use shape::{Ball, Plane, Segment, Shape};
-use query::closest_points_internal;
-use query::closest_points_internal::ClosestPoints;
+use crate::math::{Isometry, Point};
+use crate::query::closest_points_internal;
+use crate::query::closest_points_internal::ClosestPoints;
+use crate::shape::{Ball, Plane, Segment, Shape};
 
 /// Computes the pair of closest points between two shapes.
 ///
@@ -14,13 +14,11 @@ pub fn shape_against_shape<N: Real>(
     m2: &Isometry<N>,
     g2: &Shape<N>,
     max_dist: N,
-) -> ClosestPoints<N> {
-    if let (Some(b1), Some(b2)) = (
-        g1.as_shape::<Ball<N>>(),
-        g2.as_shape::<Ball<N>>(),
-    ) {
-        let p1 = Point::from_coordinates(m1.translation.vector);
-        let p2 = Point::from_coordinates(m2.translation.vector);
+) -> ClosestPoints<N>
+{
+    if let (Some(b1), Some(b2)) = (g1.as_shape::<Ball<N>>(), g2.as_shape::<Ball<N>>()) {
+        let p1 = Point::from(m1.translation.vector);
+        let p2 = Point::from(m2.translation.vector);
 
         closest_points_internal::ball_against_ball(&p1, b1, &p2, b2, max_dist)
     } else if let (Some(s1), Some(s2)) = (g1.as_shape::<Segment<N>>(), g2.as_shape::<Segment<N>>())

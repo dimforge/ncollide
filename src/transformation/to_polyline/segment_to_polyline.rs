@@ -1,7 +1,7 @@
-use alga::general::Real;
-use shape::Segment;
-use procedural::Polyline;
 use super::ToPolyline;
+use alga::general::Real;
+use crate::procedural::Polyline;
+use crate::shape::Segment;
 
 impl<N: Real> ToPolyline<N> for Segment<N> {
     type DiscretizationParameter = ();

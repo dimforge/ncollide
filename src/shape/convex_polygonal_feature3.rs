@@ -1,8 +1,37 @@
-use na::{self, Real, Unit};
+use alga::linear::FiniteDimInnerSpace;
+use na::{self, Point2, Real, Unit};
+use std::iter;
 
-use shape::{Segment, FeatureId};
-use query::Contact;
-use math::{Isometry, Point, Vector};
+use crate::math::{Isometry, Point, Vector};
+use crate::query::closest_points_internal;
+use crate::query::ray_internal;
+use crate::query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry};
+use crate::shape::{FeatureId, Segment, SegmentPointLocation};
+use crate::query::ContactPreprocessor;
+use crate::utils::{self, IdAllocator, IsometryOps};
+
+/// A cache used for polygonal clipping.
+#[derive(Clone)]
+pub struct ClippingCache<N: Real> {
+    poly1: Vec<Point2<N>>,
+    poly2: Vec<Point2<N>>,
+}
+
+impl<N: Real> ClippingCache<N> {
+    /// Initializes an empty clipping cache.
+    pub fn new() -> Self {
+        ClippingCache {
+            poly1: Vec::with_capacity(4),
+            poly2: Vec::with_capacity(4),
+        }
+    }
+
+    /// Clears the clipping cache.
+    pub fn clear(&mut self) {
+        self.poly1.clear();
+        self.poly2.clear();
+    }
+}
 
 /// Represents a convex polygonal approximation of a face of a solid.
 ///
@@ -15,7 +44,7 @@ pub struct ConvexPolygonalFeature<N: Real> {
     pub vertices: Vec<Point<N>>,
     /// The outward normal of the edges if it is a face.
     pub edge_normals: Vec<Vector<N>>,
-    /// The normal of this feature if it is an edge.
+    /// The normal of this feature if it is a face.
     pub normal: Option<Unit<Vector<N>>>,
     /// The shape-dependent identifier of this feature.
     pub feature_id: FeatureId,
@@ -37,7 +66,19 @@ impl<N: Real> ConvexPolygonalFeature<N> {
             edges_id: Vec::new(),
         }
     }
-    
+
+    /// Creates a new convex polygonal feature with all field initialized with `n` zero elements.
+    pub fn with_size(n: usize) -> Self {
+        ConvexPolygonalFeature {
+            vertices: iter::repeat(Point::origin()).take(n).collect(),
+            edge_normals: iter::repeat(Vector::zeros()).take(n).collect(),
+            normal: None,
+            feature_id: FeatureId::Unknown,
+            vertices_id: iter::repeat(FeatureId::Unknown).take(n).collect(),
+            edges_id: iter::repeat(FeatureId::Unknown).take(n).collect(),
+        }
+    }
+
     /// Removes all the vertices, normals, and feature IDs of this feature.
     pub fn clear(&mut self) {
         self.vertices.clear();
@@ -104,7 +145,7 @@ impl<N: Real> ConvexPolygonalFeature<N> {
 
     /// Adds a scaled edge normal to this face.
     pub fn push_scaled_edge_normal(&mut self, normal: Vector<N>) {
-        if let Some(normal) = na::try_normalize(&normal, N::default_epsilon()) {
+        if let Some(normal) = normal.try_normalize(N::default_epsilon()) {
             self.edge_normals.push(normal)
         } else {
             self.edge_normals.push(na::zero())
@@ -113,7 +154,7 @@ impl<N: Real> ConvexPolygonalFeature<N> {
 
     /// Adds an edge normal to this face.
     pub fn push_edge_normal(&mut self, normal: Unit<Vector<N>>) {
-        self.edge_normals.push(normal.unwrap())
+        self.edge_normals.push(normal.into_inner())
     }
 
     /// Automatically recomputes the scaled edge normals (3D only).
@@ -138,13 +179,13 @@ impl<N: Real> ConvexPolygonalFeature<N> {
     pub fn project_point(&self, pt: &Point<N>) -> Option<Contact<N>> {
         if let Some(n) = self.normal {
             let dpt = *pt - self.vertices[0];
-            let dist = na::dot(n.as_ref(), &dpt);
-            let proj = *pt + (-n.unwrap() * dist);
+            let dist = n.dot(&dpt);
+            let proj = *pt + (-n.into_inner() * dist);
 
             for i in 0..self.edge_normals.len() {
                 let dpt = proj - self.vertices[i];
 
-                if na::dot(&dpt, &self.edge_normals[i]) > na::zero() {
+                if dpt.dot(&self.edge_normals[i]) > na::zero() {
                     return None;
                 }
             }
@@ -168,5 +209,204 @@ impl<N: Real> ConvexPolygonalFeature<N> {
     /// Add the shape-dependent identifier of this feature.
     pub fn set_feature_id(&mut self, id: FeatureId) {
         self.feature_id = id
+    }
+
+    /// Generate contacts between `self` and `other` using polygonal clipping, iif. they both have at least
+    /// three vertices.
+    ///
+    /// If either `self` or `other` has less than three vertices, this does nothing.
+    pub fn clip(
+        &self,
+        other: &Self,
+        normal: &Unit<Vector<N>>,
+        prediction: &ContactPrediction<N>,
+        cache: &mut ClippingCache<N>,
+        out: &mut Vec<(Contact<N>, FeatureId, FeatureId)>,
+    )
+    {
+        // FIXME: don't compute contacts further than the prediction.
+
+        cache.clear();
+
+        // FIXME: lift this restriction.
+        if self.vertices.len() <= 2 && other.vertices.len() <= 2 {
+            return;
+        }
+
+        // In 3D we may end up with more than two points.
+        let mut basis = [na::zero(), na::zero()];
+        let mut basis_i = 0;
+
+        Vector::orthonormal_subspace_basis(&[normal.into_inner()], |dir| {
+            basis[basis_i] = *dir;
+            basis_i += 1;
+            true
+        });
+
+        let ref_pt = self.vertices[0];
+
+        for pt in &self.vertices {
+            let dpt = *pt - ref_pt;
+            let coords = Point2::new(basis[0].dot(&dpt), basis[1].dot(&dpt));
+            cache.poly1.push(coords);
+        }
+
+        for pt in &other.vertices {
+            let dpt = *pt - ref_pt;
+            let coords = Point2::new(basis[0].dot(&dpt), basis[1].dot(&dpt));
+            cache.poly2.push(coords);
+        }
+
+        if cache.poly2.len() > 2 {
+            for i in 0..cache.poly1.len() {
+                let pt = &cache.poly1[i];
+
+                if utils::point_in_poly2d(pt, &cache.poly2) {
+                    let origin = ref_pt + basis[0] * pt.x + basis[1] * pt.y;
+
+                    let n2 = other.normal.as_ref().unwrap().into_inner();
+                    let p2 = &other.vertices[0];
+                    if let Some(toi2) =
+                        ray_internal::plane_toi_with_line(p2, &n2, &origin, &normal.into_inner())
+                    {
+                        let world2 = origin + normal.into_inner() * toi2;
+                        let world1 = self.vertices[i];
+                        let f2 = other.feature_id;
+                        let f1 = self.vertices_id[i];
+                        let contact = Contact::new_wo_depth(world1, world2, *normal);
+
+                        if -contact.depth <= prediction.linear() {
+                            out.push((contact, f1, f2));
+                        }
+                    }
+                }
+            }
+        }
+
+        if cache.poly1.len() > 2 {
+            for i in 0..cache.poly2.len() {
+                let pt = &cache.poly2[i];
+
+                if utils::point_in_poly2d(pt, &cache.poly1) {
+                    let origin = ref_pt + basis[0] * pt.x + basis[1] * pt.y;
+
+                    let n1 = self.normal.as_ref().unwrap().into_inner();
+                    let p1 = &self.vertices[0];
+                    if let Some(toi1) =
+                        ray_internal::plane_toi_with_line(p1, &n1, &origin, &normal.into_inner())
+                    {
+                        let world1 = origin + normal.into_inner() * toi1;
+                        let world2 = other.vertices[i];
+                        let f1 = self.feature_id;
+                        let f2 = other.vertices_id[i];
+                        let contact = Contact::new_wo_depth(world1, world2, *normal);
+
+                        if -contact.depth <= prediction.linear() {
+                            out.push((contact, f1, f2));
+                        }
+                    }
+                }
+            }
+        }
+
+        let nedges1 = self.nedges();
+        let nedges2 = other.nedges();
+
+        for i1 in 0..nedges1 {
+            let j1 = (i1 + 1) % cache.poly1.len();
+            let seg1 = (&cache.poly1[i1], &cache.poly1[j1]);
+
+            for i2 in 0..nedges2 {
+                let j2 = (i2 + 1) % cache.poly2.len();
+                let seg2 = (&cache.poly2[i2], &cache.poly2[j2]);
+
+                if let (SegmentPointLocation::OnEdge(e1), SegmentPointLocation::OnEdge(e2)) =
+                    closest_points_internal::segment_against_segment_with_locations_nD(seg1, seg2)
+                {
+                    let original1 = Segment::new(self.vertices[i1], self.vertices[j1]);
+                    let original2 = Segment::new(other.vertices[i2], other.vertices[j2]);
+                    let world1 = original1.point_at(&SegmentPointLocation::OnEdge(e1));
+                    let world2 = original2.point_at(&SegmentPointLocation::OnEdge(e2));
+                    let f1 = self.edges_id[i1];
+                    let f2 = other.edges_id[i2];
+                    let contact = Contact::new_wo_depth(world1, world2, *normal);
+
+                    if -contact.depth <= prediction.linear() {
+                        out.push((contact, f1, f2));
+                    }
+                }
+            }
+        }
+    }
+
+    /// Given a contact between two polygonal features, adds it to a contact manifold.
+    pub fn add_contact_to_manifold(
+        &self,
+        other: &Self,
+        c: Contact<N>,
+        m1: &Isometry<N>,
+        f1: FeatureId,
+        proc1: Option<&ContactPreprocessor<N>>,
+        m2: &Isometry<N>,
+        f2: FeatureId,
+        proc2: Option<&ContactPreprocessor<N>>,
+        ids: &mut IdAllocator,
+        manifold: &mut ContactManifold<N>,
+    )
+    {
+        let mut kinematic = ContactKinematic::new();
+        let local1 = m1.inverse_transform_point(&c.world1);
+        let local2 = m2.inverse_transform_point(&c.world2);
+
+        match f1 {
+            FeatureId::Face(..) => kinematic.set_approx1(
+                f1,
+                local1,
+                NeighborhoodGeometry::Plane(
+                    m1.inverse_transform_unit_vector(self.normal.as_ref().unwrap()),
+                ),
+            ),
+            FeatureId::Edge(..) => {
+                let e1 = self.edge(f1).expect("Invalid edge id.");
+                if let Some(dir1) = e1.direction() {
+                    let local_dir1 = m1.inverse_transform_unit_vector(&dir1);
+                    let approx1 = NeighborhoodGeometry::Line(local_dir1);
+                    kinematic.set_approx1(f1, local1, approx1)
+                } else {
+                    return;
+                }
+            }
+            FeatureId::Vertex(..) => {
+                kinematic.set_approx1(f1, local1, NeighborhoodGeometry::Point)
+            }
+            FeatureId::Unknown => return,
+        }
+
+        match f2 {
+            FeatureId::Face(..) => {
+                let approx2 = NeighborhoodGeometry::Plane(
+                    m2.inverse_transform_unit_vector(&other.normal.as_ref().unwrap()),
+                );
+                kinematic.set_approx2(f2, local2, approx2)
+            }
+            FeatureId::Edge(..) => {
+                let e2 = other.edge(f2).expect("Invalid edge id.");
+                if let Some(dir2) = e2.direction() {
+                    let local_dir2 = m2.inverse_transform_unit_vector(&dir2);
+                    let approx2 = NeighborhoodGeometry::Line(local_dir2);
+                    kinematic.set_approx2(f2, local2, approx2)
+                } else {
+                    return;
+                }
+            }
+            FeatureId::Vertex(..) => {
+                kinematic.set_approx2(f2, local2, NeighborhoodGeometry::Point)
+            }
+            FeatureId::Unknown => return,
+        }
+
+//        println!("Accepted contact: {:?}", c);
+//        println!("Accepted kinematic: {:?}", kinematic);
+        let _ = manifold.push(c, kinematic, local1, proc1, proc2, ids);
     }
 }

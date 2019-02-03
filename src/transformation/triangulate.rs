@@ -3,13 +3,12 @@
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 
-use alga::general::Real;
-use na::Point3;
-use na;
-use math::Point;
-use utils;
-use bounding_volume;
-use procedural::{IndexBuffer, TriMesh};
+use crate::alga::general::Real;
+use na::{self, Point3};
+use crate::math::Point;
+use crate::utils;
+use crate::bounding_volume;
+use crate::procedural::{IndexBuffer, TriMesh};
 
 struct Triangle<N: Real> {
     idx: Point3<usize>,

@@ -1,9 +1,9 @@
+use crate::math::{Isometry, Point};
 use na::Real;
-use math::{Isometry, Point};
-use shape::{Ball, Shape};
-use query::Proximity;
-use query::proximity_internal;
-use pipeline::narrow_phase::{ProximityDetector, ProximityDispatcher};
+use crate::pipeline::narrow_phase::{ProximityDetector, ProximityDispatcher};
+use crate::query::proximity_internal;
+use crate::query::Proximity;
+use crate::shape::{Ball, Shape};
 
 /// Proximity detector between two balls.
 pub struct BallBallProximityDetector {
@@ -37,12 +37,13 @@ impl<N: Real> ProximityDetector<N> for BallBallProximityDetector {
         mb: &Isometry<N>,
         b: &Shape<N>,
         margin: N,
-    ) -> bool {
+    ) -> bool
+    {
         if let (Some(a), Some(b)) = (a.as_shape::<Ball<N>>(), b.as_shape::<Ball<N>>()) {
             self.proximity = proximity_internal::ball_against_ball(
-                &Point::from_coordinates(ma.translation.vector),
+                &Point::from(ma.translation.vector),
                 a,
-                &Point::from_coordinates(mb.translation.vector),
+                &Point::from(mb.translation.vector),
                 b,
                 margin,
             );

@@ -1,9 +1,9 @@
+use crate::math::Isometry;
 use na::Real;
-use math::Isometry;
-use shape::{Plane, Shape};
-use query::Proximity;
-use query::proximity_internal;
-use pipeline::narrow_phase::{ProximityDetector, ProximityDispatcher};
+use crate::pipeline::narrow_phase::{ProximityDetector, ProximityDispatcher};
+use crate::query::proximity_internal;
+use crate::query::Proximity;
+use crate::shape::{Plane, Shape};
 
 /// Proximity detector between a plane and a shape implementing the `SupportMap` trait.
 #[derive(Clone)]
@@ -49,7 +49,8 @@ impl<N: Real> ProximityDetector<N> for PlaneSupportMapProximityDetector {
         mb: &Isometry<N>,
         b: &Shape<N>,
         margin: N,
-    ) -> bool {
+    ) -> bool
+    {
         if let (Some(p), Some(sm)) = (plane.as_shape::<Plane<N>>(), b.as_support_map()) {
             self.proximity = proximity_internal::plane_against_support_map(ma, p, mb, sm, margin);
 
@@ -75,7 +76,8 @@ impl<N: Real> ProximityDetector<N> for SupportMapPlaneProximityDetector {
         mb: &Isometry<N>,
         b: &Shape<N>,
         margin: N,
-    ) -> bool {
+    ) -> bool
+    {
         self.subdetector.update(disp, mb, b, ma, a, margin)
     }
 

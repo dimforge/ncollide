@@ -1,13 +1,13 @@
-use bounding_volume::PolyhedralCone;
-use math::{Isometry, Point, Vector};
+use crate::math::{Isometry, Point, Vector};
 use na::{Real, Unit};
-use shape::{ConvexPolygonalFeature, SupportMap};
+use crate::shape::{ConvexPolygonalFeature, SupportMap};
 
 /// An identifier of a feature of a convex polyhedron.
-/// 
+///
 /// This identifier is shape-dependent and is seach that it
 /// allows an efficient retrieval of the geometric information of the
 /// feature.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Copy, Clone, Debug, Hash, PartialEq, Eq)]
 pub enum FeatureId {
     /// Shape-dependent identifier of a vertex.
@@ -40,7 +40,7 @@ impl FeatureId {
         }
     }
 
-    /// Revries the value of the identifier if `self` is a face.
+    /// Retrieves the value of the identifier if `self` is a face.
     pub fn unwrap_face(self) -> usize {
         match self {
             FeatureId::Face(id) => id,
@@ -58,9 +58,6 @@ pub trait ConvexPolyhedron<N: Real>: SupportMap<N> {
     #[cfg(feature = "dim3")]
     /// Get the specified edge's vertices (in the shape local-space) and the vertices' identifiers.
     fn edge(&self, id: FeatureId) -> (Point<N>, Point<N>, FeatureId, FeatureId);
-
-    /// Get the normal cone of the specified feature, in the shape's local-space.
-    fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<N>;
 
     /// Returns any normal from the normal cone of the given feature.
     fn feature_normal(&self, feature: FeatureId) -> Unit<Vector<N>>;

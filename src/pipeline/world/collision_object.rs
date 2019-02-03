@@ -1,13 +1,12 @@
-use std::ops::{Index, IndexMut};
-use slab::{Iter, Slab};
-
 use alga::general::Real;
-
-use shape::ShapeHandle;
-use query::ContactPrediction;
-use pipeline::broad_phase::ProxyHandle;
-use pipeline::world::CollisionGroups;
-use math::Isometry;
+use crate::math::Isometry;
+use crate::pipeline::broad_phase::ProxyHandle;
+use crate::pipeline::narrow_phase::InteractionGraphIndex;
+use crate::pipeline::world::CollisionGroups;
+use crate::query::ContactPrediction;
+use crate::shape::ShapeHandle;
+use slab::{Iter, Slab};
+use std::ops::{Index, IndexMut};
 
 /// The kind of query a CollisionObject may be involved on.
 ///
@@ -83,6 +82,7 @@ impl<N: Real> GeometricQueryType<N> {
 pub struct CollisionObject<N: Real, T> {
     handle: CollisionObjectHandle,
     proxy_handle: ProxyHandle,
+    graph_index: InteractionGraphIndex,
     position: Isometry<N>,
     shape: ShapeHandle<N>,
     collision_groups: CollisionGroups,
@@ -98,20 +98,23 @@ impl<N: Real, T> CollisionObject<N, T> {
     pub fn new(
         handle: CollisionObjectHandle,
         proxy_handle: ProxyHandle,
+        graph_index: InteractionGraphIndex,
         position: Isometry<N>,
         shape: ShapeHandle<N>,
         groups: CollisionGroups,
         query_type: GeometricQueryType<N>,
         data: T,
-    ) -> CollisionObject<N, T> {
+    ) -> CollisionObject<N, T>
+    {
         CollisionObject {
-            handle: handle,
-            proxy_handle: proxy_handle,
-            position: position,
-            shape: shape,
+            handle,
+            proxy_handle,
+            graph_index,
+            position,
+            shape,
             collision_groups: groups,
-            data: data,
-            query_type: query_type,
+            data,
+            query_type,
             timestamp: 0,
         }
     }
@@ -122,9 +125,23 @@ impl<N: Real, T> CollisionObject<N, T> {
         self.handle
     }
 
+    /// The collision object non-stable graph index.
+    ///
+    /// This index may change whenever a collision object is removed from the world.
+    #[inline]
+    pub fn graph_index(&self) -> InteractionGraphIndex {
+        self.graph_index
+    }
+
     #[inline]
     pub(crate) fn set_handle(&mut self, handle: CollisionObjectHandle) {
         self.handle = handle
+    }
+
+    /// Sets the collision object unique but non-stable graph index.
+    #[inline]
+    pub(crate) fn set_graph_index(&mut self, index: InteractionGraphIndex) {
+        self.graph_index = index
     }
 
     /// The collision object's broad phase proxy unique identifier.
@@ -149,6 +166,18 @@ impl<N: Real, T> CollisionObject<N, T> {
     #[inline]
     pub fn set_position(&mut self, pos: Isometry<N>) {
         self.position = pos
+    }
+
+    /// Deforms the underlying shape if possible.
+    ///
+    /// Panics if the shape is not deformable.
+    #[inline]
+    pub fn set_deformations(&mut self, coords: &[N]) {
+        self.shape
+            .make_mut()
+            .as_deformable_shape_mut()
+            .expect("Attempting to deform a non-deformable shape.")
+            .set_deformations(coords)
     }
 
     /// The collision object shape.
@@ -189,6 +218,7 @@ impl<N: Real, T> CollisionObject<N, T> {
 
 /// The unique identifier of a collision object.
 #[derive(Copy, Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct CollisionObjectHandle(pub usize);
 
 impl CollisionObjectHandle {
@@ -255,6 +285,12 @@ impl<N: Real, T> CollisionObjectSlab<N, T> {
         CollisionObjects {
             iter: self.objects.iter(),
         }
+    }
+
+    /// The number of collision objects on this slab.
+    #[inline]
+    pub fn len(&self) -> usize {
+        self.objects.len()
     }
 }
 

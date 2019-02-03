@@ -1,20 +1,14 @@
 //! Spatial partitioning tools.
 
-pub use partitioning::dbvt::{DBVT, DBVTLeaf, DBVTLeafId};
-pub use partitioning::bvt::{BVTNode, BinaryPartition, BVT};
-#[doc(inline)]
-pub use partitioning::bvt_visitor::{BVTVisitor, BoundingVolumeInterferencesCollector};
-#[doc(inline)]
-pub use partitioning::bvtt_visitor::BVTTVisitor;
-#[doc(inline)]
-pub use partitioning::bvt_cost_fn::BVTCostFn;
+pub use self::bvh::{BVHImpl, BVH};
+pub use self::bvt::{BVTNodeId, BinaryPartition, BVT};
+pub use self::dbvt::{DBVTLeaf, DBVTLeafId, DBVT};
+pub use self::visitor::{
+    BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor, SimultaneousVisitor,
+    VisitStatus, Visitor,
+};
 
-mod dbvt;
+mod bvh;
 mod bvt;
-
-#[doc(hidden)]
-pub mod bvt_visitor;
-#[doc(hidden)]
-pub mod bvtt_visitor;
-#[doc(hidden)]
-pub mod bvt_cost_fn;
+mod dbvt;
+mod visitor;

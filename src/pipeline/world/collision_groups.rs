@@ -1,6 +1,6 @@
 use na::Real;
-use pipeline::broad_phase::BroadPhasePairFilter;
-use pipeline::world::CollisionObject;
+use crate::pipeline::broad_phase::BroadPhasePairFilter;
+use crate::pipeline::world::CollisionObject;
 
 const SELF_COLLISION: u32 = 1 << 31;
 const ALL_GROUPS: u32 = (1 << 30) - 1;
@@ -69,16 +69,9 @@ impl CollisionGroups {
     /// assert!(groups.is_member_of(GROUP_B);
     /// ```
     #[inline]
-    pub fn with_membership(self, groups: &[usize]) -> CollisionGroups {
-        let membership: u32 = groups
-            .iter()
-            .fold(NO_GROUP, |acc, &group| acc | (1 << group)) as u32;
-        assert!(membership < (1 << 30));
-        CollisionGroups {
-            membership,
-            whitelist: self.whitelist,
-            blacklist: self.blacklist,
-        }
+    pub fn with_membership(mut self, groups: &[usize]) -> CollisionGroups {
+        CollisionGroups::set_mask(&mut self.membership, groups);
+        self
     }
 
     /// Returns a copy of this object, updated with a new set of whitelisted groups.
@@ -93,16 +86,9 @@ impl CollisionGroups {
     /// assert!(group_a.is_group_whitelisted(GROUP_B));
     /// ```
     #[inline]
-    pub fn with_whitelist(self, groups: &[usize]) -> CollisionGroups {
-        let whitelist: u32 = groups
-            .iter()
-            .fold(NO_GROUP, |acc, &group| acc | (1 << group)) as u32;
-        assert!(whitelist < (1 << 30));
-        CollisionGroups {
-            membership: self.membership,
-            whitelist: whitelist,
-            blacklist: self.blacklist,
-        }
+    pub fn with_whitelist(mut self, groups: &[usize]) -> CollisionGroups {
+        CollisionGroups::set_mask(&mut self.whitelist, groups);
+        self
     }
 
     /// Returns a copy of this object, updated with a new set of blacklisted groups.
@@ -117,16 +103,9 @@ impl CollisionGroups {
     /// assert!(group_a.is_group_blacklisted(GROUP_B));
     /// ```
     #[inline]
-    pub fn with_blacklist(self, groups: &[usize]) -> CollisionGroups {
-        let blacklist: u32 = groups
-            .iter()
-            .fold(NO_GROUP, |acc, &group| acc | (1 << group)) as u32;
-        assert!(blacklist < (1 << 30));
-        CollisionGroups {
-            membership: self.membership,
-            whitelist: self.whitelist,
-            blacklist,
-        }
+    pub fn with_blacklist(mut self, groups: &[usize]) -> CollisionGroups {
+        CollisionGroups::set_mask(&mut self.blacklist, groups);
+        self
     }
 
     /// The maximum allowed group identifier.
@@ -295,5 +274,12 @@ impl<N: Real, T> BroadPhasePairFilter<N, T> for CollisionGroupsPairFilter {
             co1.collision_groups()
                 .can_interact_with_groups(co2.collision_groups())
         }
+    }
+}
+
+impl Default for CollisionGroups {
+    #[inline]
+    fn default() -> Self {
+        CollisionGroups::new()
     }
 }

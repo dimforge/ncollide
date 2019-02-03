@@ -1,7 +1,7 @@
-use na::{self, Real, Isometry3, Point2, Point3, Vector3};
-use procedural::utils;
-use procedural::trimesh::{IndexBuffer, TriMesh};
-use procedural::path::{CurveSampler, PathSample, StrokePattern};
+use na::{self, Isometry3, Point2, Point3, Real, Vector3};
+use crate::procedural::path::{CurveSampler, PathSample, StrokePattern};
+use crate::procedural::trimesh::{IndexBuffer, TriMesh};
+use crate::procedural::utils;
 
 /// A pattern composed of polyline and two caps.
 pub struct PolylinePattern<N: Real, C1, C2> {
@@ -51,7 +51,8 @@ where
         closed: bool,
         start_cap: C1,
         end_cap: C2,
-    ) -> PolylinePattern<N, C1, C2> {
+    ) -> PolylinePattern<N, C1, C2>
+    {
         let mut coords3d = Vec::with_capacity(pattern.len());
 
         for v in pattern.iter() {
@@ -94,9 +95,9 @@ where
 
                     if dir.x.is_zero() && dir.z.is_zero() {
                         // FIXME: this might not be enough to avoid singularities.
-                        transform = Isometry3::new_observer_frame(pt, &(*pt + *dir), &Vector3::x());
+                        transform = Isometry3::face_towards(pt, &(*pt + *dir), &Vector3::x());
                     } else {
-                        transform = Isometry3::new_observer_frame(pt, &(*pt + *dir), &Vector3::y());
+                        transform = Isometry3::face_towards(pt, &(*pt + *dir), &Vector3::y());
                     }
 
                     for p in &mut new_polyline {

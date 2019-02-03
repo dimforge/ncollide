@@ -1,6 +1,6 @@
-use math::{Isometry, Point, Vector};
+use crate::math::{Isometry, Point, Vector};
 use na::{Real, Unit};
-use shape::SupportMap;
+use crate::shape::SupportMap;
 use std::ops::Sub;
 
 /// A point of a Configuration-Space Obstacle.
@@ -22,7 +22,7 @@ pub struct CSOPoint<N: Real> {
 impl<N: Real> CSOPoint<N> {
     /// Initializes a CSO point with `orig1 - orig2`.
     pub fn new(orig1: Point<N>, orig2: Point<N>) -> Self {
-        let point = Point::from_coordinates(orig1 - orig2);
+        let point = Point::from(orig1 - orig2);
         Self::new_with_point(point, orig1, orig2)
     }
 
@@ -95,6 +95,23 @@ impl<N: Real> CSOPoint<N> {
     /// This will apply the opposite translation to `self.point`.
     pub fn translate2(&self, dir: &Vector<N>) -> Self {
         CSOPoint::new_with_point(self.point - dir, self.orig1, self.orig2 + dir)
+    }
+
+
+    /// Translate in-place the first original point of this CSO point.
+    ///
+    /// This will apply the same translation to `self.point`.
+    pub fn translate1_mut(&mut self, dir: &Vector<N>) {
+        self.point += dir;
+        self.orig1 += dir;
+    }
+
+    /// Translate in-place the second original point of this CSO point.
+    ///
+    /// This will apply the opposite translation to `self.point`.
+    pub fn translate2_mut(&mut self, dir: &Vector<N>) {
+        self.point -= dir;
+        self.orig2 += dir;
     }
 }
 

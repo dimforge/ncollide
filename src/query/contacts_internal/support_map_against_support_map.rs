@@ -1,9 +1,9 @@
-use math::{Isometry, Vector};
+use crate::math::{Isometry, Vector};
 use na::{Real, Unit};
-use query::Contact;
-use query::algorithms::{gjk, CSOPoint, gjk::GJKResult};
-use query::algorithms::{VoronoiSimplex, EPA};
-use shape::SupportMap;
+use crate::query::algorithms::{gjk, gjk::GJKResult, CSOPoint};
+use crate::query::algorithms::{VoronoiSimplex, EPA};
+use crate::query::Contact;
+use crate::shape::SupportMap;
 
 /// Contact between support-mapped shapes (`Cuboid`, `ConvexHull`, etc.)
 pub fn support_map_against_support_map<N, G1: ?Sized, G2: ?Sized>(

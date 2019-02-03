@@ -15,11 +15,14 @@ pub use self::convex_polygon::ConvexPolygon;
 #[cfg(feature = "dim2")]
 pub use self::convex_polygonal_feature2::ConvexPolygonalFeature;
 #[cfg(feature = "dim3")]
-pub use self::convex_polygonal_feature3::ConvexPolygonalFeature;
+pub use self::convex_polygonal_feature3::{ClippingCache, ConvexPolygonalFeature};
 pub use self::convex_polyhedron::{ConvexPolyhedron, FeatureId};
 pub use self::cuboid::Cuboid;
 #[cfg(feature = "dim3")]
 pub use self::cylinder::Cylinder;
+pub use self::deformable_shape::{DeformableShape, DeformationsType};
+//#[cfg(feature = "dim3")]
+//pub use self::deformable_trimesh::DeformableTriMesh;
 pub use self::plane::Plane;
 pub use self::polyline::Polyline;
 pub use self::segment::{Segment, SegmentPointLocation};
@@ -31,7 +34,11 @@ pub use self::support_map::SupportMap;
 pub use self::tetrahedron::{Tetrahedron, TetrahedronPointLocation};
 pub use self::triangle::{Triangle, TrianglePointLocation};
 #[cfg(feature = "dim3")]
-pub use self::trimesh::TriMesh;
+pub use self::trimesh::{TriMesh, TriMeshFace};
+#[cfg(feature = "dim3")]
+pub use self::heightfield3::{HeightField, HeightFieldCellStatus};
+#[cfg(feature = "dim2")]
+pub use self::heightfield2::HeightField;
 
 mod ball;
 mod capsule;
@@ -53,6 +60,7 @@ mod convex_polyhedron;
 mod cuboid;
 #[cfg(feature = "dim3")]
 mod cylinder;
+mod deformable_shape;
 mod plane;
 mod polyline;
 mod segment;
@@ -66,3 +74,7 @@ mod tetrahedron;
 mod triangle;
 #[cfg(feature = "dim3")]
 mod trimesh;
+#[cfg(feature = "dim3")]
+mod heightfield3;
+#[cfg(feature = "dim2")]
+mod heightfield2;

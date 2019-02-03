@@ -1,34 +1,38 @@
-use math::{Isometry, Point};
+use crate::math::{Isometry, Point};
 use na::{self, Real};
-use query::{PointProjection, PointQuery};
-use shape::{FeatureId, Plane};
-use utils::IsometryOps;
+use crate::query::{PointProjection, PointQuery};
+use crate::shape::{FeatureId, Plane};
+use crate::utils::IsometryOps;
 
 impl<N: Real> PointQuery<N> for Plane<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> PointProjection<N> {
         let ls_pt = m.inverse_transform_point(pt);
-        let d = na::dot(self.normal().as_ref(), &ls_pt.coords);
+        let d = self.normal().dot(&ls_pt.coords);
 
         let inside = d <= na::zero();
 
         if inside && solid {
             PointProjection::new(true, *pt)
         } else {
-            let normal = m * self.normal();
-            PointProjection::new(inside, *pt + *normal * -d)
+            PointProjection::new(inside, *pt + (-*self.normal().as_ref() * d))
         }
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, pt: &Point<N>) -> (PointProjection<N>, FeatureId) {
+    fn project_point_with_feature(
+        &self,
+        m: &Isometry<N>,
+        pt: &Point<N>,
+    ) -> (PointProjection<N>, FeatureId)
+    {
         (self.project_point(m, pt, false), FeatureId::Face(0))
     }
 
     #[inline]
     fn distance_to_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> N {
         let ls_pt = m.inverse_transform_point(pt);
-        let dist = na::dot(self.normal().as_ref(), &ls_pt.coords);
+        let dist = self.normal().dot(&ls_pt.coords);
 
         if dist < na::zero() && solid {
             na::zero()
@@ -42,6 +46,6 @@ impl<N: Real> PointQuery<N> for Plane<N> {
     fn contains_point(&self, m: &Isometry<N>, pt: &Point<N>) -> bool {
         let ls_pt = m.inverse_transform_point(pt);
 
-        na::dot(self.normal().as_ref(), &ls_pt.coords) <= na::zero()
+        self.normal().dot(&ls_pt.coords) <= na::zero()
     }
 }

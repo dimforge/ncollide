@@ -3,8 +3,8 @@ extern crate ncollide3d;
 
 use na::{Isometry3, Vector3};
 use ncollide3d::bounding_volume::{self, BoundingSphere, HasBoundingVolume};
-use ncollide3d::partitioning::BVT;
-use ncollide3d::query::{Ray, RayCast, RayInterferencesCollector};
+use ncollide3d::partitioning::{BVT, BVH};
+use ncollide3d::query::{Ray, RayCast, visitors::RayInterferencesCollector};
 use ncollide3d::shape::{Ball, Capsule, Cone, Cuboid};
 
 /*
@@ -12,11 +12,7 @@ use ncollide3d::shape::{Ball, Capsule, Cone, Cuboid};
  */
 trait Shape3: HasBoundingVolume<f64, BoundingSphere<f64>> + RayCast<f64> {}
 
-impl<T> Shape3 for T
-where
-    T: HasBoundingVolume<f64, BoundingSphere<f64>> + RayCast<f64>,
-{
-}
+impl<T> Shape3 for T where T: HasBoundingVolume<f64, BoundingSphere<f64>> + RayCast<f64> {}
 
 fn main() {
     let ball = Ball::new(0.5);

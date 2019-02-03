@@ -1,9 +1,9 @@
 use na::Real;
 
-use math::{Isometry, Point};
-use shape::{Ball, Plane, Shape};
-use query::Proximity;
-use query::proximity_internal;
+use crate::math::{Isometry, Point};
+use crate::query::proximity_internal;
+use crate::query::Proximity;
+use crate::shape::{Ball, Plane, Shape};
 
 /// Tests whether two shapes are in intersecting or separated by a distance smaller than `margin`.
 pub fn shape_against_shape<N: Real>(
@@ -12,13 +12,11 @@ pub fn shape_against_shape<N: Real>(
     m2: &Isometry<N>,
     g2: &Shape<N>,
     margin: N,
-) -> Proximity {
-    if let (Some(b1), Some(b2)) = (
-        g1.as_shape::<Ball<N>>(),
-        g2.as_shape::<Ball<N>>(),
-    ) {
-        let p1 = Point::from_coordinates(m1.translation.vector);
-        let p2 = Point::from_coordinates(m2.translation.vector);
+) -> Proximity
+{
+    if let (Some(b1), Some(b2)) = (g1.as_shape::<Ball<N>>(), g2.as_shape::<Ball<N>>()) {
+        let p1 = Point::from(m1.translation.vector);
+        let p2 = Point::from(m2.translation.vector);
 
         proximity_internal::ball_against_ball(&p1, b1, &p2, b2, margin)
     } else if let (Some(p1), Some(s2)) = (g1.as_shape::<Plane<N>>(), g2.as_support_map()) {

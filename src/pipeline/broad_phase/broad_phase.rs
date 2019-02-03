@@ -1,8 +1,8 @@
-use std::any::Any;
 use na::Real;
+use std::any::Any;
 
-use query::Ray;
-use math::Point;
+use crate::math::Point;
+use crate::query::Ray;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ProxyHandle(pub usize);
@@ -28,13 +28,13 @@ impl ProxyHandle {
 pub trait BroadPhaseInterferenceHandler<T> {
     /// A pre-filter that may cheaply discard objects before checking for bounding volume
     /// interference.
-    fn is_interference_allowed(&mut self, &T, &T) -> bool;
+    fn is_interference_allowed(&mut self, data1: &T, data2: &T) -> bool;
 
     /// Handle a starting interference.
-    fn interference_started(&mut self, &T, &T);
+    fn interference_started(&mut self, data1: &T, data2: &T);
 
     /// Handle a stopping interference.
-    fn interference_stopped(&mut self, &T, &T);
+    fn interference_stopped(&mut self, data1: &T, data2: &T);
 }
 
 /// Trait all broad phase must implement.

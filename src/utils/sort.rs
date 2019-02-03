@@ -1,4 +1,16 @@
 // FIXME: do this out-of-place?
+
+/// Sorts two values in increasing order.
+#[inline]
+pub fn sort2<'a, N: PartialOrd>(a: &'a N, b: &'a N) -> (&'a N, &'a N) {
+    if *a <= *b {
+        (a, b)
+    } else {
+        (b, a)
+    }
+}
+
+
 /// Sorts a set of three values in increasing order.
 #[inline]
 pub fn sort3<'a, N: PartialOrd>(a: &'a N, b: &'a N, c: &'a N) -> (&'a N, &'a N, &'a N) {

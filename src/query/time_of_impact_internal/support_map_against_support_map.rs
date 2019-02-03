@@ -1,8 +1,8 @@
 use na::Real;
 
-use math::{Isometry, Vector};
-use query::algorithms::{gjk, VoronoiSimplex};
-use shape::SupportMap;
+use crate::math::{Isometry, Vector};
+use crate::query::algorithms::{gjk, VoronoiSimplex};
+use crate::shape::SupportMap;
 
 /// Time of impacts between two support-mapped shapes under translational movement.
 pub fn support_map_against_support_map<N, G1: ?Sized, G2: ?Sized>(

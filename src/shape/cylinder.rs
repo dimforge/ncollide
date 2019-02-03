@@ -1,11 +1,12 @@
 //! Support mapping based Cylinder shape.
 
+use crate::math::{Isometry, Point, Vector};
 use na::{self, Real};
-use utils::IsometryOps;
-use shape::SupportMap;
-use math::{Point, Vector, Isometry};
+use crate::shape::SupportMap;
+use crate::utils::IsometryOps;
 
 /// SupportMap description of a cylinder shape with its principal axis aligned with the `y` axis.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Clone)]
 pub struct Cylinder<N> {
     half_height: N,
@@ -61,6 +62,6 @@ impl<N: Real> SupportMap<N> for Cylinder<N> {
             vres[1] = self.half_height()
         }
 
-        m * Point::from_coordinates(vres)
+        m * Point::from(vres)
     }
 }

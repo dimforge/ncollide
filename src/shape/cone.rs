@@ -1,11 +1,12 @@
 //! Support mapping based Cone shape.
 
+use crate::math::{Isometry, Point, Vector};
 use na::{self, Real};
-use utils::IsometryOps;
-use shape::SupportMap;
-use math::{Point, Vector, Isometry};
+use crate::shape::SupportMap;
+use crate::utils::IsometryOps;
 
 /// SupportMap description of a cylinder shape with its principal axis aligned with the `y` axis.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Clone)]
 pub struct Cone<N> {
     half_height: N,
@@ -61,12 +62,12 @@ impl<N: Real> SupportMap<N> for Cone<N> {
             vres = vres * self.radius();
             vres[1] = -self.half_height();
 
-            if na::dot(&local_dir, &vres) < local_dir[1] * self.half_height() {
+            if local_dir.dot(&vres) < local_dir[1] * self.half_height() {
                 vres = na::zero();
                 vres[1] = self.half_height()
             }
         }
 
-        m * Point::from_coordinates(vres)
+        m * Point::from(vres)
     }
 }

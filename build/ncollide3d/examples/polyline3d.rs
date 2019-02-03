@@ -14,7 +14,7 @@ fn main() {
     ];
 
     // Build the polyline.
-    let polyline = Polyline::new(points);
+    let polyline = Polyline::new(points, None);
 
-    assert!(polyline.vertices().len() == 5);
+    assert!(polyline.points().len() == 5);
 }

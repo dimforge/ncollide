@@ -1,11 +1,10 @@
+use crate::bounding_volume::BoundingVolume;
+use crate::math::Isometry;
 use na::{self, Real};
-
-use bounding_volume::BoundingVolume;
-use math::Isometry;
-use partitioning::BoundingVolumeInterferencesCollector;
-use query::contacts_internal;
-use query::Contact;
-use shape::{CompositeShape, Shape};
+use crate::query::contacts_internal;
+use crate::query::visitors::BoundingVolumeInterferencesCollector;
+use crate::query::Contact;
+use crate::shape::{CompositeShape, Shape};
 
 /// Best contact between a composite shape (`Mesh`, `Compound`) and any other shape.
 pub fn composite_shape_against_shape<N: Real, G1: ?Sized>(
@@ -26,13 +25,13 @@ where
 
     {
         let mut visitor = BoundingVolumeInterferencesCollector::new(&ls_aabb2, &mut interferences);
-        g1.bvt().visit(&mut visitor);
+        g1.bvh().visit(&mut visitor);
     }
 
     let mut res = None::<Contact<N>>;
 
     for i in interferences.into_iter() {
-        g1.map_transformed_part_at(i, m1, &mut |_, m, part| {
+        g1.map_part_at(i, m1, &mut |m, part| {
             match contacts_internal::contact_internal(m, part, m2, g2, prediction) {
                 Some(c) => {
                     let replace = match res {

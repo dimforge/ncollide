@@ -1,27 +1,28 @@
-use num::{Bounded, Zero};
+use crate::bounding_volume::{self, BoundingVolume, AABB};
+use crate::math::Isometry;
+use na::{self, Id, Point3, Real, Translation3, Vector2, Vector3};
+use crate::num::{Bounded, Zero};
+use crate::partitioning::{BVH, BVT};
+use crate::procedural::{IndexBuffer, TriMesh};
+use crate::query::algorithms::VoronoiSimplex;
+use crate::query::{
+    ray_internal, visitors::BoundingVolumeInterferencesCollector, Ray, RayCast, RayIntersection,
+};
+use crate::shape::SupportMap;
 use std::cmp::Ordering;
 use std::collections::hash_map::Entry;
 use std::collections::{BinaryHeap, HashMap, HashSet};
 use std::mem;
-
-use na::{self, Point3, Real, Translation3, Vector2, Vector3};
-
-use bounding_volume::{self, BoundingVolume, AABB};
-use math::Isometry;
-use partitioning::{BoundingVolumeInterferencesCollector, BVT};
-use procedural::{IndexBuffer, TriMesh};
-use query::algorithms::VoronoiSimplex;
-use query::{ray_internal, Ray, RayCast, RayIntersection};
-use shape::SupportMap;
-use transformation;
-use utils;
+use crate::transformation;
+use crate::utils;
 
 /// Approximate convex decomposition of a triangle mesh.
 pub fn hacd<N: Real>(
     mesh: TriMesh<N>,
     error: N,
     min_components: usize,
-) -> (Vec<TriMesh<N>>, Vec<Vec<usize>>) {
+) -> (Vec<TriMesh<N>>, Vec<Vec<usize>>)
+{
     assert!(
         mesh.normals.is_some(),
         "Vertex normals are required to compute the convex decomposition."
@@ -163,11 +164,11 @@ pub fn hacd<N: Real>(
 }
 
 fn normalize<N: Real>(mesh: &mut TriMesh<N>) -> (Point3<N>, N) {
-    let (mins, maxs) = bounding_volume::point_cloud_aabb(&Isometry::identity(), &mesh.coords[..]);
-    let diag = na::distance(&mins, &maxs);
-    let center = na::center(&mins, &maxs);
+    let aabb = bounding_volume::point_cloud_aabb(&Isometry::identity(), &mesh.coords[..]);
+    let diag = na::distance(aabb.mins(), aabb.maxs());
+    let center = aabb.center();
 
-    mesh.translate_by(&Translation3::from_vector(-center.coords));
+    mesh.translate_by(&Translation3::from(-center.coords));
     let _1: N = na::one();
     mesh.scale_by_scalar(_1 / diag);
 
@@ -176,13 +177,15 @@ fn normalize<N: Real>(mesh: &mut TriMesh<N>) -> (Point3<N>, N) {
 
 fn denormalize<N: Real>(mesh: &mut TriMesh<N>, center: &Point3<N>, diag: N) {
     mesh.scale_by_scalar(diag);
-    mesh.translate_by(&Translation3::from_vector(center.coords));
+    mesh.translate_by(&Translation3::from(center.coords));
 }
 
 struct DualGraphVertex<N: Real> {
     // XXX: Loss of determinism because of the randomized HashSet.
-    neighbors: Option<HashSet<usize>>, // vertices adjascent to this one.
-    ancestors: Option<Vec<VertexWithConcavity<N>>>, // faces from the original surface.
+    neighbors: Option<HashSet<usize>>,
+    // vertices adjascent to this one.
+    ancestors: Option<Vec<VertexWithConcavity<N>>>,
+    // faces from the original surface.
     uancestors: Option<HashSet<usize>>,
     border: Option<HashSet<Vector2<usize>>>,
     chull: Option<TriMesh<N>>,
@@ -198,7 +201,8 @@ impl<N: Real> DualGraphVertex<N> {
         ancestor: usize,
         mesh: &TriMesh<N>,
         raymap: &HashMap<(u32, u32), usize>,
-    ) -> DualGraphVertex<N> {
+    ) -> DualGraphVertex<N>
+    {
         let (idx, ns) = match mesh.indices {
             IndexBuffer::Unified(ref idx) => (idx[ancestor].clone(), idx[ancestor].clone()),
             IndexBuffer::Split(ref idx) => {
@@ -217,8 +221,7 @@ impl<N: Real> DualGraphVertex<N> {
         ];
 
         let area = utils::triangle_area(&triangle[0], &triangle[1], &triangle[2]);
-        let (vmin, vmax) = bounding_volume::point_cloud_aabb(&Isometry::identity(), &triangle[..]);
-        let aabb = AABB::new(vmin, vmax);
+        let aabb = bounding_volume::point_cloud_aabb(&Id::new(), &triangle[..]);
 
         let chull = TriMesh::new(triangle, None, None, None);
 
@@ -389,7 +392,8 @@ impl<N: Real> DualGraphEdge<N> {
         dual_graph: &[DualGraphVertex<N>],
         coords: &[Point3<N>],
         max_concavity: N,
-    ) -> DualGraphEdge<N> {
+    ) -> DualGraphEdge<N>
+    {
         let mut v1 = v1;
         let mut v2 = v2;
 
@@ -450,7 +454,8 @@ impl<N: Real> DualGraphEdge<N> {
         bvt: &BVT<usize, AABB<N>>,
         max_cost: N,
         max_concavity: N,
-    ) {
+    )
+    {
         assert!(self.is_valid(dual_graph));
 
         let v1 = &dual_graph[self.v1];
@@ -475,9 +480,10 @@ impl<N: Real> DualGraphEdge<N> {
             id: usize,
             concavity: &mut N,
             ancestors: &mut BinaryHeap<VertexWithConcavity<N>>,
-        ) {
+        )
+        {
             let sv = chull.support_point(&Isometry::identity(), &ray.dir);
-            let distance = na::dot(&sv.coords, &ray.dir);
+            let distance = sv.coords.dot(&ray.dir);
 
             if !relative_eq!(distance, na::zero()) {
                 let shift: N = na::convert(0.1f64);
@@ -704,16 +710,20 @@ fn compute_rays<N: Real>(mesh: &TriMesh<N>) -> (Vec<Ray<N>>, HashMap<(u32, u32),
         };
 
         match mesh.indices {
-            IndexBuffer::Unified(ref b) => for t in b.iter() {
-                add_ray(t.x, t.x);
-                add_ray(t.y, t.y);
-                add_ray(t.z, t.z);
-            },
-            IndexBuffer::Split(ref b) => for t in b.iter() {
-                add_ray(t.x.x, t.x.y);
-                add_ray(t.y.x, t.y.y);
-                add_ray(t.z.x, t.z.y);
-            },
+            IndexBuffer::Unified(ref b) => {
+                for t in b.iter() {
+                    add_ray(t.x, t.x);
+                    add_ray(t.y, t.y);
+                    add_ray(t.z, t.z);
+                }
+            }
+            IndexBuffer::Split(ref b) => {
+                for t in b.iter() {
+                    add_ray(t.x.x, t.x.y);
+                    add_ray(t.y.x, t.y.y);
+                    add_ray(t.z.x, t.z.y);
+                }
+            }
         }
     }
 
@@ -723,7 +733,8 @@ fn compute_rays<N: Real>(mesh: &TriMesh<N>) -> (Vec<Ray<N>>, HashMap<(u32, u32),
 fn compute_dual_graph<N: Real>(
     mesh: &TriMesh<N>,
     raymap: &HashMap<(u32, u32), usize>,
-) -> Vec<DualGraphVertex<N>> {
+) -> Vec<DualGraphVertex<N>>
+{
     // XXX Loss of determinism because of the randomized HashMap.
     let mut prim_edges = HashMap::new();
     let mut dual_vertices: Vec<DualGraphVertex<N>> = (0..mesh.num_triangles())
@@ -749,13 +760,17 @@ fn compute_dual_graph<N: Real>(
         });
 
         match mesh.indices {
-            IndexBuffer::Unified(ref b) => for (i, t) in b.iter().enumerate() {
-                add_triangle_edges(i, t)
-            },
-            IndexBuffer::Split(ref b) => for (i, t) in b.iter().enumerate() {
-                let t_idx = Point3::new(t.x.x, t.y.x, t.z.x);
-                add_triangle_edges(i, &t_idx)
-            },
+            IndexBuffer::Unified(ref b) => {
+                for (i, t) in b.iter().enumerate() {
+                    add_triangle_edges(i, t)
+                }
+            }
+            IndexBuffer::Split(ref b) => {
+                for (i, t) in b.iter().enumerate() {
+                    let t_idx = Point3::new(t.x.x, t.y.x, t.z.x);
+                    add_triangle_edges(i, &t_idx)
+                }
+            }
         }
     }
 
@@ -779,7 +794,7 @@ impl<'a, N: Real> SupportMap<N> for ConvexPair<'a, N> {
         let sa = utils::point_cloud_support_point(dir, self.a);
         let sb = utils::point_cloud_support_point(dir, self.b);
 
-        if na::dot(&sa.coords, dir) > na::dot(&sb.coords, dir) {
+        if sa.coords.dot(dir) > sb.coords.dot(dir) {
             sa
         } else {
             sb
@@ -794,7 +809,8 @@ impl<'a, N: Real> RayCast<N> for ConvexPair<'a, N> {
         id: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>> {
+    ) -> Option<RayIntersection<N>>
+    {
         ray_internal::implicit_toi_and_normal_with_ray(
             id,
             self,

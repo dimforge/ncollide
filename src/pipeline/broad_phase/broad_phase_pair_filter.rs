@@ -1,7 +1,7 @@
-use std::any::Any;
 use na::Real;
+use std::any::Any;
 
-use pipeline::world::CollisionObject;
+use crate::pipeline::world::CollisionObject;
 
 /// A signal handler for contact detection.
 pub trait BroadPhasePairFilter<N: Real, T>: Any + Send + Sync {
@@ -29,7 +29,8 @@ impl<N: Real, T> BroadPhasePairFilters<N, T> {
         &mut self,
         name: &str,
         callback: Box<BroadPhasePairFilter<N, T>>,
-    ) {
+    )
+    {
         for &mut (ref mut n, ref mut f) in self.filters.iter_mut() {
             if name == &n[..] {
                 *f = callback;
@@ -61,11 +62,7 @@ impl<N: Real, T> BroadPhasePairFilters<N, T> {
     }
 
     /// Tells if the collision between `b1` and `b2` is to be handled by the narrow-phase.
-    pub fn is_pair_valid(
-        &self,
-        b1: &CollisionObject<N, T>,
-        b2: &CollisionObject<N, T>,
-    ) -> bool {
+    pub fn is_pair_valid(&self, b1: &CollisionObject<N, T>, b2: &CollisionObject<N, T>) -> bool {
         self.filters
             .iter()
             .all(|&(_, ref f)| f.is_pair_valid(b1, b2))

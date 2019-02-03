@@ -1,7 +1,10 @@
+use std::iter::IntoIterator;
+
+use alga::linear::Transformation;
+use crate::bounding_volume::AABB;
+use crate::math::{Isometry, Point, Vector, DIM};
 use na::{self, Real};
-use shape::SupportMap;
-use bounding_volume::AABB;
-use math::{Isometry, Point, DIM, Vector};
+use crate::shape::SupportMap;
 
 /// Computes the AABB of an support mapped shape.
 pub fn support_map_aabb<N, G>(m: &Isometry<N>, i: &G) -> AABB<N>
@@ -25,21 +28,24 @@ where
         basis[d] = na::zero();
     }
 
-    AABB::new(Point::from_coordinates(min), Point::from_coordinates(max))
+    AABB::new(Point::from(min), Point::from(max))
 }
 
-// FIXME: return an AABB?
 /// Computes the AABB of a set of point.
-pub fn point_cloud_aabb<N: Real>(m: &Isometry<N>, pts: &[Point<N>]) -> (Point<N>, Point<N>) {
-    let wp0 = m * pts[0];
+pub fn point_cloud_aabb<'a, N: Real, M: Transformation<Point<N>>, I>(m: &M, pts: I) -> AABB<N>
+    where I: IntoIterator<Item = &'a Point<N>> {
+    let mut it = pts.into_iter();
+
+    let p0 = it.next().expect("Point cloud AABB construction: the input iterator should yield at least one point.");
+    let wp0 = m.transform_point(&p0);
     let mut min: Point<N> = wp0;
     let mut max: Point<N> = wp0;
 
-    for pt in pts[1..].iter() {
-        let wpt = m * pt;
+    for pt in it {
+        let wpt = m.transform_point(pt);
         min = na::inf(&min, &wpt);
         max = na::sup(&max, &wpt);
     }
 
-    (min, max)
+    AABB::new(min, max)
 }

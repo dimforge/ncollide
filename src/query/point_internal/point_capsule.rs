@@ -1,7 +1,7 @@
-use na::{self, Unit, Real};
-use shape::{Capsule, FeatureId, Segment};
-use query::{PointProjection, PointQuery};
-use math::{Isometry, Point, Vector};
+use crate::math::{Isometry, Point, Vector};
+use na::{self, Real, Unit};
+use crate::query::{PointProjection, PointQuery};
+use crate::shape::{Capsule, FeatureId, Segment};
 
 impl<N: Real> PointQuery<N> for Capsule<N> {
     #[inline]
@@ -17,7 +17,7 @@ impl<N: Real> PointQuery<N> for Capsule<N> {
             if solid && inside {
                 PointProjection::new(true, *pt)
             } else {
-                PointProjection::new(inside, proj.point + dir.unwrap() * self.radius())
+                PointProjection::new(inside, proj.point + dir.into_inner() * self.radius())
             }
         } else {
             if solid {
@@ -32,7 +32,12 @@ impl<N: Real> PointQuery<N> for Capsule<N> {
     }
 
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, pt: &Point<N>) -> (PointProjection<N>, FeatureId) {
+    fn project_point_with_feature(
+        &self,
+        m: &Isometry<N>,
+        pt: &Point<N>,
+    ) -> (PointProjection<N>, FeatureId)
+    {
         (self.project_point(m, pt, false), FeatureId::Face(0))
     }
 }

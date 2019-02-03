@@ -1,12 +1,12 @@
+#[cfg(feature = "dim2")]
+use super::Polyline;
+#[cfg(feature = "dim3")]
+use super::{IndexBuffer, TriMesh};
 use alga::general::Real;
+use crate::math::{Point, Vector};
 use na;
 #[cfg(feature = "dim3")]
 use na::Point2;
-#[cfg(feature = "dim3")]
-use super::{IndexBuffer, TriMesh};
-#[cfg(feature = "dim2")]
-use super::Polyline;
-use math::{Point, Vector};
 
 /**
  * Generates a cuboid shape with a split index buffer.

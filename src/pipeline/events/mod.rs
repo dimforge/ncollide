@@ -1,9 +1,9 @@
 //! Structures for describing and storing collision-related events.
 
-use std::slice::Iter;
+use crate::pipeline::world::CollisionObjectHandle;
+use crate::query::Proximity;
 use std::iter::IntoIterator;
-use query::Proximity;
-use pipeline::world::CollisionObjectHandle;
+use std::slice::Iter;
 
 // FIXME: we want a structure where we can add elements, iterate on them, but not remove them
 // without clearing the whole structure.
@@ -40,10 +40,14 @@ impl<E> EventPool<E> {
 
     /// Removes from this set all events for which `filter` returns `false`.
     pub fn retain<F>(&mut self, filter: F)
-    where
-        F: FnMut(&E) -> bool,
-    {
+    where F: FnMut(&E) -> bool {
         self.events.retain(filter)
+    }
+
+    /// The number of events on this pool.
+    #[inline]
+    pub fn len(&self) -> usize {
+        self.events.len()
     }
 }
 
@@ -60,7 +64,7 @@ impl<'a, E> IntoIterator for &'a EventPool<E> {
 /// Events occuring when two collision objects start or stop being in contact (or penetration).
 pub enum ContactEvent {
     /// Event occuring when two collision objects start being in contact.
-    /// 
+    ///
     /// This event is generated whenever the narrow-phase finds a contact between two collision objects that did not have any contact at the last update.
     Started(CollisionObjectHandle, CollisionObjectHandle),
     /// Event occuring when two collision objects stop being in contact.    
@@ -76,7 +80,7 @@ pub struct ProximityEvent {
     pub collider1: CollisionObjectHandle,
     /// The second collider to which the proximity event applies.
     pub collider2: CollisionObjectHandle,
-    /// The previous state of proximity between the two collision objects. 
+    /// The previous state of proximity between the two collision objects.
     pub prev_status: Proximity,
     /// The new state of proximity between the two collision objects.
     pub new_status: Proximity,
@@ -84,14 +88,15 @@ pub struct ProximityEvent {
 
 impl ProximityEvent {
     /// Instaciates a new proximity event.
-    /// 
+    ///
     /// Panics if `prev_status` is equal to `new_status`.
     pub fn new(
         collider1: CollisionObjectHandle,
         collider2: CollisionObjectHandle,
         prev_status: Proximity,
         new_status: Proximity,
-    ) -> ProximityEvent {
+    ) -> ProximityEvent
+    {
         assert!(prev_status != new_status);
         ProximityEvent {
             collider1,

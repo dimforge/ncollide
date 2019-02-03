@@ -1,7 +1,7 @@
 use na::{Real, Unit};
 
-use shape::SupportMap;
-use math::{Isometry, Point, Vector};
+use crate::math::{Isometry, Point, Vector};
+use crate::shape::SupportMap;
 
 pub struct ConstantOrigin;
 

@@ -1,10 +1,10 @@
-use alga::general::Real;
-use na::{Point2, Vector2};
-use na;
-use shape::Capsule;
-use procedural::Polyline;
-use procedural::utils;
 use super::ToPolyline;
+use alga::general::Real;
+use na;
+use na::{Point2, Vector2};
+use crate::procedural::utils;
+use crate::procedural::Polyline;
+use crate::shape::Capsule;
 
 impl<N: Real> ToPolyline<N> for Capsule<N> {
     type DiscretizationParameter = u32;

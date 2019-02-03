@@ -1,8 +1,8 @@
-use math::{Isometry, Point};
+use crate::math::{Isometry, Point};
 use na::{self, Real};
-use query::algorithms::CSOPoint;
-use query::{PointQuery, PointQueryWithLocation};
-use shape::{Segment, SegmentPointLocation, Triangle, TrianglePointLocation};
+use crate::query::algorithms::CSOPoint;
+use crate::query::{PointQuery, PointQueryWithLocation};
+use crate::shape::{Segment, SegmentPointLocation, Triangle, TrianglePointLocation};
 
 /// A simplex of dimension up to 2 using Voronoï regions for computing point projections.
 #[derive(Clone, Debug)]
@@ -84,7 +84,7 @@ impl<N: Real> VoronoiSimplex<N> {
     }
 
     /// Projets the origin on the boundary of this simplex and reduces `self` the smallest subsimplex containing the origin.
-    /// 
+    ///
     /// Retruns the result of the projection or Point::origin() if the origin lies inside of the simplex.
     /// The state of the samplex before projection is saved, and can be retrieved using the methods prefixed
     /// by `prev_`.
@@ -202,7 +202,7 @@ impl<N: Real> VoronoiSimplex<N> {
         let mut max_sq_len = na::zero();
 
         for i in 0..self.dim + 1 {
-            let norm = na::norm_squared(&self.vertices[i].point.coords);
+            let norm = self.vertices[i].point.coords.norm_squared();
 
             if norm > max_sq_len {
                 max_sq_len = norm

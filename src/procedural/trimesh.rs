@@ -1,11 +1,13 @@
-use std::collections::HashMap;
-use alga::linear::Translation;
-use na::{self, Point2, Point3, Real};
 use super::utils;
-use math::{Isometry, Point, Vector};
+use alga::linear::Translation;
+use crate::math::{Isometry, Point, Vector};
+use na::{self, Point2, Point3, Real};
+use std::collections::HashMap;
+use crate::utils::DeterministicState;
 
 /// Different representations of the index buffer.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub enum IndexBuffer {
     /// The vertex, normal, and uvs share the same indices.
     Unified(Vec<Point3<u32>>),
@@ -34,6 +36,7 @@ impl IndexBuffer {
 }
 
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 /// Geometric description of a mesh.
 pub struct TriMesh<N: Real> {
     // FIXME: those should *not* be public.
@@ -56,7 +59,8 @@ impl<N: Real> TriMesh<N> {
         normals: Option<Vec<Vector<N>>>,
         uvs: Option<Vec<Point2<N>>>,
         indices: Option<IndexBuffer>,
-    ) -> TriMesh<N> {
+    ) -> TriMesh<N>
+    {
         // generate trivial indices
         let idx = indices.unwrap_or_else(|| {
             IndexBuffer::Unified(
@@ -123,16 +127,20 @@ impl<N: Real> TriMesh<N> {
         let mut res = Vec::with_capacity(self.num_triangles() * 3);
 
         match self.indices {
-            IndexBuffer::Unified(ref idx) => for i in idx {
-                res.push(i[0]);
-                res.push(i[1]);
-                res.push(i[2]);
-            },
-            IndexBuffer::Split(ref idx) => for i in idx {
-                res.push(i[0][0]);
-                res.push(i[1][0]);
-                res.push(i[2][0]);
-            },
+            IndexBuffer::Unified(ref idx) => {
+                for i in idx {
+                    res.push(i[0]);
+                    res.push(i[1]);
+                    res.push(i[2]);
+                }
+            }
+            IndexBuffer::Split(ref idx) => {
+                for i in idx {
+                    res.push(i[0][0]);
+                    res.push(i[1][0]);
+                    res.push(i[2][0]);
+                }
+            }
         }
 
         res
@@ -154,7 +162,8 @@ impl<N: Real> TriMesh<N> {
                 // XXX: too bad we have to reconstruct the index buffer here.
                 // The utils::recompute_normals function should be generic wrt. the index buffer
                 // type (it could use an iterator instead).
-                let coord_idx: Vec<Point3<u32>> = idx.iter()
+                let coord_idx: Vec<Point3<u32>> = idx
+                    .iter()
                     .map(|t| Point3::new(t.x.x, t.y.x, t.z.x))
                     .collect();
 
@@ -163,6 +172,33 @@ impl<N: Real> TriMesh<N> {
         }
 
         self.normals = Some(new_normals);
+    }
+
+    /// Flips all the normals of this mesh.
+    #[inline]
+    pub fn flip_normals(&mut self) {
+        if let Some(ref mut normals) = self.normals {
+            for n in normals {
+                *n = *n
+            }
+        }
+    }
+
+    /// Flips the orientation of every triangle of this mesh.
+    #[inline]
+    pub fn flip_triangles(&mut self) {
+        match self.indices {
+            IndexBuffer::Unified(ref mut idx) => {
+                for i in idx {
+                    i.coords.swap((1, 0), (2, 0))
+                }
+            }
+            IndexBuffer::Split(ref mut idx) => {
+                for i in idx {
+                    i.coords.swap((1, 0), (2, 0))
+                }
+            }
+        }
     }
 
     /// Scales each vertex of this mesh.
@@ -196,7 +232,8 @@ impl<N: Real> TriMesh<N> {
     pub fn unify_index_buffer(&mut self) {
         let new_indices = match self.indices {
             IndexBuffer::Split(ref ids) => {
-                let mut vt2id: HashMap<Point3<u32>, u32> = HashMap::new();
+                let mut vt2id: HashMap<Point3<u32>, u32, _> =
+                    HashMap::with_hasher(DeterministicState::new());
                 let mut resi: Vec<u32> = Vec::new();
                 let mut resc: Vec<Point<N>> = Vec::new();
                 let mut resn: Option<Vec<Vector<N>>> = self.normals.as_ref().map(|_| Vec::new());
@@ -260,32 +297,40 @@ impl<N: Real> TriMesh<N> {
         let mut resu: Option<Vec<Point2<N>>> = self.uvs.as_ref().map(|_| Vec::new());
 
         match self.indices {
-            IndexBuffer::Split(ref ids) => for triangle in ids.iter() {
-                for point in triangle.iter() {
-                    let idx = resc.len() as u32;
-                    resc.push(self.coords[point.x as usize].clone());
+            IndexBuffer::Split(ref ids) => {
+                for triangle in ids.iter() {
+                    for point in triangle.iter() {
+                        let idx = resc.len() as u32;
+                        resc.push(self.coords[point.x as usize].clone());
 
-                    let _ = resn.as_mut()
-                        .map(|l| l.push(self.normals.as_ref().unwrap()[point.y as usize].clone()));
-                    let _ = resu.as_mut()
-                        .map(|l| l.push(self.uvs.as_ref().unwrap()[point.z as usize].clone()));
+                        let _ = resn.as_mut().map(|l| {
+                            l.push(self.normals.as_ref().unwrap()[point.y as usize].clone())
+                        });
+                        let _ = resu
+                            .as_mut()
+                            .map(|l| l.push(self.uvs.as_ref().unwrap()[point.z as usize].clone()));
 
-                    resi.push(idx);
+                        resi.push(idx);
+                    }
                 }
-            },
-            IndexBuffer::Unified(ref ids) => for triangle in ids.iter() {
-                for point in triangle.iter() {
-                    let idx = resc.len() as u32;
-                    resc.push(self.coords[*point as usize].clone());
+            }
+            IndexBuffer::Unified(ref ids) => {
+                for triangle in ids.iter() {
+                    for point in triangle.iter() {
+                        let idx = resc.len() as u32;
+                        resc.push(self.coords[*point as usize].clone());
 
-                    let _ = resn.as_mut()
-                        .map(|l| l.push(self.normals.as_ref().unwrap()[*point as usize].clone()));
-                    let _ = resu.as_mut()
-                        .map(|l| l.push(self.uvs.as_ref().unwrap()[*point as usize].clone()));
+                        let _ = resn.as_mut().map(|l| {
+                            l.push(self.normals.as_ref().unwrap()[*point as usize].clone())
+                        });
+                        let _ = resu
+                            .as_mut()
+                            .map(|l| l.push(self.uvs.as_ref().unwrap()[*point as usize].clone()));
 
-                    resi.push(idx);
+                        resi.push(idx);
+                    }
                 }
-            },
+            }
         };
 
         self.coords = resc;

@@ -1,13 +1,11 @@
-use std::collections::{HashMap, hash_map::Entry};
-
-use utils::DeterministicState;
+use crate::bounding_volume::{self, BoundingVolume};
+use crate::math::Isometry;
 use na::{self, Real};
-use math::Isometry;
-use bounding_volume::{self, BoundingVolume};
-use partitioning::BoundingVolumeInterferencesCollector;
-use shape::{CompositeShape, Shape};
-use query::Proximity;
-use pipeline::narrow_phase::{ProximityAlgorithm, ProximityDetector, ProximityDispatcher};
+use crate::pipeline::narrow_phase::{ProximityAlgorithm, ProximityDetector, ProximityDispatcher};
+use crate::query::{visitors::BoundingVolumeInterferencesCollector, Proximity};
+use crate::shape::{CompositeShape, Shape};
+use std::collections::{hash_map::Entry, HashMap};
+use crate::utils::DeterministicState;
 
 /// Proximity detector between a concave shape and another shape.
 pub struct CompositeShapeShapeProximityDetector<N> {
@@ -43,7 +41,8 @@ impl<N: Real> CompositeShapeShapeProximityDetector<N> {
         g2: &Shape<N>,
         margin: N,
         flip: bool,
-    ) {
+    )
+    {
         // Remove outdated sub detectors.
         for key in self.to_delete.iter() {
             let _ = self.sub_detectors.remove(key);
@@ -55,7 +54,7 @@ impl<N: Real> CompositeShapeShapeProximityDetector<N> {
         // First, test if the previously intersecting shapes are still intersecting.
         if self.proximity == Proximity::Intersecting {
             let detector = self.sub_detectors.get_mut(&self.intersecting_key).unwrap();
-            g1.map_transformed_part_at(self.intersecting_key, m1, &mut |_, m1, g1| {
+            g1.map_part_at(self.intersecting_key, m1, &mut |m1, g1| {
                 assert!(
                     detector.update(dispatcher, m1, g1, m2, g2, margin),
                     "The shape was no longer valid."
@@ -84,7 +83,7 @@ impl<N: Real> CompositeShapeShapeProximityDetector<N> {
             }
 
             if ls_aabb2.intersects(&g1.aabb_at(key)) {
-                g1.map_transformed_part_at(key, m1, &mut |_, m1, g1| {
+                g1.map_part_at(key, m1, &mut |m1, g1| {
                     assert!(
                         detector.1.update(dispatcher, m1, g1, m2, g2, margin),
                         "The shape was no longer valid."
@@ -110,7 +109,7 @@ impl<N: Real> CompositeShapeShapeProximityDetector<N> {
         {
             let mut visitor =
                 BoundingVolumeInterferencesCollector::new(&ls_aabb2, &mut self.interferences);
-            g1.bvt().visit(&mut visitor);
+            g1.bvh().visit(&mut visitor);
         }
 
         for key in &self.interferences {
@@ -120,7 +119,7 @@ impl<N: Real> CompositeShapeShapeProximityDetector<N> {
                 Entry::Vacant(entry) => {
                     let mut new_detector = None;
 
-                    g1.map_part_at(*key, &mut |_, _, g1| {
+                    g1.map_part_at(*key, &Isometry::identity(), &mut |_, g1| {
                         if flip {
                             new_detector = dispatcher.get_proximity_algorithm(g2, g1)
                         } else {
@@ -137,7 +136,7 @@ impl<N: Real> CompositeShapeShapeProximityDetector<N> {
             };
 
             if let Some(sub_detector) = detector {
-                g1.map_transformed_part_at(*key, m1, &mut |_, m1, g1| {
+                g1.map_part_at(*key, m1, &mut |m1, g1| {
                     if flip {
                         let _ = sub_detector.update(dispatcher, m2, g2, m1, g1, margin);
                     } else {

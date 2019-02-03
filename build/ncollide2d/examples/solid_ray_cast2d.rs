@@ -2,8 +2,8 @@ extern crate nalgebra as na;
 extern crate ncollide2d;
 
 use na::{Isometry2, Point2, Vector2};
-use ncollide2d::shape::Cuboid;
 use ncollide2d::query::{Ray, RayCast};
+use ncollide2d::shape::Cuboid;
 
 fn main() {
     let cuboid = Cuboid::new(Vector2::new(1.0, 2.0));
@@ -12,17 +12,25 @@ fn main() {
 
     // Solid cast.
     assert_eq!(
-        cuboid.toi_with_ray(&Isometry2::identity(), &ray_inside, true).unwrap(),
+        cuboid
+            .toi_with_ray(&Isometry2::identity(), &ray_inside, true)
+            .unwrap(),
         0.0
     );
 
     // Non-solid cast.
     assert_eq!(
-        cuboid.toi_with_ray(&Isometry2::identity(), &ray_inside, false).unwrap(),
+        cuboid
+            .toi_with_ray(&Isometry2::identity(), &ray_inside, false)
+            .unwrap(),
         2.0
     );
 
     // The other ray does not intersect this shape.
-    assert!(cuboid.toi_with_ray(&Isometry2::identity(), &ray_miss, false).is_none());
-    assert!(cuboid.toi_with_ray(&Isometry2::identity(), &ray_miss, true).is_none());
+    assert!(cuboid
+        .toi_with_ray(&Isometry2::identity(), &ray_miss, false)
+        .is_none());
+    assert!(cuboid
+        .toi_with_ray(&Isometry2::identity(), &ray_miss, true)
+        .is_none());
 }

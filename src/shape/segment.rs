@@ -1,16 +1,16 @@
 //! Definition of the segment shape.
 
-use bounding_volume::PolyhedralCone;
-use math::{Isometry, Point, Vector};
+use crate::math::{Isometry, Point, Vector};
 use na::{self, Real, Unit};
-use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
+use crate::shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
 use std::f64;
 use std::mem;
 #[cfg(feature = "dim2")]
-use utils;
-use utils::IsometryOps;
+use crate::utils;
+use crate::utils::IsometryOps;
 
 /// A segment shape.
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Clone)]
 pub struct Segment<N: Real> {
     a: Point<N>,
@@ -18,11 +18,29 @@ pub struct Segment<N: Real> {
 }
 
 /// Logical description of the location of a point on a triangle.
+#[derive(PartialEq, Debug, Clone, Copy)]
 pub enum SegmentPointLocation<N: Real> {
     /// The point lies on a vertex.
     OnVertex(usize),
     /// The point lies on the segment interior.
     OnEdge([N; 2]),
+}
+
+impl<N: Real> SegmentPointLocation<N> {
+    /// The barycentric coordinates corresponding to this point location.
+    pub fn barycentric_coordinates(&self) -> [N; 2] {
+        let mut bcoords = [N::zero(); 2];
+
+        match self {
+            SegmentPointLocation::OnVertex(i) => bcoords[*i] = N::one(),
+            SegmentPointLocation::OnEdge(uv) => {
+                bcoords[0] = uv[0];
+                bcoords[1] = uv[1];
+            }
+        }
+
+        bcoords
+    }
 }
 
 impl<N: Real> Segment<N> {
@@ -62,7 +80,7 @@ impl<N: Real> Segment<N> {
 
     /// The length of this segment.
     pub fn length(&self) -> N {
-        na::norm(&self.scaled_direction())
+        self.scaled_direction().norm()
     }
 
     /// Swaps the two vertices of this segment.
@@ -78,6 +96,24 @@ impl<N: Real> Segment<N> {
         Unit::try_new(self.scaled_direction(), N::default_epsilon())
     }
 
+    /// In 2D, the not-normalized counterclockwise normal of this segment.
+    #[cfg(feature = "dim2")]
+    pub fn scaled_normal(&self) -> Vector<N> {
+        let dir = self.scaled_direction();
+        Vector::new(dir.y, -dir.x)
+    }
+
+    /// In 2D, the normalized counterclockwise normal of this segment.
+    #[cfg(feature = "dim2")]
+    pub fn normal(&self) -> Option<Unit<Vector<N>>> {
+        Unit::try_new(self.scaled_normal(), N::default_epsilon())
+    }
+
+    #[cfg(feature = "dim3")]
+    pub(crate) fn normal(&self) -> Option<Unit<Vector<N>>> {
+        None
+    }
+
     /// Applies the isometry `m` to the vertices of this segment and returns the resulting segment.
     pub fn transformed(&self, m: &Isometry<N>) -> Self {
         Segment::new(m * self.a, m * self.b)
@@ -91,7 +127,50 @@ impl<N: Real> Segment<N> {
             SegmentPointLocation::OnEdge(bcoords) => {
                 self.a * bcoords[0] + self.b.coords * bcoords[1]
             }
-            _ => unreachable!(),
+            _ => panic!(),
+        }
+    }
+
+    /// Checks that the given direction in world-space is on the tangent cone of the given `feature`.
+    pub fn tangent_cone_contains_dir(
+        &self,
+        feature: FeatureId,
+        m: &Isometry<N>,
+        dir: &Unit<Vector<N>>,
+    ) -> bool
+    {
+        let ls_dir = m.inverse_transform_unit_vector(dir);
+
+        if let Some(direction) = self.direction() {
+            match feature {
+                FeatureId::Vertex(id) => {
+                    let dot = ls_dir.dot(&direction);
+                    if id == 0 {
+                        dot >= N::one() - N::default_epsilon()
+                    } else {
+                        -dot >= N::one() - N::default_epsilon()
+                    }
+                }
+                #[cfg(feature = "dim3")]
+                FeatureId::Edge(_) => {
+                    ls_dir.dot(&direction).abs() >= N::one() - N::default_epsilon()
+                }
+                FeatureId::Face(id) => {
+                    let mut dir = Vector::zeros();
+                    if id == 0 {
+                        dir[0] = direction[1];
+                        dir[1] = -direction[0];
+                    } else {
+                        dir[0] = -direction[1];
+                        dir[1] = direction[0];
+                    }
+
+                    ls_dir.dot(&dir) <= N::zero()
+                }
+                _ => true,
+            }
+        } else {
+            false
         }
     }
 }
@@ -101,7 +180,7 @@ impl<N: Real> SupportMap<N> for Segment<N> {
     fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
         let local_dir = m.inverse_transform_vector(dir);
 
-        if na::dot(&self.a.coords, &local_dir) > na::dot(&self.b.coords, &local_dir) {
+        if self.a.coords.dot(&local_dir) > self.b.coords.dot(&local_dir) {
             m * self.a
         } else {
             m * self.b
@@ -125,7 +204,7 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
 
     #[cfg(feature = "dim3")]
     fn face(&self, _: FeatureId, _: &mut ConvexPolygonalFeature<N>) {
-        panic!("A segment does not have any face indimensions higher than 2.")
+        panic!("A segment does not have any face in dimensions higher than 2.")
     }
 
     #[cfg(feature = "dim2")]
@@ -151,36 +230,6 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
         } else {
             face.push(self.a, FeatureId::Vertex(0));
             face.set_feature_id(FeatureId::Vertex(0));
-        }
-    }
-
-    fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<N> {
-        if let Some(direction) = self.direction() {
-            match feature {
-                FeatureId::Vertex(id) => {
-                    if id == 0 {
-                        PolyhedralCone::HalfSpace(direction)
-                    } else {
-                        PolyhedralCone::HalfSpace(-direction)
-                    }
-                }
-                #[cfg(feature = "dim3")]
-                FeatureId::Edge(_) => PolyhedralCone::OrthogonalSubspace(direction),
-                FeatureId::Face(id) => {
-                    let mut dir = Vector::zeros();
-                    if id == 0 {
-                        dir[0] = direction[1];
-                        dir[1] = -direction[0];
-                    } else {
-                        dir[0] = -direction[1];
-                        dir[1] = direction[0];
-                    }
-                    PolyhedralCone::HalfLine(Unit::new_unchecked(dir))
-                }
-                _ => PolyhedralCone::Empty,
-            }
-        } else {
-            PolyhedralCone::Full
         }
     }
 
@@ -226,7 +275,8 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
         m: &Isometry<N>,
         dir: &Unit<Vector<N>>,
         face: &mut ConvexPolygonalFeature<N>,
-    ) {
+    )
+    {
         let seg_dir = self.scaled_direction();
 
         if dir.perp(&seg_dir) >= na::zero() {
@@ -243,7 +293,8 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
         m: &Isometry<N>,
         _: &Unit<Vector<N>>,
         face: &mut ConvexPolygonalFeature<N>,
-    ) {
+    )
+    {
         face.push(self.a, FeatureId::Vertex(0));
         face.push(self.b, FeatureId::Vertex(1));
         face.push_edge_feature_id(FeatureId::Edge(0));
@@ -255,19 +306,46 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
         &self,
         transform: &Isometry<N>,
         dir: &Unit<Vector<N>>,
-        _angle: N,
-        out: &mut ConvexPolygonalFeature<N>,
-    ) {
-        out.clear();
-        // FIXME: actualy find the support feature.
-        self.support_face_toward(transform, dir, out)
+        eps: N,
+        face: &mut ConvexPolygonalFeature<N>,
+    )
+    {
+        face.clear();
+        let seg = self.transformed(transform);
+        let ceps = eps.sin();
+
+        if let Some(seg_dir) = seg.direction() {
+            let cang = dir.dot(&seg_dir);
+
+            if cang > ceps {
+                face.set_feature_id(FeatureId::Vertex(1));
+                face.push(seg.b, FeatureId::Vertex(1));
+            } else if cang < -ceps {
+                face.set_feature_id(FeatureId::Vertex(0));
+                face.push(seg.a, FeatureId::Vertex(0));
+            } else {
+                #[cfg(feature = "dim3")] {
+                    face.push(seg.a, FeatureId::Vertex(0));
+                    face.push(seg.b, FeatureId::Vertex(1));
+                    face.push_edge_feature_id(FeatureId::Edge(0));
+                    face.set_feature_id(FeatureId::Edge(0));
+                }
+                #[cfg(feature = "dim2")] {
+                    if dir.perp(&seg_dir) >= na::zero() {
+                        seg.face(FeatureId::Face(0), face);
+                    } else {
+                        seg.face(FeatureId::Face(1), face);
+                    }
+                }
+            }
+        }
     }
 
     fn support_feature_id_toward(&self, local_dir: &Unit<Vector<N>>) -> FeatureId {
         if let Some(seg_dir) = self.direction() {
             let eps: N = na::convert(f64::consts::PI / 180.0);
             let seps = eps.sin();
-            let dot = na::dot(seg_dir.as_ref(), local_dir.as_ref());
+            let dot = seg_dir.dot(local_dir.as_ref());
 
             if dot <= seps {
                 #[cfg(feature = "dim2")]

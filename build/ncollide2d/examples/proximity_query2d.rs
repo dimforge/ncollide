@@ -2,8 +2,8 @@ extern crate nalgebra as na;
 extern crate ncollide2d;
 
 use na::{Isometry2, Vector2};
-use ncollide2d::shape::{Ball, Cuboid};
 use ncollide2d::query::{self, Proximity};
+use ncollide2d::shape::{Ball, Cuboid};
 
 fn main() {
     let cuboid = Cuboid::new(Vector2::new(1.0, 1.0));

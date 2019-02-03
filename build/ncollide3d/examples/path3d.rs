@@ -1,10 +1,10 @@
 extern crate nalgebra as na;
-extern crate ncollide3d;
 extern crate ncollide2d;
+extern crate ncollide3d;
 
 use na::Point3;
-use ncollide3d::procedural::path::{ArrowheadCap, PolylinePath, PolylinePattern, StrokePattern};
 use ncollide3d::procedural;
+use ncollide3d::procedural::path::{ArrowheadCap, PolylinePath, PolylinePattern, StrokePattern};
 
 fn main() {
     let control_points = [

@@ -1,20 +1,20 @@
-use bounding_volume::PolyhedralCone;
-use math::{Isometry, Point, Vector};
+use crate::math::{Isometry, Point, Vector};
 use na::{self, Point2, Point3, Real, Unit};
-use shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
-use smallvec::SmallVec;
+use crate::shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::f64;
-use transformation;
-use utils::{self, IsometryOps, SortedPair};
+use crate::transformation;
+use crate::utils::{self, IsometryOps, SortedPair};
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Copy, Clone)]
 struct Vertex {
     first_adj_face_or_edge: usize,
     num_adj_faces_or_edge: usize,
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Copy, Clone)]
 struct Edge<N: Real> {
     vertices: Point2<usize>,
@@ -33,6 +33,7 @@ impl<N: Real> Edge<N> {
     }
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Copy, Clone)]
 struct Face<N: Real> {
     first_vertex_or_edge: usize,
@@ -40,6 +41,7 @@ struct Face<N: Real> {
     normal: Unit<Vector<N>>,
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Copy, Clone)]
 struct Triangle<N: Real> {
     vertices: Point3<usize>,
@@ -60,6 +62,7 @@ impl<N: Real> Triangle<N> {
     }
 }
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Clone)]
 /// A convex polyhedron without degenerate faces.
 pub struct ConvexHull<N: Real> {
@@ -84,7 +87,8 @@ impl<N: Real> ConvexHull<N> {
     /// Returns `None` if the convex hull computation failed.
     pub fn try_from_points(points: &[Point<N>]) -> Option<ConvexHull<N>> {
         let hull = transformation::convex_hull(points);
-        let indices: Vec<usize> = hull.flat_indices()
+        let indices: Vec<usize> = hull
+            .flat_indices()
             .into_iter()
             .map(|i| i as usize)
             .collect();
@@ -141,15 +145,15 @@ impl<N: Real> ConvexHull<N> {
                         edges_id[i1] = *e.insert(edges.len());
 
                         if let Some(dir) =
-                        Unit::try_new(points[vtx[i2]] - points[vtx[i1]], N::default_epsilon())
-                            {
-                                edges.push(Edge {
-                                    vertices: Point2::new(vtx[i1], vtx[i2]),
-                                    faces: Point2::new(face_id, 0),
-                                    dir,
-                                    deleted: false,
-                                })
-                            } else {
+                            Unit::try_new(points[vtx[i2]] - points[vtx[i1]], N::default_epsilon())
+                        {
+                            edges.push(Edge {
+                                vertices: Point2::new(vtx[i1], vtx[i2]),
+                                faces: Point2::new(face_id, 0),
+                                dir,
+                                deleted: false,
+                            })
+                        } else {
                             return None;
                         }
                     }
@@ -175,7 +179,7 @@ impl<N: Real> ConvexHull<N> {
         for e in &mut edges {
             let n1 = triangles[e.faces[0]].normal;
             let n2 = triangles[e.faces[1]].normal;
-            if na::dot(&*n1, &*n2) > N::one() - eps {
+            if n1.dot(&*n2) > N::one() - eps {
                 e.deleted = true;
             } else {
                 num_valid_edges += 1;
@@ -345,6 +349,40 @@ impl<N: Real> ConvexHull<N> {
     pub fn points(&self) -> &[Point<N>] {
         &self.points[..]
     }
+
+    /// Checks that the given direction in world-space is on the tangent cone of the given `feature`.
+    pub fn tangent_cone_contains_dir(
+        &self,
+        feature: FeatureId,
+        m: &Isometry<N>,
+        dir: &Unit<Vector<N>>,
+    ) -> bool
+    {
+        let ls_dir = m.inverse_transform_unit_vector(dir);
+
+        match feature {
+            FeatureId::Face(id) => ls_dir.dot(&self.faces[id].normal) <= N::zero(),
+            FeatureId::Edge(id) => {
+                let edge = &self.edges[id];
+                ls_dir.dot(&self.faces[edge.faces[0]].normal) <= N::zero()
+                    && ls_dir.dot(&self.faces[edge.faces[1]].normal) <= N::zero()
+            }
+            FeatureId::Vertex(id) => {
+                let vertex = &self.vertices[id];
+                let first = vertex.first_adj_face_or_edge;
+                let last = vertex.first_adj_face_or_edge + vertex.num_adj_faces_or_edge;
+
+                for face in &self.faces_adj_to_vertex[first..last] {
+                    if ls_dir.dot(&self.faces[*face].normal) > N::zero() {
+                        return false;
+                    }
+                }
+
+                true
+            }
+            FeatureId::Unknown => false,
+        }
+    }
 }
 
 impl<N: Real> SupportMap<N> for ConvexHull<N> {
@@ -394,31 +432,6 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexHull<N> {
         out.recompute_edge_normals();
     }
 
-    fn normal_cone(&self, feature: FeatureId) -> PolyhedralCone<N> {
-        let mut generators = SmallVec::new();
-
-        match feature {
-            FeatureId::Face(id) => return PolyhedralCone::HalfLine(self.faces[id].normal),
-            FeatureId::Edge(id) => {
-                let edge = &self.edges[id];
-                generators.push(self.faces[edge.faces[0]].normal);
-                generators.push(self.faces[edge.faces[1]].normal);
-            }
-            FeatureId::Vertex(id) => {
-                let vertex = &self.vertices[id];
-                let first = vertex.first_adj_face_or_edge;
-                let last = vertex.first_adj_face_or_edge + vertex.num_adj_faces_or_edge;
-
-                for face in &self.faces_adj_to_vertex[first..last] {
-                    generators.push(self.faces[*face].normal)
-                }
-            }
-            FeatureId::Unknown => {}
-        }
-
-        PolyhedralCone::Span(generators)
-    }
-
     fn feature_normal(&self, feature: FeatureId) -> Unit<Vector<N>> {
         match feature {
             FeatureId::Face(id) => self.faces[id].normal,
@@ -447,14 +460,15 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexHull<N> {
         m: &Isometry<N>,
         dir: &Unit<Vector<N>>,
         out: &mut ConvexPolygonalFeature<N>,
-    ) {
+    )
+    {
         let ls_dir = m.inverse_transform_vector(dir);
         let mut best_face = 0;
-        let mut max_dot = na::dot(&*self.faces[0].normal, &ls_dir);
+        let mut max_dot = self.faces[0].normal.dot(&ls_dir);
 
         for i in 1..self.faces.len() {
             let face = &self.faces[i];
-            let dot = na::dot(&*face.normal, &ls_dir);
+            let dot = face.normal.dot(&ls_dir);
 
             if dot > max_dot {
                 max_dot = dot;
@@ -472,7 +486,8 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexHull<N> {
         dir: &Unit<Vector<N>>,
         _angle: N,
         out: &mut ConvexPolygonalFeature<N>,
-    ) {
+    )
+    {
         out.clear();
         // FIXME: actualy find the support feature.
         self.support_face_toward(transform, dir, out)
@@ -489,7 +504,7 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexHull<N> {
             let face_id = self.faces_adj_to_vertex[vertex.first_adj_face_or_edge + i];
             let face = &self.faces[face_id];
 
-            if na::dot(face.normal.as_ref(), local_dir.as_ref()) >= ceps {
+            if face.normal.dot(local_dir.as_ref()) >= ceps {
                 return FeatureId::Face(face_id);
             }
         }
@@ -499,7 +514,7 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexHull<N> {
             let edge_id = self.edges_adj_to_vertex[vertex.first_adj_face_or_edge + i];
             let edge = &self.edges[edge_id];
 
-            if na::dot(edge.dir.as_ref(), local_dir.as_ref()).abs() <= seps {
+            if edge.dir.dot(local_dir.as_ref()).abs() <= seps {
                 return FeatureId::Edge(edge_id);
             }
         }

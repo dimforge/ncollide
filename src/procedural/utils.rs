@@ -1,19 +1,19 @@
 //! Utilities useful for various generations tasks.
 
-#[cfg(feature = "dim3")]
-use std::iter;
-#[cfg(feature = "dim3")]
-use std::collections::HashMap;
-#[cfg(feature = "dim3")]
-use std::collections::hash_map::Entry;
-#[cfg(feature = "dim3")]
-use num::Zero;
+use crate::math::{Point, Vector};
 #[cfg(feature = "dim3")]
 use na;
 use na::Real;
 #[cfg(feature = "dim3")]
-use utils::HashablePartialEq;
-use math::{Point, Vector};
+use num::Zero;
+#[cfg(feature = "dim3")]
+use std::collections::hash_map::Entry;
+#[cfg(feature = "dim3")]
+use std::collections::HashMap;
+#[cfg(feature = "dim3")]
+use std::iter;
+#[cfg(feature = "dim3")]
+use crate::utils::{DeterministicState, HashablePartialEq};
 
 // FIXME: remove that in favor of `push_xy_circle` ?
 /// Pushes a discretized counterclockwise circle to a buffer.
@@ -43,7 +43,7 @@ pub fn push_xy_arc<N: Real>(radius: N, nsubdiv: u32, dtheta: N, out: &mut Vec<Po
 
         pt_coords[0] = curr_theta.cos() * radius;
         pt_coords[1] = curr_theta.sin() * radius;
-        out.push(Point::from_coordinates(pt_coords));
+        out.push(Point::from(pt_coords));
 
         curr_theta = curr_theta + dtheta;
     }
@@ -57,7 +57,8 @@ pub fn push_ring_indices(
     base_upper_circle: u32,
     nsubdiv: u32,
     out: &mut Vec<Point<u32>>,
-) {
+)
+{
     push_open_ring_indices(base_lower_circle, base_upper_circle, nsubdiv, out);
 
     // adjust the last two triangles
@@ -78,7 +79,8 @@ pub fn push_open_ring_indices(
     base_upper_circle: u32,
     nsubdiv: u32,
     out: &mut Vec<Point<u32>>,
-) {
+)
+{
     assert!(nsubdiv > 0);
 
     for i in 0..nsubdiv - 1 {
@@ -96,7 +98,8 @@ pub fn push_degenerate_top_ring_indices(
     point: u32,
     nsubdiv: u32,
     out: &mut Vec<Point<u32>>,
-) {
+)
+{
     push_degenerate_open_top_ring_indices(base_circle, point, nsubdiv, out);
 
     out.push(Point::new(base_circle + nsubdiv - 1, point, base_circle));
@@ -110,7 +113,8 @@ pub fn push_degenerate_open_top_ring_indices(
     point: u32,
     nsubdiv: u32,
     out: &mut Vec<Point<u32>>,
-) {
+)
+{
     assert!(nsubdiv > 0);
 
     for i in 0..nsubdiv - 1 {
@@ -178,16 +182,18 @@ pub fn split_index_buffer(indices: &[Point<u32>]) -> Vec<Point<Point<u32>>> {
 pub fn split_index_buffer_and_recover_topology<N: Real>(
     indices: &[Point<u32>],
     coords: &[Point<N>],
-) -> (Vec<Point<Point<u32>>>, Vec<Point<N>>) {
-    let mut vtx_to_id = HashMap::new();
+) -> (Vec<Point<Point<u32>>>, Vec<Point<N>>)
+{
+    let mut vtx_to_id = HashMap::with_hasher(DeterministicState::new());
     let mut new_coords = Vec::with_capacity(coords.len());
     let mut out = Vec::with_capacity(indices.len());
 
     fn resolve_coord_id<N: Real>(
         coord: &Point<N>,
-        vtx_to_id: &mut HashMap<HashablePartialEq<Point<N>>, u32>,
+        vtx_to_id: &mut HashMap<HashablePartialEq<Point<N>>, u32, DeterministicState>,
         new_coords: &mut Vec<Point<N>>,
-    ) -> u32 {
+    ) -> u32
+    {
         let key = unsafe { HashablePartialEq::new(coord.clone()) };
         let id = match vtx_to_id.entry(key) {
             Entry::Occupied(entry) => entry.into_mut(),
@@ -231,7 +237,8 @@ pub fn compute_normals<N: Real>(
     coordinates: &[Point<N>],
     faces: &[Point<u32>],
     normals: &mut Vec<Vector<N>>,
-) {
+)
+{
     let mut divisor: Vec<N> = iter::repeat(na::zero()).take(coordinates.len()).collect();
 
     // Shrink the output buffer if it is too big.
@@ -251,7 +258,7 @@ pub fn compute_normals<N: Real>(
         let normal;
 
         if !cross.is_zero() {
-            normal = na::normalize(&cross)
+            normal = cross.normalize()
         } else {
             normal = cross
         }

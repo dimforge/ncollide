@@ -1,9 +1,10 @@
+use crate::math::{Isometry, Point};
 use na::{self, Real};
-use shape::FeatureId;
-use math::{Point, Isometry};
+use crate::shape::FeatureId;
 
 /// Description of the projection of a point on a shape.
 #[derive(Copy, Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct PointProjection<N: Real> {
     /// Whether or not the point to project was inside of the shape.
     pub is_inside: bool,
@@ -43,7 +44,11 @@ pub trait PointQuery<N: Real> {
     /// Projects a point on the boundary of `self` transformed by `m` and retuns the id of the
     /// feature the point was projected on.
     #[inline]
-    fn project_point_with_feature(&self, m: &Isometry<N>, pt: &Point<N>) -> (PointProjection<N>, FeatureId);
+    fn project_point_with_feature(
+        &self,
+        m: &Isometry<N>,
+        pt: &Point<N>,
+    ) -> (PointProjection<N>, FeatureId);
 
     /// Tests if the given point is inside of `self` transformed by `m`.
     #[inline]
