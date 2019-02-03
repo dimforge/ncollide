@@ -14,12 +14,12 @@ pub fn plane_toi_with_line<N: Real>(
 ) -> Option<N>
 {
     let dpos = *plane_center - *line_origin;
-    let denom = na::dot(plane_normal, line_dir);
+    let denom = plane_normal.dot(line_dir);
 
     if relative_eq!(denom, N::zero()) {
         None
     } else {
-        Some(na::dot(plane_normal, &dpos) / denom)
+        Some(plane_normal.dot(&dpos) / denom)
     }
 }
 
@@ -53,14 +53,14 @@ impl<N: Real> RayCast<N> for Plane<N> {
 
         let dpos = -ls_ray.origin;
 
-        let dot_normal_dpos = na::dot(self.normal().as_ref(), &dpos.coords);
+        let dot_normal_dpos = self.normal().dot(&dpos.coords);
 
         if solid && dot_normal_dpos > na::zero() {
             // The ray is inside of the solid half-space.
             return Some(RayIntersection::new(na::zero(), na::zero(), FeatureId::Face(0)));
         }
 
-        let t = dot_normal_dpos / na::dot(self.normal().as_ref(), &ls_ray.dir);
+        let t = dot_normal_dpos / self.normal().dot(&ls_ray.dir);
 
         if t >= na::zero() {
             let n = if dot_normal_dpos > na::zero() {

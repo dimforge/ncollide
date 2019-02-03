@@ -53,7 +53,7 @@ impl<N: Real> VoronoiSimplex<N> {
 
         match self.dim {
             0 => {
-                if na::norm_squared(&(self.vertices[0] - pt)) < gjk::eps_tol() {
+                if (self.vertices[0] - pt).norm_squared() < gjk::eps_tol() {
                     return false;
                 }
             }
@@ -61,7 +61,7 @@ impl<N: Real> VoronoiSimplex<N> {
                 let ab = self.vertices[1] - self.vertices[0];
                 let ac = pt - self.vertices[0];
 
-                if na::norm_squared(&ab.cross(&ac)) < gjk::eps_tol() {
+                if ab.cross(&ac).norm_squared() < gjk::eps_tol() {
                     return false;
                 }
             }
@@ -69,9 +69,9 @@ impl<N: Real> VoronoiSimplex<N> {
                 let ab = self.vertices[1] - self.vertices[0];
                 let ac = self.vertices[2] - self.vertices[0];
                 let ap = pt - self.vertices[0];
-                let n = na::normalize(&ab.cross(&ac));
+                let n = ab.cross(&ac).normalize();
 
-                if na::dot(&n, &ap).abs() < gjk::eps_tol() {
+                if n.dot(&ap).abs() < gjk::eps_tol() {
                     return false;
                 }
             }
@@ -333,7 +333,7 @@ impl<N: Real> VoronoiSimplex<N> {
         let mut max_sq_len = na::zero();
 
         for i in 0..self.dim + 1 {
-            let norm = na::norm_squared(&self.vertices[i].point.coords);
+            let norm = self.vertices[i].point.coords.norm_squared();
 
             if norm > max_sq_len {
                 max_sq_len = norm

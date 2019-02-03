@@ -32,7 +32,7 @@ pub trait Shape<N: Real>: Send + Sync + Downcast + ShapeClone<N> {
     #[inline]
     fn bounding_sphere(&self, m: &Isometry<N>) -> BoundingSphere<N> {
         let aabb = self.aabb(m);
-        BoundingSphere::new(aabb.center(), na::norm_squared(&aabb.half_extents()))
+        BoundingSphere::new(aabb.center(), aabb.half_extents().norm_squared())
     }
 
     /// Check if if the feature `_feature` of the `i-th` subshape of `self` transformed by `m` has a tangent

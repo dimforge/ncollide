@@ -550,7 +550,7 @@ impl<N: Real> TriMesh<N> {
         }
 
         if let (Some(n1), Some(n2)) = (f1.normal, f2.normal) {
-            if (n1.unwrap() + n2.unwrap()).dot(dir) < N::zero() {
+            if (n1.into_inner() + n2.into_inner()).dot(dir) < N::zero() {
                 return false;
             }
         }
@@ -607,12 +607,12 @@ impl<N: Real> TriMesh<N> {
             if i >= self.faces.len() {
                 normal = -self.faces[i - self.faces.len()]
                     .normal
-                    .map(|n| n.unwrap())
+                    .map(|n| n.into_inner())
                     .unwrap_or(Vector::zeros());
             } else {
                 normal = self.faces[i]
                     .normal
-                    .map(|n| n.unwrap())
+                    .map(|n| n.into_inner())
                     .unwrap_or(Vector::zeros());
             }
         }
@@ -630,12 +630,12 @@ impl<N: Real> TriMesh<N> {
         if i >= self.faces.len() {
             normal = -self.faces[i - self.faces.len()]
                 .normal
-                .map(|n| n.unwrap())
+                .map(|n| n.into_inner())
                 .unwrap_or(Vector::zeros());
         } else {
             normal = self.faces[i]
                 .normal
-                .map(|n| n.unwrap())
+                .map(|n| n.into_inner())
                 .unwrap_or(Vector::zeros());
         }
 

@@ -37,7 +37,7 @@ where
 
     Vector<N>::sample_sphere(|sample: Vector<N>| {
         let support = cso.support_point(&Isometry::identity(), &sample);
-        let distance = na::dot(&sample, &support.coords);
+        let distance = sample.dot(&support.coords);
 
         if distance < min_dist {
             best_dir = sample;
@@ -48,7 +48,7 @@ where
     let extra_shift = na::convert(0.01f64); // FIXME: do not hard-code the extra shift?
     let shift = best_dir * (min_dist + extra_shift);
 
-    let tm2 = m2.append_translation(&Isometry<N>::Translation::from_vector(shift).unwrap());
+    let tm2 = m2.append_translation(&Isometry<N>::Translation::from(shift).unwrap());
 
     simplex.modify_pnts(&|pt| pt.translate_2(&(-shift)));
 
@@ -95,7 +95,7 @@ where
             if !dist_err.is_zero() {
                 let p2 = p2 + (-shift);
                 let center = na::center(&p1, &p2);
-                let nmin_dist = na::dot(&*normal, &best_dir) * (min_dist + extra_shift);
+                let nmin_dist = normal.dot(&best_dir) * (min_dist + extra_shift);
 
                 let p2 = center + (-*normal) * (nmin_dist - dist_err);
 
@@ -124,7 +124,7 @@ where
 
     Vector<N>::sample_sphere(|sample: Vector<N>| {
         let support = g.support_point(m, &sample);
-        let distance = na::dot(&sample, &support.coords);
+        let distance = sample.dot(&support.coords);
 
         if distance < min_dist {
             best_dir = sample;
@@ -135,7 +135,7 @@ where
     let extra_shift = na::convert(0.01f64); // FIXME: do not hard-code the extra shift?
     let shift = best_dir * (min_dist + extra_shift);
 
-    let tm = m.append_translation(&Isometry<N>::Translation::from_vector(-shift).unwrap());
+    let tm = m.append_translation(&Isometry<N>::Translation::from(-shift).unwrap());
 
     simplex.modify_pnts(&|pt| *pt = *pt + (-shift));
 
@@ -146,7 +146,7 @@ where
             let dist_err = normal.normalize_mut();
 
             if !dist_err.is_zero() {
-                let nmin_dist = na::dot(&normal, &best_dir) * (min_dist + extra_shift);
+                let nmin_dist = normal.dot(&best_dir) * (min_dist + extra_shift);
 
                 Some(Point::origin() + normal * (nmin_dist - dist_err))
             } else {

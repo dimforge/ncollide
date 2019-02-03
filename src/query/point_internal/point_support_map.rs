@@ -23,7 +23,7 @@ where
     G: SupportMap<N>,
 {
     let id = Isometry::identity();
-    let m = Translation::from_vector(-point.coords) * m;
+    let m = Translation::from(-point.coords) * m;
 
     let dir =
         Unit::try_new(-m.translation.vector, N::default_epsilon()).unwrap_or(Vector::x_axis());

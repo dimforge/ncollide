@@ -43,7 +43,7 @@ impl<N: Real> BallConvexPolyhedronManifoldGenerator<N> {
             b.as_point_query(),
             b.as_convex_polyhedron(),
         ) {
-            let ball_center = Point::from_coordinates(m1.translation.vector);
+            let ball_center = Point::from(m1.translation.vector);
             let (proj, f2) = pq2.project_point_with_feature(m2, &ball_center);
             let world2 = proj.point;
             let dpt = world2 - ball_center;
@@ -71,7 +71,7 @@ impl<N: Real> BallConvexPolyhedronManifoldGenerator<N> {
             if depth >= -prediction.linear() {
                 let mut kinematic = ContactKinematic::new();
                 let f1 = FeatureId::Face(0);
-                let world1 = ball_center + normal.unwrap() * ball.radius();
+                let world1 = ball_center + normal.into_inner() * ball.radius();
 
                 let contact;
 

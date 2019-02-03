@@ -17,8 +17,8 @@ pub fn shape_against_shape<N: Real>(
 ) -> ClosestPoints<N>
 {
     if let (Some(b1), Some(b2)) = (g1.as_shape::<Ball<N>>(), g2.as_shape::<Ball<N>>()) {
-        let p1 = Point::from_coordinates(m1.translation.vector);
-        let p2 = Point::from_coordinates(m2.translation.vector);
+        let p1 = Point::from(m1.translation.vector);
+        let p2 = Point::from(m2.translation.vector);
 
         closest_points_internal::ball_against_ball(&p1, b1, &p2, b2, max_dist)
     } else if let (Some(s1), Some(s2)) = (g1.as_shape::<Segment<N>>(), g2.as_shape::<Segment<N>>())

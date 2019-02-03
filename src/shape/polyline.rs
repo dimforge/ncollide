@@ -184,6 +184,7 @@ impl<N: Real> Polyline<N> {
         adj_edge_list
     }
 
+    /// A polyline shaped like a quad.
     #[cfg(feature = "dim2")]
     pub fn quad(nx: usize, ny: usize) -> Self {
         let mut vertices = Vec::new();
@@ -416,12 +417,12 @@ impl<N: Real> Polyline<N> {
             if i >= self.edges.len() {
                 normal = -self.edges[i - self.edges.len()]
                     .normal
-                    .map(|n| n.unwrap())
+                    .map(|n| n.into_inner())
                     .unwrap_or(Vector::zeros());
             } else {
                 normal = self.edges[i]
                     .normal
-                    .map(|n| n.unwrap())
+                    .map(|n| n.into_inner())
                     .unwrap_or(Vector::zeros());
             }
         }
@@ -439,12 +440,12 @@ impl<N: Real> Polyline<N> {
         if i >= self.edges.len() {
             normal = -self.edges[i - self.edges.len()]
                 .normal
-                .map(|n| n.unwrap())
+                .map(|n| n.into_inner())
                 .unwrap_or(Vector::zeros());
         } else {
             normal = self.edges[i]
                 .normal
-                .map(|n| n.unwrap())
+                .map(|n| n.into_inner())
                 .unwrap_or(Vector::zeros());
         }
 

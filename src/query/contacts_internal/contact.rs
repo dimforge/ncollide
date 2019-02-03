@@ -36,7 +36,7 @@ impl<N: Real> Contact<N> {
     /// Creates a new contact, computing automatically the penetration depth.
     #[inline]
     pub fn new_wo_depth(world1: Point<N>, world2: Point<N>, normal: Unit<Vector<N>>) -> Contact<N> {
-        let depth = -na::dot(normal.as_ref(), &(world2 - world1));
+        let depth = -normal.dot(&(world2 - world1));
         Self::new(world1, world2, normal, depth)
     }
 }

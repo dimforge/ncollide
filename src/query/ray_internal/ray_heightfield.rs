@@ -37,7 +37,7 @@ impl<N: Real> RayCast<N> for HeightField<N> {
             let (s, t) = closest_points_internal::line_against_line_parameters(&ray.origin, &ray.dir, seg.a(), &seg.scaled_direction());
             if s >= N::zero() && t >= N::zero() && t <= N::one() {
                 // Cast succeeded on the first element!
-                let n = seg.normal().unwrap().unwrap();
+                let n = seg.normal().unwrap().into_inner();
                 let fid = if n.dot(&ls_ray.dir) > N::zero() {
                     // The ray hit the back face.
                     curr + self.num_cells()
@@ -81,7 +81,7 @@ impl<N: Real> RayCast<N> for HeightField<N> {
                 // TODO: test the y-coordinates (equivalent to an AABB test) before actually computing the intersection.
                 let (s, t) = closest_points_internal::line_against_line_parameters(&ray.origin, &ray.dir, seg.a(), &seg.scaled_direction());
                 if t >= N::zero() && t <= N::one() {
-                    let n = seg.normal().unwrap().unwrap();
+                    let n = seg.normal().unwrap().into_inner();
                     let fid = if n.dot(&ls_ray.dir) > N::zero() {
                         // The ray hit the back face.
                         curr + self.num_cells()

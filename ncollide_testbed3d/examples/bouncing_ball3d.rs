@@ -82,11 +82,11 @@ fn handle_contact_event(world: &CollisionWorld<f32, CollisionObjectData>, event:
         // The ball is the one with a non-None velocity.
         if let Some(ref vel) = co1.data().velocity {
             let normal = collector[0].normal;
-            vel.set(vel.get() - 2.0 * na::dot(&vel.get(), &normal) * normal);
+            vel.set(vel.get() - 2.0 * vel.get().dot(&normal) * normal);
         }
         if let Some(ref vel) = co2.data().velocity {
             let normal = -collector[0].normal;
-            vel.set(vel.get() - 2.0 * na::dot(&vel.get(), &normal) * normal);
+            vel.set(vel.get() - 2.0 * vel.get().dot(&normal) * normal);
         }
     }
 }
@@ -310,7 +310,7 @@ fn main() {
             let ball_velocity = ball_object.data().velocity.as_ref().unwrap();
 
             // Integrate the positions.
-            let displacement = Translation3::from_vector(timestep * ball_velocity.get());
+            let displacement = Translation3::from(timestep * ball_velocity.get());
             ball_pos = displacement * ball_object.position();
         }
 

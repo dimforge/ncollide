@@ -43,7 +43,7 @@ pub fn push_xy_arc<N: Real>(radius: N, nsubdiv: u32, dtheta: N, out: &mut Vec<Po
 
         pt_coords[0] = curr_theta.cos() * radius;
         pt_coords[1] = curr_theta.sin() * radius;
-        out.push(Point::from_coordinates(pt_coords));
+        out.push(Point::from(pt_coords));
 
         curr_theta = curr_theta + dtheta;
     }
@@ -258,7 +258,7 @@ pub fn compute_normals<N: Real>(
         let normal;
 
         if !cross.is_zero() {
-            normal = na::normalize(&cross)
+            normal = cross.normalize()
         } else {
             normal = cross
         }

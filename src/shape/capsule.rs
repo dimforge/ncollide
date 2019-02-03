@@ -87,7 +87,7 @@ impl<N: Real> SupportMap<N> for Capsule<N> {
             res[1] = self.half_height()
         }
 
-        m * Point::from_coordinates(res + local_dir * self.radius())
+        m * Point::from(res + local_dir * self.radius())
     }
 }
 

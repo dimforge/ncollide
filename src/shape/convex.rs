@@ -179,7 +179,7 @@ impl<N: Real> ConvexHull<N> {
         for e in &mut edges {
             let n1 = triangles[e.faces[0]].normal;
             let n2 = triangles[e.faces[1]].normal;
-            if na::dot(&*n1, &*n2) > N::one() - eps {
+            if n1.dot(&*n2) > N::one() - eps {
                 e.deleted = true;
             } else {
                 num_valid_edges += 1;
@@ -464,11 +464,11 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexHull<N> {
     {
         let ls_dir = m.inverse_transform_vector(dir);
         let mut best_face = 0;
-        let mut max_dot = na::dot(&*self.faces[0].normal, &ls_dir);
+        let mut max_dot = self.faces[0].normal.dot(&ls_dir);
 
         for i in 1..self.faces.len() {
             let face = &self.faces[i];
-            let dot = na::dot(&*face.normal, &ls_dir);
+            let dot = face.normal.dot(&ls_dir);
 
             if dot > max_dot {
                 max_dot = dot;
@@ -504,7 +504,7 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexHull<N> {
             let face_id = self.faces_adj_to_vertex[vertex.first_adj_face_or_edge + i];
             let face = &self.faces[face_id];
 
-            if na::dot(face.normal.as_ref(), local_dir.as_ref()) >= ceps {
+            if face.normal.dot(local_dir.as_ref()) >= ceps {
                 return FeatureId::Face(face_id);
             }
         }
@@ -514,7 +514,7 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexHull<N> {
             let edge_id = self.edges_adj_to_vertex[vertex.first_adj_face_or_edge + i];
             let edge = &self.edges[edge_id];
 
-            if na::dot(edge.dir.as_ref(), local_dir.as_ref()).abs() <= seps {
+            if edge.dir.dot(local_dir.as_ref()).abs() <= seps {
                 return FeatureId::Edge(edge_id);
             }
         }

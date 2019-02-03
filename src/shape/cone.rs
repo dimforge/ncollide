@@ -62,12 +62,12 @@ impl<N: Real> SupportMap<N> for Cone<N> {
             vres = vres * self.radius();
             vres[1] = -self.half_height();
 
-            if na::dot(&local_dir, &vres) < local_dir[1] * self.half_height() {
+            if local_dir.dot(&vres) < local_dir[1] * self.half_height() {
                 vres = na::zero();
                 vres[1] = self.half_height()
             }
         }
 
-        m * Point::from_coordinates(vres)
+        m * Point::from(vres)
     }
 }

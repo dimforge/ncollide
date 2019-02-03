@@ -39,8 +39,8 @@ impl<N: Real> ContactManifoldGenerator<N> for BallBallManifoldGenerator<N> {
     ) -> bool
     {
         if let (Some(a), Some(b)) = (a.as_shape::<Ball<N>>(), b.as_shape::<Ball<N>>()) {
-            let center_a = Point::from_coordinates(ma.translation.vector);
-            let center_b = Point::from_coordinates(mb.translation.vector);
+            let center_a = Point::from(ma.translation.vector);
+            let center_b = Point::from(mb.translation.vector);
             if let Some(contact) = contacts_internal::ball_against_ball(
                 &center_a,
                 a,

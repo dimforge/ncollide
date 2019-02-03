@@ -168,7 +168,7 @@ fn normalize<N: Real>(mesh: &mut TriMesh<N>) -> (Point3<N>, N) {
     let diag = na::distance(aabb.mins(), aabb.maxs());
     let center = aabb.center();
 
-    mesh.translate_by(&Translation3::from_vector(-center.coords));
+    mesh.translate_by(&Translation3::from(-center.coords));
     let _1: N = na::one();
     mesh.scale_by_scalar(_1 / diag);
 
@@ -177,7 +177,7 @@ fn normalize<N: Real>(mesh: &mut TriMesh<N>) -> (Point3<N>, N) {
 
 fn denormalize<N: Real>(mesh: &mut TriMesh<N>, center: &Point3<N>, diag: N) {
     mesh.scale_by_scalar(diag);
-    mesh.translate_by(&Translation3::from_vector(center.coords));
+    mesh.translate_by(&Translation3::from(center.coords));
 }
 
 struct DualGraphVertex<N: Real> {
@@ -483,7 +483,7 @@ impl<N: Real> DualGraphEdge<N> {
         )
         {
             let sv = chull.support_point(&Isometry::identity(), &ray.dir);
-            let distance = na::dot(&sv.coords, &ray.dir);
+            let distance = sv.coords.dot(&ray.dir);
 
             if !relative_eq!(distance, na::zero()) {
                 let shift: N = na::convert(0.1f64);
@@ -794,7 +794,7 @@ impl<'a, N: Real> SupportMap<N> for ConvexPair<'a, N> {
         let sa = utils::point_cloud_support_point(dir, self.a);
         let sb = utils::point_cloud_support_point(dir, self.b);
 
-        if na::dot(&sa.coords, dir) > na::dot(&sb.coords, dir) {
+        if sa.coords.dot(dir) > sb.coords.dot(dir) {
             sa
         } else {
             sb

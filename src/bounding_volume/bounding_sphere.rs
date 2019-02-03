@@ -59,7 +59,7 @@ impl<N: Real> BoundingVolume<N> for BoundingSphere<N> {
     fn intersects(&self, other: &BoundingSphere<N>) -> bool {
         // FIXME: refactor that with the code from narrow_phase::ball_ball::collide(...) ?
         let delta_pos = other.center - self.center;
-        let distance_squared = na::norm_squared(&delta_pos);
+        let distance_squared = delta_pos.norm_squared();
         let sum_radius = self.radius + other.radius;
 
         distance_squared <= sum_radius * sum_radius
@@ -68,7 +68,7 @@ impl<N: Real> BoundingVolume<N> for BoundingSphere<N> {
     #[inline]
     fn contains(&self, other: &BoundingSphere<N>) -> bool {
         let delta_pos = other.center - self.center;
-        let distance = na::norm(&delta_pos);
+        let distance = delta_pos.norm();
 
         distance + other.radius <= self.radius
     }
@@ -83,8 +83,8 @@ impl<N: Real> BoundingVolume<N> for BoundingSphere<N> {
                 self.radius = other.radius
             }
         } else {
-            let s_center_dir = na::dot(&self.center.coords, &dir);
-            let o_center_dir = na::dot(&other.center.coords, &dir);
+            let s_center_dir = self.center.coords.dot(&dir);
+            let o_center_dir = other.center.coords.dot(&dir);
 
             let right;
             let left;

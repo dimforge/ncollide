@@ -287,9 +287,9 @@ impl<N: Real> SupportMap<N> for Triangle<N> {
     fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
         let local_dir = m.inverse_transform_vector(dir);
 
-        let d1 = na::dot(&self.a().coords, &local_dir);
-        let d2 = na::dot(&self.b().coords, &local_dir);
-        let d3 = na::dot(&self.c().coords, &local_dir);
+        let d1 = self.a().coords.dot(&local_dir);
+        let d2 = self.b().coords.dot(&local_dir);
+        let d3 = self.c().coords.dot(&local_dir);
 
         let res = if d1 > d2 {
             if d1 > d3 {
@@ -381,7 +381,7 @@ impl<N: Real> ConvexPolyhedron<N> for Triangle<N> {
     {
         let normal = self.scaled_normal();
 
-        if na::dot(&normal, &*dir) >= na::zero() {
+        if normal.dot(&*dir) >= na::zero() {
             ConvexPolyhedron::<N>::face(self, FeatureId::Face(0), face);
         } else {
             ConvexPolyhedron::<N>::face(self, FeatureId::Face(1), face);

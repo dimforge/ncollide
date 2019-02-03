@@ -372,7 +372,7 @@ fn draw_collisions<T>(window: &mut Window, world: &mut CollisionWorld<f32, T>) {
             );
 
             let center = na::center(&c.contact.world1, &c.contact.world2);
-            let end = center + c.contact.normal.unwrap() * 0.4f32;
+            let end = center + c.contact.normal.into_inner() * 0.4f32;
             window.draw_line(&center, &end, &Point3::new(0.0, 1.0, 1.0))
         }
     }

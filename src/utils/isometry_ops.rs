@@ -25,7 +25,7 @@ pub trait IsometryOps<N: Real> {
 #[cfg(feature = "dim2")]
 impl<N: Real> IsometryOps<N> for Isometry2<N> {
     fn absolute_transform_vector(&self, v: &Vector<N>) -> Vector<N> {
-        self.rotation.to_rotation_matrix().unwrap().abs() * *v
+        self.rotation.to_rotation_matrix().into_inner().abs() * *v
     }
     fn inverse_transform_vector(&self, v: &Vector<N>) -> Vector<N> {
         ProjectiveTransformation::inverse_transform_vector(self, v)
@@ -38,7 +38,7 @@ impl<N: Real> IsometryOps<N> for Isometry2<N> {
 #[cfg(feature = "dim3")]
 impl<N: Real> IsometryOps<N> for Isometry3<N> {
     fn absolute_transform_vector(&self, v: &Vector<N>) -> Vector<N> {
-        self.rotation.to_rotation_matrix().unwrap().abs() * *v
+        self.rotation.to_rotation_matrix().into_inner().abs() * *v
     }
     fn inverse_transform_vector(&self, v: &Vector<N>) -> Vector<N> {
         ProjectiveTransformation::inverse_transform_vector(self, v)

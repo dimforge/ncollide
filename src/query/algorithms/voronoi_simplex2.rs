@@ -202,7 +202,7 @@ impl<N: Real> VoronoiSimplex<N> {
         let mut max_sq_len = na::zero();
 
         for i in 0..self.dim + 1 {
-            let norm = na::norm_squared(&self.vertices[i].point.coords);
+            let norm = self.vertices[i].point.coords.norm_squared();
 
             if norm > max_sq_len {
                 max_sq_len = norm

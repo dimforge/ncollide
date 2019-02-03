@@ -5,11 +5,11 @@ use na::{self, Real};
 #[inline]
 pub fn point_cloud_support_point_id<N: Real>(dir: &Vector<N>, points: &[Point<N>]) -> usize {
     let mut best_pt = 0;
-    let mut best_dot = na::dot(&points[0].coords, dir);
+    let mut best_dot = points[0].coords.dot(dir);
 
     for i in 1..points.len() {
         let p = &points[i];
-        let dot = na::dot(&p.coords, dir);
+        let dot = p.coords.dot(dir);
 
         if dot > best_dot {
             best_dot = dot;

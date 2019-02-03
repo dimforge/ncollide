@@ -22,7 +22,7 @@ pub struct CSOPoint<N: Real> {
 impl<N: Real> CSOPoint<N> {
     /// Initializes a CSO point with `orig1 - orig2`.
     pub fn new(orig1: Point<N>, orig2: Point<N>) -> Self {
-        let point = Point::from_coordinates(orig1 - orig2);
+        let point = Point::from(orig1 - orig2);
         Self::new_with_point(point, orig1, orig2)
     }
 

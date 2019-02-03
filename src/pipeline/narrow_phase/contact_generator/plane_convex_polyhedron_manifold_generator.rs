@@ -40,13 +40,13 @@ impl<N: Real> PlaneConvexPolyhedronManifoldGenerator<N> {
     {
         if let (Some(plane), Some(cp)) = (g1.as_shape::<Plane<N>>(), g2.as_convex_polyhedron()) {
             let plane_normal = m1 * plane.normal();
-            let plane_center = Point::from_coordinates(m1.translation.vector);
+            let plane_center = Point::from(m1.translation.vector);
 
             cp.support_face_toward(m2, &-plane_normal, poly_feature);
 
             for (i, world2) in poly_feature.vertices.iter().enumerate() {
                 let dpt = *world2 - plane_center;
-                let dist = na::dot(&dpt, plane_normal.as_ref());
+                let dist = dpt.dot(plane_normal.as_ref());
 
                 if dist <= prediction.linear() {
                     let world1 = *world2 + (-*plane_normal * dist);

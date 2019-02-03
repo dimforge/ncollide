@@ -9,6 +9,7 @@ use crate::math::Vector;
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
+/// A 2D heightfield.
 pub struct HeightField<N: Real> {
     heights: DVector<N>,
     scale: Vector<N>,
@@ -17,6 +18,7 @@ pub struct HeightField<N: Real> {
 }
 
 impl<N: Real> HeightField<N> {
+    /// Creates a new 2D heightfield with the given heights and scale factor.
     pub fn new(heights: DVector<N>, scale: Vector<N>) -> Self {
         assert!(heights.len() > 1, "A heightfield heights must have at least 2 elements.");
 
@@ -33,30 +35,37 @@ impl<N: Real> HeightField<N> {
         }
     }
 
+    /// The number of cells of this heightfield.
     pub fn num_cells(&self) -> usize {
         self.heights.len() - 1
     }
 
+    /// The height at each cell endpoint.
     pub fn heights(&self) -> &DVector<N> {
         &self.heights
     }
 
+    /// The scale factor applied to this heightfield.
     pub fn scale(&self) -> &Vector<N> {
         &self.scale
     }
 
+    /// The AABB of this heightfield.
     pub fn aabb(&self) -> &AABB<N> {
         &self.aabb
     }
 
+    /// The width of a single cell of this heightfield.
     pub fn cell_width(&self) -> N {
         self.unit_cell_width() * self.scale.x
     }
 
+    /// The width of a single cell of this heightfield, without taking the scale factor into account.
     pub fn unit_cell_width(&self) -> N {
         N::one() / na::convert(self.heights.len() as f64 - 1.0)
     }
 
+    /// The left-most x-coordinate of this heightfield.
     pub fn start_x(&self) -> N {
         self.scale.x * na::convert(-0.5)
     }
@@ -73,6 +82,7 @@ impl<N: Real> HeightField<N> {
         unsafe { na::convert_unchecked::<N, f64>(i) as usize }
     }
 
+    /// Index of the cell a point is on after vertical projection.
     pub fn cell_at_point(&self, pt: &Point2<N>) -> Option<usize> {
         let _0_5: N = na::convert(0.5);
         let scaled_pt = pt.coords.component_div(&self.scale);
@@ -93,6 +103,7 @@ impl<N: Real> HeightField<N> {
         (0..self.num_cells()).filter_map(move |i| self.segment_at(i))
     }
 
+    /// The i-th segment of the heightfield if it has not been removed.
     pub fn segment_at(&self, i: usize) -> Option<Segment<N>> {
         if i >= self.num_cells() || self.is_segment_removed(i) {
             return None;
@@ -117,6 +128,7 @@ impl<N: Real> HeightField<N> {
         Some(Segment::new(p0, p1))
     }
 
+    /// Mark the i-th segment of this heightfield as removed or not.
     pub fn set_segment_removed(&mut self, i: usize, removed: bool) {
         if self.removed.len() == 0 {
             self.removed = iter::repeat(false).take(self.num_cells()).collect()
@@ -125,10 +137,12 @@ impl<N: Real> HeightField<N> {
         self.removed[i] = removed
     }
 
+    /// Checks if the i-th segment has been removed.
     pub fn is_segment_removed(&self, i: usize) -> bool {
         self.removed.len() != 0 && self.removed[i]
     }
 
+    /// Applies `f` to each segment of this heightfield that intersects the given `aabb`.
     pub fn map_elements_in_local_aabb(&self, aabb: &AABB<N>, f: &mut impl FnMut(usize, &Segment<N>, &ContactPreprocessor<N>)) {
         let _0_5: N = na::convert(0.5);
         let ref_mins = aabb.mins().coords.component_div(&self.scale);
@@ -182,12 +196,14 @@ impl<N: Real> HeightField<N> {
 
 
 #[allow(dead_code)]
+/// The contact preprocessor dedicated to 2D heightfields.
 pub struct HeightFieldTriangleContactPreprocessor<'a, N: Real> {
     heightfield: &'a HeightField<N>,
     triangle: usize
 }
 
 impl<'a, N: Real> HeightFieldTriangleContactPreprocessor<'a, N> {
+    /// Initialize a contact preprocessor for the given triangle of the given heightfield.
     pub fn new(heightfield: &'a HeightField<N>, triangle: usize) -> Self {
         HeightFieldTriangleContactPreprocessor {
             heightfield,

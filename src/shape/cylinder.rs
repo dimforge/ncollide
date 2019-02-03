@@ -62,6 +62,6 @@ impl<N: Real> SupportMap<N> for Cylinder<N> {
             vres[1] = self.half_height()
         }
 
-        m * Point::from_coordinates(vres)
+        m * Point::from(vres)
     }
 }

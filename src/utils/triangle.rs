@@ -38,10 +38,10 @@ pub fn circumcircle<N: Real>(pa: &Point<N>, pb: &Point<N>, pc: &Point<N>) -> (Po
     let a = *pa - *pc;
     let b = *pb - *pc;
 
-    let na = na::norm_squared(&a);
-    let nb = na::norm_squared(&b);
+    let na = a.norm_squared();
+    let nb = b.norm_squared();
 
-    let dab = na::dot(&a, &b);
+    let dab = a.dot(&b);
 
     let _2: N = na::convert(2.0);
     let denom = _2 * (na * nb - dab * dab);
@@ -50,7 +50,7 @@ pub fn circumcircle<N: Real>(pa: &Point<N>, pb: &Point<N>, pc: &Point<N>) -> (Po
         // The triangle is degenerate (the three points are colinear).
         // So we find the longest segment and take its center.
         let c = *pa - *pb;
-        let nc = na::norm_squared(&c);
+        let nc = c.norm_squared();
 
         if nc >= na && nc >= nb {
             // Longest segment: [pa, pb]
@@ -65,7 +65,7 @@ pub fn circumcircle<N: Real>(pa: &Point<N>, pb: &Point<N>, pc: &Point<N>) -> (Po
     } else {
         let k = b * na - a * nb;
 
-        let center = *pc + (a * na::dot(&k, &b) - b * na::dot(&k, &a)) / denom;
+        let center = *pc + (a * k.dot(&b) - b * k.dot(&a)) / denom;
         let radius = na::distance(pa, &center);
 
         (center, radius)
@@ -88,7 +88,7 @@ pub fn is_affinely_dependent_triangle<N: Real>(
     let _eps_tol = _eps * na::convert(100.0f64);
 
     relative_eq!(
-        na::norm_squared(&p1p2.cross(&p1p3)),
+        p1p2.cross(&p1p3).norm_squared(),
         na::zero(),
         epsilon = _eps_tol * _eps_tol
     )
@@ -110,16 +110,16 @@ pub fn is_point_in_triangle<N: Real>(
     let p2p = *p - *p2;
     let p3p = *p - *p3;
 
-    let d11 = na::dot(&p1p, &p1p2);
-    let d12 = na::dot(&p2p, &p2p3);
-    let d13 = na::dot(&p3p, &p3p1);
+    let d11 = p1p.dot(&p1p2);
+    let d12 = p2p.dot(&p2p3);
+    let d13 = p3p.dot(&p3p1);
 
     d11 >= na::zero()
-        && d11 <= na::norm_squared(&p1p2)
+        && d11 <= p1p2.norm_squared()
         && d12 >= na::zero()
-        && d12 <= na::norm_squared(&p2p3)
+        && d12 <= p2p3.norm_squared()
         && d13 >= na::zero()
-        && d13 <= na::norm_squared(&p3p1)
+        && d13 <= p3p1.norm_squared()
 }
 
 #[cfg(feature = "dim3")]

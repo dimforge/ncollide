@@ -61,8 +61,8 @@ impl<N: Real> PointQueryWithLocation<N> for Segment<N> {
         let ls_pt = m.inverse_transform_point(pt);
         let ab = *self.b() - *self.a();
         let ap = ls_pt - *self.a();
-        let ab_ap = na::dot(&ab, &ap);
-        let sqnab = na::norm_squared(&ab);
+        let ab_ap = ab.dot(&ap);
+        let sqnab = ab.norm_squared();
         let _1 = na::one::<N>();
 
         let mut proj;

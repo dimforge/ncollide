@@ -41,9 +41,9 @@ impl<N: Real> ProximityDetector<N> for BallBallProximityDetector {
     {
         if let (Some(a), Some(b)) = (a.as_shape::<Ball<N>>(), b.as_shape::<Ball<N>>()) {
             self.proximity = proximity_internal::ball_against_ball(
-                &Point::from_coordinates(ma.translation.vector),
+                &Point::from(ma.translation.vector),
                 a,
-                &Point::from_coordinates(mb.translation.vector),
+                &Point::from(mb.translation.vector),
                 b,
                 margin,
             );

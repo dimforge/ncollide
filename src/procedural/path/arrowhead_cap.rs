@@ -63,13 +63,13 @@ impl<N: Real> ArrowheadCap<N> {
 
             if dir.x.is_zero() && dir.z.is_zero() {
                 // FIXME: this might not be enough to avoid singularities.
-                transform = Isometry3::new_observer_frame(
+                transform = Isometry3::face_towards(
                     &(*pt - back_shift),
                     &(*pt + *dir),
                     &Vector3::x(),
                 );
             } else {
-                transform = Isometry3::new_observer_frame(
+                transform = Isometry3::face_towards(
                     &(*pt - back_shift),
                     &(*pt + *dir),
                     &Vector3::y(),

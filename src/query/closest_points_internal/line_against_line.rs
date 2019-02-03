@@ -16,9 +16,9 @@ pub fn line_against_line_parameters<N: Real>(
     // Inspired by Real-time collision detection by Christer Ericson.
     let r = *orig1 - *orig2;
 
-    let a = na::norm_squared(dir1);
-    let e = na::norm_squared(dir2);
-    let f = na::dot(dir2, &r);
+    let a = dir1.norm_squared();
+    let e = dir2.norm_squared();
+    let f = dir2.dot(&r);
 
     let _0: N = na::zero();
     let _1: N = na::one();
@@ -34,12 +34,12 @@ pub fn line_against_line_parameters<N: Real>(
         s = _0;
         t = f / e;
     } else {
-        let c = na::dot(dir1, &r);
+        let c =dir1.dot(&r);
         if e <= _eps {
             t = _0;
             s = -c / a;
         } else {
-            let b = na::dot(dir1, dir2);
+            let b = dir1.dot(dir2);
             let ae = a * e;
             let bb = b * b;
             let denom = ae - bb;

@@ -25,7 +25,7 @@ impl<N: Real> RayCast<N> for Ball<N> {
     #[inline]
     fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, solid: bool) -> Option<N> {
         ball_toi_with_ray(
-            &Point::from_coordinates(m.translation.vector),
+            &Point::from(m.translation.vector),
             self.radius(),
             ray,
             solid,
@@ -41,12 +41,12 @@ impl<N: Real> RayCast<N> for Ball<N> {
         solid: bool,
     ) -> Option<RayIntersection<N>>
     {
-        let center = Point::from_coordinates(m.translation.vector);
+        let center = Point::from(m.translation.vector);
         let (inside, inter) = ball_toi_with_ray(&center, self.radius(), ray, solid);
 
         inter.map(|n| {
             let pos = ray.origin + ray.dir * n - center;
-            let normal = na::normalize(&pos);
+            let normal = pos.normalize();
 
             RayIntersection::new(n, if inside { -normal } else { normal }, FeatureId::Face(0))
         })
@@ -61,12 +61,12 @@ impl<N: Real> RayCast<N> for Ball<N> {
         solid: bool,
     ) -> Option<RayIntersection<N>>
     {
-        let center = Point::from_coordinates(m.translation.vector);
+        let center = Point::from(m.translation.vector);
         let (inside, inter) = ball_toi_with_ray(&center, self.radius(), ray, solid);
 
         inter.map(|n| {
             let pos = ray.origin + ray.dir * n - center;
-            let normal = na::normalize(&pos);
+            let normal = pos.normalize();
             let uv = ball_uv(&normal);
 
             RayIntersection::new_with_uvs(n, if inside { -normal } else { normal }, FeatureId::Face(0), Some(uv))
@@ -85,9 +85,9 @@ pub fn ball_toi_with_ray<N: Real>(
 {
     let dcenter = ray.origin - *center;
 
-    let a = na::norm_squared(&ray.dir);
-    let b = na::dot(&dcenter, &ray.dir);
-    let c = na::norm_squared(&dcenter) - radius * radius;
+    let a = ray.dir.norm_squared();
+    let b = dcenter.dot(&ray.dir);
+    let c = dcenter.norm_squared() - radius * radius;
 
     if c > na::zero() && b > na::zero() {
         (false, None)

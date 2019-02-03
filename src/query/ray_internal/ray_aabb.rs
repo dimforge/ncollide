@@ -152,7 +152,7 @@ fn do_toi_and_normal_and_uv_with_ray<N: Real>(
             let pt = ls_ray.origin + ls_ray.dir * t;
             let dpt = pt - *aabb.mins();
             let scale = *aabb.maxs() - *aabb.mins();
-            let id = na::abs(&s);
+            let id = s.abs();
             let gs_n = m * n;
             let feature = if s < 0 {
                 FeatureId::Face(id as usize - 1 + 3)

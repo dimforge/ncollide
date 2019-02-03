@@ -238,12 +238,12 @@ impl<N: Real> ContactKinematic<N> {
         match (&self.approx1.geometry, &self.approx2.geometry) {
             (NeighborhoodGeometry::Plane(normal1), NeighborhoodGeometry::Point) => {
                 normal = m1 * normal1;
-                depth = -na::dot(normal.as_ref(), &(world2 - world1));
+                depth = -normal.dot(&(world2 - world1));
                 world1 = world2 + *normal * depth;
             }
             (NeighborhoodGeometry::Point, NeighborhoodGeometry::Plane(normal2)) => {
                 let world_normal2 = m2 * normal2;
-                depth = -na::dot(&*world_normal2, &(world1 - world2));
+                depth = -world_normal2.dot(&(world1 - world2));
                 world2 = world1 + *world_normal2 * depth;
                 normal = -world_normal2;
             }
@@ -272,8 +272,8 @@ impl<N: Real> ContactKinematic<N> {
             (NeighborhoodGeometry::Line(dir1), NeighborhoodGeometry::Point) => {
                 let world_dir1 = m1 * dir1;
                 let mut shift = world2 - world1;
-                let proj = na::dot(world_dir1.as_ref(), &shift);
-                shift -= dir1.unwrap() * proj;
+                let proj = world_dir1.dot(&shift);
+                shift -= dir1.into_inner() * proj;
 
                 if let Some((n, d)) = Unit::try_new_and_get(shift, na::zero()) {
                     world1 = world2 + (-shift);
@@ -301,8 +301,8 @@ impl<N: Real> ContactKinematic<N> {
             (NeighborhoodGeometry::Point, NeighborhoodGeometry::Line(dir2)) => {
                 let world_dir2 = m2 * dir2;
                 let mut shift = world1 - world2;
-                let proj = na::dot(world_dir2.as_ref(), &shift);
-                shift -= dir2.unwrap() * proj;
+                let proj = world_dir2.dot(&shift);
+                shift -= dir2.into_inner() * proj;
                 // NOTE: we set:
                 // shift = world2 - world1
                 let shift = -shift;
@@ -369,8 +369,8 @@ impl<N: Real> ContactKinematic<N> {
         }
 
 //        println!("Before margin: {:?}", Contact::new(world1, world2, normal, depth));
-        world1 += normal.unwrap() * self.margin1;
-        world2 += normal.unwrap() * (-self.margin2);
+        world1 += normal.into_inner() * self.margin1;
+        world2 += normal.into_inner() * (-self.margin2);
         depth += self.margin1 + self.margin2;
 
         Some(Contact::new(world1, world2, normal, depth))

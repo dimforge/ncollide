@@ -93,7 +93,7 @@ impl<N: Real> ConvexPolygonalFeature<N> {
                 None
             } else {
                 let dist = n.dot(&dpt);
-                let proj = *pt + (-n.unwrap() * dist);
+                let proj = *pt + (-n.into_inner() * dist);
 
                 Some(Contact::new(proj, *pt, n, -dist))
             }
@@ -128,12 +128,12 @@ impl<N: Real> ConvexPolygonalFeature<N> {
 
         let ref_pt = *seg1.a();
         let mut range1 = [
-            na::dot(&(*seg1.a() - ref_pt), &ortho),
-            na::dot(&(*seg1.b() - ref_pt), &ortho),
+            (*seg1.a() - ref_pt).dot(&ortho),
+            (*seg1.b() - ref_pt).dot(&ortho),
         ];
         let mut range2 = [
-            na::dot(&(*seg2.a() - ref_pt), &ortho),
-            na::dot(&(*seg2.b() - ref_pt), &ortho),
+            (*seg2.a() - ref_pt).dot(&ortho),
+            (*seg2.b() - ref_pt).dot(&ortho),
         ];
         let mut features1 = [self.vertices_id[0], self.vertices_id[1]];
         let mut features2 = [other.vertices_id[0], other.vertices_id[1]];

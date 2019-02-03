@@ -80,7 +80,7 @@ impl<N: Real> Segment<N> {
 
     /// The length of this segment.
     pub fn length(&self) -> N {
-        na::norm(&self.scaled_direction())
+        self.scaled_direction().norm()
     }
 
     /// Swaps the two vertices of this segment.
@@ -180,7 +180,7 @@ impl<N: Real> SupportMap<N> for Segment<N> {
     fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
         let local_dir = m.inverse_transform_vector(dir);
 
-        if na::dot(&self.a.coords, &local_dir) > na::dot(&self.b.coords, &local_dir) {
+        if self.a.coords.dot(&local_dir) > self.b.coords.dot(&local_dir) {
             m * self.a
         } else {
             m * self.b
@@ -345,7 +345,7 @@ impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
         if let Some(seg_dir) = self.direction() {
             let eps: N = na::convert(f64::consts::PI / 180.0);
             let seps = eps.sin();
-            let dot = na::dot(seg_dir.as_ref(), local_dir.as_ref());
+            let dot = seg_dir.dot(local_dir.as_ref());
 
             if dot <= seps {
                 #[cfg(feature = "dim2")]

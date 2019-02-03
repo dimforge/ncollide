@@ -78,8 +78,8 @@ impl<N: Real> PointQueryWithLocation<N> for Triangle<N> {
         let ac = c - a;
         let ap = p - a;
 
-        let ab_ap = na::dot(&ab, &ap);
-        let ac_ap = na::dot(&ac, &ap);
+        let ab_ap = ab.dot(&ap);
+        let ac_ap = ac.dot(&ap);
 
         if ab_ap <= na::zero() && ac_ap <= na::zero() {
             // Voronoï region of `a`.
@@ -90,8 +90,8 @@ impl<N: Real> PointQueryWithLocation<N> for Triangle<N> {
         }
 
         let bp = p - b;
-        let ab_bp = na::dot(&ab, &bp);
-        let ac_bp = na::dot(&ac, &bp);
+        let ab_bp = ab.dot(&bp);
+        let ac_bp = ac.dot(&bp);
 
         if ab_bp >= na::zero() && ac_bp <= ab_bp {
             // Voronoï region of `b`.
@@ -102,8 +102,8 @@ impl<N: Real> PointQueryWithLocation<N> for Triangle<N> {
         }
 
         let cp = p - c;
-        let ab_cp = na::dot(&ab, &cp);
-        let ac_cp = na::dot(&ac, &cp);
+        let ab_cp = ab.dot(&cp);
+        let ac_cp = ac.dot(&cp);
 
         if ac_cp >= na::zero() && ab_cp <= ac_cp {
             // Voronoï region of `c`.
@@ -162,22 +162,22 @@ impl<N: Real> PointQueryWithLocation<N> for Triangle<N> {
             #[cfg(feature = "dim3")]
             {
                 let n = ab.cross(&ac);
-                let vc = na::dot(&n, &ab.cross(&ap));
+                let vc = n.dot(&ab.cross(&ap));
                 if vc < na::zero() && ab_ap >= na::zero() && ab_bp <= na::zero() {
                     return ProjectionInfo::OnAB;
                 }
 
-                let vb = -na::dot(&n, &ac.cross(&cp));
+                let vb = -n.dot(&ac.cross(&cp));
                 if vb < na::zero() && ac_ap >= na::zero() && ac_cp <= na::zero() {
                     return ProjectionInfo::OnAC;
                 }
 
-                let va = na::dot(&n, &bc.cross(&bp));
+                let va = n.dot(&bc.cross(&bp));
                 if va < na::zero() && ac_bp - ab_bp >= na::zero() && ab_cp - ac_cp >= na::zero() {
                     return ProjectionInfo::OnBC;
                 }
 
-                let clockwise = if na::dot(&n, &ap) >= N::zero() { 0 } else { 1 };
+                let clockwise = if n.dot(&ap) >= N::zero() { 0 } else { 1 };
 
                 return ProjectionInfo::OnFace(clockwise, va, vb, vc);
             }
@@ -189,7 +189,7 @@ impl<N: Real> PointQueryWithLocation<N> for Triangle<N> {
         ) {
             ProjectionInfo::OnAB => {
                 // Voronoï region of `ab`.
-                let v = ab_ap / na::norm_squared(&ab);
+                let v = ab_ap / ab.norm_squared();
                 let bcoords = [_1 - v, v];
 
                 let res = a + ab * v;
@@ -200,7 +200,7 @@ impl<N: Real> PointQueryWithLocation<N> for Triangle<N> {
             }
             ProjectionInfo::OnAC => {
                 // Voronoï region of `ac`.
-                let w = ac_ap / na::norm_squared(&ac);
+                let w = ac_ap / ac.norm_squared();
                 let bcoords = [_1 - w, w];
 
                 let res = a + ac * w;
@@ -211,7 +211,7 @@ impl<N: Real> PointQueryWithLocation<N> for Triangle<N> {
             }
             ProjectionInfo::OnBC => {
                 // Voronoï region of `bc`.
-                let w = na::dot(&bc, &bp) / na::norm_squared(&bc);
+                let w = bc.dot(&bp) / bc.norm_squared();
                 let bcoords = [_1 - w, w];
 
                 let res = b + bc * w;
@@ -254,9 +254,9 @@ impl<N: Real> PointQueryWithLocation<N> for Triangle<N> {
             let u = (ac_bp - ab_bp) / (ac_bp - ab_bp + ab_cp - ac_cp); // proj on bc = b + bc * u
 
             let bc = c - b;
-            let d_ab = na::norm_squared(&ap) - (na::norm_squared(&ab) * v * v);
-            let d_ac = na::norm_squared(&ap) - (na::norm_squared(&ac) * u * u);
-            let d_bc = na::norm_squared(&bp) - (na::norm_squared(&bc) * w * w);
+            let d_ab = ap.norm_squared() - (ab.norm_squared() * v * v);
+            let d_ac = ap.norm_squared() - (ac.norm_squared() * u * u);
+            let d_bc = bp.norm_squared() - (bc.norm_squared() * w * w);
 
             let mut proj;
             let loc;

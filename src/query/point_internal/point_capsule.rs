@@ -17,7 +17,7 @@ impl<N: Real> PointQuery<N> for Capsule<N> {
             if solid && inside {
                 PointProjection::new(true, *pt)
             } else {
-                PointProjection::new(inside, proj.point + dir.unwrap() * self.radius())
+                PointProjection::new(inside, proj.point + dir.into_inner() * self.radius())
             }
         } else {
             if solid {

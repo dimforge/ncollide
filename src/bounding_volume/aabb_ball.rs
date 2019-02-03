@@ -17,7 +17,7 @@ impl<N: Real> HasBoundingVolume<N, AABB<N>> for Ball<N> {
     #[inline]
     fn bounding_volume(&self, m: &Isometry<N>) -> AABB<N> {
         ball_aabb(
-            &Point::from_coordinates(m.translation.to_vector()),
+            &Point::from(m.translation.to_vector()),
             self.radius(),
         )
     }

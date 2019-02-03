@@ -10,12 +10,14 @@ pub fn support_point_id<P: EuclideanSpace>(
     points: &[P],
 ) -> Option<usize>
 {
+    use alga::linear::FiniteDimVectorSpace;
+
     let mut argmax = None;
     let _max: P::Real = Bounded::max_value();
     let mut max = -_max;
 
     for (id, pt) in points.iter().enumerate() {
-        let dot = na::dot(direction, &pt.coordinates());
+        let dot = direction.dot(&pt.coordinates());
 
         if dot > max {
             argmax = Some(id);
@@ -33,12 +35,14 @@ pub fn indexed_support_point_id<P: EuclideanSpace>(
     idx: &[usize],
 ) -> Option<usize>
 {
+    use alga::linear::FiniteDimVectorSpace;
+
     let mut argmax = None;
     let _max: P::Real = Bounded::max_value();
     let mut max = -_max;
 
     for i in idx.iter() {
-        let dot = na::dot(direction, &points[*i].coordinates());
+        let dot = direction.dot(&points[*i].coordinates());
 
         if dot > max {
             argmax = Some(*i);

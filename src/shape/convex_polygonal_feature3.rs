@@ -145,7 +145,7 @@ impl<N: Real> ConvexPolygonalFeature<N> {
 
     /// Adds a scaled edge normal to this face.
     pub fn push_scaled_edge_normal(&mut self, normal: Vector<N>) {
-        if let Some(normal) = na::try_normalize(&normal, N::default_epsilon()) {
+        if let Some(normal) = normal.try_normalize(N::default_epsilon()) {
             self.edge_normals.push(normal)
         } else {
             self.edge_normals.push(na::zero())
@@ -154,7 +154,7 @@ impl<N: Real> ConvexPolygonalFeature<N> {
 
     /// Adds an edge normal to this face.
     pub fn push_edge_normal(&mut self, normal: Unit<Vector<N>>) {
-        self.edge_normals.push(normal.unwrap())
+        self.edge_normals.push(normal.into_inner())
     }
 
     /// Automatically recomputes the scaled edge normals (3D only).
@@ -179,13 +179,13 @@ impl<N: Real> ConvexPolygonalFeature<N> {
     pub fn project_point(&self, pt: &Point<N>) -> Option<Contact<N>> {
         if let Some(n) = self.normal {
             let dpt = *pt - self.vertices[0];
-            let dist = na::dot(n.as_ref(), &dpt);
-            let proj = *pt + (-n.unwrap() * dist);
+            let dist = n.dot(&dpt);
+            let proj = *pt + (-n.into_inner() * dist);
 
             for i in 0..self.edge_normals.len() {
                 let dpt = proj - self.vertices[i];
 
-                if na::dot(&dpt, &self.edge_normals[i]) > na::zero() {
+                if dpt.dot(&self.edge_normals[i]) > na::zero() {
                     return None;
                 }
             }
@@ -237,7 +237,7 @@ impl<N: Real> ConvexPolygonalFeature<N> {
         let mut basis = [na::zero(), na::zero()];
         let mut basis_i = 0;
 
-        Vector::orthonormal_subspace_basis(&[normal.unwrap()], |dir| {
+        Vector::orthonormal_subspace_basis(&[normal.into_inner()], |dir| {
             basis[basis_i] = *dir;
             basis_i += 1;
             true
@@ -247,13 +247,13 @@ impl<N: Real> ConvexPolygonalFeature<N> {
 
         for pt in &self.vertices {
             let dpt = *pt - ref_pt;
-            let coords = Point2::new(na::dot(&basis[0], &dpt), na::dot(&basis[1], &dpt));
+            let coords = Point2::new(basis[0].dot(&dpt), basis[1].dot(&dpt));
             cache.poly1.push(coords);
         }
 
         for pt in &other.vertices {
             let dpt = *pt - ref_pt;
-            let coords = Point2::new(na::dot(&basis[0], &dpt), na::dot(&basis[1], &dpt));
+            let coords = Point2::new(basis[0].dot(&dpt), basis[1].dot(&dpt));
             cache.poly2.push(coords);
         }
 
@@ -264,12 +264,12 @@ impl<N: Real> ConvexPolygonalFeature<N> {
                 if utils::point_in_poly2d(pt, &cache.poly2) {
                     let origin = ref_pt + basis[0] * pt.x + basis[1] * pt.y;
 
-                    let n2 = other.normal.as_ref().unwrap().unwrap();
+                    let n2 = other.normal.as_ref().unwrap().into_inner();
                     let p2 = &other.vertices[0];
                     if let Some(toi2) =
-                        ray_internal::plane_toi_with_line(p2, &n2, &origin, &normal.unwrap())
+                        ray_internal::plane_toi_with_line(p2, &n2, &origin, &normal.into_inner())
                     {
-                        let world2 = origin + normal.unwrap() * toi2;
+                        let world2 = origin + normal.into_inner() * toi2;
                         let world1 = self.vertices[i];
                         let f2 = other.feature_id;
                         let f1 = self.vertices_id[i];
@@ -290,12 +290,12 @@ impl<N: Real> ConvexPolygonalFeature<N> {
                 if utils::point_in_poly2d(pt, &cache.poly1) {
                     let origin = ref_pt + basis[0] * pt.x + basis[1] * pt.y;
 
-                    let n1 = self.normal.as_ref().unwrap().unwrap();
+                    let n1 = self.normal.as_ref().unwrap().into_inner();
                     let p1 = &self.vertices[0];
                     if let Some(toi1) =
-                        ray_internal::plane_toi_with_line(p1, &n1, &origin, &normal.unwrap())
+                        ray_internal::plane_toi_with_line(p1, &n1, &origin, &normal.into_inner())
                     {
-                        let world1 = origin + normal.unwrap() * toi1;
+                        let world1 = origin + normal.into_inner() * toi1;
                         let world2 = other.vertices[i];
                         let f1 = self.feature_id;
                         let f2 = other.vertices_id[i];

@@ -13,10 +13,10 @@ pub fn plane_against_support_map<N: Real, G: ?Sized + SupportMap<N>>(
 ) -> Option<Contact<N>>
 {
     let plane_normal = mplane * plane.normal();
-    let plane_center = Point::from_coordinates(mplane.translation.vector);
+    let plane_center = Point::from(mplane.translation.vector);
     let deepest = other.support_point_toward(mother, &-plane_normal);
 
-    let distance = na::dot(&*plane_normal, &(plane_center - deepest));
+    let distance = plane_normal.dot(&(plane_center - deepest));
 
     if distance > -prediction {
         let c1 = deepest + *plane_normal * distance;

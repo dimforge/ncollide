@@ -32,9 +32,9 @@ where
             Some((toi, normal)) => {
                 if toi.is_zero() {
                     // the ray is inside of the shape.
-                    let ndir = na::normalize(&ray.dir);
+                    let ndir = ray.dir.normalize();
                     let supp = shape.support_point(m, &ndir);
-                    let shift = na::dot(&(supp - ray.origin), &ndir) + na::convert(0.001f64);
+                    let shift = (supp - ray.origin).dot(&ndir) + na::convert(0.001f64);
                     let new_ray = Ray::new(ray.origin + ndir * shift, -ray.dir);
 
                     // FIXME: replace by? : simplex.translate_by(&(ray.origin - new_ray.origin));

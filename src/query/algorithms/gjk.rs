@@ -143,7 +143,7 @@ where
         }
 
         let cso_point = CSOPoint::from_shapes(m1, g1, m2, g2, &dir);
-        let min_bound = -na::dot(dir.as_ref(), &cso_point.point.coords);
+        let min_bound = -dir.dot(&cso_point.point.coords);
 
         assert!(min_bound == min_bound);
 
@@ -274,7 +274,7 @@ where
         //          > 0        |  > 0  | New higher bound.
         match ray_internal::plane_toi_with_ray(&support_point.point, &dir, &curr_ray) {
             Some(t) => {
-                if na::dot(&dir, &curr_ray.dir) < na::zero() && t > N::zero() {
+                if dir.dot(&curr_ray.dir) < na::zero() && t > N::zero() {
                     // new lower bound
                     ldir = dir;
                     ltoi += t;
@@ -286,7 +286,7 @@ where
                 }
             }
             None => {
-                if na::dot(&dir, &curr_ray.dir) > N::default_epsilon() {
+                if dir.dot(&curr_ray.dir) > N::default_epsilon() {
                     // miss
                     return None;
                 }
@@ -301,7 +301,7 @@ where
         }
 
         let proj = simplex.project_origin_and_reduce().coords;
-        let max_bound = na::norm_squared(&proj);
+        let max_bound = proj.norm_squared();
 
         if simplex.dimension() == DIM {
             return Some((ltoi, ldir));

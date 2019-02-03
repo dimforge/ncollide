@@ -28,7 +28,7 @@ where
         basis[d] = na::zero();
     }
 
-    AABB::new(Point::from_coordinates(min), Point::from_coordinates(max))
+    AABB::new(Point::from(min), Point::from(max))
 }
 
 /// Computes the AABB of a set of point.

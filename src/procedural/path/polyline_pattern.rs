@@ -95,9 +95,9 @@ where
 
                     if dir.x.is_zero() && dir.z.is_zero() {
                         // FIXME: this might not be enough to avoid singularities.
-                        transform = Isometry3::new_observer_frame(pt, &(*pt + *dir), &Vector3::x());
+                        transform = Isometry3::face_towards(pt, &(*pt + *dir), &Vector3::x());
                     } else {
-                        transform = Isometry3::new_observer_frame(pt, &(*pt + *dir), &Vector3::y());
+                        transform = Isometry3::face_towards(pt, &(*pt + *dir), &Vector3::y());
                     }
 
                     for p in &mut new_polyline {

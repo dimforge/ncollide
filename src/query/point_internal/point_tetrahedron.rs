@@ -51,9 +51,9 @@ impl<N: Real> PointQueryWithLocation<N> for Tetrahedron<N> {
         /*
          * Voronoï regions of vertices.
          */
-        let ap_ab = na::dot(&ap, &ab);
-        let ap_ac = na::dot(&ap, &ac);
-        let ap_ad = na::dot(&ap, &ad);
+        let ap_ab = ap.dot(&ab);
+        let ap_ac = ap.dot(&ac);
+        let ap_ad = ap.dot(&ad);
 
         let _0: N = na::zero();
 
@@ -67,9 +67,9 @@ impl<N: Real> PointQueryWithLocation<N> for Tetrahedron<N> {
         let bd = *self.d() - *self.b();
         let bp = p - *self.b();
 
-        let bp_bc = na::dot(&bp, &bc);
-        let bp_bd = na::dot(&bp, &bd);
-        let bp_ab = na::dot(&bp, &ab);
+        let bp_bc = bp.dot(&bc);
+        let bp_bd = bp.dot(&bd);
+        let bp_ab = bp.dot(&ab);
 
         if bp_bc <= _0 && bp_bd <= _0 && bp_ab >= _0 {
             // Voronoï region of `b`.
@@ -80,9 +80,9 @@ impl<N: Real> PointQueryWithLocation<N> for Tetrahedron<N> {
         let cd = *self.d() - *self.c();
         let cp = p - *self.c();
 
-        let cp_ac = na::dot(&cp, &ac);
-        let cp_bc = na::dot(&cp, &bc);
-        let cp_cd = na::dot(&cp, &cd);
+        let cp_ac = cp.dot(&ac);
+        let cp_bc = cp.dot(&bc);
+        let cp_cd = cp.dot(&cd);
 
         if cp_cd <= _0 && cp_bc >= _0 && cp_ac >= _0 {
             // Voronoï region of `c`.
@@ -92,9 +92,9 @@ impl<N: Real> PointQueryWithLocation<N> for Tetrahedron<N> {
 
         let dp = p - *self.d();
 
-        let dp_cd = na::dot(&dp, &cd);
-        let dp_bd = na::dot(&dp, &bd);
-        let dp_ad = na::dot(&dp, &ad);
+        let dp_cd = dp.dot(&cd);
+        let dp_bd = dp.dot(&bd);
+        let dp_ad = dp.dot(&ad);
 
         if dp_ad >= _0 && dp_bd >= _0 && dp_cd >= _0 {
             // Voronoï region of `d`.
@@ -135,8 +135,8 @@ impl<N: Real> PointQueryWithLocation<N> for Tetrahedron<N> {
             // let dabd  = ap_ab * (ap_ad - bp_ad) - ap_ad * ab_ab;
 
             let ap_x_ab = ap.cross(ab);
-            let dabc = na::dot(&ap_x_ab, nabc);
-            let dabd = na::dot(&ap_x_ab, nabd);
+            let dabc = ap_x_ab.dot(nabc);
+            let dabd = ap_x_ab.dot(nabd);
 
             // FIXME: the case where ab_ab == _0 is not well defined.
             if ab_ab != _0 && dabc >= _0 && dabd >= _0 && ap_ab >= _0 && ap_ab <= ab_ab {
@@ -324,7 +324,7 @@ impl<N: Real> PointQueryWithLocation<N> for Tetrahedron<N> {
 
             if dabc < _0 && dbca < _0 && dacb < _0 {
                 let n = ab.cross(ac); // FIXME: is is possible to avoid this cross product?
-                if na::dot(&n, ad) * na::dot(&n, ap) < _0 {
+                if n.dot(ad) * n.dot(ap) < _0 {
                     // Voronoï region of the face.
 
                     // NOTE:
@@ -335,10 +335,10 @@ impl<N: Real> PointQueryWithLocation<N> for Tetrahedron<N> {
                     // let vb = cp_ab * ap_ac - ap_ab * cp_ac;
                     // let vc = ap_ab * bp_ac - bp_ab * ap_ac;
 
-                    let normal = na::normalize(&n);
-                    let vc = na::dot(&normal, &ap.cross(bp));
-                    let va = na::dot(&normal, &bp.cross(cp));
-                    let vb = na::dot(&normal, &cp.cross(ap));
+                    let normal = n.normalize();
+                    let vc = normal.dot(&ap.cross(bp));
+                    let va = normal.dot(&bp.cross(cp));
+                    let vb = normal.dot(&cp.cross(ap));
 
                     let denom = va + vb + vc;
                     assert!(denom != _0);

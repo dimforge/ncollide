@@ -41,10 +41,10 @@ impl<N: Real> PlaneBallManifoldGenerator<N> {
     {
         if let (Some(plane), Some(ball)) = (g1.as_shape::<Plane<N>>(), g2.as_shape::<Ball<N>>()) {
             let plane_normal = m1 * plane.normal();
-            let plane_center = Point::from_coordinates(m1.translation.vector);
+            let plane_center = Point::from(m1.translation.vector);
 
-            let ball_center = Point::from_coordinates(m2.translation.vector);
-            let dist = na::dot(&(ball_center - plane_center), plane_normal.as_ref());
+            let ball_center = Point::from(m2.translation.vector);
+            let dist = (ball_center - plane_center).dot(plane_normal.as_ref());
             let depth = -dist + ball.radius();
 
             if depth > -prediction.linear() {

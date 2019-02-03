@@ -42,7 +42,7 @@ impl<N: Real> ConvexPolygon<N> {
 
         let mut nremoved = 0;
         // See if the first vexrtex must be removed.
-        if na::dot(&*normals[0], &*normals[normals.len() - 1]) > N::one() - eps {
+        if normals[0].dot(&*normals[normals.len() - 1]) > N::one() - eps {
             nremoved = 1;
         }
 
@@ -50,7 +50,7 @@ impl<N: Real> ConvexPolygon<N> {
         // of collinearity of adjascent faces.
         for i2 in 1..points.len() {
             let i1 = i2 - 1;
-            if na::dot(&*normals[i1], &*normals[i2]) > N::one() - eps {
+            if normals[i1].dot(&*normals[i2]) > N::one() - eps {
                 // Remove
                 nremoved += 1;
             } else {
@@ -160,10 +160,10 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexPolygon<N> {
     {
         let ls_dir = m.inverse_transform_vector(dir);
         let mut best_face = 0;
-        let mut max_dot = na::dot(&*self.normals[0], &ls_dir);
+        let mut max_dot = self.normals[0].dot(&ls_dir);
 
         for i in 1..self.points.len() {
-            let dot = na::dot(&*self.normals[i], &ls_dir);
+            let dot = self.normals[i].dot(&ls_dir);
 
             if dot > max_dot {
                 max_dot = dot;
@@ -196,7 +196,7 @@ impl<N: Real> ConvexPolyhedron<N> for ConvexPolygon<N> {
         for i in 0..self.normals.len() {
             let normal = &self.normals[i];
 
-            if na::dot(normal.as_ref(), local_dir.as_ref()) >= ceps {
+            if normal.dot(local_dir.as_ref()) >= ceps {
                 return FeatureId::Face(i);
             }
         }

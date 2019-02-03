@@ -142,7 +142,7 @@ impl<N: Real> PointQuery<N> for AABB<N> {
         let shift = na::sup(&na::zero(), &na::sup(&mins_pt, &pt_maxs));
 
         if solid || !shift.is_zero() {
-            na::norm(&shift)
+            shift.norm()
         } else {
             // FIXME: optimize that.
             -na::distance(pt, &self.project_point(m, pt, solid).point)

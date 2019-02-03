@@ -39,7 +39,7 @@ pub fn triangle_ray_intersection<N: Real>(
 
     // normal
     let n = ab.cross(&ac);
-    let d = na::dot(&n, &ray.dir);
+    let d = n.dot(&ray.dir);
 
     // the normal and the ray direction are parallel
     if d.is_zero() {
@@ -47,7 +47,7 @@ pub fn triangle_ray_intersection<N: Real>(
     }
 
     let ap = ray.origin - *a;
-    let t = na::dot(&ap, &n);
+    let t = ap.dot(&n);
 
     // the ray does not intersect the plane defined by the triangle
     if (t < na::zero() && d < na::zero()) || (t > na::zero() && d > na::zero()) {
@@ -71,13 +71,13 @@ pub fn triangle_ray_intersection<N: Real>(
     let normal;
 
     if t < na::zero() {
-        v = -na::dot(&ac, &e);
+        v = -ac.dot(&e);
 
         if v < na::zero() || v > d {
             return None;
         }
 
-        w = na::dot(&ab, &e);
+        w = ab.dot(&e);
 
         if w < na::zero() || v + w > d {
             return None;
@@ -85,17 +85,17 @@ pub fn triangle_ray_intersection<N: Real>(
 
         let invd = na::one::<N>() / d;
         toi = -t * invd;
-        normal = -na::normalize(&n);
+        normal = -n.normalize();
         v = v * invd;
         w = w * invd;
     } else {
-        v = na::dot(&ac, &e);
+        v = ac.dot(&e);
 
         if v < na::zero() || v > d {
             return None;
         }
 
-        w = -na::dot(&ab, &e);
+        w = -ab.dot(&e);
 
         if w < na::zero() || v + w > d {
             return None;
@@ -103,7 +103,7 @@ pub fn triangle_ray_intersection<N: Real>(
 
         let invd = na::one::<N>() / d;
         toi = t * invd;
-        normal = na::normalize(&n);
+        normal = n.normalize();
         v = v * invd;
         w = w * invd;
     }

@@ -210,26 +210,17 @@ impl<N: Real> EPA<N> {
             self.faces.push(face3);
 
             if proj_is_inside1 {
-                let dist1 = na::dot(
-                    self.faces[0].normal.as_ref(),
-                    &self.vertices[0].point.coords,
-                );
+                let dist1 = self.faces[0].normal.dot(&self.vertices[0].point.coords);
                 self.heap.push(FaceId::new(0, -dist1)?);
             }
 
             if proj_is_inside2 {
-                let dist2 = na::dot(
-                    self.faces[1].normal.as_ref(),
-                    &self.vertices[1].point.coords,
-                );
+                let dist2 = self.faces[1].normal.dot(&self.vertices[1].point.coords);
                 self.heap.push(FaceId::new(1, -dist2)?);
             }
 
             if proj_is_inside3 {
-                let dist3 = na::dot(
-                    self.faces[2].normal.as_ref(),
-                    &self.vertices[2].point.coords,
-                );
+                let dist3 = self.faces[2].normal.dot(&self.vertices[2].point.coords);
                 self.heap.push(FaceId::new(2, -dist3)?);
             }
         } else {
@@ -249,14 +240,8 @@ impl<N: Real> EPA<N> {
                 pts2,
             ));
 
-            let dist1 = na::dot(
-                self.faces[0].normal.as_ref(),
-                &self.vertices[0].point.coords,
-            );
-            let dist2 = na::dot(
-                self.faces[1].normal.as_ref(),
-                &self.vertices[1].point.coords,
-            );
+            let dist1 = self.faces[0].normal.dot(&self.vertices[0].point.coords);
+            let dist2 = self.faces[1].normal.dot(&self.vertices[1].point.coords);
 
             self.heap.push(FaceId::new(0, dist1)?);
             self.heap.push(FaceId::new(1, dist2)?);
@@ -281,7 +266,7 @@ impl<N: Real> EPA<N> {
             let support_point_id = self.vertices.len();
             self.vertices.push(cso_point);
 
-            let candidate_max_dist = na::dot(&cso_point.point.coords, &face.normal);
+            let candidate_max_dist = cso_point.point.coords.dot(&face.normal);
 
             if candidate_max_dist < max_dist {
                 best_face_id = face_id;
@@ -306,7 +291,7 @@ impl<N: Real> EPA<N> {
 
             for f in new_faces.into_iter() {
                 if f.1 {
-                    let dist = na::dot(f.0.normal.as_ref(), &f.0.proj.coords);
+                    let dist = f.0.normal.dot(&f.0.proj.coords);
                     if dist < curr_dist {
                         // FIXME: if we reach this point, there were issues due to
                         // numerical errors.
@@ -338,8 +323,8 @@ impl<N: Real> EPA<N> {
 fn project_origin<N: Real>(a: &Point<N>, b: &Point<N>) -> Option<(Point<N>, [N; 2])> {
     let ab = *b - *a;
     let ap = -a.coords;
-    let ab_ap = na::dot(&ab, &ap);
-    let sqnab = na::norm_squared(&ab);
+    let ab_ap = ab.dot(&ap);
+    let sqnab = ab.norm_squared();
 
     if sqnab == na::zero() {
         return None;

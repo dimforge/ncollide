@@ -100,7 +100,7 @@ fn get_initial_polyline<N: Real>(
 
         let p1p2 = points[p2] - points[p1];
 
-        if !na::norm_squared(&p1p2).is_zero() {
+        if !p1p2.norm_squared().is_zero() {
             break;
         }
     }
@@ -233,6 +233,6 @@ impl<N: Real> SegmentFacet<N> {
 
         let _eps = N::default_epsilon();
 
-        na::dot(&(*pt - *p0), &self.normal) > _eps * na::convert(100.0f64)
+        (*pt - *p0).dot(&self.normal) > _eps * na::convert(100.0f64)
     }
 }

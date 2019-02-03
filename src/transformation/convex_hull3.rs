@@ -247,8 +247,8 @@ fn get_initial_mesh<N: Real>(
 
             for point in points.iter() {
                 subspace_points.push(Point2::new(
-                    na::dot(&point.coords, axis1),
-                    na::dot(&point.coords, axis2),
+                    point.coords.dot(axis1),
+                    point.coords.dot(axis2),
                 ))
             }
 
@@ -578,7 +578,7 @@ impl<N: Real> TriangleFacet<N> {
     }
 
     pub fn distance_to_point(&self, point: usize, points: &[Point3<N>]) -> N {
-        na::dot(&self.normal, &(points[point] - points[self.pts[0]]))
+        self.normal.dot(&(points[point] - points[self.pts[0]]))
     }
 
     pub fn set_facets_adjascency(
@@ -616,7 +616,7 @@ impl<N: Real> TriangleFacet<N> {
 
         let _eps = N::default_epsilon();
 
-        na::dot(&(*pt - *p0), &self.normal) > _eps * na::convert(100.0f64)
+        (*pt - *p0).dot(&self.normal) > _eps * na::convert(100.0f64)
             && !utils::is_affinely_dependent_triangle(p0, p1, pt)
             && !utils::is_affinely_dependent_triangle(p0, p2, pt)
             && !utils::is_affinely_dependent_triangle(p1, p2, pt)
@@ -640,7 +640,7 @@ impl<N: Real> TriangleFacet<N> {
             || utils::is_affinely_dependent_triangle(pt, p0, p1)
             || utils::is_affinely_dependent_triangle(pt, p1, p0);
 
-        na::dot(&(*pt - *p0), &self.normal) >= na::zero() || aff_dep
+        (*pt - *p0).dot(&self.normal) >= na::zero() || aff_dep
     }
 }
 
