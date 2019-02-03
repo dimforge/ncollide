@@ -187,7 +187,7 @@ where
         }
         niter += 1;
         if niter == 10000 {
-            println!("Error: GJK did not converge.");
+//            println!("Error: GJK did not converge.");
             return GJKResult::NoIntersection(Vector::x_axis());
         }
     }

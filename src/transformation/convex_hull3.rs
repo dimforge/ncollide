@@ -101,7 +101,7 @@ pub fn convex_hull3<N: Real>(points: &[Point3<N>]) -> TriMesh<N> {
                     }
 
                     if any_valid {
-                        println!("Warning: exitting an unfinished work.");
+//                        println!("Warning: exitting an unfinished work.");
                     }
 
                     // FIXME: this is verry harsh.
