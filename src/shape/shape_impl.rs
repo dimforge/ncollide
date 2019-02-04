@@ -1,5 +1,5 @@
 use crate::bounding_volume::{self, BoundingSphere, AABB};
-use crate::math::{Isometry, Vector};
+use crate::math::{Isometry, Vector, Point};
 use na::{Real, Unit};
 use crate::query::{PointQuery, RayCast};
 #[cfg(feature = "dim2")]
@@ -108,12 +108,20 @@ impl<N: Real> Shape<N> for Triangle<N> {
     impl_shape_common!();
     impl_as_support_map!();
     impl_as_convex_polyhedron!();
+
+    fn any_local_boundary_point(&self) -> Point<N> {
+        *self.a()
+    }
 }
 
 impl<N: Real> Shape<N> for Segment<N> {
     impl_shape_common!();
     impl_as_support_map!();
     impl_as_convex_polyhedron!();
+
+    fn any_local_boundary_point(&self) -> Point<N> {
+        *self.a()
+    }
 }
 
 impl<N: Real> Shape<N> for Ball<N> {
@@ -133,12 +141,20 @@ impl<N: Real> Shape<N> for Ball<N> {
     {
         false
     }
+
+    fn any_local_boundary_point(&self) -> Point<N> {
+        Point::from(Vector::x() * self.radius())
+    }
 }
 
 impl<N: Real> Shape<N> for Cuboid<N> {
     impl_shape_common!();
     impl_as_support_map!();
     impl_as_convex_polyhedron!();
+
+    fn any_local_boundary_point(&self) -> Point<N> {
+        Point::from(*self.half_extents())
+    }
 }
 
 impl<N: Real> Shape<N> for Capsule<N> {
@@ -158,6 +174,10 @@ impl<N: Real> Shape<N> for Capsule<N> {
     {
     false
     }
+
+    fn any_local_boundary_point(&self) -> Point<N> {
+        Point::from(Vector::x() * self.radius())
+    }
 }
 
 #[cfg(feature = "dim3")]
@@ -165,6 +185,10 @@ impl<N: Real> Shape<N> for ConvexHull<N> {
     impl_shape_common!();
     impl_as_support_map!();
     impl_as_convex_polyhedron!();
+
+    fn any_local_boundary_point(&self) -> Point<N> {
+        self.points()[0]
+    }
 }
 
 #[cfg(feature = "dim2")]
@@ -172,6 +196,10 @@ impl<N: Real> Shape<N> for ConvexPolygon<N> {
     impl_shape_common!();
     impl_as_support_map!();
     impl_as_convex_polyhedron!();
+
+    fn any_local_boundary_point(&self) -> Point<N> {
+        self.points()[0]
+    }
 }
 
 impl<N: Real> Shape<N> for Compound<N> {
@@ -194,6 +222,11 @@ impl<N: Real> Shape<N> for Compound<N> {
 
     fn subshape_containing_feature(&self, feature: FeatureId) -> usize {
         self.subshape_feature_id(feature).0
+    }
+
+    fn any_local_boundary_point(&self) -> Point<N> {
+        let shape = &self.shapes()[0];
+        shape.0 * shape.1.any_local_boundary_point()
     }
 }
 
@@ -224,6 +257,11 @@ impl<N: Real> Shape<N> for TriMesh<N> {
     fn subshape_containing_feature(&self, id: FeatureId) -> usize {
         self.face_containing_feature(id)
     }
+
+
+    fn any_local_boundary_point(&self) -> Point<N> {
+        self.points()[0]
+    }
 }
 
 impl<N: Real> Shape<N> for Polyline<N> {
@@ -247,6 +285,10 @@ impl<N: Real> Shape<N> for Polyline<N> {
     fn subshape_containing_feature(&self, id: FeatureId) -> usize {
         self.edge_containing_feature(id)
     }
+
+    fn any_local_boundary_point(&self) -> Point<N> {
+        self.points()[0]
+    }
 }
 
 impl<N: Real> Shape<N> for HeightField<N> {
@@ -268,6 +310,10 @@ impl<N: Real> Shape<N> for HeightField<N> {
         // FIXME
         0
     }
+
+    fn any_local_boundary_point(&self) -> Point<N> {
+        unimplemented!()
+    }
 }
 
 impl<N: Real> Shape<N> for Plane<N> {
@@ -283,5 +329,10 @@ impl<N: Real> Shape<N> for Plane<N> {
     {
         let world_normal = m * self.normal();
         dir.dot(&world_normal) <= N::zero()
+    }
+
+
+    fn any_local_boundary_point(&self) -> Point<N> {
+        Point::origin()
     }
 }

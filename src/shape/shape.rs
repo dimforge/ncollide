@@ -1,6 +1,6 @@
 // Queries.
 use crate::bounding_volume::{BoundingSphere, AABB};
-use crate::math::{Isometry, Vector};
+use crate::math::{Isometry, Vector, Point};
 use na::{self, Real, Unit};
 use crate::query::{PointQuery, RayCast};
 use crate::shape::{CompositeShape, ConvexPolyhedron, DeformableShape, FeatureId, SupportMap};
@@ -46,6 +46,12 @@ pub trait Shape<N: Real>: Send + Sync + Downcast + ShapeClone<N> {
         _deformations: Option<&[N]>,
         _dir: &Unit<Vector<N>>,
     ) -> bool;
+
+    /// Returns any point on the boundary of this shape.
+    ///
+    /// The point can be arbitrary, as long as it is located on the boundary of the shape.
+    #[inline]
+    fn any_local_boundary_point(&self) -> Point<N>;
 
     /// Returns the id of the subshape containing the specified feature.
     ///
