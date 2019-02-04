@@ -349,6 +349,17 @@ impl<N: Real> Polyline<N> {
         }
     }
 
+    /// Returns `true` if the given feature is a FeatureId::Face and
+    /// identifies a backface of this polyline.
+    #[inline]
+    pub fn is_backface(&self, feature: FeatureId) -> bool {
+        if let FeatureId::Face(i) = feature {
+            i >= self.edges.len()
+        } else {
+            false
+        }
+    }
+
     /// Tests that the given `dir` is on the polar of the tangent cone of the `i`th vertex
     /// of this polyline.
     pub fn vertex_tangent_cone_polar_contains_dir(

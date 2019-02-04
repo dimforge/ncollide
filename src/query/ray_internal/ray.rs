@@ -57,6 +57,8 @@ impl<N: Real> Ray<N> {
 }
 
 /// Structure containing the result of a successful ray cast.
+#[derive(Copy, Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct RayIntersection<N: Real> {
     /// The time of impact of the ray with the object.  The exact contact point can be computed
     /// with: `ray.point_at(toi)` or equivalently `origin + dir * toi` where `origin` is the origin of the ray;

@@ -2,7 +2,7 @@ use na::{self, Real};
 
 use crate::math::Isometry;
 use crate::query::algorithms::{gjk, CSOPoint, VoronoiSimplex};
-use crate::query::{Ray, RayCast, RayIntersection};
+use crate::query::{self, Ray, RayCast, RayIntersection};
 #[cfg(feature = "dim2")]
 use crate::shape::ConvexPolygon;
 use crate::shape::{Capsule, Segment, SupportMap, FeatureId};
@@ -176,6 +176,7 @@ impl<N: Real> RayCast<N> for ConvexPolygon<N> {
     }
 }
 
+#[allow(unused_variables)]
 impl<N: Real> RayCast<N> for Segment<N> {
     fn toi_and_normal_with_ray(
         &self,
@@ -184,19 +185,48 @@ impl<N: Real> RayCast<N> for Segment<N> {
         solid: bool,
     ) -> Option<RayIntersection<N>>
     {
-        // XXX: implement an analytic solution
-        let ls_ray = ray.inverse_transform_by(m);
+        #[cfg(feature = "dim2")]
+        {
+            let seg_dir = self.scaled_direction();
+            let (s, t) = query::closest_points_internal::line_against_line_parameters(
+                &ray.origin, &ray.dir, self.a(), &seg_dir);
 
-        implicit_toi_and_normal_with_ray(
-            &Isometry::identity(),
-            self,
-            &mut VoronoiSimplex::new(),
-            &ls_ray,
-            solid,
-        )
-        .map(|mut res| {
-            res.normal = m * res.normal;
-            res
-        })
+            if s >= N::zero() && t >= N::zero() && t <= N::one() {
+                let normal = self.scaled_normal();
+
+                if normal.dot(&ray.dir) > N::zero() {
+                    Some(RayIntersection::new(
+                        s,
+                        -normal,
+                        FeatureId::Face(1)
+                    ))
+                } else {
+                    Some(RayIntersection::new(
+                        s,
+                        normal,
+                        FeatureId::Face(0)
+                    ))
+                }
+            } else {
+                None
+            }
+        }
+        #[cfg(feature = "dim3")]
+        {
+            // XXX: implement an analytic solution for 3D too.
+            let ls_ray = ray.inverse_transform_by(m);
+
+            implicit_toi_and_normal_with_ray(
+                &Isometry::identity(),
+                self,
+                &mut VoronoiSimplex::new(),
+                &ls_ray,
+                solid,
+            )
+                .map(|mut res| {
+                    res.normal = m * res.normal;
+                    res
+                })
+        }
     }
 }
