@@ -4,6 +4,8 @@ use crate::math::Isometry;
 use crate::query::algorithms::{gjk, CSOPoint, VoronoiSimplex};
 use crate::query::{Ray, RayCast, RayIntersection};
 #[cfg(feature = "dim2")]
+use crate::query;
+#[cfg(feature = "dim2")]
 use crate::shape::ConvexPolygon;
 use crate::shape::{Capsule, Segment, SupportMap, FeatureId};
 #[cfg(feature = "dim3")]
