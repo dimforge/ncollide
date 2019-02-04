@@ -2,7 +2,7 @@ use na::{self, Real};
 
 use crate::math::Isometry;
 use crate::query::algorithms::{gjk, CSOPoint, VoronoiSimplex};
-use crate::query::{self, Ray, RayCast, RayIntersection};
+use crate::query::{Ray, RayCast, RayIntersection};
 #[cfg(feature = "dim2")]
 use crate::shape::ConvexPolygon;
 use crate::shape::{Capsule, Segment, SupportMap, FeatureId};
