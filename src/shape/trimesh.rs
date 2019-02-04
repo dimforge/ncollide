@@ -407,6 +407,17 @@ impl<N: Real> TriMesh<N> {
         Triangle::new(self.points[idx.x], self.points[idx.y], self.points[idx.z])
     }
 
+    /// Returns `true` if the given feature is a FeatureId::Face and
+    /// identifies a backface of this trimesh.
+    #[inline]
+    pub fn is_backface(&self, feature: FeatureId) -> bool {
+        if let FeatureId::Face(i) = feature {
+            i >= self.faces.len()
+        } else {
+            false
+        }
+    }
+
     /// The optimization structure used by this triangle mesh.
     #[inline]
     pub fn bvt(&self) -> &BVT<usize, AABB<N>> {

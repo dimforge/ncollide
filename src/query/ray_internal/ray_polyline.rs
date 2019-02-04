@@ -3,7 +3,7 @@ use crate::math::Isometry;
 use na::Real;
 use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor, BVH};
 use crate::query::{Ray, RayCast, RayIntersection};
-use crate::shape::Polyline;
+use crate::shape::{Polyline, FeatureId};
 
 impl<N: Real> RayCast<N> for Polyline<N> {
     #[inline]
@@ -33,7 +33,13 @@ impl<N: Real> RayCast<N> for Polyline<N> {
             ray: &ls_ray,
         };
 
-        self.bvt().best_first_search(&mut visitor).map(|mut res| {
+        self.bvt().best_first_search(&mut visitor).map(|(best, mut res)| {
+            if let FeatureId::Face(1) = res.feature {
+                res.feature = FeatureId::Face(best + self.edges().len());
+            } else {
+                res.feature = FeatureId::Face(best);
+            }
+
             res.normal = m * res.normal;
             res
         })
@@ -79,7 +85,7 @@ struct PolylineRayToiAndNormalVisitor<'a, N: 'a + Real> {
 }
 
 impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for PolylineRayToiAndNormalVisitor<'a, N> {
-    type Result = RayIntersection<N>;
+    type Result = (usize, RayIntersection<N>);
 
     #[inline]
     fn visit_bv(&mut self, aabb: &AABB<N>) -> BestFirstBVVisitStatus<N> {
@@ -90,14 +96,14 @@ impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for PolylineRayToiAndNorma
     }
 
     #[inline]
-    fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, RayIntersection<N>> {
+    fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, (usize, RayIntersection<N>)> {
         // FIXME: optimize this by not using the Isometry identity.
         match self.polyline.segment_at(*b).toi_and_normal_with_ray(
             &Isometry::identity(),
             self.ray,
             true,
         ) {
-            Some(inter) => BestFirstDataVisitStatus::ContinueWithResult(inter.toi, inter),
+            Some(inter) => BestFirstDataVisitStatus::ContinueWithResult(inter.toi, (*b, inter)),
             None => BestFirstDataVisitStatus::Continue,
         }
     }
