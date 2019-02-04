@@ -99,7 +99,7 @@ impl<N: Real> PointQuery<N> for AABB<N> {
                 }
             }
 
-            unreachable!()
+            (proj, FeatureId::Unknown)
         } else if nzero_shifts == DIM - 1 {
             // On a 3D face.
             if ls_pt[last_not_zero_shift] < self.center()[last_not_zero_shift] {
