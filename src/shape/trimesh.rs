@@ -30,9 +30,9 @@ struct DeformationInfos<N: Real> {
 /// Description of a face adjascent to an edge.
 pub struct FaceAdjacentToEdge {
     /// Index of the face.
-    face_id: usize,
+    pub face_id: usize,
     /// Index of the edge the edge is adjascent to.
-    edge_id: usize,
+    pub edge_id: usize,
 }
 
 impl FaceAdjacentToEdge {
@@ -58,10 +58,11 @@ pub struct TriMeshFace<N: Real> {
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
+/// An edge of a triangle mesh.
 pub struct TriMeshEdge {
     /// The indices of this edge.
     pub indices: Point2<usize>,
-    /// The faces adjascent nto this edg.
+    /// The faces adjascent to this edge.
     pub adj_faces: (FaceAdjacentToEdge, FaceAdjacentToEdge),
 }
 
@@ -70,9 +71,9 @@ pub struct TriMeshEdge {
 /// A vertex of a triangle mesh.
 pub struct TriMeshVertex {
     /// Indirect indices of this vertex adjacent faces.
-    adj_faces: Range<usize>,
+    pub adj_faces: Range<usize>,
     /// Indirect indices of this vertex adjacent vertices.
-    adj_vertices: Range<usize>,
+    pub adj_vertices: Range<usize>,
 }
 
 /// A 3d triangle mesh.
@@ -343,6 +344,12 @@ impl<N: Real> TriMesh<N> {
     #[inline]
     pub fn edges(&self) -> &[TriMeshEdge] {
         &self.edges
+    }
+
+    /// The vertices of this mesh.
+    #[inline]
+    pub fn vertices(&self) -> &[TriMeshVertex] {
+        &self.vertices
     }
 
     /// Applies a transformation to this triangle mesh.
