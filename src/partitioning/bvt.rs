@@ -27,7 +27,7 @@ pub struct BVT<T, BV> {
 
 /// The identifier of a BVT node.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[derive(Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Copy, Clone, Hash, PartialEq, Eq, Debug)]
 pub enum BVTNodeId {
     /// Identifier of an internal node.
     Internal(usize),

@@ -186,6 +186,12 @@ impl<N: Real, T> CollisionObject<N, T> {
         &self.shape
     }
 
+    /// Set the collision object shape.
+    #[inline]
+    pub(crate) fn set_shape(&mut self, shape: ShapeHandle<N>) {
+        self.shape = shape
+    }
+
     /// The collision groups of the collision object.
     #[inline]
     pub fn collision_groups(&self) -> &CollisionGroups {
@@ -201,6 +207,13 @@ impl<N: Real, T> CollisionObject<N, T> {
     #[inline]
     pub fn query_type(&self) -> GeometricQueryType<N> {
         self.query_type
+    }
+
+    /// Sets the `GeometricQueryType` of the collision object.
+    /// Use `CollisionWorld::set_query_type` to use this method.
+    #[inline]
+    pub(crate) fn set_query_type(&mut self, query_type: GeometricQueryType<N>) {
+        self.query_type = query_type;
     }
 
     /// Reference to the user-defined data associated to this object.

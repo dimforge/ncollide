@@ -197,6 +197,32 @@ impl<N: Real, T> CollisionWorld<N, T> {
             .deferred_set_bounding_volume(co.proxy_handle(), aabb);
     }
 
+    /// Sets the `GeometricQueryType` of the collision object.
+    #[inline]
+    pub fn set_query_type(&mut self, handle: CollisionObjectHandle, query_type: GeometricQueryType<N>) {
+        let co = self
+            .objects
+            .get_mut(handle)
+            .expect("Set query type: collision object not found.");
+        co.set_query_type(query_type);
+        self.broad_phase.deferred_recompute_all_proximities_with(co.proxy_handle());
+    }
+
+    /// Sets the shape of the given collision object.
+    #[inline]
+    pub fn set_shape(&mut self, handle: CollisionObjectHandle, shape: ShapeHandle<N>) {
+        if let Some(co) = self.objects.get_mut(handle) {
+            co.set_shape(shape);
+            
+            let mut aabb = bounding_volume::aabb(co.shape().as_ref(), co.position());
+
+            aabb.loosen(co.query_type().query_limit());
+
+            self.broad_phase.deferred_set_bounding_volume(co.proxy_handle(), aabb);
+            self.broad_phase.deferred_recompute_all_proximities_with(co.proxy_handle());
+        }
+    }
+
     /// Apply the given deformations to the specified object.
     pub fn set_deformations(
         &mut self,
