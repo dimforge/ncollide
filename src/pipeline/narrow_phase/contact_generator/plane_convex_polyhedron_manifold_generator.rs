@@ -64,12 +64,13 @@ impl<N: Real> PlaneConvexPolyhedronManifoldGenerator<N> {
                         contact = Contact::new(world1, *world2, plane_normal, -dist);
                         kinematic.set_approx1(f1, local1, approx_plane);
                         kinematic.set_approx2(f2, local2, approx2);
+                        let _ = manifold.push(contact, kinematic, local2, proc1, proc2, id_alloc);
                     } else {
                         contact = Contact::new(*world2, world1, -plane_normal, -dist);
                         kinematic.set_approx1(f2, local2, approx2);
                         kinematic.set_approx2(f1, local1, approx_plane);
+                        let _ = manifold.push(contact, kinematic, local2, proc2, proc1, id_alloc);
                     }
-                    let _ = manifold.push(contact, kinematic, local2, proc1, proc2, id_alloc);
                 }
             }
 

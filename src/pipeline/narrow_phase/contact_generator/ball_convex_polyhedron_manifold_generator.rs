@@ -114,12 +114,12 @@ impl<N: Real> BallConvexPolyhedronManifoldGenerator<N> {
                 }
 
                 if !self.flip {
-                    kinematic.set_approx2(f2, local2, geom2)
+                    kinematic.set_approx2(f2, local2, geom2);
+                    let _ = manifold.push(contact, kinematic, Point::origin(), proc1, proc2, id_alloc);
                 } else {
-                    kinematic.set_approx1(f2, local2, geom2)
+                    kinematic.set_approx1(f2, local2, geom2);
+                    let _ = manifold.push(contact, kinematic, Point::origin(), proc2, proc1, id_alloc);
                 }
-
-                let _ = manifold.push(contact, kinematic, Point::origin(), proc1, proc2, id_alloc);
             }
 
             true

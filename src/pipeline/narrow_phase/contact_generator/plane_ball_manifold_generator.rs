@@ -67,14 +67,14 @@ impl<N: Real> PlaneBallManifoldGenerator<N> {
                     kinematic.set_approx1(f1, local1, approx_plane);
                     kinematic.set_approx2(f2, local2, approx_ball);
                     kinematic.set_dilation2(ball.radius());
+                    let _ = manifold.push(contact, kinematic, Point::origin(), proc1, proc2, id_alloc);
                 } else {
                     contact = Contact::new(world2, world1, -plane_normal, depth);
                     kinematic.set_approx1(f2, local2, approx_ball);
                     kinematic.set_dilation1(ball.radius());
                     kinematic.set_approx2(f1, local1, approx_plane);
+                    let _ = manifold.push(contact, kinematic, Point::origin(), proc2, proc1, id_alloc);
                 }
-
-                let _ = manifold.push(contact, kinematic, Point::origin(), proc1, proc2, id_alloc);
             }
 
             true
