@@ -8,7 +8,7 @@ use crate::pipeline::broad_phase::{
 use crate::pipeline::events::{ContactEvent, ContactEvents, ProximityEvents};
 use crate::pipeline::narrow_phase::{
     DefaultContactDispatcher, NarrowPhase, DefaultProximityDispatcher,
-    InteractionGraphIndex, Interaction, ContactAlgorithm, ProximityAlgorithm
+    InteractionGraphIndex, Interaction, ContactAlgorithm, ProximityAlgorithm,
 };
 use crate::pipeline::world::{
     CollisionGroups, CollisionGroupsPairFilter, CollisionObject, CollisionObjectHandle,
@@ -353,6 +353,12 @@ impl<N: Real, T> CollisionWorld<N, T> {
             objects: &self.objects,
             handles: handles.into_iter(),
         }
+    }
+
+    /// Customize the selection of narrowphase collision detection algorithms
+    pub fn set_narrow_phase(&mut self, narrow_phase: NarrowPhase<N>) {
+        self.narrow_phase = narrow_phase;
+        self.broad_phase.deferred_recompute_all_proximities();
     }
 
     /*
