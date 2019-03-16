@@ -61,12 +61,12 @@ impl CollisionGroups {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```.ignore
     /// const GROUP_A: usize = 0;
     /// const GROUP_B: usize = 29;
-    /// const groups = CollisionGroups::new().with_membership(&[GROUP_A, GROUP_B]);
-    /// assert!(groups.is_member_of(GROUP_A);
-    /// assert!(groups.is_member_of(GROUP_B);
+    /// let groups = CollisionGroups::new().with_membership(&[GROUP_A, GROUP_B]);
+    /// assert!(groups.is_member_of(GROUP_A));
+    /// assert!(groups.is_member_of(GROUP_B));
     /// ```
     #[inline]
     pub fn with_membership(mut self, groups: &[usize]) -> CollisionGroups {
@@ -78,10 +78,10 @@ impl CollisionGroups {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```.ignore
     /// const GROUP_A: usize = 0;
     /// const GROUP_B: usize = 29;
-    /// const group_a = CollisionGroups::new().with_whitelist(&[GROUP_B]);
+    /// let group_a = CollisionGroups::new().with_whitelist(&[GROUP_B]);
     /// assert!(!group_a.is_group_whitelisted(GROUP_A));
     /// assert!(group_a.is_group_whitelisted(GROUP_B));
     /// ```
@@ -95,10 +95,10 @@ impl CollisionGroups {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```.ignore
     /// const GROUP_A: usize = 0;
     /// const GROUP_B: usize = 29;
-    /// const group_a = CollisionGroups::new().with_blacklist(&[GROUP_B]);
+    /// let group_a = CollisionGroups::new().with_blacklist(&[GROUP_B]);
     /// assert!(!group_a.is_group_blacklisted(GROUP_A));
     /// assert!(group_a.is_group_blacklisted(GROUP_B));
     /// ```

@@ -1,3 +1,4 @@
+/*
 extern crate nalgebra as na;
 extern crate ncollide2d;
 extern crate ncollide3d; // Needed here only for path generation.
@@ -43,4 +44,8 @@ fn main() {
     // We end up with 7 convex parts.
     assert!(decomp.len() == 7);
     assert!(partitioning.len() == 7);
+}
+*/
+
+fn main() {
 }

@@ -50,24 +50,23 @@ fn cuboids_large_size_ratio_issue_181() {
 
         let pos_a = Isometry2::new(p, angle);
 
-        algorithm.update(
+        let mut manifold = algorithm.init_manifold();
+
+        algorithm.generate_contacts(
             &dispatcher,
-            0,
             &pos_a,
             &cuboid_a,
-            0,
+            None,
             &pos_b,
             &cuboid_b,
+            None,
             &prediction,
             &mut id_alloc,
+            &mut manifold
         );
 
-        let mut manifolds = Vec::new();
-        algorithm.contacts(&mut manifolds);
-
-        for manifold in manifolds.iter() {
-            let contact = manifold.deepest_contact().unwrap().contact.clone();
-            p -= *contact.normal * contact.depth;
+        if let Some(deepest) = manifold.deepest_contact() {
+            p -= *deepest.contact.normal * deepest.contact.depth;
         }
     }
 }
