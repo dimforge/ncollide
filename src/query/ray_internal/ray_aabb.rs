@@ -187,6 +187,9 @@ fn do_toi_and_normal_and_uv_with_ray<N: Real>(
 }
 
 fn clip_line<N: Real>(aabb: &AABB<N>, origin: &Point<N>, dir: &Vector<N>) -> Option<((N, Vector<N>, isize), (N, Vector<N>, isize))> {
+    // NOTE: we don't start with tmin = 0 so we can return the correct normal
+    // when the ray starts exactly on the object contour.
+
     let mut tmax: N = Bounded::max_value();
     let mut tmin: N = -tmax;
     let mut near_side = 0;
@@ -237,7 +240,7 @@ fn clip_line<N: Real>(aabb: &AABB<N>, origin: &Point<N>, dir: &Vector<N>) -> Opt
                 far_diag = true;
             }
 
-            if tmin > tmax {
+            if tmax < N::zero() || tmin > tmax {
                 return None;
             }
         }
