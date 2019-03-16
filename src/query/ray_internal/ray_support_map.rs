@@ -189,12 +189,58 @@ impl<N: Real> RayCast<N> for Segment<N> {
     {
         #[cfg(feature = "dim2")]
         {
-            let seg_dir = self.scaled_direction();
-            let (s, t) = query::closest_points_internal::line_against_line_parameters(
-                &ray.origin, &ray.dir, self.a(), &seg_dir);
+            let seg = self.transformed(m);
+            let seg_dir = seg.scaled_direction();
+            let (s, t, parallel) = query::closest_points_internal::line_against_line_parameters_eps(
+                &ray.origin, &ray.dir, seg.a(), &seg_dir, N::default_epsilon());
 
-            if s >= N::zero() && t >= N::zero() && t <= N::one() {
-                let normal = self.scaled_normal();
+            if parallel {
+                // The lines are parallel, we have to distinguish
+                // the case where there is no intersection at all
+                // from the case where the line are collinear.
+                let dpos = seg.a() - ray.origin;
+                let normal = seg.scaled_normal();
+
+                if dpos.dot(&normal).abs() < N::default_epsilon() {
+                    // The rays and the segment are collinear.
+                    let dist1 = dpos.dot(&ray.dir);
+                    let dist2 = dist1 + seg_dir.dot(&ray.dir);
+
+                    match (dist1 >= N::zero(), dist2 >= N::zero()) {
+                        (true, true) => {
+                            if dist1 <= dist2 {
+                                Some(RayIntersection::new(
+                                    dist1 / ray.dir.norm_squared(),
+                                    normal,
+                                    FeatureId::Vertex(0)
+                                ))
+                            } else {
+                                Some(RayIntersection::new(
+                                    dist2 / ray.dir.norm_squared(),
+                                    normal,
+                                    FeatureId::Vertex(1)
+                                ))
+                            }
+                        }
+                        (true, false) | (false, true) => {
+                            // The ray origin lies on the segment.
+                            Some(RayIntersection::new(
+                                N::zero(),
+                                normal,
+                                FeatureId::Face(0)
+                            ))
+                        }
+                        (false, false) => {
+                            // The segment is behind the ray.
+                            None
+                        },
+                    }
+                } else {
+                    // The rays never intersect.
+                    None
+                }
+            } else if s >= N::zero() && t >= N::zero() && t <= N::one() {
+                let normal = seg.scaled_normal();
 
                 if normal.dot(&ray.dir) > N::zero() {
                     Some(RayIntersection::new(
@@ -210,14 +256,16 @@ impl<N: Real> RayCast<N> for Segment<N> {
                     ))
                 }
             } else {
+                // The closest points are outside of
+                // the ray or segment bounds.
                 None
             }
         }
         #[cfg(feature = "dim3")]
         {
-            // XXX: implement an analytic solution for 3D too.
             let ls_ray = ray.inverse_transform_by(m);
 
+            // XXX: implement an analytic solution for 3D too.
             implicit_toi_and_normal_with_ray(
                 &Isometry::identity(),
                 self,
