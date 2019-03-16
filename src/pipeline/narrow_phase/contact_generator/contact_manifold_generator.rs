@@ -6,11 +6,17 @@ use crate::query::ContactPreprocessor;
 use std::any::Any;
 use crate::utils::IdAllocator;
 
-/// Trait implemented algorithms that compute contact points, normals and penetration depths.
+/// An algorithm to compute contact points, normals and penetration depths between two specific
+/// objects.
 pub trait ContactManifoldGenerator<N: Real>: Any + Send + Sync {
     /// Runs the collision detection on two objects. It is assumed that the same
     /// collision detector (the same structure) is always used with the same
-    /// pair of object.
+    /// pair of objects.
+    ///
+    /// Returns `false` if persisting this algorithm for re-use is unlikely to improve performance,
+    /// e.g. due to the objects being distant. Note that if the `ContactManifoldGenerator` would
+    /// likely be immediately reconstructed in the next time-step, dropping it is sub-optimal
+    /// regardless.
     fn generate_contacts(
         &mut self,
         dispatcher: &ContactDispatcher<N>,
@@ -34,6 +40,6 @@ pub trait ContactManifoldGenerator<N: Real>: Any + Send + Sync {
 pub type ContactAlgorithm<N> = Box<ContactManifoldGenerator<N>>;
 
 pub trait ContactDispatcher<N>: Any + Send + Sync {
-    /// Allocate a collision algorithm corresponding to the given pair of shapes.
+    /// Allocate a collision algorithm corresponding to a pair of objects with the given shapes.
     fn get_contact_algorithm(&self, a: &Shape<N>, b: &Shape<N>) -> Option<ContactAlgorithm<N>>;
 }
