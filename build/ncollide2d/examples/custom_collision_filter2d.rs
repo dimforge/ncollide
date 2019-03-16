@@ -29,6 +29,6 @@ fn main() {
 
     world.update();
 
-    // There will be only 2 contacts instead of 6.
-    assert!(world.contact_manifolds().count() == 2);
+    // There will be only 2 contact pairs instead of 6.
+    assert!(world.contact_pairs(true).count() == 2);
 }

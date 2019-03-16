@@ -1,7 +1,7 @@
 use crate::math::{Point, Vector};
 use na::{self, Real};
 
-/// Closest points between two segments.
+/// Closest points between two lines.
 ///
 /// The result, say `res`, is such that the closest points between both lines are
 /// `orig1 + dir1 * res.0` and `orig2 + dir2 * res.1`.
@@ -13,6 +13,25 @@ pub fn line_against_line_parameters<N: Real>(
     dir2: &Vector<N>,
 ) -> (N, N)
 {
+    let res = line_against_line_parameters_eps(orig1, dir1, orig2, dir2, N::default_epsilon());
+    (res.0, res.1)
+}
+
+/// Closest points between two lines with a custom tolerance epsilon.
+///
+/// The result, say `res`, is such that the closest points between both lines are
+/// `orig1 + dir1 * res.0` and `orig2 + dir2 * res.1`. If the lines are parallel
+/// then `res.2` is set to `true` and the returned closest points are `orig1` and
+/// its projection on the second line.
+#[inline]
+pub fn line_against_line_parameters_eps<N: Real>(
+    orig1: &Point<N>,
+    dir1: &Vector<N>,
+    orig2: &Point<N>,
+    dir2: &Vector<N>,
+    eps: N,
+) -> (N, N, bool)
+{
     // Inspired by Real-time collision detection by Christer Ericson.
     let r = *orig1 - *orig2;
 
@@ -23,21 +42,15 @@ pub fn line_against_line_parameters<N: Real>(
     let _0: N = na::zero();
     let _1: N = na::one();
 
-    let s;
-    let t;
 
-    let _eps = N::default_epsilon();
-    if a <= _eps && e <= _eps {
-        s = _0;
-        t = _0;
-    } else if a <= _eps {
-        s = _0;
-        t = f / e;
+    if a <= eps && e <= eps {
+        (_0, _0, false)
+    } else if a <= eps {
+        (_0, f / e, false)
     } else {
-        let c =dir1.dot(&r);
-        if e <= _eps {
-            t = _0;
-            s = -c / a;
+        let c = dir1.dot(&r);
+        if e <= eps {
+            (-c / a, _0, false)
         } else {
             let b = dir1.dot(dir2);
             let ae = a * e;
@@ -45,17 +58,17 @@ pub fn line_against_line_parameters<N: Real>(
             let denom = ae - bb;
 
             // Use absolute and ulps error to test collinearity.
-            if denom > _eps && !ulps_eq!(ae, bb) {
-                s = (b * f - c * e) / denom;
-            } else {
-                s = _0;
-            }
+            let parallel = denom <= eps || ulps_eq!(ae, bb);
 
-            t = (b * s + f) / e;
+            let s = if !parallel {
+                (b * f - c * e) / denom
+            } else {
+                _0
+            };
+
+            (s, (b * s + f) / e, parallel)
         }
     }
-
-    (s, t)
 }
 
 // FIXME: can we re-used this for the segment/segment case?

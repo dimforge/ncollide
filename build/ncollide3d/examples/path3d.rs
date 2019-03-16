@@ -1,3 +1,5 @@
+/*
+
 extern crate nalgebra as na;
 extern crate ncollide2d;
 extern crate ncollide3d;
@@ -34,4 +36,8 @@ fn main() {
 
     // Stroke!
     let _ = pattern.stroke(&mut path);
+}
+*/
+fn main() {
+
 }

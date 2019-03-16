@@ -30,5 +30,5 @@ fn main() {
     world.update();
 
     // There will be only 2 contacts instead of 6.
-    assert!(world.contact_pairs().count() == 2);
+    assert!(world.contact_pairs(true).count() == 2);
 }

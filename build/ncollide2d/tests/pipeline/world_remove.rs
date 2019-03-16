@@ -14,7 +14,7 @@ fn issue_57_object_remove() {
         CollisionGroups::new(),
         contact_query,
         (),
-    );
+    ).handle();
     let _ = world.add(
         Isometry2::new(Vector2::new(1.0, 1.0), 0.0),
         shape.clone(),
