@@ -2,7 +2,8 @@ use crate::bounding_volume::{self, BoundingVolume};
 use crate::math::Isometry;
 use na::{self, Real};
 use crate::pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
-use crate::query::{visitors::BoundingVolumeInterferencesCollector, ContactManifold, ContactPrediction, ContactPreprocessor, ContactTrackingMode};
+use crate::query::{visitors::BoundingVolumeInterferencesCollector, ContactManifold, ContactPrediction,
+                   ContactPreprocessor, ContactTrackingMode};
 use crate::shape::{CompositeShape, Shape};
 use std::collections::{hash_map::Entry, HashMap};
 use crate::utils::DeterministicState;
@@ -32,7 +33,7 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
         dispatcher: &ContactDispatcher<N>,
         m1: &Isometry<N>,
         g1: &CompositeShape<N>,
-        _proc1: Option<&ContactPreprocessor<N>>,
+        proc1: Option<&ContactPreprocessor<N>>,
         m2: &Isometry<N>,
         g2: &Shape<N>,
         proc2: Option<&ContactPreprocessor<N>>,
@@ -86,7 +87,7 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
                 false
             } else {
                 let mut keep = false;
-                g1.map_part_and_preprocessor_at(*key, m1, prediction, &mut |m1, g1, proc1| {
+                g1.map_part_and_preprocessor_at(*key, m1, prediction, &mut |m1, g1, part_proc1| {
                     keep = if flip {
                         detector.0.generate_contacts(
                             dispatcher,
@@ -95,7 +96,7 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
                             proc2,
                             m1,
                             g1,
-                            Some(proc1),
+                            Some(&(proc1, part_proc1)),
                             prediction,
                             id_alloc,
                             manifold
@@ -105,7 +106,7 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
                             dispatcher,
                             m1,
                             g1,
-                            Some(proc1),
+                            Some(&(proc1, part_proc1)),
                             m2,
                             g2,
                             proc2,

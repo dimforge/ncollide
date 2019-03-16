@@ -31,10 +31,10 @@ impl<N: Real> CompositeShapeCompositeShapeManifoldGenerator<N> {
         dispatcher: &ContactDispatcher<N>,
         m1: &Isometry<N>,
         g1: &CompositeShape<N>,
-        _proc1: Option<&ContactPreprocessor<N>>,
+        proc1: Option<&ContactPreprocessor<N>>,
         m2: &Isometry<N>,
         g2: &CompositeShape<N>,
-        _proc2: Option<&ContactPreprocessor<N>>,
+        proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
@@ -85,11 +85,11 @@ impl<N: Real> CompositeShapeCompositeShapeManifoldGenerator<N> {
                 false
             } else {
                 let mut keep = false;
-                g1.map_part_and_preprocessor_at(key.0, m1, prediction, &mut |m1, g1, proc1| {
-                    g2.map_part_and_preprocessor_at(key.1, m2, prediction, &mut |m2, g2, proc2| {
+                g1.map_part_and_preprocessor_at(key.0, m1, prediction, &mut |m1, g1, part_proc1| {
+                    g2.map_part_and_preprocessor_at(key.1, m2, prediction, &mut |m2, g2, part_proc2| {
                         // FIXME: change the update functions.
                         keep = detector.0.generate_contacts(
-                            dispatcher, m1, g1, Some(proc1), m2, g2, Some(proc2), prediction, id_alloc,
+                            dispatcher, m1, g1, Some(&(proc1, part_proc1)), m2, g2, Some(&(proc2, part_proc2)), prediction, id_alloc,
                             manifold
                         );
                     });
