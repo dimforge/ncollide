@@ -3,6 +3,6 @@
 set -ev
 
 cd $TRAVIS_BUILD_DIR/build/ncollide2d
-cargo build
+cargo test
 cd $TRAVIS_BUILD_DIR/build/ncollide3d
-cargo build
+cargo test
