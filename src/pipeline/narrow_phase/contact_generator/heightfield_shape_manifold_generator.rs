@@ -30,7 +30,7 @@ impl<N: Real> HeightFieldShapeManifoldGenerator<N> {
         dispatcher: &ContactDispatcher<N>,
         m1: &Isometry<N>,
         g1: &HeightField<N>,
-        _proc1: Option<&ContactPreprocessor<N>>,
+        proc1: Option<&ContactPreprocessor<N>>,
         m2: &Isometry<N>,
         g2: &Shape<N>,
         proc2: Option<&ContactPreprocessor<N>>,
@@ -46,7 +46,7 @@ impl<N: Real> HeightFieldShapeManifoldGenerator<N> {
         let ls_m2 = na::inverse(m1) * m2.clone();
         let ls_aabb2 = bounding_volume::aabb(g2, &ls_m2).loosened(prediction.linear());
 
-        g1.map_elements_in_local_aabb(&ls_aabb2, &mut |i, elt1, proc1| {
+        g1.map_elements_in_local_aabb(&ls_aabb2, &mut |i, elt1, part_proc1| {
             match self.sub_detectors.entry(i) {
                 Entry::Occupied(mut entry) => {
                     let ok = if flip {
@@ -57,7 +57,7 @@ impl<N: Real> HeightFieldShapeManifoldGenerator<N> {
                             proc2,
                             m1,
                             elt1,
-                            Some(proc1),
+                            Some(&(proc1, part_proc1)),
                             prediction,
                             id_alloc,
                             manifold
@@ -67,7 +67,7 @@ impl<N: Real> HeightFieldShapeManifoldGenerator<N> {
                             dispatcher,
                             m1,
                             elt1,
-                            Some(proc1),
+                            Some(&(proc1, part_proc1)),
                             m2,
                             g2,
                             proc2,
@@ -97,7 +97,7 @@ impl<N: Real> HeightFieldShapeManifoldGenerator<N> {
                                 proc2,
                                 m1,
                                 elt1,
-                                Some(proc1),
+                                Some(&(proc1, part_proc1)),
                                 prediction,
                                 id_alloc,
                                 manifold
@@ -107,7 +107,7 @@ impl<N: Real> HeightFieldShapeManifoldGenerator<N> {
                                 dispatcher,
                                 m1,
                                 elt1,
-                                Some(proc1),
+                                Some(&(proc1, part_proc1)),
                                 m2,
                                 g2,
                                 proc2,
