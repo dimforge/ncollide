@@ -1,19 +1,19 @@
 use crate::math::{Isometry, Point};
-use na::Real;
+use na::RealField;
 use crate::partitioning::{VisitStatus, Visitor};
 use crate::query::PointQuery;
 
 // FIXME: add a point cost fn.
 
 /// Spatial partitioning structure visitor collecting nodes that may contain a given point.
-pub struct PointInterferencesCollector<'a, N: 'a + Real, T: 'a> {
+pub struct PointInterferencesCollector<'a, N: 'a + RealField, T: 'a> {
     /// Point to be tested.
     pub point: &'a Point<N>,
     /// The data contained by the nodes which bounding volume contain `self.point`.
     pub collector: &'a mut Vec<T>,
 }
 
-impl<'a, N: Real, T> PointInterferencesCollector<'a, N, T> {
+impl<'a, N: RealField, T> PointInterferencesCollector<'a, N, T> {
     /// Creates a new `PointInterferencesCollector`.
     #[inline]
     pub fn new(
@@ -30,7 +30,7 @@ impl<'a, N: Real, T> PointInterferencesCollector<'a, N, T> {
 
 impl<'a, N, T, BV> Visitor<T, BV> for PointInterferencesCollector<'a, N, T>
 where
-    N: Real,
+    N: RealField,
     T: Clone,
     BV: PointQuery<N>,
 {

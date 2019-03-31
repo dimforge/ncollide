@@ -1,7 +1,7 @@
 //! The Gilbert–Johnson–Keerthi distance algorithm.
 
 
-use alga::general::Real;
+use alga::general::RealField;
 use na::{self, Unit};
 
 use crate::query::algorithms::{CSOPoint, VoronoiSimplex};
@@ -12,7 +12,7 @@ use crate::query::{ray_internal, Ray};
 
 /// Results of the GJK algorithm.
 #[derive(Clone, Debug, PartialEq)]
-pub enum GJKResult<N: Real> {
+pub enum GJKResult<N: RealField> {
     /// Result of the GJK algorithm when the origin is inside of the polytope.
     Intersection,
     /// Result of the GJK algorithm when a projection of the origin on the polytope is found.
@@ -24,7 +24,7 @@ pub enum GJKResult<N: Real> {
 }
 
 /// The absolute tolerence used by the GJK algorithm.
-pub fn eps_tol<N: Real>() -> N {
+pub fn eps_tol<N: RealField>() -> N {
     let _eps = N::default_epsilon();
     _eps * na::convert(100.0f64)
 }
@@ -41,7 +41,7 @@ pub fn project_origin<N, G: ?Sized>(
     simplex: &mut VoronoiSimplex<N>,
 ) -> Option<Point<N>>
 where
-    N: Real,
+    N: RealField,
     G: SupportMap<N>,
 {
     match closest_points(
@@ -84,7 +84,7 @@ pub fn closest_points<N, G1: ?Sized, G2: ?Sized>(
     simplex: &mut VoronoiSimplex<N>,
 ) -> GJKResult<N>
 where
-    N: Real,
+    N: RealField,
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
@@ -92,7 +92,7 @@ where
     let _eps_tol: N = eps_tol();
     let _eps_rel: N = _eps_tol.sqrt();
 
-    fn result<N: Real>(simplex: &VoronoiSimplex<N>, prev: bool) -> (Point<N>, Point<N>) {
+    fn result<N: RealField>(simplex: &VoronoiSimplex<N>, prev: bool) -> (Point<N>, Point<N>) {
         let mut res = (Point::origin(), Point::origin());
         if prev {
             for i in 0..simplex.prev_dimension() + 1 {
@@ -201,7 +201,7 @@ pub fn cast_ray<N, G: ?Sized>(
     ray: &Ray<N>,
 ) -> Option<(N, Vector<N>)>
 where
-    N: Real,
+    N: RealField,
     G: SupportMap<N>,
 {
     let m2 = Isometry::identity();
@@ -220,7 +220,7 @@ pub fn directional_distance<N, G1: ?Sized, G2: ?Sized>(
     simplex: &mut VoronoiSimplex<N>,
 ) -> Option<N>
 where
-    N: Real,
+    N: RealField,
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
@@ -238,7 +238,7 @@ fn minkowski_ray_cast<N, G1: ?Sized, G2: ?Sized>(
     simplex: &mut VoronoiSimplex<N>,
 ) -> Option<(N, Vector<N>)>
 where
-    N: Real,
+    N: RealField,
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {

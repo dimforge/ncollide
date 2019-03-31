@@ -3,7 +3,7 @@
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 
-use alga::general::Real;
+use alga::general::RealField;
 use na::{self, Unit};
 
 use crate::math::{Isometry, Point, Vector};
@@ -12,12 +12,12 @@ use crate::shape::{ConstantOrigin, SupportMap};
 use crate::utils;
 
 #[derive(Copy, Clone, PartialEq)]
-struct FaceId<N: Real> {
+struct FaceId<N: RealField> {
     id: usize,
     neg_dist: N,
 }
 
-impl<N: Real> FaceId<N> {
+impl<N: RealField> FaceId<N> {
     fn new(id: usize, neg_dist: N) -> Option<Self> {
         if neg_dist > gjk::eps_tol() {
 //            println!(
@@ -32,16 +32,16 @@ impl<N: Real> FaceId<N> {
     }
 }
 
-impl<N: Real> Eq for FaceId<N> {}
+impl<N: RealField> Eq for FaceId<N> {}
 
-impl<N: Real> PartialOrd for FaceId<N> {
+impl<N: RealField> PartialOrd for FaceId<N> {
     #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         self.neg_dist.partial_cmp(&other.neg_dist)
     }
 }
 
-impl<N: Real> Ord for FaceId<N> {
+impl<N: RealField> Ord for FaceId<N> {
     #[inline]
     fn cmp(&self, other: &Self) -> Ordering {
         if self.neg_dist < other.neg_dist {
@@ -55,7 +55,7 @@ impl<N: Real> Ord for FaceId<N> {
 }
 
 #[derive(Clone, Debug)]
-struct Face<N: Real> {
+struct Face<N: RealField> {
     pts: [usize; 2],
     normal: Unit<Vector<N>>,
     proj: Point<N>,
@@ -63,7 +63,7 @@ struct Face<N: Real> {
     deleted: bool,
 }
 
-impl<N: Real> Face<N> {
+impl<N: RealField> Face<N> {
     pub fn new(vertices: &[CSOPoint<N>], pts: [usize; 2]) -> (Self, bool) {
         if let Some((proj, bcoords)) =
             project_origin(&vertices[pts[0]].point, &vertices[pts[1]].point)
@@ -116,13 +116,13 @@ impl<N: Real> Face<N> {
 }
 
 /// The Expanding Polytope Algorithm in 2D.
-pub struct EPA<N: Real> {
+pub struct EPA<N: RealField> {
     vertices: Vec<CSOPoint<N>>,
     faces: Vec<Face<N>>,
     heap: BinaryHeap<FaceId<N>>,
 }
 
-impl<N: Real> EPA<N> {
+impl<N: RealField> EPA<N> {
     /// Creates a new instance of the 2D Expanding Polytope Algorithm.
     pub fn new() -> Self {
         EPA {
@@ -320,7 +320,7 @@ impl<N: Real> EPA<N> {
     }
 }
 
-fn project_origin<N: Real>(a: &Point<N>, b: &Point<N>) -> Option<(Point<N>, [N; 2])> {
+fn project_origin<N: RealField>(a: &Point<N>, b: &Point<N>) -> Option<(Point<N>, [N; 2])> {
     let ab = *b - *a;
     let ap = -a.coords;
     let ab_ap = ab.dot(&ap);

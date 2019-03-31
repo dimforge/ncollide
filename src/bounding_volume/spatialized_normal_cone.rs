@@ -1,18 +1,18 @@
 use crate::bounding_volume::{BoundingVolume, CircularCone, AABB};
 use crate::math::Point;
-use na::Real;
+use na::RealField;
 
 /// The combination of an AABB with a circular cone to bound both the space occupied by an geometry and its normals.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub struct SpatializedNormalCone<N: Real> {
+pub struct SpatializedNormalCone<N: RealField> {
     /// An AABB bounding the space occupied by a geometry.
     pub aabb: AABB<N>,
     /// A circular cone bounding the normals of a geometry.
     pub normals: CircularCone<N>,
 }
 
-impl<N: Real> BoundingVolume<N> for SpatializedNormalCone<N> {
+impl<N: RealField> BoundingVolume<N> for SpatializedNormalCone<N> {
     fn center(&self) -> Point<N> {
         self.aabb.center()
     }

@@ -1,6 +1,6 @@
 use crate::bounding_volume::AABB;
 use crate::math::Isometry;
-use na::Real;
+use na::RealField;
 use crate::partitioning::BVHImpl;
 use crate::shape::Shape;
 use crate::query::{ContactPreprocessor, ContactPrediction};
@@ -9,7 +9,7 @@ use crate::query::{ContactPreprocessor, ContactPrediction};
 ///
 /// A composite shape is composed of several shapes. Typically, it is a convex decomposition of
 /// a concave shape.
-pub trait CompositeShape<N: Real> {
+pub trait CompositeShape<N: RealField> {
     /// The number of sub-shape in this composide shape.
     fn nparts(&self) -> usize;
 

@@ -1,5 +1,5 @@
 use alga::linear::FiniteDimInnerSpace;
-use na::{self, Point2, Real, Unit};
+use na::{self, Point2, RealField, Unit};
 use std::iter;
 
 use crate::math::{Isometry, Point, Vector};
@@ -12,12 +12,12 @@ use crate::utils::{self, IdAllocator, IsometryOps};
 
 /// A cache used for polygonal clipping.
 #[derive(Clone)]
-pub struct ClippingCache<N: Real> {
+pub struct ClippingCache<N: RealField> {
     poly1: Vec<Point2<N>>,
     poly2: Vec<Point2<N>>,
 }
 
-impl<N: Real> ClippingCache<N> {
+impl<N: RealField> ClippingCache<N> {
     /// Initializes an empty clipping cache.
     pub fn new() -> Self {
         ClippingCache {
@@ -38,7 +38,7 @@ impl<N: Real> ClippingCache<N> {
 /// It is never checked if the vertices actually form a convex polygon.
 /// If they do not, results of any geometric query may end up being invalid.
 #[derive(Clone, Debug)]
-pub struct ConvexPolygonalFeature<N: Real> {
+pub struct ConvexPolygonalFeature<N: RealField> {
     // FIXME: don't keep all those public.
     /// The vertices of this face.
     pub vertices: Vec<Point<N>>,
@@ -54,7 +54,7 @@ pub struct ConvexPolygonalFeature<N: Real> {
     pub edges_id: Vec<FeatureId>,
 }
 
-impl<N: Real> ConvexPolygonalFeature<N> {
+impl<N: RealField> ConvexPolygonalFeature<N> {
     /// Creates a new empty convex polygonal faces.
     pub fn new() -> Self {
         ConvexPolygonalFeature {

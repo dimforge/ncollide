@@ -1,4 +1,4 @@
-use na::{self, Isometry2, Isometry3, Matrix2, Matrix3, Matrix4, Point2, Point3, Point4, Real,
+use na::{self, Isometry2, Isometry3, Matrix2, Matrix3, Matrix4, Point2, Point3, Point4, RealField,
          Vector2, Vector3, Vector4};
 use ncollide3d::bounding_volume::{AABB, BoundingSphere};
 use ncollide3d::query::Ray;
@@ -50,49 +50,49 @@ impl_rand_default_gen!(f32);
 impl_rand_default_gen!(f64);
 impl_rand_default_gen!(bool);
 
-impl<N: Real> DefaultGen for Ball<N>
+impl<N: RealField> DefaultGen for Ball<N>
     where Standard: Distribution<N> {
     fn generate<R: Rng>(rng: &mut R) -> Ball<N> {
         Ball::new(na::abs(&rng.gen::<N>()))
     }
 }
 
-impl<N: Real> DefaultGen for Cuboid<N>
+impl<N: RealField> DefaultGen for Cuboid<N>
     where Standard: Distribution<Vector3<N>> {
     fn generate<R: Rng>(rng: &mut R) -> Cuboid<N> {
         Cuboid::new(rng.gen::<Vector3<N>>().abs())
     }
 }
 
-impl<N: Real> DefaultGen for Capsule<N>
+impl<N: RealField> DefaultGen for Capsule<N>
     where Standard: Distribution<N> {
     fn generate<R: Rng>(rng: &mut R) -> Capsule<N> {
         Capsule::new(na::abs(&rng.gen::<N>()), na::abs(&rng.gen::<N>()))
     }
 }
 
-impl<N: Real> DefaultGen for Cone<N>
+impl<N: RealField> DefaultGen for Cone<N>
     where Standard: Distribution<N> {
     fn generate<R: Rng>(rng: &mut R) -> Cone<N> {
         Cone::new(na::abs(&rng.gen::<N>()), na::abs(&rng.gen::<N>()))
     }
 }
 
-impl<N: Real> DefaultGen for Cylinder<N>
+impl<N: RealField> DefaultGen for Cylinder<N>
     where Standard: Distribution<N> {
     fn generate<R: Rng>(rng: &mut R) -> Cylinder<N> {
         Cylinder::new(na::abs(&rng.gen::<N>()), na::abs(&rng.gen::<N>()))
     }
 }
 
-impl<N: Real> DefaultGen for Segment<N>
+impl<N: RealField> DefaultGen for Segment<N>
     where Standard: Distribution<Point3<N>> {
     fn generate<R: Rng>(rng: &mut R) -> Segment<N> {
         Segment::new(rng.gen(), rng.gen())
     }
 }
 
-impl<N: Real> DefaultGen for Triangle<N>
+impl<N: RealField> DefaultGen for Triangle<N>
     where Standard: Distribution<Point3<N>> {
     fn generate<R: Rng>(rng: &mut R) -> Triangle<N> {
         Triangle::new(
@@ -103,7 +103,7 @@ impl<N: Real> DefaultGen for Triangle<N>
     }
 }
 
-impl<N: Real> DefaultGen for ConvexHull<N>
+impl<N: RealField> DefaultGen for ConvexHull<N>
     where Standard: Distribution<Point3<N>> {
     fn generate<R: Rng>(rng: &mut R) -> ConvexHull<N> {
         // It is recommended to have at most 100 points.
@@ -115,7 +115,7 @@ impl<N: Real> DefaultGen for ConvexHull<N>
     }
 }
 
-impl<N: Real> DefaultGen for Ray<N>
+impl<N: RealField> DefaultGen for Ray<N>
     where Standard: Distribution<Vector3<N>> {
     fn generate<R: Rng>(rng: &mut R) -> Ray<N> {
         // The generate ray will always point to the origin.
@@ -124,7 +124,7 @@ impl<N: Real> DefaultGen for Ray<N>
     }
 }
 
-impl<N: Real> DefaultGen for AABB<N>
+impl<N: RealField> DefaultGen for AABB<N>
     where Standard: Distribution<Vector3<N>> {
     fn generate<R: Rng>(rng: &mut R) -> AABB<N> {
         // an AABB centered at the origin.
@@ -133,7 +133,7 @@ impl<N: Real> DefaultGen for AABB<N>
     }
 }
 
-impl<N: Real> DefaultGen for BoundingSphere<N>
+impl<N: RealField> DefaultGen for BoundingSphere<N>
     where Standard: Distribution<N> {
     fn generate<R: Rng>(rng: &mut R) -> BoundingSphere<N> {
         // a bounding sphere centered at the origin.

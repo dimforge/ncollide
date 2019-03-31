@@ -1,9 +1,9 @@
 use super::ToPolyline;
-use alga::general::Real;
+use alga::general::RealField;
 use crate::procedural::Polyline;
 use crate::shape::Triangle;
 
-impl<N: Real> ToPolyline<N> for Triangle<N> {
+impl<N: RealField> ToPolyline<N> for Triangle<N> {
     type DiscretizationParameter = ();
 
     fn to_polyline(&self, _: ()) -> Polyline<N> {

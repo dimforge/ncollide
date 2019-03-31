@@ -1,10 +1,10 @@
-use na::Real;
+use na::RealField;
 
 use crate::math::{Point, Vector};
 use crate::procedural::TriMesh;
 
 /// A sample point and its associated tangent.
-pub enum PathSample<N: Real> {
+pub enum PathSample<N: RealField> {
     /// A point that starts a new path.
     StartPoint(Point<N>, Vector<N>),
     /// A point that is inside of the path currently generated.
@@ -16,7 +16,7 @@ pub enum PathSample<N: Real> {
 }
 
 /// A curve sampler.
-pub trait CurveSampler<N: Real> {
+pub trait CurveSampler<N: RealField> {
     /// Returns the next sample point.
     fn next(&mut self) -> PathSample<N>;
 }
@@ -24,7 +24,7 @@ pub trait CurveSampler<N: Real> {
 /// A pattern that is replicated along a path.
 ///
 /// It is responsible of the generation of the whole mesh.
-pub trait StrokePattern<N: Real> {
+pub trait StrokePattern<N: RealField> {
     /// Generates the mesh using this pattern and the curve sampled by `sampler`.
     fn stroke<C: CurveSampler<N>>(&mut self, sampler: &mut C) -> TriMesh<N>;
 }

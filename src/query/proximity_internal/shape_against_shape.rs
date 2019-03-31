@@ -1,4 +1,4 @@
-use na::Real;
+use na::RealField;
 
 use crate::math::{Isometry, Point};
 use crate::query::proximity_internal;
@@ -6,7 +6,7 @@ use crate::query::Proximity;
 use crate::shape::{Ball, Plane, Shape};
 
 /// Tests whether two shapes are in intersecting or separated by a distance smaller than `margin`.
-pub fn shape_against_shape<N: Real>(
+pub fn shape_against_shape<N: RealField>(
     m1: &Isometry<N>,
     g1: &Shape<N>,
     m2: &Isometry<N>,

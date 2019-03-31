@@ -1,10 +1,10 @@
-use na::{self, Real, Vector3};
+use na::{self, RealField, Vector3};
 
 use crate::math::{Isometry, Point};
 use crate::query::{Ray, RayCast, RayIntersection};
 use crate::shape::{Triangle, FeatureId};
 
-impl<N: Real> RayCast<N> for Triangle<N> {
+impl<N: RealField> RayCast<N> for Triangle<N> {
     #[inline]
     fn toi_and_normal_with_ray(
         &self,
@@ -27,7 +27,7 @@ impl<N: Real> RayCast<N> for Triangle<N> {
 ///
 /// If an intersection is found, the time of impact, the normal and the barycentric coordinates of
 /// the intersection point are returned.
-pub fn triangle_ray_intersection<N: Real>(
+pub fn triangle_ray_intersection<N: RealField>(
     a: &Point<N>,
     b: &Point<N>,
     c: &Point<N>,

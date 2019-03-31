@@ -1,5 +1,5 @@
 use crate::math::{Isometry, Point, Vector};
-use na::{self, Point2, Point3, Real, Unit};
+use na::{self, Point2, Point3, RealField, Unit};
 use crate::shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
@@ -16,14 +16,14 @@ struct Vertex {
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Copy, Clone)]
-struct Edge<N: Real> {
+struct Edge<N: RealField> {
     vertices: Point2<usize>,
     faces: Point2<usize>,
     dir: Unit<Vector<N>>,
     deleted: bool,
 }
 
-impl<N: Real> Edge<N> {
+impl<N: RealField> Edge<N> {
     fn other_triangle(&self, id: usize) -> usize {
         if id == self.faces[0] {
             self.faces[1]
@@ -35,7 +35,7 @@ impl<N: Real> Edge<N> {
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Copy, Clone)]
-struct Face<N: Real> {
+struct Face<N: RealField> {
     first_vertex_or_edge: usize,
     num_vertices_or_edges: usize,
     normal: Unit<Vector<N>>,
@@ -43,14 +43,14 @@ struct Face<N: Real> {
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Copy, Clone)]
-struct Triangle<N: Real> {
+struct Triangle<N: RealField> {
     vertices: Point3<usize>,
     edges: Point3<usize>,
     normal: Unit<Vector<N>>,
     parent_face: Option<usize>,
 }
 
-impl<N: Real> Triangle<N> {
+impl<N: RealField> Triangle<N> {
     fn next_edge_id(&self, id: usize) -> usize {
         for i in 0..3 {
             if self.edges[i] == id {
@@ -65,7 +65,7 @@ impl<N: Real> Triangle<N> {
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Clone)]
 /// A convex polyhedron without degenerate faces.
-pub struct ConvexHull<N: Real> {
+pub struct ConvexHull<N: RealField> {
     points: Vec<Point<N>>,
     vertices: Vec<Vertex>,
     faces: Vec<Face<N>>,
@@ -80,7 +80,7 @@ pub struct ConvexHull<N: Real> {
     vertices_adj_to_face: Vec<usize>,
 }
 
-impl<N: Real> ConvexHull<N> {
+impl<N: RealField> ConvexHull<N> {
     /// Creates a new 2D convex polyhedron from an arbitrary set of points.
     ///
     /// This explicitly computes the convex hull of the given set of points. Use
@@ -385,7 +385,7 @@ impl<N: Real> ConvexHull<N> {
     }
 }
 
-impl<N: Real> SupportMap<N> for ConvexHull<N> {
+impl<N: RealField> SupportMap<N> for ConvexHull<N> {
     #[inline]
     fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
         let local_dir = m.inverse_transform_vector(dir);
@@ -395,7 +395,7 @@ impl<N: Real> SupportMap<N> for ConvexHull<N> {
     }
 }
 
-impl<N: Real> ConvexPolyhedron<N> for ConvexHull<N> {
+impl<N: RealField> ConvexPolyhedron<N> for ConvexHull<N> {
     fn vertex(&self, id: FeatureId) -> Point<N> {
         self.points[id.unwrap_vertex()]
     }

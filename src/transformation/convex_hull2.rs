@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use alga::general::Real;
+use alga::general::RealField;
 use na::{self, Point2, Vector2};
 #[cfg(feature = "dim2")]
 use crate::procedural::Polyline;
@@ -8,7 +8,7 @@ use crate::transformation::convex_hull_utils::{indexed_support_point_id, support
 
 /// Computes the convex hull of a set of 2d points.
 #[cfg(feature = "dim2")]
-pub fn convex_hull2<N: Real>(points: &[Point2<N>]) -> Polyline<N> {
+pub fn convex_hull2<N: RealField>(points: &[Point2<N>]) -> Polyline<N> {
     let idx = convex_hull2_idx(points);
     let mut pts = Vec::new();
 
@@ -21,7 +21,7 @@ pub fn convex_hull2<N: Real>(points: &[Point2<N>]) -> Polyline<N> {
 
 /// Computes the convex hull of a set of 2d points and returns only the indices of the hull
 /// vertices.
-pub fn convex_hull2_idx<N: Real>(points: &[Point2<N>]) -> Vec<usize> {
+pub fn convex_hull2_idx<N: RealField>(points: &[Point2<N>]) -> Vec<usize> {
     let mut undecidable_points = Vec::new();
     let mut segments = get_initial_polyline(points, &mut undecidable_points);
 
@@ -81,7 +81,7 @@ pub fn convex_hull2_idx<N: Real>(points: &[Point2<N>]) -> Vec<usize> {
     idx
 }
 
-fn get_initial_polyline<N: Real>(
+fn get_initial_polyline<N: RealField>(
     points: &[Point2<N>],
     undecidable: &mut Vec<usize>,
 ) -> Vec<SegmentFacet<N>>
@@ -135,7 +135,7 @@ fn get_initial_polyline<N: Real>(
     res
 }
 
-fn attach_and_push_facets2<N: Real>(
+fn attach_and_push_facets2<N: RealField>(
     prev_facet: usize,
     next_facet: usize,
     point: usize,
@@ -189,7 +189,7 @@ fn attach_and_push_facets2<N: Real>(
     segments.push(new_facet2);
 }
 
-struct SegmentFacet<N: Real> {
+struct SegmentFacet<N: RealField> {
     pub valid: bool,
     pub normal: Vector2<N>,
     pub next: usize,
@@ -199,7 +199,7 @@ struct SegmentFacet<N: Real> {
     pt_type: PhantomData<Point2<N>>,
 }
 
-impl<N: Real> SegmentFacet<N> {
+impl<N: RealField> SegmentFacet<N> {
     pub fn new(
         p1: usize,
         p2: usize,

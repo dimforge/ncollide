@@ -1,17 +1,17 @@
 use crate::math::Isometry;
-use na::{self, Real};
+use na::{self, RealField};
 use crate::pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
 use crate::query::{ContactManifold, ContactPrediction, ContactPreprocessor};
 use crate::shape::{Capsule, Shape};
 use crate::utils::IdAllocator;
 
 /// Collision detector between a concave shape and another shape.
-pub struct CapsuleShapeManifoldGenerator<N: Real> {
+pub struct CapsuleShapeManifoldGenerator<N: RealField> {
     sub_detector: Option<ContactAlgorithm<N>>,
     flip: bool,
 }
 
-impl<N: Real> CapsuleShapeManifoldGenerator<N> {
+impl<N: RealField> CapsuleShapeManifoldGenerator<N> {
     /// Creates a new collision detector between a concave shape and another shape.
     pub fn new(flip: bool) -> CapsuleShapeManifoldGenerator<N> {
         CapsuleShapeManifoldGenerator {
@@ -79,7 +79,7 @@ impl<N: Real> CapsuleShapeManifoldGenerator<N> {
     }
 }
 
-impl<N: Real> ContactManifoldGenerator<N> for CapsuleShapeManifoldGenerator<N> {
+impl<N: RealField> ContactManifoldGenerator<N> for CapsuleShapeManifoldGenerator<N> {
     fn generate_contacts(
         &mut self,
         d: &ContactDispatcher<N>,

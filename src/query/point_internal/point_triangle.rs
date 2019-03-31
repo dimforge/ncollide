@@ -1,11 +1,11 @@
 use crate::math::{Isometry, Point, Vector};
-use na::{self, Real};
+use na::{self, RealField};
 use crate::query::{PointProjection, PointQuery, PointQueryWithLocation};
 use crate::shape::{FeatureId, Triangle, TrianglePointLocation};
 use crate::utils::IsometryOps;
 
 #[inline]
-fn compute_result<N: Real>(pt: &Point<N>, proj: Point<N>) -> PointProjection<N> {
+fn compute_result<N: RealField>(pt: &Point<N>, proj: Point<N>) -> PointProjection<N> {
     #[cfg(feature = "dim2")]
     {
         PointProjection::new(*pt == proj, proj)
@@ -19,7 +19,7 @@ fn compute_result<N: Real>(pt: &Point<N>, proj: Point<N>) -> PointProjection<N> 
     }
 }
 
-impl<N: Real> PointQuery<N> for Triangle<N> {
+impl<N: RealField> PointQuery<N> for Triangle<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> PointProjection<N> {
         let (projection, _) = self.project_point_with_location(m, pt, solid);
@@ -56,7 +56,7 @@ impl<N: Real> PointQuery<N> for Triangle<N> {
     // eaten by the `::approx_eq(...)` on `project_point(...)`.
 }
 
-impl<N: Real> PointQueryWithLocation<N> for Triangle<N> {
+impl<N: RealField> PointQueryWithLocation<N> for Triangle<N> {
     type Location = TrianglePointLocation<N>;
 
     #[inline]
@@ -124,7 +124,7 @@ impl<N: Real> PointQueryWithLocation<N> for Triangle<N> {
         // Checks on which edge voronoï region the point is.
         // For 2D and 3D, it uses explicit cross/perp products that are
         // more numerically stable.
-        fn stable_check_edges_voronoi<N: Real>(
+        fn stable_check_edges_voronoi<N: RealField>(
             ab: &Vector<N>,
             ac: &Vector<N>,
             bc: &Vector<N>,

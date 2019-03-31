@@ -1,6 +1,6 @@
 use crate::bounding_volume::{self, BoundingVolume, AABB};
 use crate::math::Isometry;
-use na::{self, Id, Point3, Real, Translation3, Vector2, Vector3};
+use na::{self, Id, Point3, RealField, Translation3, Vector2, Vector3};
 use crate::num::{Bounded, Zero};
 use crate::partitioning::{BVH, BVT};
 use crate::procedural::{IndexBuffer, TriMesh};
@@ -17,7 +17,7 @@ use crate::transformation;
 use crate::utils;
 
 /// Approximate convex decomposition of a triangle mesh.
-pub fn hacd<N: Real>(
+pub fn hacd<N: RealField>(
     mesh: TriMesh<N>,
     error: N,
     min_components: usize,
@@ -163,7 +163,7 @@ pub fn hacd<N: Real>(
     (result, parts)
 }
 
-fn normalize<N: Real>(mesh: &mut TriMesh<N>) -> (Point3<N>, N) {
+fn normalize<N: RealField>(mesh: &mut TriMesh<N>) -> (Point3<N>, N) {
     let aabb = bounding_volume::point_cloud_aabb(&Isometry::identity(), &mesh.coords[..]);
     let diag = na::distance(aabb.mins(), aabb.maxs());
     let center = aabb.center();
@@ -175,12 +175,12 @@ fn normalize<N: Real>(mesh: &mut TriMesh<N>) -> (Point3<N>, N) {
     (center, diag)
 }
 
-fn denormalize<N: Real>(mesh: &mut TriMesh<N>, center: &Point3<N>, diag: N) {
+fn denormalize<N: RealField>(mesh: &mut TriMesh<N>, center: &Point3<N>, diag: N) {
     mesh.scale_by_scalar(diag);
     mesh.translate_by(&Translation3::from(center.coords));
 }
 
-struct DualGraphVertex<N: Real> {
+struct DualGraphVertex<N: RealField> {
     // XXX: Loss of determinism because of the randomized HashSet.
     neighbors: Option<HashSet<usize>>,
     // vertices adjascent to this one.
@@ -196,7 +196,7 @@ struct DualGraphVertex<N: Real> {
     aabb: AABB<N>,
 }
 
-impl<N: Real> DualGraphVertex<N> {
+impl<N: RealField> DualGraphVertex<N> {
     pub fn new(
         ancestor: usize,
         mesh: &TriMesh<N>,
@@ -384,7 +384,7 @@ struct DualGraphEdge<N> {
     iray_cast: bool,
 }
 
-impl<N: Real> DualGraphEdge<N> {
+impl<N: RealField> DualGraphEdge<N> {
     pub fn new(
         timestamp: usize,
         v1: usize,
@@ -474,7 +474,7 @@ impl<N: Real> DualGraphEdge<N> {
 
         let max_concavity = max_concavity.min(max_cost - max_concavity * self.shape);
 
-        fn cast_ray<'a, N: Real>(
+        fn cast_ray<'a, N: RealField>(
             chull: &ConvexPair<'a, N>,
             ray: &Ray<N>,
             id: usize,
@@ -672,7 +672,7 @@ fn edge(a: u32, b: u32) -> Vector2<usize> {
     }
 }
 
-fn compute_ray_bvt<N: Real>(rays: &[Ray<N>]) -> BVT<usize, AABB<N>> {
+fn compute_ray_bvt<N: RealField>(rays: &[Ray<N>]) -> BVT<usize, AABB<N>> {
     let aabbs = rays
         .iter()
         .enumerate()
@@ -682,7 +682,7 @@ fn compute_ray_bvt<N: Real>(rays: &[Ray<N>]) -> BVT<usize, AABB<N>> {
     BVT::new_balanced(aabbs)
 }
 
-fn compute_rays<N: Real>(mesh: &TriMesh<N>) -> (Vec<Ray<N>>, HashMap<(u32, u32), usize>) {
+fn compute_rays<N: RealField>(mesh: &TriMesh<N>) -> (Vec<Ray<N>>, HashMap<(u32, u32), usize>) {
     let mut rays = Vec::new();
     let mut raymap = HashMap::new();
 
@@ -730,7 +730,7 @@ fn compute_rays<N: Real>(mesh: &TriMesh<N>) -> (Vec<Ray<N>>, HashMap<(u32, u32),
     (rays, raymap)
 }
 
-fn compute_dual_graph<N: Real>(
+fn compute_dual_graph<N: RealField>(
     mesh: &TriMesh<N>,
     raymap: &HashMap<(u32, u32), usize>,
 ) -> Vec<DualGraphVertex<N>>
@@ -777,18 +777,18 @@ fn compute_dual_graph<N: Real>(
     dual_vertices
 }
 
-struct ConvexPair<'a, N: 'a + Real> {
+struct ConvexPair<'a, N: 'a + RealField> {
     a: &'a [Point3<N>],
     b: &'a [Point3<N>],
 }
 
-impl<'a, N: Real> ConvexPair<'a, N> {
+impl<'a, N: RealField> ConvexPair<'a, N> {
     pub fn new(a: &'a [Point3<N>], b: &'a [Point3<N>]) -> ConvexPair<'a, N> {
         ConvexPair { a: a, b: b }
     }
 }
 
-impl<'a, N: Real> SupportMap<N> for ConvexPair<'a, N> {
+impl<'a, N: RealField> SupportMap<N> for ConvexPair<'a, N> {
     #[inline]
     fn support_point(&self, _: &Isometry<N>, dir: &Vector3<N>) -> Point3<N> {
         let sa = utils::point_cloud_support_point(dir, self.a);
@@ -802,7 +802,7 @@ impl<'a, N: Real> SupportMap<N> for ConvexPair<'a, N> {
     }
 }
 
-impl<'a, N: Real> RayCast<N> for ConvexPair<'a, N> {
+impl<'a, N: RealField> RayCast<N> for ConvexPair<'a, N> {
     #[inline]
     fn toi_and_normal_with_ray(
         &self,

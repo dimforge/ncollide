@@ -1,7 +1,7 @@
 //! Support mapping based Cone shape.
 
 use crate::math::{Isometry, Point, Vector};
-use na::{self, Real};
+use na::{self, RealField};
 use crate::shape::SupportMap;
 use crate::utils::IsometryOps;
 
@@ -13,7 +13,7 @@ pub struct Cone<N> {
     radius: N,
 }
 
-impl<N: Real> Cone<N> {
+impl<N: RealField> Cone<N> {
     /// Creates a new cone.
     ///
     /// # Arguments:
@@ -41,7 +41,7 @@ impl<N: Real> Cone<N> {
     }
 }
 
-impl<N: Real> SupportMap<N> for Cone<N> {
+impl<N: RealField> SupportMap<N> for Cone<N> {
     #[inline]
     fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
         let local_dir = m.inverse_transform_vector(dir);

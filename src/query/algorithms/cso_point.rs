@@ -1,5 +1,5 @@
 use crate::math::{Isometry, Point, Vector};
-use na::{Real, Unit};
+use na::{RealField, Unit};
 use crate::shape::SupportMap;
 use std::ops::Sub;
 
@@ -10,7 +10,7 @@ use std::ops::Sub;
 /// points correspond to the difference of two point, each belonging
 /// to a different solid.
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub struct CSOPoint<N: Real> {
+pub struct CSOPoint<N: RealField> {
     /// The point on the CSO. This is equal to `self.orig1 - self.orig2`.
     pub point: Point<N>,
     /// The original point on the first shape used to compute `self.point`.
@@ -19,7 +19,7 @@ pub struct CSOPoint<N: Real> {
     pub orig2: Point<N>,
 }
 
-impl<N: Real> CSOPoint<N> {
+impl<N: RealField> CSOPoint<N> {
     /// Initializes a CSO point with `orig1 - orig2`.
     pub fn new(orig1: Point<N>, orig2: Point<N>) -> Self {
         let point = Point::from(orig1 - orig2);
@@ -115,7 +115,7 @@ impl<N: Real> CSOPoint<N> {
     }
 }
 
-impl<N: Real> Sub<CSOPoint<N>> for CSOPoint<N> {
+impl<N: RealField> Sub<CSOPoint<N>> for CSOPoint<N> {
     type Output = Vector<N>;
 
     #[inline]

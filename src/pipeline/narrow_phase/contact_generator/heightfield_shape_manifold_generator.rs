@@ -1,6 +1,6 @@
 use crate::bounding_volume::{self, BoundingVolume};
 use crate::math::Isometry;
-use na::{self, Real};
+use na::{self, RealField};
 use crate::pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
 use crate::query::{ContactManifold, ContactPrediction, ContactPreprocessor};
 use crate::shape::{Shape, HeightField};
@@ -9,13 +9,13 @@ use crate::utils::DeterministicState;
 use crate::utils::IdAllocator;
 
 /// Collision detector between an heightfield and another shape.
-pub struct HeightFieldShapeManifoldGenerator<N: Real> {
+pub struct HeightFieldShapeManifoldGenerator<N: RealField> {
     sub_detectors: HashMap<usize, (ContactAlgorithm<N>, usize), DeterministicState>,
     flip: bool,
     timestamp: usize
 }
 
-impl<N: Real> HeightFieldShapeManifoldGenerator<N> {
+impl<N: RealField> HeightFieldShapeManifoldGenerator<N> {
     /// Creates a new collision detector between an heightfield and another shape.
     pub fn new(flip: bool) -> HeightFieldShapeManifoldGenerator<N> {
         HeightFieldShapeManifoldGenerator {
@@ -43,7 +43,7 @@ impl<N: Real> HeightFieldShapeManifoldGenerator<N> {
         self.timestamp += 1;
 
         // Find new collisions
-        let ls_m2 = na::inverse(m1) * m2.clone();
+        let ls_m2 = m1.inverse() * m2.clone();
         let ls_aabb2 = bounding_volume::aabb(g2, &ls_m2).loosened(prediction.linear());
 
         g1.map_elements_in_local_aabb(&ls_aabb2, &mut |i, elt1, part_proc1| {
@@ -131,7 +131,7 @@ impl<N: Real> HeightFieldShapeManifoldGenerator<N> {
     }
 }
 
-impl<N: Real> ContactManifoldGenerator<N> for HeightFieldShapeManifoldGenerator<N> {
+impl<N: RealField> ContactManifoldGenerator<N> for HeightFieldShapeManifoldGenerator<N> {
     fn generate_contacts(
         &mut self,
         d: &ContactDispatcher<N>,

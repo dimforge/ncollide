@@ -1,6 +1,6 @@
 use super::{sphere, utils};
 use super::{IndexBuffer, TriMesh};
-use alga::general::Real;
+use alga::general::RealField;
 use na;
 
 /// Generates a capsule.
@@ -11,7 +11,7 @@ pub fn capsule<N>(
     nphi_subdiv: u32,
 ) -> TriMesh<N>
 where
-    N: Real,
+    N: RealField,
 {
     let top = sphere::unit_hemisphere::<N>(ntheta_subdiv, nphi_subdiv);
     let TriMesh {

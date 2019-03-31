@@ -1,7 +1,7 @@
 //! Support mapping based Cylinder shape.
 
 use crate::math::{Isometry, Point, Vector};
-use na::{self, Real};
+use na::{self, RealField};
 use crate::shape::SupportMap;
 use crate::utils::IsometryOps;
 
@@ -13,7 +13,7 @@ pub struct Cylinder<N> {
     radius: N,
 }
 
-impl<N: Real> Cylinder<N> {
+impl<N: RealField> Cylinder<N> {
     /// Creates a new cylinder.
     ///
     /// # Arguments:
@@ -41,7 +41,7 @@ impl<N: Real> Cylinder<N> {
     }
 }
 
-impl<N: Real> SupportMap<N> for Cylinder<N> {
+impl<N: RealField> SupportMap<N> for Cylinder<N> {
     fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
         let local_dir = m.inverse_transform_vector(dir);
 

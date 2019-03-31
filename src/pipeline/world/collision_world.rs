@@ -1,6 +1,6 @@
 use crate::bounding_volume::{self, BoundingVolume, AABB};
 use crate::math::{Isometry, Point};
-use na::Real;
+use na::RealField;
 use crate::pipeline::broad_phase::{
     BroadPhase, BroadPhasePairFilter, BroadPhasePairFilters, DBVTBroadPhase, ProxyHandle,
     BroadPhaseInterferenceHandler
@@ -22,7 +22,7 @@ use std::vec::IntoIter;
 pub type BroadPhaseObject<N> = Box<BroadPhase<N, AABB<N>, CollisionObjectHandle>>;
 
 /// A world that handles collision objects.
-pub struct CollisionWorld<N: Real, T> {
+pub struct CollisionWorld<N: RealField, T> {
     objects: CollisionObjectSlab<N, T>,
     broad_phase: BroadPhaseObject<N>,
     narrow_phase: NarrowPhase<N>,
@@ -32,7 +32,7 @@ pub struct CollisionWorld<N: Real, T> {
     timestamp: usize, // FIXME: allow modification of the other properties too.
 }
 
-struct CollisionWorldInterferenceHandler<'a, N: Real, T: 'a> {
+struct CollisionWorldInterferenceHandler<'a, N: RealField, T: 'a> {
     narrow_phase: &'a mut NarrowPhase<N>,
     contact_events: &'a mut ContactEvents,
     proximity_events: &'a mut ProximityEvents,
@@ -40,7 +40,7 @@ struct CollisionWorldInterferenceHandler<'a, N: Real, T: 'a> {
     pair_filters: &'a BroadPhasePairFilters<N, T>,
 }
 
-impl <'a, N: Real, T> BroadPhaseInterferenceHandler<CollisionObjectHandle> for CollisionWorldInterferenceHandler<'a, N, T> {
+impl <'a, N: RealField, T> BroadPhaseInterferenceHandler<CollisionObjectHandle> for CollisionWorldInterferenceHandler<'a, N, T> {
     fn is_interference_allowed(&mut self, b1: &CollisionObjectHandle, b2: &CollisionObjectHandle) -> bool {
         CollisionWorld::filter_collision(&self.pair_filters, &self.objects, *b1, *b2)
     }
@@ -66,7 +66,7 @@ impl <'a, N: Real, T> BroadPhaseInterferenceHandler<CollisionObjectHandle> for C
     }
 }
 
-impl<N: Real, T> CollisionWorld<N, T> {
+impl<N: RealField, T> CollisionWorld<N, T> {
     /// Creates a new collision world.
     // FIXME: use default values for `margin` and allow its modification by the user ?
     pub fn new(margin: N) -> CollisionWorld<N, T> {
@@ -565,14 +565,14 @@ impl<N: Real, T> CollisionWorld<N, T> {
 }
 
 /// Iterator through all the objects on the world that intersect a specific ray.
-pub struct InterferencesWithRay<'a, 'b, N: 'a + Real, T: 'a> {
+pub struct InterferencesWithRay<'a, 'b, N: 'a + RealField, T: 'a> {
     ray: &'b Ray<N>,
     objects: &'a CollisionObjectSlab<N, T>,
     groups: &'b CollisionGroups,
     handles: IntoIter<&'a CollisionObjectHandle>,
 }
 
-impl<'a, 'b, N: Real, T> Iterator for InterferencesWithRay<'a, 'b, N, T> {
+impl<'a, 'b, N: RealField, T> Iterator for InterferencesWithRay<'a, 'b, N, T> {
     type Item = (&'a CollisionObject<N, T>, RayIntersection<N>);
 
     #[inline]
@@ -596,14 +596,14 @@ impl<'a, 'b, N: Real, T> Iterator for InterferencesWithRay<'a, 'b, N, T> {
 }
 
 /// Iterator through all the objects on the world that intersect a specific point.
-pub struct InterferencesWithPoint<'a, 'b, N: 'a + Real, T: 'a> {
+pub struct InterferencesWithPoint<'a, 'b, N: 'a + RealField, T: 'a> {
     point: &'b Point<N>,
     objects: &'a CollisionObjectSlab<N, T>,
     groups: &'b CollisionGroups,
     handles: IntoIter<&'a CollisionObjectHandle>,
 }
 
-impl<'a, 'b, N: Real, T> Iterator for InterferencesWithPoint<'a, 'b, N, T> {
+impl<'a, 'b, N: RealField, T> Iterator for InterferencesWithPoint<'a, 'b, N, T> {
     type Item = &'a CollisionObject<N, T>;
 
     #[inline]
@@ -623,13 +623,13 @@ impl<'a, 'b, N: Real, T> Iterator for InterferencesWithPoint<'a, 'b, N, T> {
 }
 
 /// Iterator through all the objects on the world which bounding volume intersects a specific AABB.
-pub struct InterferencesWithAABB<'a, 'b, N: 'a + Real, T: 'a> {
+pub struct InterferencesWithAABB<'a, 'b, N: 'a + RealField, T: 'a> {
     objects: &'a CollisionObjectSlab<N, T>,
     groups: &'b CollisionGroups,
     handles: IntoIter<&'a CollisionObjectHandle>,
 }
 
-impl<'a, 'b, N: Real, T> Iterator for InterferencesWithAABB<'a, 'b, N, T> {
+impl<'a, 'b, N: RealField, T> Iterator for InterferencesWithAABB<'a, 'b, N, T> {
     type Item = &'a CollisionObject<N, T>;
 
     #[inline]

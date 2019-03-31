@@ -1,5 +1,5 @@
 use crate::bounding_volume::BoundingVolume;
-use na::Real;
+use na::RealField;
 use crate::partitioning::{VisitStatus, Visitor};
 use std::marker::PhantomData;
 
@@ -14,7 +14,7 @@ pub struct BoundingVolumeInterferencesCollector<'a, N: 'a, T: 'a, BV: 'a> {
 
 impl<'a, N, T, BV> BoundingVolumeInterferencesCollector<'a, N, T, BV>
 where
-    N: Real,
+    N: RealField,
     BV: BoundingVolume<N>,
 {
     /// Creates a new `BoundingVolumeInterferencesCollector`.
@@ -34,7 +34,7 @@ where
 
 impl<'a, N, T, BV> Visitor<T, BV> for BoundingVolumeInterferencesCollector<'a, N, T, BV>
 where
-    N: Real,
+    N: RealField,
     T: Clone,
     BV: BoundingVolume<N>,
 {

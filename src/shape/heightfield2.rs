@@ -1,5 +1,5 @@
 use std::iter;
-use na::{DVector, Real, Point2};
+use na::{DVector, RealField, Point2};
 
 use crate::bounding_volume::AABB;
 use crate::query::{ContactPreprocessor, Contact, ContactKinematic};
@@ -10,14 +10,14 @@ use crate::math::Vector;
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
 /// A 2D heightfield.
-pub struct HeightField<N: Real> {
+pub struct HeightField<N: RealField> {
     heights: DVector<N>,
     scale: Vector<N>,
     removed: Vec<bool>,
     aabb: AABB<N>,
 }
 
-impl<N: Real> HeightField<N> {
+impl<N: RealField> HeightField<N> {
     /// Creates a new 2D heightfield with the given heights and scale factor.
     pub fn new(heights: DVector<N>, scale: Vector<N>) -> Self {
         assert!(heights.len() > 1, "A heightfield heights must have at least 2 elements.");
@@ -197,12 +197,12 @@ impl<N: Real> HeightField<N> {
 
 #[allow(dead_code)]
 /// The contact preprocessor dedicated to 2D heightfields.
-pub struct HeightFieldTriangleContactPreprocessor<'a, N: Real> {
+pub struct HeightFieldTriangleContactPreprocessor<'a, N: RealField> {
     heightfield: &'a HeightField<N>,
     triangle: usize
 }
 
-impl<'a, N: Real> HeightFieldTriangleContactPreprocessor<'a, N> {
+impl<'a, N: RealField> HeightFieldTriangleContactPreprocessor<'a, N> {
     /// Initialize a contact preprocessor for the given triangle of the given heightfield.
     pub fn new(heightfield: &'a HeightField<N>, triangle: usize) -> Self {
         HeightFieldTriangleContactPreprocessor {
@@ -213,7 +213,7 @@ impl<'a, N: Real> HeightFieldTriangleContactPreprocessor<'a, N> {
 }
 
 
-impl<'a, N: Real> ContactPreprocessor<N> for HeightFieldTriangleContactPreprocessor<'a, N> {
+impl<'a, N: RealField> ContactPreprocessor<N> for HeightFieldTriangleContactPreprocessor<'a, N> {
     fn process_contact(
         &self,
         _c: &mut Contact<N>,

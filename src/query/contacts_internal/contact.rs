@@ -1,5 +1,5 @@
 use crate::math::{Point, Vector};
-use na::{self, Real, Unit};
+use na::{self, RealField, Unit};
 use crate::query::ContactKinematic;
 use std::mem;
 use crate::utils::GenerationalId;
@@ -7,7 +7,7 @@ use crate::utils::GenerationalId;
 /// Geometric description of a contact.
 #[derive(Debug, PartialEq, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub struct Contact<N: Real> {
+pub struct Contact<N: RealField> {
     /// Position of the contact on the first object. The position is expressed in world space.
     pub world1: Point<N>,
 
@@ -21,7 +21,7 @@ pub struct Contact<N: Real> {
     pub depth: N,
 }
 
-impl<N: Real> Contact<N> {
+impl<N: RealField> Contact<N> {
     /// Creates a new contact.
     #[inline]
     pub fn new(world1: Point<N>, world2: Point<N>, normal: Unit<Vector<N>>, depth: N) -> Self {
@@ -41,7 +41,7 @@ impl<N: Real> Contact<N> {
     }
 }
 
-impl<N: Real> Contact<N> {
+impl<N: RealField> Contact<N> {
     /// Reverts the contact normal and swaps `world1` and `world2`.
     #[inline]
     pub fn flip(&mut self) {
@@ -57,7 +57,7 @@ impl<N: Real> Contact<N> {
 /// they can be seen as the same contact point that moved in-between frames. Two matching
 /// contact points are given the same `id` here.
 #[derive(Clone, Debug)]
-pub struct TrackedContact<N: Real> {
+pub struct TrackedContact<N: RealField> {
     /// The geometric contact information.
     pub contact: Contact<N>,
     /// The local contact kinematic.
@@ -66,7 +66,7 @@ pub struct TrackedContact<N: Real> {
     pub id: GenerationalId,
 }
 
-impl<N: Real> TrackedContact<N> {
+impl<N: RealField> TrackedContact<N> {
     /// Creates a new tracked contact.
     pub fn new(contact: Contact<N>, kinematic: ContactKinematic<N>, id: GenerationalId) -> Self {
         TrackedContact {
@@ -79,7 +79,7 @@ impl<N: Real> TrackedContact<N> {
 
 /// The prediction parameters for contact determination.
 #[derive(Clone, Debug, PartialEq)]
-pub struct ContactPrediction<N: Real> {
+pub struct ContactPrediction<N: RealField> {
     linear: N,
     angular1: N,
     angular2: N,
@@ -89,7 +89,7 @@ pub struct ContactPrediction<N: Real> {
     sin_angular2: N,
 }
 
-impl<N: Real> ContactPrediction<N> {
+impl<N: RealField> ContactPrediction<N> {
     /// Initialize prediction parameters.
     pub fn new(linear: N, angular1: N, angular2: N) -> Self {
         ContactPrediction {

@@ -1,6 +1,6 @@
 use crate::bounding_volume::AABB;
 use crate::math::{Isometry, Point, Vector};
-use na::{self, Real};
+use na::{self, RealField};
 use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
 use crate::query::distance_internal;
 use crate::query::PointQuery;
@@ -14,10 +14,10 @@ pub fn composite_shape_against_shape<N, G1: ?Sized>(
     g2: &Shape<N>,
 ) -> N
 where
-    N: Real,
+    N: RealField,
     G1: CompositeShape<N>,
 {
-    let ls_m2 = na::inverse(m1) * m2.clone();
+    let ls_m2 = m1.inverse() * m2.clone();
     let ls_aabb2 = g2.aabb(&ls_m2);
 
     let mut visitor = CompositeShapeAgainstAnyDistanceVisitor {
@@ -42,13 +42,13 @@ pub fn shape_against_composite_shape<N, G2: ?Sized>(
     g2: &G2,
 ) -> N
 where
-    N: Real,
+    N: RealField,
     G2: CompositeShape<N>,
 {
     composite_shape_against_shape(m2, g2, m1, g1)
 }
 
-struct CompositeShapeAgainstAnyDistanceVisitor<'a, N: 'a + Real, G1: ?Sized + 'a> {
+struct CompositeShapeAgainstAnyDistanceVisitor<'a, N: 'a + RealField, G1: ?Sized + 'a> {
     msum_shift: Vector<N>,
     msum_margin: Vector<N>,
 
@@ -61,7 +61,7 @@ struct CompositeShapeAgainstAnyDistanceVisitor<'a, N: 'a + Real, G1: ?Sized + 'a
 impl<'a, N, G1: ?Sized> BestFirstVisitor<N, usize, AABB<N>>
     for CompositeShapeAgainstAnyDistanceVisitor<'a, N, G1>
 where
-    N: Real,
+    N: RealField,
     G1: CompositeShape<N>,
 {
     type Result = N;

@@ -1,10 +1,10 @@
 use crate::math::Point;
-use na::{self, Real};
+use na::{self, RealField};
 use crate::shape::Ball;
 
 /// Distance between balls.
 #[inline]
-pub fn ball_against_ball<N: Real>(
+pub fn ball_against_ball<N: RealField>(
     center1: &Point<N>,
     b1: &Ball<N>,
     center2: &Point<N>,

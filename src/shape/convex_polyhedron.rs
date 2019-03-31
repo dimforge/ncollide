@@ -1,5 +1,5 @@
 use crate::math::{Isometry, Point, Vector};
-use na::{Real, Unit};
+use na::{RealField, Unit};
 use crate::shape::{ConvexPolygonalFeature, SupportMap};
 
 /// An identifier of a feature of a convex polyhedron.
@@ -50,7 +50,7 @@ impl FeatureId {
 }
 
 /// Trait implemented by all convex polyhedron.
-pub trait ConvexPolyhedron<N: Real>: SupportMap<N> {
+pub trait ConvexPolyhedron<N: RealField>: SupportMap<N> {
     /// Gets the specified vertex in the shape local-space.
     fn vertex(&self, id: FeatureId) -> Point<N>;
     /// Fill `face` with the geometric description of the specified face, in the shape's local-space.

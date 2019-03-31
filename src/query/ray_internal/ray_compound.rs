@@ -1,12 +1,12 @@
 use crate::bounding_volume::AABB;
 use crate::math::Isometry;
-use na::Real;
+use na::RealField;
 use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor, BVH};
 use crate::query::{Ray, RayCast, RayIntersection};
 use crate::shape::Compound;
 
 // XXX: if solid == false, this might return internal intersection.
-impl<N: Real> RayCast<N> for Compound<N> {
+impl<N: RealField> RayCast<N> for Compound<N> {
     fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, solid: bool) -> Option<N> {
         let ls_ray = ray.inverse_transform_by(m);
 
@@ -47,13 +47,13 @@ impl<N: Real> RayCast<N> for Compound<N> {
 /*
  * Costs functions.
  */
-struct CompoundRayToiVisitor<'a, N: 'a + Real> {
+struct CompoundRayToiVisitor<'a, N: 'a + RealField> {
     compound: &'a Compound<N>,
     ray: &'a Ray<N>,
     solid: bool,
 }
 
-impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for CompoundRayToiVisitor<'a, N> {
+impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for CompoundRayToiVisitor<'a, N> {
     type Result = N;
 
     #[inline]
@@ -74,13 +74,13 @@ impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for CompoundRayToiVisitor<
     }
 }
 
-struct CompoundRayToiAndNormalVisitor<'a, N: 'a + Real> {
+struct CompoundRayToiAndNormalVisitor<'a, N: 'a + RealField> {
     compound: &'a Compound<N>,
     ray: &'a Ray<N>,
     solid: bool,
 }
 
-impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for CompoundRayToiAndNormalVisitor<'a, N> {
+impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for CompoundRayToiAndNormalVisitor<'a, N> {
     type Result = RayIntersection<N>;
 
     #[inline]

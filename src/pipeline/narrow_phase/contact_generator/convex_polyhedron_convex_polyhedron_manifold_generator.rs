@@ -1,5 +1,5 @@
 use crate::math::{Isometry, Vector};
-use na::{self, Real, Unit};
+use na::{self, RealField, Unit};
 use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 use crate::query::algorithms::gjk::GJKResult;
 use crate::query::algorithms::VoronoiSimplex;
@@ -13,7 +13,7 @@ use crate::utils::IdAllocator;
 
 #[cfg(feature = "dim2")]
 #[derive(Clone)]
-pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<N: Real> {
+pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<N: RealField> {
     simplex: VoronoiSimplex<N>,
     last_gjk_dir: Option<Unit<Vector<N>>>,
     last_optimal_dir: Option<Unit<Vector<N>>>,
@@ -24,7 +24,7 @@ pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<N: Real> {
 
 #[cfg(feature = "dim3")]
 #[derive(Clone)]
-pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<N: Real> {
+pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<N: RealField> {
     simplex: VoronoiSimplex<N>,
     last_gjk_dir: Option<Unit<Vector<N>>>,
     last_optimal_dir: Option<Unit<Vector<N>>>,
@@ -34,7 +34,7 @@ pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<N: Real> {
     manifold2: ConvexPolygonalFeature<N>,
 }
 
-impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
+impl<N: RealField> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
     #[cfg(feature = "dim3")]
     pub fn new() -> Self {
         ConvexPolyhedronConvexPolyhedronManifoldGenerator {
@@ -79,7 +79,7 @@ impl<N: Real> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
     }
 }
 
-impl<N: Real> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
+impl<N: RealField> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
     fn generate_contacts(
         &mut self,
         _: &ContactDispatcher<N>,

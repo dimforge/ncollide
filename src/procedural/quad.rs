@@ -1,6 +1,6 @@
 use super::{IndexBuffer, TriMesh};
 use crate::math::{Point, Vector};
-use na::{self, Point2, Point3, Real};
+use na::{self, Point2, Point3, RealField};
 
 /// Adds a double-sided quad to the scene.
 ///
@@ -15,7 +15,7 @@ use na::{self, Point2, Point3, Real};
 /// which will be placed horizontally on each line. Must not be `0`.
 /// * `vsubdivs` - number of vertical subdivisions. This correspond to the number of squares
 /// which will be placed vertically on each line. Must not be `0`.
-pub fn quad<N: Real>(width: N, height: N, usubdivs: usize, vsubdivs: usize) -> TriMesh<N> {
+pub fn quad<N: RealField>(width: N, height: N, usubdivs: usize, vsubdivs: usize) -> TriMesh<N> {
     let mut quad = unit_quad(usubdivs, vsubdivs);
 
     let mut s = Vector::zeros();
@@ -38,7 +38,7 @@ pub fn quad<N: Real>(width: N, height: N, usubdivs: usize, vsubdivs: usize) -> T
 /// # Arguments
 /// * `nhpoints` - number of columns on the grid.
 /// * `nvpoints` - number of lines on the grid.
-pub fn quad_with_vertices<N: Real>(
+pub fn quad_with_vertices<N: RealField>(
     vertices: &[Point<N>],
     nhpoints: usize,
     nvpoints: usize,
@@ -69,7 +69,7 @@ pub fn quad_with_vertices<N: Real>(
 /// which will be placed horizontally on each line. Must not be `0`.
 /// * `vsubdivs` - number of vertical subdivisions. This correspond to the number of squares
 /// which will be placed vertically on each line. Must not be `0`.
-pub fn unit_quad<N: Real>(usubdivs: usize, vsubdivs: usize) -> TriMesh<N> {
+pub fn unit_quad<N: RealField>(usubdivs: usize, vsubdivs: usize) -> TriMesh<N> {
     assert!(
         usubdivs > 0 && vsubdivs > 0,
         "The number of subdivisions cannot be zero"

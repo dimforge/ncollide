@@ -1,5 +1,5 @@
 use crate::math::{Isometry, Vector};
-use na::{Real, Unit};
+use na::{RealField, Unit};
 use crate::pipeline::narrow_phase::{ProximityDetector, ProximityDispatcher};
 use crate::query::algorithms::VoronoiSimplex;
 use crate::query::proximity_internal;
@@ -10,13 +10,13 @@ use crate::shape::Shape;
 ///
 /// It is based on the GJK algorithm.
 #[derive(Clone)]
-pub struct SupportMapSupportMapProximityDetector<N: Real> {
+pub struct SupportMapSupportMapProximityDetector<N: RealField> {
     simplex: VoronoiSimplex<N>,
     proximity: Proximity,
     sep_axis: Unit<Vector<N>>,
 }
 
-impl<N: Real> SupportMapSupportMapProximityDetector<N> {
+impl<N: RealField> SupportMapSupportMapProximityDetector<N> {
     /// Creates a new persistant proximity detector between two shapes with support mapping
     /// functions.
     ///
@@ -30,7 +30,7 @@ impl<N: Real> SupportMapSupportMapProximityDetector<N> {
     }
 }
 
-impl<N: Real> ProximityDetector<N> for SupportMapSupportMapProximityDetector<N> {
+impl<N: RealField> ProximityDetector<N> for SupportMapSupportMapProximityDetector<N> {
     #[inline]
     fn update(
         &mut self,

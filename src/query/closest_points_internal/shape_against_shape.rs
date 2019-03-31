@@ -1,4 +1,4 @@
-use na::Real;
+use na::RealField;
 
 use crate::math::{Isometry, Point};
 use crate::query::closest_points_internal;
@@ -8,7 +8,7 @@ use crate::shape::{Ball, Plane, Segment, Shape};
 /// Computes the pair of closest points between two shapes.
 ///
 /// Returns `None` if the objects are separated by a distance greater than `max_dist`.
-pub fn shape_against_shape<N: Real>(
+pub fn shape_against_shape<N: RealField>(
     m1: &Isometry<N>,
     g1: &Shape<N>,
     m2: &Isometry<N>,

@@ -1,10 +1,10 @@
-use na::Real;
+use na::RealField;
 use std::any::Any;
 
 use crate::pipeline::world::CollisionObject;
 
 /// A signal handler for contact detection.
-pub trait BroadPhasePairFilter<N: Real, T>: Any + Send + Sync {
+pub trait BroadPhasePairFilter<N: RealField, T>: Any + Send + Sync {
     /// Activate an action for when two objects start or stop to be close to each other.
     fn is_pair_valid(&self, b1: &CollisionObject<N, T>, b2: &CollisionObject<N, T>) -> bool;
 }
@@ -12,11 +12,11 @@ pub trait BroadPhasePairFilter<N: Real, T>: Any + Send + Sync {
 /// Filters deciding whether a proximity is to be further investigated by the narrow phase or not.
 ///
 /// All filters have have to return `true` in order to allow a proximity to be further handled.
-pub struct BroadPhasePairFilters<N: Real, T> {
+pub struct BroadPhasePairFilters<N: RealField, T> {
     filters: Vec<(String, Box<BroadPhasePairFilter<N, T>>)>,
 }
 
-impl<N: Real, T> BroadPhasePairFilters<N, T> {
+impl<N: RealField, T> BroadPhasePairFilters<N, T> {
     /// Creates a new set of collision filters.
     pub fn new() -> BroadPhasePairFilters<N, T> {
         BroadPhasePairFilters {

@@ -1,10 +1,10 @@
-use alga::general::Real;
+use alga::general::RealField;
 
 use crate::bounding_volume::{BoundingSphere, HasBoundingVolume};
 use crate::math::{Isometry, Point};
 use crate::shape::Cone;
 
-impl<N: Real> HasBoundingVolume<N, BoundingSphere<N>> for Cone<N> {
+impl<N: RealField> HasBoundingVolume<N, BoundingSphere<N>> for Cone<N> {
     #[inline]
     fn bounding_volume(&self, m: &Isometry<N>) -> BoundingSphere<N> {
         let center = Point::from(m.translation.vector);

@@ -1,5 +1,5 @@
 use crate::math::Isometry;
-use na::Real;
+use na::RealField;
 use crate::pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
 use crate::query::{visitors::AABBSetsInterferencesCollector, ContactManifold, ContactPrediction, ContactPreprocessor};
 use crate::shape::{CompositeShape, Shape};
@@ -25,7 +25,7 @@ impl<N> CompositeShapeCompositeShapeManifoldGenerator<N> {
     }
 }
 
-impl<N: Real> CompositeShapeCompositeShapeManifoldGenerator<N> {
+impl<N: RealField> CompositeShapeCompositeShapeManifoldGenerator<N> {
     fn do_update(
         &mut self,
         dispatcher: &ContactDispatcher<N>,
@@ -101,7 +101,7 @@ impl<N: Real> CompositeShapeCompositeShapeManifoldGenerator<N> {
     }
 }
 
-impl<N: Real> ContactManifoldGenerator<N> for CompositeShapeCompositeShapeManifoldGenerator<N> {
+impl<N: RealField> ContactManifoldGenerator<N> for CompositeShapeCompositeShapeManifoldGenerator<N> {
     fn generate_contacts(
         &mut self,
         d: &ContactDispatcher<N>,

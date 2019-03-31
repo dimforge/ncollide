@@ -1,4 +1,4 @@
-use na::Real;
+use na::RealField;
 use crate::pipeline::narrow_phase::proximity_detector::{
     BallBallProximityDetector, CompositeShapeShapeProximityDetector,
     PlaneSupportMapProximityDetector, ProximityAlgorithm, ProximityDispatcher,
@@ -16,7 +16,7 @@ impl DefaultProximityDispatcher {
     }
 }
 
-impl<N: Real> ProximityDispatcher<N> for DefaultProximityDispatcher {
+impl<N: RealField> ProximityDispatcher<N> for DefaultProximityDispatcher {
     fn get_proximity_algorithm(&self, a: &Shape<N>, b: &Shape<N>) -> Option<ProximityAlgorithm<N>> {
         let a_is_ball = a.is_shape::<Ball<N>>();
         let b_is_ball = b.is_shape::<Ball<N>>();

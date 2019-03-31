@@ -1,7 +1,7 @@
 //! Definition of the segment shape.
 
 use crate::math::{Isometry, Point, Vector};
-use na::{self, Real, Unit};
+use na::{self, RealField, Unit};
 use crate::shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
 use std::f64;
 use std::mem;
@@ -12,21 +12,21 @@ use crate::utils::IsometryOps;
 /// A segment shape.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Clone)]
-pub struct Segment<N: Real> {
+pub struct Segment<N: RealField> {
     a: Point<N>,
     b: Point<N>,
 }
 
 /// Logical description of the location of a point on a triangle.
 #[derive(PartialEq, Debug, Clone, Copy)]
-pub enum SegmentPointLocation<N: Real> {
+pub enum SegmentPointLocation<N: RealField> {
     /// The point lies on a vertex.
     OnVertex(usize),
     /// The point lies on the segment interior.
     OnEdge([N; 2]),
 }
 
-impl<N: Real> SegmentPointLocation<N> {
+impl<N: RealField> SegmentPointLocation<N> {
     /// The barycentric coordinates corresponding to this point location.
     pub fn barycentric_coordinates(&self) -> [N; 2] {
         let mut bcoords = [N::zero(); 2];
@@ -43,7 +43,7 @@ impl<N: Real> SegmentPointLocation<N> {
     }
 }
 
-impl<N: Real> Segment<N> {
+impl<N: RealField> Segment<N> {
     /// Creates a new segment from two points.
     #[inline]
     pub fn new(a: Point<N>, b: Point<N>) -> Segment<N> {
@@ -56,7 +56,7 @@ impl<N: Real> Segment<N> {
     }
 }
 
-impl<N: Real> Segment<N> {
+impl<N: RealField> Segment<N> {
     /// The first point of this segment.
     #[inline]
     pub fn a(&self) -> &Point<N> {
@@ -70,7 +70,7 @@ impl<N: Real> Segment<N> {
     }
 }
 
-impl<N: Real> Segment<N> {
+impl<N: RealField> Segment<N> {
     /// The direction of this segment scaled by its length.
     ///
     /// Points from `self.a()` toward `self.b()`.
@@ -175,7 +175,7 @@ impl<N: Real> Segment<N> {
     }
 }
 
-impl<N: Real> SupportMap<N> for Segment<N> {
+impl<N: RealField> SupportMap<N> for Segment<N> {
     #[inline]
     fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
         let local_dir = m.inverse_transform_vector(dir);
@@ -188,7 +188,7 @@ impl<N: Real> SupportMap<N> for Segment<N> {
     }
 }
 
-impl<N: Real> ConvexPolyhedron<N> for Segment<N> {
+impl<N: RealField> ConvexPolyhedron<N> for Segment<N> {
     fn vertex(&self, id: FeatureId) -> Point<N> {
         if id.unwrap_vertex() == 0 {
             self.a

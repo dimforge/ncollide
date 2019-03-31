@@ -1,10 +1,10 @@
 use crate::bounding_volume::AABB;
 use crate::math::{Isometry, Point};
-use na::Real;
+use na::RealField;
 use crate::query::{Ray, RayCast, RayIntersection};
 use crate::shape::Cuboid;
 
-impl<N: Real> RayCast<N> for Cuboid<N> {
+impl<N: RealField> RayCast<N> for Cuboid<N> {
     #[inline]
     fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, solid: bool) -> Option<N> {
         let dl = Point::from(-*self.half_extents());

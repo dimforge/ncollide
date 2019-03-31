@@ -1,4 +1,4 @@
-use na::Real;
+use na::RealField;
 use crate::pipeline::narrow_phase::{
     BallBallManifoldGenerator, BallConvexPolyhedronManifoldGenerator,
     CompositeShapeCompositeShapeManifoldGenerator, CompositeShapeShapeManifoldGenerator,
@@ -22,7 +22,7 @@ impl DefaultContactDispatcher {
     }
 }
 
-impl<N: Real> ContactDispatcher<N> for DefaultContactDispatcher {
+impl<N: RealField> ContactDispatcher<N> for DefaultContactDispatcher {
     fn get_contact_algorithm(&self, a: &Shape<N>, b: &Shape<N>) -> Option<ContactAlgorithm<N>> {
         let a_is_ball = a.is_shape::<Ball<N>>();
         let b_is_ball = b.is_shape::<Ball<N>>();

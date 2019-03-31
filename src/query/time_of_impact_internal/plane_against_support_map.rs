@@ -1,4 +1,4 @@
-use na::Real;
+use na::RealField;
 
 use crate::math::{Isometry, Vector};
 use crate::query::{Ray, RayCast};
@@ -15,7 +15,7 @@ pub fn plane_against_support_map<N, G: ?Sized>(
     other: &G,
 ) -> Option<N>
 where
-    N: Real,
+    N: RealField,
     G: SupportMap<N>,
 {
     let vel = *vel_other - *vel_plane;
@@ -35,7 +35,7 @@ pub fn support_map_against_plane<N, G: ?Sized>(
     plane: &Plane<N>,
 ) -> Option<N>
 where
-    N: Real,
+    N: RealField,
     G: SupportMap<N>,
 {
     plane_against_support_map(mplane, vel_plane, plane, mother, vel_other, other)

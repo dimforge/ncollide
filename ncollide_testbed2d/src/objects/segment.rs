@@ -2,12 +2,12 @@ use num::ToPrimitive;
 use sfml::graphics;
 use sfml::graphics::Color;
 
-use alga::general::Real;
+use alga::general::RealField;
 use draw_helper::draw_line;
 use na::{Isometry2, Point2, Point3};
 use ncollide2d::world::CollisionObject;
 
-pub struct Segment<N: Real> {
+pub struct Segment<N: RealField> {
     color: Point3<u8>,
     base_color: Point3<u8>,
     delta: Isometry2<N>,
@@ -15,7 +15,7 @@ pub struct Segment<N: Real> {
     b: Point2<N>,
 }
 
-impl<N: Real + ToPrimitive> Segment<N> {
+impl<N: RealField + ToPrimitive> Segment<N> {
     pub fn new(delta: Isometry2<N>, a: Point2<N>, b: Point2<N>, color: Point3<u8>) -> Segment<N> {
         Segment {
             color: color,
@@ -27,7 +27,7 @@ impl<N: Real + ToPrimitive> Segment<N> {
     }
 }
 
-impl<N: Real + ToPrimitive> Segment<N> {
+impl<N: RealField + ToPrimitive> Segment<N> {
     pub fn update(&mut self) {}
 
     pub fn draw<T>(&self, rw: &mut graphics::RenderWindow, object: &CollisionObject<N, T>) {

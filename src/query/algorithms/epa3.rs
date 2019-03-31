@@ -2,7 +2,7 @@
 
 use alga::linear::FiniteDimInnerSpace;
 use crate::math::{Isometry, Point, Vector};
-use na::{self, Real, Unit};
+use na::{self, RealField, Unit};
 use crate::query::algorithms::{gjk, CSOPoint, VoronoiSimplex};
 use crate::query::PointQueryWithLocation;
 use crate::shape::{ConstantOrigin, SupportMap, Triangle, TrianglePointLocation};
@@ -11,12 +11,12 @@ use std::collections::BinaryHeap;
 use crate::utils;
 
 #[derive(Copy, Clone, PartialEq)]
-struct FaceId<N: Real> {
+struct FaceId<N: RealField> {
     id: usize,
     neg_dist: N,
 }
 
-impl<N: Real> FaceId<N> {
+impl<N: RealField> FaceId<N> {
     fn new(id: usize, neg_dist: N) -> Option<Self> {
         if neg_dist > gjk::eps_tol() {
 //            println!(
@@ -31,16 +31,16 @@ impl<N: Real> FaceId<N> {
     }
 }
 
-impl<N: Real> Eq for FaceId<N> {}
+impl<N: RealField> Eq for FaceId<N> {}
 
-impl<N: Real> PartialOrd for FaceId<N> {
+impl<N: RealField> PartialOrd for FaceId<N> {
     #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         self.neg_dist.partial_cmp(&other.neg_dist)
     }
 }
 
-impl<N: Real> Ord for FaceId<N> {
+impl<N: RealField> Ord for FaceId<N> {
     #[inline]
     fn cmp(&self, other: &Self) -> Ordering {
         if self.neg_dist < other.neg_dist {
@@ -54,7 +54,7 @@ impl<N: Real> Ord for FaceId<N> {
 }
 
 #[derive(Clone, Debug)]
-struct Face<N: Real> {
+struct Face<N: RealField> {
     pts: [usize; 3],
     adj: [usize; 3],
     normal: Unit<Vector<N>>,
@@ -63,7 +63,7 @@ struct Face<N: Real> {
     deleted: bool,
 }
 
-impl<N: Real> Face<N> {
+impl<N: RealField> Face<N> {
     pub fn new_with_proj(
         vertices: &[CSOPoint<N>],
         proj: Point<N>,
@@ -166,14 +166,14 @@ impl SilhouetteEdge {
 }
 
 /// The Expanding Polytope Algorithm in 3D.
-pub struct EPA<N: Real> {
+pub struct EPA<N: RealField> {
     vertices: Vec<CSOPoint<N>>,
     faces: Vec<Face<N>>,
     silhouette: Vec<SilhouetteEdge>,
     heap: BinaryHeap<FaceId<N>>,
 }
 
-impl<N: Real> EPA<N> {
+impl<N: RealField> EPA<N> {
     /// Creates a new instance of the 3D Expanding Polytope Algorithm.
     pub fn new() -> Self {
         EPA {

@@ -1,4 +1,4 @@
-use na::Real;
+use na::RealField;
 use crate::query::LocalShapeApproximation;
 
 /// The type of elements used to describe a deformation on a collision object.
@@ -13,7 +13,7 @@ pub enum DeformationsType {
 }
 
 /// Trait implemented by deformable shapes.
-pub trait DeformableShape<N: Real> {
+pub trait DeformableShape<N: RealField> {
     /// The type of degrees of freedom this shape has.
     fn deformations_type(&self) -> DeformationsType;
 

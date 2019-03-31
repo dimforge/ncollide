@@ -1,7 +1,7 @@
 
 use std::marker::PhantomData;
 use crate::math::{Isometry, Point};
-use na::{self, Real};
+use na::{self, RealField};
 use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 use crate::query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry, ContactPreprocessor};
 use crate::shape::{Ball, FeatureId, Plane, Shape};
@@ -9,12 +9,12 @@ use crate::utils::{IdAllocator, IsometryOps};
 
 /// Collision detector between g1 plane and g1 shape implementing the `SupportMap` trait.
 #[derive(Clone)]
-pub struct PlaneBallManifoldGenerator<N: Real> {
+pub struct PlaneBallManifoldGenerator<N: RealField> {
     flip: bool,
     phantom: PhantomData<N>
 }
 
-impl<N: Real> PlaneBallManifoldGenerator<N> {
+impl<N: RealField> PlaneBallManifoldGenerator<N> {
     /// Creates g1 new persistent collision detector between g1 plane and g1 shape with g1 support
     /// mapping function.
     #[inline]
@@ -84,7 +84,7 @@ impl<N: Real> PlaneBallManifoldGenerator<N> {
     }
 }
 
-impl<N: Real> ContactManifoldGenerator<N> for PlaneBallManifoldGenerator<N> {
+impl<N: RealField> ContactManifoldGenerator<N> for PlaneBallManifoldGenerator<N> {
     #[inline]
     fn generate_contacts(
         &mut self,

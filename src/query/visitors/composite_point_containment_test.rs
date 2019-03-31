@@ -1,12 +1,12 @@
 use crate::bounding_volume::BoundingVolume;
 use crate::math::{Isometry, Point};
-use na::Real;
+use na::RealField;
 use crate::partitioning::{VisitStatus, Visitor};
 use crate::query::PointQuery;
 use crate::shape::CompositeShape;
 
 /// Visitor for checking if a composite shape contains a specific point.
-pub struct CompositePointContainmentTest<'a, N: 'a + Real, S: 'a + CompositeShape<N>> {
+pub struct CompositePointContainmentTest<'a, N: 'a + RealField, S: 'a + CompositeShape<N>> {
     /// The composite shape on which the point containment test should be performed.
     pub shape: &'a S,
     /// The point to be tested.
@@ -15,7 +15,7 @@ pub struct CompositePointContainmentTest<'a, N: 'a + Real, S: 'a + CompositeShap
     pub found: bool,
 }
 
-impl<'a, N: Real, BV: BoundingVolume<N> + PointQuery<N>, S: CompositeShape<N>> Visitor<usize, BV>
+impl<'a, N: RealField, BV: BoundingVolume<N> + PointQuery<N>, S: CompositeShape<N>> Visitor<usize, BV>
     for CompositePointContainmentTest<'a, N, S>
 {
     #[inline]

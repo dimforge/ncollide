@@ -1,9 +1,9 @@
 use super::ToTriMesh;
-use alga::general::Real;
+use alga::general::RealField;
 use crate::procedural::TriMesh;
 use crate::shape::Triangle;
 
-impl<N: Real> ToTriMesh<N> for Triangle<N> {
+impl<N: RealField> ToTriMesh<N> for Triangle<N> {
     type DiscretizationParameter = ();
 
     fn to_trimesh(&self, _: ()) -> TriMesh<N> {

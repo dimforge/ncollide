@@ -1,12 +1,12 @@
 use crate::bounding_volume::AABB;
 use crate::math::{Isometry, Point, Vector, DIM};
-use na::{self, Real};
+use na::{self, RealField};
 use crate::num::{Bounded, Zero};
 use crate::query::{PointProjection, PointQuery};
 use crate::shape::FeatureId;
 use crate::utils::IsometryOps;
 
-impl<N: Real> AABB<N> {
+impl<N: RealField> AABB<N> {
     fn local_point_projection(
         &self,
         m: &Isometry<N>,
@@ -58,7 +58,7 @@ impl<N: Real> AABB<N> {
     }
 }
 
-impl<N: Real> PointQuery<N> for AABB<N> {
+impl<N: RealField> PointQuery<N> for AABB<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> PointProjection<N> {
         let (inside, ls_pt, _) = self.local_point_projection(m, pt, solid);

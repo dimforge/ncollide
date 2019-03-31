@@ -1,18 +1,18 @@
 use crate::math::{Isometry, Point};
-use na::{self, Real};
+use na::{self, RealField};
 use crate::shape::FeatureId;
 
 /// Description of the projection of a point on a shape.
 #[derive(Copy, Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub struct PointProjection<N: Real> {
+pub struct PointProjection<N: RealField> {
     /// Whether or not the point to project was inside of the shape.
     pub is_inside: bool,
     /// The projection result.
     pub point: Point<N>,
 }
 
-impl<N: Real> PointProjection<N> {
+impl<N: RealField> PointProjection<N> {
     /// Initializes a new `PointProjection`.
     pub fn new(is_inside: bool, point: Point<N>) -> PointProjection<N> {
         PointProjection {
@@ -23,7 +23,7 @@ impl<N: Real> PointProjection<N> {
 }
 
 /// Trait of objects that can be tested for point inclusion and projection.
-pub trait PointQuery<N: Real> {
+pub trait PointQuery<N: RealField> {
     /// Projects a point on `self` transformed by `m`.
     #[inline]
     fn project_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> PointProjection<N>;
@@ -71,7 +71,7 @@ pub trait PointQuery<N: Real> {
 /// information, can implement `PointQueryWithLocation` in addition and have their
 /// `PointQuery::project_point` implementation just call out to
 /// `PointQueryWithLocation::project_point_with_location`.
-pub trait PointQueryWithLocation<N: Real> {
+pub trait PointQueryWithLocation<N: RealField> {
     /// Additional shape-specific projection information
     ///
     /// In addition to the generic projection information returned in

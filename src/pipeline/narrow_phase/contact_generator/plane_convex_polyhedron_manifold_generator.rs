@@ -1,5 +1,5 @@
 use crate::math::{Isometry, Point};
-use na::{self, Real};
+use na::{self, RealField};
 use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 use crate::query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry, ContactPreprocessor};
 use crate::shape::{ConvexPolygonalFeature, FeatureId, Plane, Shape};
@@ -7,12 +7,12 @@ use crate::utils::{IdAllocator, IsometryOps};
 
 /// Collision detector between g1 plane and g1 shape implementing the `SupportMap` trait.
 #[derive(Clone)]
-pub struct PlaneConvexPolyhedronManifoldGenerator<N: Real> {
+pub struct PlaneConvexPolyhedronManifoldGenerator<N: RealField> {
     flip: bool,
     feature: ConvexPolygonalFeature<N>,
 }
 
-impl<N: Real> PlaneConvexPolyhedronManifoldGenerator<N> {
+impl<N: RealField> PlaneConvexPolyhedronManifoldGenerator<N> {
     /// Creates g1 new persistent collision detector between g1 plane and g1 shape with g1 support
     /// mapping function.
     #[inline]
@@ -81,7 +81,7 @@ impl<N: Real> PlaneConvexPolyhedronManifoldGenerator<N> {
     }
 }
 
-impl<N: Real> ContactManifoldGenerator<N> for PlaneConvexPolyhedronManifoldGenerator<N> {
+impl<N: RealField> ContactManifoldGenerator<N> for PlaneConvexPolyhedronManifoldGenerator<N> {
     fn generate_contacts(
         &mut self,
         _: &ContactDispatcher<N>,

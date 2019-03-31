@@ -1,14 +1,14 @@
 //! Definition of the tetrahedron shape.
 
 use crate::math::{Point, Matrix};
-use na::Real;
+use na::RealField;
 use crate::shape::{Segment, Triangle};
 use std::mem;
 
 /// A tetrahedron with 4 vertices.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Copy, Clone, Debug)]
-pub struct Tetrahedron<N: Real> {
+pub struct Tetrahedron<N: RealField> {
     a: Point<N>,
     b: Point<N>,
     c: Point<N>,
@@ -17,7 +17,7 @@ pub struct Tetrahedron<N: Real> {
 
 /// Logical description of the location of a point on a triangle.
 #[derive(Copy, Clone, Debug)]
-pub enum TetrahedronPointLocation<N: Real> {
+pub enum TetrahedronPointLocation<N: RealField> {
     /// The point lies on a vertex.
     OnVertex(usize),
     /// The point lies on an edge.
@@ -40,7 +40,7 @@ pub enum TetrahedronPointLocation<N: Real> {
     OnSolid,
 }
 
-impl<N: Real> TetrahedronPointLocation<N> {
+impl<N: RealField> TetrahedronPointLocation<N> {
     /// The barycentric coordinates corresponding to this point location.
     ///
     /// Returns `None` if the location is `TetrahedronPointLocation::OnSolid`.
@@ -86,7 +86,7 @@ impl<N: Real> TetrahedronPointLocation<N> {
     }
 }
 
-impl<N: Real> Tetrahedron<N> {
+impl<N: RealField> Tetrahedron<N> {
     /// Creates a tetrahedron from three points.
     #[inline]
     pub fn new(a: Point<N>, b: Point<N>, c: Point<N>, d: Point<N>) -> Tetrahedron<N> {

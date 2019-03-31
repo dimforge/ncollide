@@ -1,11 +1,11 @@
 use crate::math::{Point, Vector};
-use na::{self, Real, Unit};
+use na::{self, RealField, Unit};
 use crate::query::Contact;
 use crate::shape::Ball;
 
 /// Contact between balls.
 #[inline]
-pub fn ball_against_ball<N: Real>(
+pub fn ball_against_ball<N: RealField>(
     center1: &Point<N>,
     b1: &Ball<N>,
     center2: &Point<N>,

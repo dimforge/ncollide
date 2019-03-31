@@ -3,14 +3,14 @@ use std::mem;
 
 #[cfg(feature = "dim3")]
 use na::Point2;
-use na::{self, Real};
+use na::{self, RealField};
 
 use crate::bounding_volume::AABB;
 use crate::shape::{FeatureId, Segment};
 use crate::math::{Isometry, Vector, Point};
 use crate::query::{Ray, RayCast, RayIntersection};
 
-impl<N: Real> RayCast<N> for AABB<N> {
+impl<N: RealField> RayCast<N> for AABB<N> {
     fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, solid: bool) -> Option<N> {
         let ls_ray = ray.inverse_transform_by(m);
 
@@ -83,7 +83,7 @@ impl<N: Real> RayCast<N> for AABB<N> {
     }
 }
 
-impl<N: Real> AABB<N> {
+impl<N: RealField> AABB<N> {
     /// Computes the parameters of the two intersection points between a line and this AABB.
     ///
     /// The parameters are such that the point are given by `orig + dir * parameter`.
@@ -136,7 +136,7 @@ impl<N: Real> AABB<N> {
 }
 
 #[cfg(feature = "dim3")]
-fn do_toi_and_normal_and_uv_with_ray<N: Real>(
+fn do_toi_and_normal_and_uv_with_ray<N: RealField>(
     m: &Isometry<N>,
     aabb: &AABB<N>,
     ray: &Ray<N>,
@@ -186,7 +186,7 @@ fn do_toi_and_normal_and_uv_with_ray<N: Real>(
     }
 }
 
-fn clip_line<N: Real>(aabb: &AABB<N>, origin: &Point<N>, dir: &Vector<N>) -> Option<((N, Vector<N>, isize), (N, Vector<N>, isize))> {
+fn clip_line<N: RealField>(aabb: &AABB<N>, origin: &Point<N>, dir: &Vector<N>) -> Option<((N, Vector<N>, isize), (N, Vector<N>, isize))> {
     // NOTE: we don't start with tmin = 0 so we can return the correct normal
     // when the ray starts exactly on the object contour.
 
@@ -277,7 +277,7 @@ fn clip_line<N: Real>(aabb: &AABB<N>, origin: &Point<N>, dir: &Vector<N>) -> Opt
     Some((near, far))
 }
 
-fn ray_aabb<N: Real>(aabb: &AABB<N>, ray: &Ray<N>, solid: bool) -> Option<(N, Vector<N>, isize)> {
+fn ray_aabb<N: RealField>(aabb: &AABB<N>, ray: &Ray<N>, solid: bool) -> Option<(N, Vector<N>, isize)> {
     if let Some((near, far)) = clip_line(aabb, &ray.origin, &ray.dir) {
         if near.0 < N::zero() {
             if solid {

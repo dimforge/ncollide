@@ -1,4 +1,4 @@
-use na::Real;
+use na::RealField;
 use crate::pipeline::broad_phase::BroadPhasePairFilter;
 use crate::pipeline::world::CollisionObject;
 
@@ -266,7 +266,7 @@ impl CollisionGroupsPairFilter {
     }
 }
 
-impl<N: Real, T> BroadPhasePairFilter<N, T> for CollisionGroupsPairFilter {
+impl<N: RealField, T> BroadPhasePairFilter<N, T> for CollisionGroupsPairFilter {
     fn is_pair_valid(&self, co1: &CollisionObject<N, T>, co2: &CollisionObject<N, T>) -> bool {
         if co1.handle() == co2.handle() {
             co1.collision_groups().can_interact_with_self()

@@ -4,3 +4,5 @@ members = [ "build/ncollide2d", "build/ncollide3d" ] #, "ncollide_testbed2d", "n
 [patch.crates-io]
 ncollide2d = { path = "./build/ncollide2d" }
 ncollide3d = { path = "./build/ncollide3d" }
+nalgebra = { path = "../nalgebra-dev" }
+alga = { path = "../alga/alga" }

@@ -1,5 +1,5 @@
 use crate::math::{Isometry, Point};
-use na::Real;
+use na::RealField;
 use crate::pipeline::narrow_phase::{ProximityDetector, ProximityDispatcher};
 use crate::query::proximity_internal;
 use crate::query::Proximity;
@@ -28,7 +28,7 @@ impl BallBallProximityDetector {
     }
 }
 
-impl<N: Real> ProximityDetector<N> for BallBallProximityDetector {
+impl<N: RealField> ProximityDetector<N> for BallBallProximityDetector {
     fn update(
         &mut self,
         _: &ProximityDispatcher<N>,

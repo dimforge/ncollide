@@ -9,7 +9,7 @@ use sfml::window::{Key, MouseButton};
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use alga::general::Real;
+use alga::general::RealField;
 use alga::linear::ProjectiveTransformation;
 use camera::Camera;
 use na::{self, Point2, Point3, Translation2};
@@ -31,7 +31,7 @@ enum RunMode {
     Step,
 }
 
-pub struct Testbed<N: Real> {
+pub struct Testbed<N: RealField> {
     window: RenderWindow,
     graphics: GraphicsManagerHandle<N>,
     running: RunMode,
@@ -50,7 +50,7 @@ pub struct Testbed<N: Real> {
     recorder: Option<()>,
 }
 
-impl<N: Real + ToPrimitive> Testbed<N> {
+impl<N: RealField + ToPrimitive> Testbed<N> {
     pub fn new() -> Testbed<N> {
         let mode = VideoMode::new_init(800, 600, 32);
         let ctxt = ContextSettings::default();

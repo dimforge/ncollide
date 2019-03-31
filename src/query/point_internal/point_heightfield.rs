@@ -1,11 +1,11 @@
 use crate::math::{Isometry, Point};
-use na::{self, Real};
+use na::{self, RealField};
 use crate::query::{
     PointProjection, PointQuery, PointQueryWithLocation,
 };
 use crate::shape::{FeatureId, HeightField, TrianglePointLocation};
 
-impl<N: Real> PointQuery<N> for HeightField<N> {
+impl<N: RealField> PointQuery<N> for HeightField<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, point: &Point<N>, _: bool) -> PointProjection<N> {
         let mut smallest_dist = N::max_value();
@@ -47,7 +47,7 @@ impl<N: Real> PointQuery<N> for HeightField<N> {
     }
 }
 
-impl<N: Real> PointQueryWithLocation<N> for HeightField<N> {
+impl<N: RealField> PointQueryWithLocation<N> for HeightField<N> {
     type Location = (usize, TrianglePointLocation<N>);
 
     #[inline]

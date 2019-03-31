@@ -1,12 +1,12 @@
 use crate::math::{Isometry, Point};
-use na::Real;
+use na::RealField;
 use crate::query::distance_internal;
 use crate::shape::{Ball, Plane, Shape};
 
 /// Computes the minimum distance separating two shapes.
 ///
 /// Returns `0.0` if the objects are touching or penetrating.
-pub fn shape_against_shape<N: Real>(
+pub fn shape_against_shape<N: RealField>(
     m1: &Isometry<N>,
     g1: &Shape<N>,
     m2: &Isometry<N>,

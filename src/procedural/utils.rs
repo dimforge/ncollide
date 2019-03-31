@@ -3,7 +3,7 @@
 use crate::math::{Point, Vector};
 #[cfg(feature = "dim3")]
 use na;
-use na::Real;
+use na::RealField;
 #[cfg(feature = "dim3")]
 use num::Zero;
 #[cfg(feature = "dim3")]
@@ -19,7 +19,7 @@ use crate::utils::{DeterministicState, HashablePartialEq};
 /// Pushes a discretized counterclockwise circle to a buffer.
 #[cfg(feature = "dim3")]
 #[inline]
-pub fn push_circle<N: Real>(radius: N, nsubdiv: u32, dtheta: N, y: N, out: &mut Vec<Point<N>>) {
+pub fn push_circle<N: RealField>(radius: N, nsubdiv: u32, dtheta: N, y: N, out: &mut Vec<Point<N>>) {
     let mut curr_theta = N::zero();
 
     for _ in 0..nsubdiv {
@@ -35,7 +35,7 @@ pub fn push_circle<N: Real>(radius: N, nsubdiv: u32, dtheta: N, y: N, out: &mut 
 /// Pushes a discretized counterclockwise circle to a buffer.
 /// The circle is contained on the plane spanned by the `x` and `y` axis.
 #[inline]
-pub fn push_xy_arc<N: Real>(radius: N, nsubdiv: u32, dtheta: N, out: &mut Vec<Point<N>>) {
+pub fn push_xy_arc<N: RealField>(radius: N, nsubdiv: u32, dtheta: N, out: &mut Vec<Point<N>>) {
     let mut curr_theta = N::zero();
 
     for _ in 0..nsubdiv {
@@ -179,7 +179,7 @@ pub fn split_index_buffer(indices: &[Point<u32>]) -> Vec<Point<Point<u32>>> {
 /// identical vertex.
 #[cfg(feature = "dim3")]
 #[inline]
-pub fn split_index_buffer_and_recover_topology<N: Real>(
+pub fn split_index_buffer_and_recover_topology<N: RealField>(
     indices: &[Point<u32>],
     coords: &[Point<N>],
 ) -> (Vec<Point<Point<u32>>>, Vec<Point<N>>)
@@ -188,7 +188,7 @@ pub fn split_index_buffer_and_recover_topology<N: Real>(
     let mut new_coords = Vec::with_capacity(coords.len());
     let mut out = Vec::with_capacity(indices.len());
 
-    fn resolve_coord_id<N: Real>(
+    fn resolve_coord_id<N: RealField>(
         coord: &Point<N>,
         vtx_to_id: &mut HashMap<HashablePartialEq<Point<N>>, u32, DeterministicState>,
         new_coords: &mut Vec<Point<N>>,
@@ -233,7 +233,7 @@ pub fn split_index_buffer_and_recover_topology<N: Real>(
 /// Computes the normals of a set of vertices.
 #[cfg(feature = "dim3")]
 #[inline]
-pub fn compute_normals<N: Real>(
+pub fn compute_normals<N: RealField>(
     coordinates: &[Point<N>],
     faces: &[Point<u32>],
     normals: &mut Vec<Vector<N>>,

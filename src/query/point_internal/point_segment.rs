@@ -1,10 +1,10 @@
 use crate::math::{Isometry, Point};
-use na::{self, Real};
+use na::{self, RealField};
 use crate::query::{PointProjection, PointQuery, PointQueryWithLocation};
 use crate::shape::{FeatureId, Segment, SegmentPointLocation};
 use crate::utils::IsometryOps;
 
-impl<N: Real> PointQuery<N> for Segment<N> {
+impl<N: RealField> PointQuery<N> for Segment<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> PointProjection<N> {
         let (projection, _) = self.project_point_with_location(m, pt, solid);
@@ -47,7 +47,7 @@ impl<N: Real> PointQuery<N> for Segment<N> {
     // eaten by the `::approx_eq(...)` on `project_point(...)`.
 }
 
-impl<N: Real> PointQueryWithLocation<N> for Segment<N> {
+impl<N: RealField> PointQueryWithLocation<N> for Segment<N> {
     type Location = SegmentPointLocation<N>;
 
     #[inline]

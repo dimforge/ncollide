@@ -3,7 +3,7 @@ use super::utils;
 use super::Polyline;
 #[cfg(feature = "dim3")]
 use super::{IndexBuffer, TriMesh};
-use alga::general::Real;
+use alga::general::RealField;
 use na;
 #[cfg(feature = "dim3")]
 use na::{Point2, Point3, Vector3};
@@ -17,7 +17,7 @@ pub fn sphere<N>(
     generate_uvs: bool,
 ) -> TriMesh<N>
 where
-    N: Real,
+    N: RealField,
 {
     let mut sphere = unit_sphere(ntheta_subdiv, nphi_subdiv, generate_uvs);
 
@@ -29,7 +29,7 @@ where
 /// Generates a UV sphere centered at the origin and with a unit diameter.
 #[cfg(feature = "dim3")]
 pub fn unit_sphere<N>(ntheta_subdiv: u32, nphi_subdiv: u32, generate_uvs: bool) -> TriMesh<N>
-where N: Real {
+where N: RealField {
     if generate_uvs {
         unit_sphere_with_uvs(ntheta_subdiv, nphi_subdiv)
     } else {
@@ -40,7 +40,7 @@ where N: Real {
 // FIXME: n{theta,phi}_subdiv are not the right names.
 #[cfg(feature = "dim3")]
 fn unit_sphere_without_uvs<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N>
-where N: Real {
+where N: RealField {
     let pi = N::pi();
     let two_pi = N::two_pi();
     let pi_two = N::frac_pi_2();
@@ -99,7 +99,7 @@ where N: Real {
 }
 
 #[cfg(feature = "dim3")]
-fn unit_sphere_with_uvs<N: Real>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N> {
+fn unit_sphere_with_uvs<N: RealField>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N> {
     let pi = N::pi();
     let two_pi = N::two_pi();
     let pi_two = N::frac_pi_2();
@@ -163,7 +163,7 @@ fn unit_sphere_with_uvs<N: Real>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMes
 
 /// Creates an hemisphere with a diameter of 1.
 #[cfg(feature = "dim3")]
-pub fn unit_hemisphere<N: Real>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N> {
+pub fn unit_hemisphere<N: RealField>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N> {
     let two_pi = N::two_pi();
     let pi_two = N::frac_pi_2();
     let dtheta = two_pi / na::convert(ntheta_subdiv as f64);
@@ -217,7 +217,7 @@ pub fn unit_hemisphere<N: Real>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh
 
 /// Creates a circle lying on the `(x,y)` plane.
 #[cfg(feature = "dim2")]
-pub fn circle<N: Real>(diameter: &N, nsubdivs: u32) -> Polyline<N> {
+pub fn circle<N: RealField>(diameter: &N, nsubdivs: u32) -> Polyline<N> {
     let two_pi = N::two_pi();
     let dtheta = two_pi / na::convert(nsubdivs as f64);
 
@@ -232,7 +232,7 @@ pub fn circle<N: Real>(diameter: &N, nsubdivs: u32) -> Polyline<N> {
 
 /// Creates a circle lying on the `(x,y)` plane.
 #[cfg(feature = "dim2")]
-pub fn unit_circle<N: Real>(nsubdivs: u32) -> Polyline<N> {
+pub fn unit_circle<N: RealField>(nsubdivs: u32) -> Polyline<N> {
     // FIXME: do this the other way round?
     circle(&na::convert(1.0), nsubdivs)
 }

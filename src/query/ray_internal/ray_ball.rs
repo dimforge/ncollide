@@ -1,4 +1,4 @@
-use alga::general::Real;
+use alga::general::RealField;
 use na;
 #[cfg(feature = "dim3")]
 use na::Point2;
@@ -11,9 +11,9 @@ use crate::shape::{Ball, FeatureId};
 
 #[cfg(feature = "dim3")]
 #[inline]
-fn ball_uv<N: Real>(normal: &Vector<N>) -> Point2<N> {
-    let two_pi: N = Real::two_pi();
-    let pi: N = Real::pi();
+fn ball_uv<N: RealField>(normal: &Vector<N>) -> Point2<N> {
+    let two_pi: N = RealField::two_pi();
+    let pi: N = RealField::pi();
     let _0_5: N = na::convert(0.5f64);
     let uvx = _0_5 + normal[2].atan2(normal[0]) / two_pi;
     let uvy = _0_5 - normal[1].asin() / pi;
@@ -21,7 +21,7 @@ fn ball_uv<N: Real>(normal: &Vector<N>) -> Point2<N> {
     Point2::new(uvx, uvy)
 }
 
-impl<N: Real> RayCast<N> for Ball<N> {
+impl<N: RealField> RayCast<N> for Ball<N> {
     #[inline]
     fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, solid: bool) -> Option<N> {
         ball_toi_with_ray(
@@ -76,7 +76,7 @@ impl<N: Real> RayCast<N> for Ball<N> {
 
 /// Computes the time of impact of a ray on a ball.
 #[inline]
-pub fn ball_toi_with_ray<N: Real>(
+pub fn ball_toi_with_ray<N: RealField>(
     center: &Point<N>,
     radius: N,
     ray: &Ray<N>,

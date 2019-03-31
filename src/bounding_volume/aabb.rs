@@ -3,7 +3,7 @@
 use crate::bounding_volume::{BoundingVolume, HasBoundingVolume, BoundingSphere};
 use crate::math::{Isometry, Point, Vector};
 use crate::utils::IsometryOps;
-use na::{self, Real};
+use na::{self, RealField};
 
 // Seems useful to help type inference. See issue #84.
 /// Computes the axis-aligned bounding box of a shape `g` transformed by `m`.
@@ -11,7 +11,7 @@ use na::{self, Real};
 /// Same as `g.aabb(m)`.
 pub fn aabb<N, G: ?Sized>(g: &G, m: &Isometry<N>) -> AABB<N>
 where
-    N: Real,
+    N: RealField,
     G: HasBoundingVolume<N, AABB<N>>,
 {
     g.bounding_volume(m)
@@ -20,12 +20,12 @@ where
 /// An Axis Aligned Bounding Box.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, PartialEq, Clone)]
-pub struct AABB<N: Real> {
+pub struct AABB<N: RealField> {
     mins: Point<N>,
     maxs: Point<N>,
 }
 
-impl<N: Real> AABB<N> {
+impl<N: RealField> AABB<N> {
     /// Creates a new AABB.
     ///
     /// # Arguments:
@@ -98,7 +98,7 @@ impl<N: Real> AABB<N> {
     }
 }
 
-impl<N: Real> BoundingVolume<N> for AABB<N> {
+impl<N: RealField> BoundingVolume<N> for AABB<N> {
     #[inline]
     fn center(&self) -> Point<N> {
         self.center()

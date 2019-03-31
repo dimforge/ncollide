@@ -1,11 +1,11 @@
-use alga::general::Real;
+use alga::general::RealField;
 use crate::math::Point;
 use na;
 use crate::utils;
 
 /// Computes the area of a triangle.
 #[inline]
-pub fn triangle_area<N: Real>(pa: &Point<N>, pb: &Point<N>, pc: &Point<N>) -> N {
+pub fn triangle_area<N: RealField>(pa: &Point<N>, pb: &Point<N>, pc: &Point<N>) -> N {
     // Kahan's formula.
     let mut a = na::distance(pa, pb);
     let mut b = na::distance(pb, pc);
@@ -23,18 +23,18 @@ pub fn triangle_area<N: Real>(pa: &Point<N>, pb: &Point<N>, pc: &Point<N>) -> N 
 
 /// Computes the center of a triangle.
 #[inline]
-pub fn triangle_center<N: Real>(pa: &Point<N>, pb: &Point<N>, pc: &Point<N>) -> Point<N> {
+pub fn triangle_center<N: RealField>(pa: &Point<N>, pb: &Point<N>, pc: &Point<N>) -> Point<N> {
     utils::center(&[*pa, *pb, *pc])
 }
 
 /// Computes the perimeter of a triangle.
 #[inline]
-pub fn triangle_perimeter<N: Real>(pa: &Point<N>, pb: &Point<N>, pc: &Point<N>) -> N {
+pub fn triangle_perimeter<N: RealField>(pa: &Point<N>, pb: &Point<N>, pc: &Point<N>) -> N {
     na::distance(pa, pb) + na::distance(pb, pc) + na::distance(pc, pa)
 }
 
 /// Computes the circumcircle of a triangle.
-pub fn circumcircle<N: Real>(pa: &Point<N>, pb: &Point<N>, pc: &Point<N>) -> (Point<N>, N) {
+pub fn circumcircle<N: RealField>(pa: &Point<N>, pb: &Point<N>, pc: &Point<N>) -> (Point<N>, N) {
     let a = *pa - *pc;
     let b = *pb - *pc;
 
@@ -74,7 +74,7 @@ pub fn circumcircle<N: Real>(pa: &Point<N>, pb: &Point<N>, pc: &Point<N>) -> (Po
 
 /// Tests if three 3D points are approximately aligned.
 #[cfg(feature = "dim3")]
-pub fn is_affinely_dependent_triangle<N: Real>(
+pub fn is_affinely_dependent_triangle<N: RealField>(
     p1: &Point<N>,
     p2: &Point<N>,
     p3: &Point<N>,
@@ -95,7 +95,7 @@ pub fn is_affinely_dependent_triangle<N: Real>(
 }
 
 /// Tests if a point is inside of a triangle.
-pub fn is_point_in_triangle<N: Real>(
+pub fn is_point_in_triangle<N: RealField>(
     p: &Point<N>,
     p1: &Point<N>,
     p2: &Point<N>,

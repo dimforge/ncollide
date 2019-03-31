@@ -1,6 +1,6 @@
 use crate::bounding_volume::{self, BoundingVolume};
 use crate::math::Isometry;
-use na::{self, Real};
+use na::{self, RealField};
 use crate::pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
 use crate::query::{visitors::BoundingVolumeInterferencesCollector, ContactManifold, ContactPrediction,
                    ContactPreprocessor, ContactTrackingMode};
@@ -10,14 +10,14 @@ use crate::utils::DeterministicState;
 use crate::utils::IdAllocator;
 
 /// Collision detector between a concave shape and another shape.
-pub struct CompositeShapeShapeManifoldGenerator<N: Real> {
+pub struct CompositeShapeShapeManifoldGenerator<N: RealField> {
     sub_detectors: HashMap<usize, (ContactAlgorithm<N>, usize), DeterministicState>,
     interferences: Vec<usize>,
     flip: bool,
     timestamp: usize
 }
 
-impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
+impl<N: RealField> CompositeShapeShapeManifoldGenerator<N> {
     /// Creates a new collision detector between a concave shape and another shape.
     pub fn new(flip: bool) -> CompositeShapeShapeManifoldGenerator<N> {
         CompositeShapeShapeManifoldGenerator {
@@ -46,7 +46,7 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
         self.timestamp += 1;
 
         // Find new collisions
-        let ls_m2 = na::inverse(m1) * m2.clone();
+        let ls_m2 = m1.inverse() * m2.clone();
         let ls_aabb2 = bounding_volume::aabb(g2, &ls_m2).loosened(prediction.linear());
         
         {
@@ -123,7 +123,7 @@ impl<N: Real> CompositeShapeShapeManifoldGenerator<N> {
     }
 }
 
-impl<N: Real> ContactManifoldGenerator<N> for CompositeShapeShapeManifoldGenerator<N> {
+impl<N: RealField> ContactManifoldGenerator<N> for CompositeShapeShapeManifoldGenerator<N> {
     fn generate_contacts(
         &mut self,
         d: &ContactDispatcher<N>,

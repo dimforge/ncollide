@@ -1,7 +1,7 @@
 use alga::linear::EuclideanSpace;
 use crate::bounding_volume;
 use crate::math::{Isometry, Point};
-use na::{self, Real};
+use na::{self, RealField};
 use crate::num::Bounded;
 
 /// Returns the index of the support point of a list of points.
@@ -13,7 +13,7 @@ pub fn support_point_id<P: EuclideanSpace>(
     use alga::linear::FiniteDimVectorSpace;
 
     let mut argmax = None;
-    let _max: P::Real = Bounded::max_value();
+    let _max: P::RealField = Bounded::max_value();
     let mut max = -_max;
 
     for (id, pt) in points.iter().enumerate() {
@@ -38,7 +38,7 @@ pub fn indexed_support_point_id<P: EuclideanSpace>(
     use alga::linear::FiniteDimVectorSpace;
 
     let mut argmax = None;
-    let _max: P::Real = Bounded::max_value();
+    let _max: P::RealField = Bounded::max_value();
     let mut max = -_max;
 
     for i in idx.iter() {
@@ -54,7 +54,7 @@ pub fn indexed_support_point_id<P: EuclideanSpace>(
 }
 
 /// Scale and center the given set of point depending on their AABB.
-pub fn normalize<N: Real>(coords: &mut [Point<N>]) -> (Point<N>, N) {
+pub fn normalize<N: RealField>(coords: &mut [Point<N>]) -> (Point<N>, N) {
     let aabb = bounding_volume::point_cloud_aabb(&Isometry::identity(), &coords[..]);
     let diag = na::distance(aabb.mins(), aabb.maxs());
     let center = aabb.center();
@@ -67,7 +67,7 @@ pub fn normalize<N: Real>(coords: &mut [Point<N>]) -> (Point<N>, N) {
 }
 
 /// Scale and translates the given set of point.
-pub fn denormalize<N: Real>(coords: &mut [Point<N>], center: &Point<N>, diag: N) {
+pub fn denormalize<N: RealField>(coords: &mut [Point<N>], center: &Point<N>, diag: N) {
     for c in coords.iter_mut() {
         *c = *c * diag + center.coords;
     }

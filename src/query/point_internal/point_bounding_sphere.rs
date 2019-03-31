@@ -1,11 +1,11 @@
 use crate::bounding_volume::BoundingSphere;
 use crate::math::{Isometry, Point};
-use na::Real;
+use na::RealField;
 use crate::query::{PointProjection, PointQuery};
 use crate::shape::{Ball, FeatureId};
 use crate::utils::IsometryOps;
 
-impl<N: Real> PointQuery<N> for BoundingSphere<N> {
+impl<N: RealField> PointQuery<N> for BoundingSphere<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> PointProjection<N> {
         let ls_pt = m.inverse_transform_point(pt) + (-self.center().coords);

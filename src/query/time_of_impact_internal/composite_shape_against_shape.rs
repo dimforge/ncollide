@@ -1,6 +1,6 @@
 use crate::bounding_volume::AABB;
 use crate::math::{Isometry, Point, Vector};
-use na::{self, Real};
+use na::{self, RealField};
 use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
 use crate::query::{time_of_impact_internal, Ray, RayCast};
 use crate::shape::{CompositeShape, Shape};
@@ -16,7 +16,7 @@ pub fn composite_shape_against_shape<N, G1: ?Sized>(
     g2: &Shape<N>,
 ) -> Option<N>
 where
-    N: Real,
+    N: RealField,
     G1: CompositeShape<N>,
 {
     let mut visitor = CompositeShapeAgainstAnyTOIVisitor::new(m1, vel1, g1, m2, vel2, g2);
@@ -34,13 +34,13 @@ pub fn shape_against_composite_shape<N, G2: ?Sized>(
     g2: &G2,
 ) -> Option<N>
 where
-    N: Real,
+    N: RealField,
     G2: CompositeShape<N>,
 {
     composite_shape_against_shape(m2, vel2, g2, m1, vel1, g1)
 }
 
-struct CompositeShapeAgainstAnyTOIVisitor<'a, N: 'a + Real, G1: ?Sized + 'a> {
+struct CompositeShapeAgainstAnyTOIVisitor<'a, N: 'a + RealField, G1: ?Sized + 'a> {
     msum_shift: Vector<N>,
     msum_margin: Vector<N>,
     ray: Ray<N>,
@@ -55,7 +55,7 @@ struct CompositeShapeAgainstAnyTOIVisitor<'a, N: 'a + Real, G1: ?Sized + 'a> {
 
 impl<'a, N, G1: ?Sized> CompositeShapeAgainstAnyTOIVisitor<'a, N, G1>
 where
-    N: Real,
+    N: RealField,
     G1: CompositeShape<N>,
 {
     pub fn new(
@@ -67,7 +67,7 @@ where
         g2: &'a Shape<N>,
     ) -> CompositeShapeAgainstAnyTOIVisitor<'a, N, G1>
     {
-        let ls_m2 = na::inverse(m1) * m2.clone();
+        let ls_m2 = m1.inverse() * m2.clone();
         let ls_aabb2 = g2.aabb(&ls_m2);
 
         CompositeShapeAgainstAnyTOIVisitor {
@@ -90,7 +90,7 @@ where
 impl<'a, N, G1: ?Sized> BestFirstVisitor<N, usize, AABB<N>>
     for CompositeShapeAgainstAnyTOIVisitor<'a, N, G1>
 where
-    N: Real,
+    N: RealField,
     G1: CompositeShape<N>,
 {
     type Result = N;

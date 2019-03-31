@@ -1,11 +1,11 @@
 use alga::linear::Translation;
 use crate::bounding_volume::{HasBoundingVolume, AABB};
 use crate::math::{Isometry, Point};
-use na::Real;
+use na::RealField;
 use crate::shape::Cuboid;
 use crate::utils::IsometryOps;
 
-impl<N: Real> HasBoundingVolume<N, AABB<N>> for Cuboid<N> {
+impl<N: RealField> HasBoundingVolume<N, AABB<N>> for Cuboid<N> {
     #[inline]
     fn bounding_volume(&self, m: &Isometry<N>) -> AABB<N> {
         let center = Point::from(m.translation.to_vector());
