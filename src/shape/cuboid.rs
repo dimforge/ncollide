@@ -4,7 +4,6 @@ use crate::math::{Isometry, Point, Vector, DIM};
 use na::{self, RealField, Unit};
 use crate::shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
 use std::f64;
-use crate::utils::IsometryOps;
 
 /// Shape of a box.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]

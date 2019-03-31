@@ -6,7 +6,6 @@ use crate::query::{
     visitors::CompositePointContainmentTest, PointProjection, PointQuery, PointQueryWithLocation,
 };
 use crate::shape::{CompositeShape, FeatureId, TriMesh, TrianglePointLocation};
-use crate::utils::IsometryOps;
 
 impl<N: RealField> PointQuery<N> for TriMesh<N> {
     #[inline]

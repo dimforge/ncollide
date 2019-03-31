@@ -2,7 +2,6 @@ use crate::math::{Isometry, Point};
 use na::{self, RealField};
 use crate::query::{PointProjection, PointQuery, PointQueryWithLocation};
 use crate::shape::{FeatureId, Segment, SegmentPointLocation};
-use crate::utils::IsometryOps;
 
 impl<N: RealField> PointQuery<N> for Segment<N> {
     #[inline]

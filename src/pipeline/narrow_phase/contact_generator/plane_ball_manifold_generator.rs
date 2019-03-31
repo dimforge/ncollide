@@ -5,7 +5,7 @@ use na::{self, RealField};
 use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 use crate::query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry, ContactPreprocessor};
 use crate::shape::{Ball, FeatureId, Plane, Shape};
-use crate::utils::{IdAllocator, IsometryOps};
+use crate::utils::IdAllocator;
 
 /// Collision detector between g1 plane and g1 shape implementing the `SupportMap` trait.
 #[derive(Clone)]

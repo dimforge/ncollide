@@ -4,7 +4,6 @@ use na::{self, RealField, Unit};
 
 use crate::math::{Isometry, Point, Vector};
 use crate::shape::{SupportMap, FeatureId, Segment};
-use crate::utils::IsometryOps;
 use crate::query::{ContactPreprocessor, Contact, ContactKinematic};
 
 

@@ -8,7 +8,6 @@ use crate::shape::ConvexPolygon;
 #[cfg(feature = "dim3")]
 use crate::shape::{Cone, ConvexHull, Cylinder};
 use crate::shape::{ConstantOrigin, ConvexPolyhedron, FeatureId, SupportMap};
-use crate::utils::IsometryOps;
 
 /// Projects a point on a shape using the GJK algorithm.
 pub fn support_map_point_projection<N, G>(

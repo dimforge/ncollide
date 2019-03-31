@@ -4,7 +4,6 @@ use na::{self, RealField};
 use crate::num::{Bounded, Zero};
 use crate::query::{PointProjection, PointQuery};
 use crate::shape::FeatureId;
-use crate::utils::IsometryOps;
 
 impl<N: RealField> AABB<N> {
     fn local_point_projection(

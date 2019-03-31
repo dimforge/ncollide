@@ -4,7 +4,6 @@ use crate::math::{Isometry, Point, Vector};
 #[cfg(feature = "dim3")]
 use na::Point2;
 use na::RealField;
-use crate::utils::IsometryOps;
 use crate::shape::FeatureId;
 
 /// A Ray.

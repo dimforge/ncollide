@@ -6,7 +6,6 @@ use crate::query::{
     visitors::CompositePointContainmentTest, PointProjection, PointQuery, PointQueryWithLocation,
 };
 use crate::shape::{FeatureId, Polyline, SegmentPointLocation};
-use crate::utils::IsometryOps;
 
 impl<N: RealField> PointQuery<N> for Polyline<N> {
     #[inline]

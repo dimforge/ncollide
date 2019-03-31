@@ -2,7 +2,6 @@ use crate::math::{Isometry, Point, Vector};
 use na::{self, RealField};
 use crate::query::{PointProjection, PointQuery, PointQueryWithLocation};
 use crate::shape::{FeatureId, Triangle, TrianglePointLocation};
-use crate::utils::IsometryOps;
 
 #[inline]
 fn compute_result<N: RealField>(pt: &Point<N>, proj: Point<N>) -> PointProjection<N> {

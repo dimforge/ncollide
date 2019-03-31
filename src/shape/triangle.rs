@@ -10,7 +10,6 @@ use crate::shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId};
 #[cfg(feature = "dim3")]
 use std::f64;
 use std::mem;
-use crate::utils::IsometryOps;
 
 /// A triangle shape.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]

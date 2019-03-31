@@ -4,7 +4,6 @@ use na;
 use crate::math::{Isometry, Point};
 use crate::query::{PointProjection, PointQuery};
 use crate::shape::{Ball, FeatureId};
-use crate::utils::IsometryOps;
 
 impl<N: RealField> PointQuery<N> for Ball<N> {
     #[inline]

@@ -2,7 +2,6 @@ use crate::math::{Isometry, Point, Vector};
 use na::{self, RealField};
 use crate::query::{PointProjection, PointQuery, PointQueryWithLocation};
 use crate::shape::{FeatureId, Tetrahedron, TetrahedronPointLocation};
-use crate::utils::IsometryOps;
 
 impl<N: RealField> PointQuery<N> for Tetrahedron<N> {
     #[inline]

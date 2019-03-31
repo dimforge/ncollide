@@ -4,7 +4,6 @@ use na::{self, RealField};
 use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
 use crate::query::{time_of_impact_internal, Ray, RayCast};
 use crate::shape::{CompositeShape, Shape};
-use crate::utils::IsometryOps;
 
 /// Time Of Impact of a composite shape with any other shape, under translational movement.
 pub fn composite_shape_against_shape<N, G1: ?Sized>(
