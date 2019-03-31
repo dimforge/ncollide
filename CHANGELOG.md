@@ -4,8 +4,15 @@ documented here.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.16.0] and [0.17.0]
-Those two released are mostly composed of bug-fixes and dependencies updates.
+## [0.18.0]
+Bug-fixes and dependencies updates.
+
+## [0.17.0]
+    * Add support for some shapes (`TriMesh` and `Polyline`) that can be deformed.
+    * Add full support for `Capsule` and `Heightfield`.
+    
+## [0.16.0]
+Bug-fixes and dependencies updates.
 
 ## [0.15.0]
 ### Added
