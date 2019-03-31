@@ -1,13 +1,13 @@
 use crate::bounding_volume::BoundingVolume;
 use crate::math::Isometry;
-use na::{self, Real};
+use na::{self, RealField};
 use crate::query::contacts_internal;
 use crate::query::visitors::BoundingVolumeInterferencesCollector;
 use crate::query::Contact;
 use crate::shape::{CompositeShape, Shape};
 
 /// Best contact between a composite shape (`Mesh`, `Compound`) and any other shape.
-pub fn composite_shape_against_shape<N: Real, G1: ?Sized>(
+pub fn composite_shape_against_shape<N: RealField, G1: ?Sized>(
     m1: &Isometry<N>,
     g1: &G1,
     m2: &Isometry<N>,
@@ -18,7 +18,7 @@ where
     G1: CompositeShape<N>,
 {
     // Find new collisions
-    let ls_m2 = na::inverse(m1) * m2.clone();
+    let ls_m2 = m1.inverse() * m2.clone();
     let ls_aabb2 = g2.aabb(&ls_m2).loosened(prediction);
 
     let mut interferences = Vec::new();
@@ -52,7 +52,7 @@ where
 }
 
 /// Best contact between a shape and a composite (`Mesh`, `Compound`) shape.
-pub fn shape_against_composite_shape<N: Real, G2: ?Sized>(
+pub fn shape_against_composite_shape<N: RealField, G2: ?Sized>(
     m1: &Isometry<N>,
     g1: &Shape<N>,
     m2: &Isometry<N>,

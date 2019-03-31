@@ -1,6 +1,6 @@
 use crate::bounding_volume::{self, BoundingVolume};
 use crate::math::Isometry;
-use na::{self, Real};
+use na::{self, RealField};
 use crate::pipeline::narrow_phase::{ProximityAlgorithm, ProximityDetector, ProximityDispatcher};
 use crate::query::{visitors::BoundingVolumeInterferencesCollector, Proximity};
 use crate::shape::{CompositeShape, Shape};
@@ -31,7 +31,7 @@ impl<N> CompositeShapeShapeProximityDetector<N> {
     }
 }
 
-impl<N: Real> CompositeShapeShapeProximityDetector<N> {
+impl<N: RealField> CompositeShapeShapeProximityDetector<N> {
     fn do_update(
         &mut self,
         dispatcher: &ProximityDispatcher<N>,
@@ -70,7 +70,7 @@ impl<N: Real> CompositeShapeShapeProximityDetector<N> {
 
         self.proximity = Proximity::Disjoint;
 
-        let m12 = na::inverse(m1) * m2.clone();
+        let m12 = m1.inverse() * m2.clone();
         let ls_aabb2 = bounding_volume::aabb(g2, &m12).loosened(margin);
 
         // Update all collisions
@@ -161,7 +161,7 @@ impl<N: Real> CompositeShapeShapeProximityDetector<N> {
     }
 }
 
-impl<N: Real> ProximityDetector<N> for CompositeShapeShapeProximityDetector<N> {
+impl<N: RealField> ProximityDetector<N> for CompositeShapeShapeProximityDetector<N> {
     fn update(
         &mut self,
         dispatcher: &ProximityDispatcher<N>,

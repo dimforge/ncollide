@@ -1,5 +1,5 @@
 use crate::math::{Isometry, Point};
-use na::{Real, Unit};
+use na::{RealField, Unit};
 use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 use crate::query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry, ContactPreprocessor};
 use crate::shape::{Ball, FeatureId, Shape};
@@ -8,12 +8,12 @@ use crate::utils::{IdAllocator, IsometryOps};
 
 /// Collision detector between two balls.
 #[derive(Clone)]
-pub struct BallConvexPolyhedronManifoldGenerator<N: Real> {
+pub struct BallConvexPolyhedronManifoldGenerator<N: RealField> {
     phantom: PhantomData<N>,
     flip: bool,
 }
 
-impl<N: Real> BallConvexPolyhedronManifoldGenerator<N> {
+impl<N: RealField> BallConvexPolyhedronManifoldGenerator<N> {
     /// Creates a new persistent collision detector between two balls.
     #[inline]
     pub fn new(flip: bool) -> BallConvexPolyhedronManifoldGenerator<N> {
@@ -129,7 +129,7 @@ impl<N: Real> BallConvexPolyhedronManifoldGenerator<N> {
     }
 }
 
-impl<N: Real> ContactManifoldGenerator<N> for BallConvexPolyhedronManifoldGenerator<N> {
+impl<N: RealField> ContactManifoldGenerator<N> for BallConvexPolyhedronManifoldGenerator<N> {
     fn generate_contacts(
         &mut self,
         _: &ContactDispatcher<N>,

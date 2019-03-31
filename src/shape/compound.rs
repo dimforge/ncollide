@@ -5,7 +5,7 @@
 use std::mem;
 use crate::bounding_volume::{BoundingVolume, AABB};
 use crate::math::Isometry;
-use na::{self, Real};
+use na::{self, RealField};
 use crate::partitioning::{BVHImpl, BVT};
 use crate::shape::{CompositeShape, Shape, ShapeHandle, FeatureId};
 use crate::query::{ContactPrediction, ContactPreprocessor, Contact, ContactKinematic};
@@ -16,14 +16,14 @@ use crate::query::{ContactPrediction, ContactPreprocessor, Contact, ContactKinem
 /// the main way of creating a concave shape from convex parts. Each parts can have its own
 /// delta transformation to shift or rotate it with regard to the other shapes.
 #[derive(Clone)]
-pub struct Compound<N: Real> {
+pub struct Compound<N: RealField> {
     shapes: Vec<(Isometry<N>, ShapeHandle<N>)>,
     bvt: BVT<usize, AABB<N>>,
     bvs: Vec<AABB<N>>,
     nbits: usize
 }
 
-impl<N: Real> Compound<N> {
+impl<N: RealField> Compound<N> {
     /// Builds a new compound shape.
     pub fn new(shapes: Vec<(Isometry<N>, ShapeHandle<N>)>) -> Compound<N> {
         let mut bvs = Vec::new();
@@ -53,7 +53,7 @@ impl<N: Real> Compound<N> {
     }
 }
 
-impl<N: Real> Compound<N> {
+impl<N: RealField> Compound<N> {
     /// The shapes of this compound shape.
     #[inline]
     pub fn shapes(&self) -> &[(Isometry<N>, ShapeHandle<N>)] {
@@ -98,7 +98,7 @@ impl<N: Real> Compound<N> {
     }
 }
 
-impl<N: Real> CompositeShape<N> for Compound<N> {
+impl<N: RealField> CompositeShape<N> for Compound<N> {
     #[inline]
     fn nparts(&self) -> usize {
         self.shapes.len()
@@ -144,13 +144,13 @@ impl<N: Real> CompositeShape<N> for Compound<N> {
 }
 
 
-struct CompoundContactProcessor<'a, N: Real> {
+struct CompoundContactProcessor<'a, N: RealField> {
     part_pos: &'a Isometry<N>,
     part_id: usize,
     nbits: usize
 }
 
-impl<'a, N: Real> CompoundContactProcessor<'a, N> {
+impl<'a, N: RealField> CompoundContactProcessor<'a, N> {
     pub fn new(part_pos: &'a Isometry<N>, part_id: usize, nbits: usize) -> Self {
         CompoundContactProcessor {
             part_pos, part_id, nbits
@@ -158,7 +158,7 @@ impl<'a, N: Real> CompoundContactProcessor<'a, N> {
     }
 }
 
-impl<'a, N: Real> ContactPreprocessor<N> for CompoundContactProcessor<'a, N> {
+impl<'a, N: RealField> ContactPreprocessor<N> for CompoundContactProcessor<'a, N> {
     fn process_contact(
         &self,
         _c: &mut Contact<N>,

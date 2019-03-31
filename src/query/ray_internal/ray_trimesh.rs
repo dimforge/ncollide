@@ -1,11 +1,11 @@
 use crate::bounding_volume::AABB;
 use crate::math::Isometry;
-use na::{Point2, Real, Vector3};
+use na::{Point2, RealField, Vector3};
 use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
 use crate::query::{ray_internal, Ray, RayCast, RayIntersection};
 use crate::shape::{CompositeShape, TriMesh, FeatureId};
 
-impl<N: Real> RayCast<N> for TriMesh<N> {
+impl<N: RealField> RayCast<N> for TriMesh<N> {
     #[inline]
     fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, _: bool) -> Option<N> {
         let ls_ray = ray.inverse_transform_by(m);
@@ -100,12 +100,12 @@ impl<N: Real> RayCast<N> for TriMesh<N> {
 /*
  * Costs functions.
  */
-struct TriMeshRayToiVisitor<'a, N: 'a + Real> {
+struct TriMeshRayToiVisitor<'a, N: 'a + RealField> {
     mesh: &'a TriMesh<N>,
     ray: &'a Ray<N>,
 }
 
-impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for TriMeshRayToiVisitor<'a, N> {
+impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for TriMeshRayToiVisitor<'a, N> {
     type Result = N;
 
     #[inline]
@@ -129,12 +129,12 @@ impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for TriMeshRayToiVisitor<'
     }
 }
 
-struct TriMeshRayToiAndNormalVisitor<'a, N: 'a + Real> {
+struct TriMeshRayToiAndNormalVisitor<'a, N: 'a + RealField> {
     mesh: &'a TriMesh<N>,
     ray: &'a Ray<N>,
 }
 
-impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for TriMeshRayToiAndNormalVisitor<'a, N> {
+impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for TriMeshRayToiAndNormalVisitor<'a, N> {
     type Result = (usize, RayIntersection<N>);
 
     #[inline]
@@ -158,12 +158,12 @@ impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for TriMeshRayToiAndNormal
     }
 }
 
-struct TriMeshRayToiAndNormalAndUVsVisitor<'a, N: 'a + Real> {
+struct TriMeshRayToiAndNormalAndUVsVisitor<'a, N: 'a + RealField> {
     mesh: &'a TriMesh<N>,
     ray: &'a Ray<N>,
 }
 
-impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>>
+impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>>
     for TriMeshRayToiAndNormalAndUVsVisitor<'a, N>
 {
     type Result = (usize, RayIntersection<N>, Vector3<N>);

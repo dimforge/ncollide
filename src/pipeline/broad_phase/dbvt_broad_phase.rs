@@ -1,6 +1,6 @@
 use crate::bounding_volume::BoundingVolume;
 use crate::math::Point;
-use na::Real;
+use na::RealField;
 use crate::partitioning::{DBVTLeaf, DBVTLeafId, BVH, DBVT};
 use crate::pipeline::broad_phase::{BroadPhase, ProxyHandle, BroadPhaseInterferenceHandler};
 use crate::query::visitors::{
@@ -52,7 +52,7 @@ const DEACTIVATION_THRESHOLD: usize = 100;
 ///
 /// It uses two separate trees: one for static objects and which is never updated, and one for
 /// moving objects.
-pub struct DBVTBroadPhase<N: Real, BV, T> {
+pub struct DBVTBroadPhase<N: RealField, BV, T> {
     proxies: Slab<DBVTBroadPhaseProxy<T>>,
     // DBVT for moving objects.
     tree: DBVT<N, ProxyHandle, BV>,
@@ -72,7 +72,7 @@ pub struct DBVTBroadPhase<N: Real, BV, T> {
 
 impl<N, BV, T> DBVTBroadPhase<N, BV, T>
     where
-        N: Real,
+        N: RealField,
         BV: 'static + BoundingVolume<N> + Clone,
 {
     /// Creates a new broad phase based on a Dynamic Bounding Volume Tree.
@@ -162,7 +162,7 @@ impl<N, BV, T> DBVTBroadPhase<N, BV, T>
 
 impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
     where
-        N: Real,
+        N: RealField,
         BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
         T: Any + Send + Sync,
 {

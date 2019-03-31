@@ -1,4 +1,4 @@
-use na::Real;
+use na::RealField;
 use std::any::Any;
 
 use crate::math::Point;
@@ -38,7 +38,7 @@ pub trait BroadPhaseInterferenceHandler<T> {
 }
 
 /// Trait all broad phase must implement.
-pub trait BroadPhase<N: Real, BV, T>: Any + Sync + Send {
+pub trait BroadPhase<N: RealField, BV, T>: Any + Sync + Send {
     /// Tells the broad phase to add a bounding-volume at the next update.
     fn create_proxy(&mut self, bv: BV, data: T) -> ProxyHandle;
 

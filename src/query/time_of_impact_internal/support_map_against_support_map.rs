@@ -1,4 +1,4 @@
-use na::Real;
+use na::RealField;
 
 use crate::math::{Isometry, Vector};
 use crate::query::algorithms::{gjk, VoronoiSimplex};
@@ -14,7 +14,7 @@ pub fn support_map_against_support_map<N, G1: ?Sized, G2: ?Sized>(
     g2: &G2,
 ) -> Option<N>
 where
-    N: Real,
+    N: RealField,
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {

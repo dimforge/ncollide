@@ -1,6 +1,6 @@
 use crate::bounding_volume::BoundingVolume;
 use crate::math::Point;
-use na::{self, Real};
+use na::{self, RealField};
 use crate::partitioning::BVH;
 use slab::Slab;
 use std::ops::Index;
@@ -46,7 +46,7 @@ pub enum DBVTNodeId {
 
 /// A bounding volume hierarchy on which objects can be added or removed after construction.
 #[derive(Clone)]
-pub struct DBVT<N: Real, T, BV> {
+pub struct DBVT<N: RealField, T, BV> {
     root: DBVTNodeId,
     leaves: Slab<DBVTLeaf<N, T, BV>>,
     internals: Slab<DBVTInternal<N, BV>>,
@@ -54,7 +54,7 @@ pub struct DBVT<N: Real, T, BV> {
 
 /// Leaf of a Dynamic Bounding Volume Tree.
 #[derive(Clone)]
-pub struct DBVTLeaf<N: Real, T, BV> {
+pub struct DBVTLeaf<N: RealField, T, BV> {
     /// The bounding volume of this node.
     pub bounding_volume: BV,
     /// The center of this node bounding volume.
@@ -67,7 +67,7 @@ pub struct DBVTLeaf<N: Real, T, BV> {
 
 /// Internal node of a DBVT. An internal node always has two children.
 #[derive(Clone)]
-struct DBVTInternal<N: Real, BV> {
+struct DBVTInternal<N: RealField, BV> {
     /// The bounding volume of this node. It always encloses both its children bounding volumes.
     bounding_volume: BV,
     /// The center of this node bounding volume.
@@ -82,7 +82,7 @@ struct DBVTInternal<N: Real, BV> {
     state: UpdateStatus,
 }
 
-impl<N: Real, T, BV: BoundingVolume<N>> DBVTLeaf<N, T, BV> {
+impl<N: RealField, T, BV: BoundingVolume<N>> DBVTLeaf<N, T, BV> {
     /// Creates a new DBVT leaf from its bounding volume and contained data.
     pub fn new(bounding_volume: BV, data: T) -> DBVTLeaf<N, T, BV> {
         DBVTLeaf {
@@ -102,7 +102,7 @@ impl<N: Real, T, BV: BoundingVolume<N>> DBVTLeaf<N, T, BV> {
     }
 }
 
-impl<N: Real, BV: BoundingVolume<N>> DBVTInternal<N, BV> {
+impl<N: RealField, BV: BoundingVolume<N>> DBVTInternal<N, BV> {
     /// Creates a new internal node.
     fn new(
         bounding_volume: BV,
@@ -122,7 +122,7 @@ impl<N: Real, BV: BoundingVolume<N>> DBVTInternal<N, BV> {
     }
 }
 
-impl<N: Real, T, BV: BoundingVolume<N>> DBVT<N, T, BV> {
+impl<N: RealField, T, BV: BoundingVolume<N>> DBVT<N, T, BV> {
     /// Creates a new empty dynamic bonding volume hierarchy.
     pub fn new() -> DBVT<N, T, BV> {
         DBVT {
@@ -327,7 +327,7 @@ impl<N: Real, T, BV: BoundingVolume<N>> DBVT<N, T, BV> {
     }
 }
 
-impl<N: Real, T, BV> Index<DBVTLeafId> for DBVT<N, T, BV> {
+impl<N: RealField, T, BV> Index<DBVTLeafId> for DBVT<N, T, BV> {
     type Output = DBVTLeaf<N, T, BV>;
 
     #[inline]
@@ -336,7 +336,7 @@ impl<N: Real, T, BV> Index<DBVTLeafId> for DBVT<N, T, BV> {
     }
 }
 
-impl<'a, N: Real, T, BV> BVH<T, BV> for DBVT<N, T, BV> {
+impl<'a, N: RealField, T, BV> BVH<T, BV> for DBVT<N, T, BV> {
     type Node = DBVTNodeId;
 
     fn root(&self) -> Option<Self::Node> {

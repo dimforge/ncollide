@@ -1,4 +1,4 @@
-use alga::general::Real;
+use alga::general::RealField;
 use na::{Point3, Vector3};
 use crate::procedural::path::PolylineCompatibleCap;
 
@@ -13,7 +13,7 @@ impl NoCap {
     }
 }
 
-impl<N: Real> PolylineCompatibleCap<N> for NoCap {
+impl<N: RealField> PolylineCompatibleCap<N> for NoCap {
     fn gen_start_cap(
         &self,
         _: u32,

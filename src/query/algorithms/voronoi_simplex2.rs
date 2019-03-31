@@ -1,12 +1,12 @@
 use crate::math::{Isometry, Point};
-use na::{self, Real};
+use na::{self, RealField};
 use crate::query::algorithms::CSOPoint;
 use crate::query::{PointQuery, PointQueryWithLocation};
 use crate::shape::{Segment, SegmentPointLocation, Triangle, TrianglePointLocation};
 
 /// A simplex of dimension up to 2 using Voronoï regions for computing point projections.
 #[derive(Clone, Debug)]
-pub struct VoronoiSimplex<N: Real> {
+pub struct VoronoiSimplex<N: RealField> {
     prev_vertices: [usize; 3],
     prev_dim: usize,
     prev_proj: [N; 2],
@@ -16,7 +16,7 @@ pub struct VoronoiSimplex<N: Real> {
     dim: usize,
 }
 
-impl<N: Real> VoronoiSimplex<N> {
+impl<N: RealField> VoronoiSimplex<N> {
     /// Crates a new empty simplex.
     pub fn new() -> VoronoiSimplex<N> {
         VoronoiSimplex {

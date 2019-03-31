@@ -3,20 +3,20 @@ use sfml::graphics;
 use sfml::graphics::{Color, RectangleShape, RenderTarget, Shape, Transformable};
 use sfml::system::Vector2f;
 
-use alga::general::Real;
+use alga::general::RealField;
 use draw_helper::DRAW_SCALE;
 use na::{Isometry2, Point3};
 use ncollide2d::world::CollisionObject;
 use objects;
 
-pub struct Box<'a, N: Real> {
+pub struct Box<'a, N: RealField> {
     color: Point3<u8>,
     base_color: Point3<u8>,
     delta: Isometry2<N>,
     gfx: RectangleShape<'a>,
 }
 
-impl<'a, N: Real + ToPrimitive> Box<'a, N> {
+impl<'a, N: RealField + ToPrimitive> Box<'a, N> {
     pub fn new(delta: Isometry2<N>, rx: N, ry: N, color: Point3<u8>) -> Box<'a, N> {
         let mut res = Box {
             color: color,
@@ -40,7 +40,7 @@ impl<'a, N: Real + ToPrimitive> Box<'a, N> {
     }
 }
 
-impl<'a, N: Real + ToPrimitive> Box<'a, N> {
+impl<'a, N: RealField + ToPrimitive> Box<'a, N> {
     pub fn update<T>(&mut self, object: &CollisionObject<N, T>) {
         objects::update_scene_node(&mut self.gfx, &object, &self.color, &self.delta)
     }

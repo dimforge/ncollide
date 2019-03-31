@@ -2,13 +2,13 @@ use approx::AbsDiffEq;
 
 use alga::linear::EuclideanSpace;
 use crate::math::Isometry;
-use na::{self, Real};
+use na::{self, RealField};
 use crate::query::ClosestPoints;
 use crate::shape::{Segment, SegmentPointLocation};
 
 /// Closest points between segments.
 #[inline]
-pub fn segment_against_segment<N: Real>(
+pub fn segment_against_segment<N: RealField>(
     m1: &Isometry<N>,
     seg1: &Segment<N>,
     m2: &Isometry<N>,
@@ -30,7 +30,7 @@ pub fn segment_against_segment<N: Real>(
 // FIXME: use this specialized procedure for distance/interference/contact determination as well.
 /// Closest points between two segments.
 #[inline]
-pub fn segment_against_segment_with_locations<N: Real>(
+pub fn segment_against_segment_with_locations<N: RealField>(
     m1: &Isometry<N>,
     seg1: &Segment<N>,
     m2: &Isometry<N>,
@@ -49,14 +49,14 @@ pub fn segment_against_segment_with_locations<N: Real>(
 pub fn segment_against_segment_with_locations_nD<P>(
     seg1: (&P, &P),
     seg2: (&P, &P),
-) -> (SegmentPointLocation<P::Real>, SegmentPointLocation<P::Real>)
+) -> (SegmentPointLocation<P::RealField>, SegmentPointLocation<P::RealField>)
 where
     P: EuclideanSpace + Copy,
 {
     use alga::linear::NormedSpace;
     use alga::linear::FiniteDimVectorSpace;
 
-    // Inspired by Real-time collision detection by Christer Ericson.
+    // Inspired by RealField-time collision detection by Christer Ericson.
     let d1 = *seg1.1 - *seg1.0;
     let d2 = *seg2.1 - *seg2.0;
     let r = *seg1.0 - *seg2.0;
@@ -65,13 +65,13 @@ where
     let e = d2.norm_squared();
     let f = d2.dot(&r);
 
-    let _0: P::Real = na::zero();
-    let _1: P::Real = na::one();
+    let _0: P::RealField = na::zero();
+    let _1: P::RealField = na::one();
 
     let mut s;
     let mut t;
 
-    let _eps = P::Real::default_epsilon();
+    let _eps = P::RealField::default_epsilon();
     if a <= _eps && e <= _eps {
         s = _0;
         t = _0;

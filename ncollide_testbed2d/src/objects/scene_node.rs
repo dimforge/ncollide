@@ -3,20 +3,20 @@ use sfml::graphics::{Color, Shape, Transformable};
 use sfml::system::Vector2f;
 use std::f32;
 
-use alga::general::Real;
+use alga::general::RealField;
 use draw_helper::DRAW_SCALE;
 use na::{Isometry2, Point3};
 use ncollide2d::world::{CollisionObject, GeometricQueryType};
 use objects::{Ball, Box, Lines, Segment};
 
-pub enum SceneNode<'a, N: Real> {
+pub enum SceneNode<'a, N: RealField> {
     BallNode(Ball<'a, N>),
     BoxNode(Box<'a, N>),
     LinesNode(Lines<N>),
     SegmentNode(Segment<N>),
 }
 
-impl<'a, N: Real + ToPrimitive> SceneNode<'a, N> {
+impl<'a, N: RealField + ToPrimitive> SceneNode<'a, N> {
     pub fn select(&mut self) {
         match *self {
             SceneNode::BallNode(ref mut n) => n.select(),
@@ -45,7 +45,7 @@ impl<'a, N: Real + ToPrimitive> SceneNode<'a, N> {
     }
 }
 
-pub fn update_scene_node<'a, N: Real + ToPrimitive, T, SN>(
+pub fn update_scene_node<'a, N: RealField + ToPrimitive, T, SN>(
     node: &mut SN,
     object: &CollisionObject<N, T>,
     color: &Point3<u8>,

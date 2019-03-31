@@ -1,17 +1,17 @@
 use crate::math::Isometry;
-use na::Real;
+use na::RealField;
 use crate::partitioning::{VisitStatus, Visitor};
 use crate::query::{Ray, RayCast};
 
 /// Bounding Volume Tree visitor collecting interferences with a given ray.
-pub struct RayInterferencesCollector<'a, N: 'a + Real, T: 'a> {
+pub struct RayInterferencesCollector<'a, N: 'a + RealField, T: 'a> {
     /// Ray to be tested.
     pub ray: &'a Ray<N>,
     /// The data contained by the nodes which bounding volume intersects `self.ray`.
     pub collector: &'a mut Vec<T>,
 }
 
-impl<'a, N: Real, T> RayInterferencesCollector<'a, N, T> {
+impl<'a, N: RealField, T> RayInterferencesCollector<'a, N, T> {
     /// Creates a new `RayInterferencesCollector`.
     #[inline]
     pub fn new(ray: &'a Ray<N>, buffer: &'a mut Vec<T>) -> RayInterferencesCollector<'a, N, T> {
@@ -24,7 +24,7 @@ impl<'a, N: Real, T> RayInterferencesCollector<'a, N, T> {
 
 impl<'a, N, T, BV> Visitor<T, BV> for RayInterferencesCollector<'a, N, T>
 where
-    N: Real,
+    N: RealField,
     T: Clone,
     BV: RayCast<N>,
 {

@@ -1,4 +1,4 @@
-use na::{Real, Unit};
+use na::{RealField, Unit};
 
 use crate::math::{Isometry, Point, Vector};
 use crate::shape::SupportMap;
@@ -6,11 +6,11 @@ use crate::shape::SupportMap;
 /// A Ball shape.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Clone)]
-pub struct Ball<N: Real> {
+pub struct Ball<N: RealField> {
     radius: N,
 }
 
-impl<N: Real> Ball<N> {
+impl<N: RealField> Ball<N> {
     /// Creates a new ball from its radius and center.
     #[inline]
     pub fn new(radius: N) -> Ball<N> {
@@ -29,7 +29,7 @@ impl<N: Real> Ball<N> {
     }
 }
 
-impl<N: Real> SupportMap<N> for Ball<N> {
+impl<N: RealField> SupportMap<N> for Ball<N> {
     #[inline]
     fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
         self.support_point_toward(m, &Unit::new_normalize(*dir))

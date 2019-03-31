@@ -1,5 +1,5 @@
 use crate::math::Vector;
-use na::{self, Real, Unit};
+use na::{self, RealField, Unit};
 
 /// A cone with a circular basis and its apex at the origin.
 ///
@@ -8,7 +8,7 @@ use na::{self, Real, Unit};
 /// It is convex and have a circular basis.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub enum CircularCone<N: Real> {
+pub enum CircularCone<N: RealField> {
     /// A cone which is the whole space.
     Full,
     /// An empty cone containing only the zero vector.
@@ -25,7 +25,7 @@ pub enum CircularCone<N: Real> {
 // FIXME: rewrite all those without calls to acos()
 // (by performing tests on the cos themselves instead of the actual angles).
 
-impl<N: Real> CircularCone<N> {
+impl<N: RealField> CircularCone<N> {
     /// Creates a circular cone from a set of vectors.
     pub fn from_vectors(dirs: &[Unit<Vector<N>>]) -> Self {
         let mut res = CircularCone::Empty;
@@ -204,13 +204,13 @@ impl<N: Real> CircularCone<N> {
 }
 
 ///// Checks if the unit vector `dir` is inside of the circular cone described by the given `axis` and apex half-angle `angle`.
-//pub fn cone_contains_dir<N: Real>(axis: &Unit<Vector<N>>, angle: N, dir: &Unit<Vector<N>>) -> bool {
+//pub fn cone_contains_dir<N: RealField>(axis: &Unit<Vector<N>>, angle: N, dir: &Unit<Vector<N>>) -> bool {
 //    let ang = axis.dot(dir).acos();
 //    ang <= angle
 //}
 //
 ///// Checks if the unit vector `dir` is inside of the polar of the circular cone described by the given `axis` and apex half-angle `angle`.
-//pub fn cone_polar_contains_dir<N: Real>(
+//pub fn cone_polar_contains_dir<N: RealField>(
 //    axis: &Unit<Vector<N>>,
 //    angle: N,
 //    dir: &Unit<Vector<N>>,

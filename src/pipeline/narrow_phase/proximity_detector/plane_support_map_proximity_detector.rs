@@ -1,5 +1,5 @@
 use crate::math::Isometry;
-use na::Real;
+use na::RealField;
 use crate::pipeline::narrow_phase::{ProximityDetector, ProximityDispatcher};
 use crate::query::proximity_internal;
 use crate::query::Proximity;
@@ -39,7 +39,7 @@ impl SupportMapPlaneProximityDetector {
     }
 }
 
-impl<N: Real> ProximityDetector<N> for PlaneSupportMapProximityDetector {
+impl<N: RealField> ProximityDetector<N> for PlaneSupportMapProximityDetector {
     #[inline]
     fn update(
         &mut self,
@@ -66,7 +66,7 @@ impl<N: Real> ProximityDetector<N> for PlaneSupportMapProximityDetector {
     }
 }
 
-impl<N: Real> ProximityDetector<N> for SupportMapPlaneProximityDetector {
+impl<N: RealField> ProximityDetector<N> for SupportMapPlaneProximityDetector {
     #[inline]
     fn update(
         &mut self,

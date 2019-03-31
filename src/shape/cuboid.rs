@@ -1,15 +1,14 @@
 //! Support mapping based Cuboid shape.
 
 use crate::math::{Isometry, Point, Vector, DIM};
-use na::{self, Real, Unit};
+use na::{self, RealField, Unit};
 use crate::shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
 use std::f64;
-use crate::utils::IsometryOps;
 
 /// Shape of a box.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Clone)]
-pub struct Cuboid<N: Real> {
+pub struct Cuboid<N: RealField> {
     half_extents: Vector<N>,
 }
 
@@ -20,7 +19,7 @@ pub struct Cuboid<N: Real> {
 //                      the part `id >> 2` follow the same rule as the vertex id.
 // FeatureId::Face(id): if `id` lies in [0,1] (or [0 2] in 3D) indicates the axis (x, y, z) corresponding to the face normal.
 //                      If `id` is greater than 1 (or 2 in 3D), then the negative axis (-x, -y, -z) is given by `id - 2` (or `id - 3` in 3D).
-impl<N: Real> Cuboid<N> {
+impl<N: RealField> Cuboid<N> {
     /// Creates a new box from its half-extents. Half-extents are the box half-width along each
     /// axis. Each half-extent must be greater than 0.04.
     #[inline]
@@ -35,7 +34,7 @@ impl<N: Real> Cuboid<N> {
     }
 }
 
-impl<N: Real> Cuboid<N> {
+impl<N: RealField> Cuboid<N> {
     /// The half-extents of this box. Half-extents are the box half-width along each axis.
     #[inline]
     pub fn half_extents(&self) -> &Vector<N> {
@@ -139,7 +138,7 @@ impl<N: Real> Cuboid<N> {
     }
 }
 
-impl<N: Real> SupportMap<N> for Cuboid<N> {
+impl<N: RealField> SupportMap<N> for Cuboid<N> {
     #[inline]
     fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
         let local_dir = m.inverse_transform_vector(dir);
@@ -156,7 +155,7 @@ impl<N: Real> SupportMap<N> for Cuboid<N> {
     }
 }
 
-impl<N: Real> ConvexPolyhedron<N> for Cuboid<N> {
+impl<N: RealField> ConvexPolyhedron<N> for Cuboid<N> {
     fn vertex(&self, id: FeatureId) -> Point<N> {
         let vid = id.unwrap_vertex();
         let mut res = self.half_extents;

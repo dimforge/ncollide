@@ -1,9 +1,9 @@
 use crate::math::Point;
-use na::{Point3, Real};
+use na::{Point3, RealField};
 use std::iter;
 
 /// Given an index buffer, remove from `points` every point that is not indexed.
-pub fn remove_unused_points<N: Real>(points: &mut Vec<Point<N>>, idx: &mut [Point3<u32>]) {
+pub fn remove_unused_points<N: RealField>(points: &mut Vec<Point<N>>, idx: &mut [Point3<u32>]) {
     let mut used: Vec<bool> = iter::repeat(false).take(points.len()).collect();
     let mut remap: Vec<usize> = (0..points.len()).map(|i| i).collect();
     let used = &mut used[..];

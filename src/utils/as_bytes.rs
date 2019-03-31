@@ -1,7 +1,7 @@
 use std::mem;
 use std::slice;
 
-use alga::general::Real;
+use alga::general::RealField;
 use na::{Point2, Point3, Vector2, Vector3};
 
 /// Trait that transforms thing to a slice of u8.
@@ -11,7 +11,7 @@ pub trait AsBytes {
 
 macro_rules! generic_as_bytes_impl(
     ($t: ident, $dimension: expr) => (
-        impl<N: Real> AsBytes for $t<N> {
+        impl<N: RealField> AsBytes for $t<N> {
             #[inline(always)]
             fn as_bytes<'a>(&'a self) -> &'a [u8] {
                 unsafe {

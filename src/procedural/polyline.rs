@@ -1,18 +1,18 @@
 use alga::linear::{Rotation, Translation};
 use crate::math::{Isometry, Point, Vector};
-use na::{self, Real};
+use na::{self, RealField};
 
 /// Geometric description of a polyline.
 #[derive(Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub struct Polyline<N: Real> {
+pub struct Polyline<N: RealField> {
     /// Coordinates of the polyline vertices.
     coords: Vec<Point<N>>,
     /// Coordinates of the polyline normals.
     normals: Option<Vec<Vector<N>>>,
 }
 
-impl<N: Real> Polyline<N> {
+impl<N: RealField> Polyline<N> {
     /// Creates a new polyline.
     pub fn new(coords: Vec<Point<N>>, normals: Option<Vec<Vector<N>>>) -> Polyline<N> {
         if let Some(ref ns) = normals {
@@ -29,7 +29,7 @@ impl<N: Real> Polyline<N> {
     }
 }
 
-impl<N: Real> Polyline<N> {
+impl<N: RealField> Polyline<N> {
     /// Moves the polyline data out of it.
     pub fn unwrap(self) -> (Vec<Point<N>>, Option<Vec<Vector<N>>>) {
         (self.coords, self.normals)
@@ -107,7 +107,7 @@ impl<N: Real> Polyline<N> {
     }
 }
 
-impl<N: Real> Polyline<N> {
+impl<N: RealField> Polyline<N> {
     /// Scales each vertex of this mesh.
     #[inline]
     pub fn scale_by(&mut self, s: &Vector<N>) {

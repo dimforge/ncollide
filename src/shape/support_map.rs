@@ -1,13 +1,13 @@
 //! Traits for support mapping based shapes.
 
 use crate::math::{Isometry, Point, Vector};
-use na::{Real, Unit};
+use na::{RealField, Unit};
 
 /// Traits of convex shapes representable by a support mapping function.
 ///
 /// # Parameters:
 ///   * V - type of the support mapping direction argument and of the returned point.
-pub trait SupportMap<N: Real> {
+pub trait SupportMap<N: RealField> {
     /**
      * Evaluates the support function of the object.
      *

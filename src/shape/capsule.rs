@@ -1,10 +1,9 @@
 //! Support mapping based Capsule shape.
 
-use na::{self, Real, Unit};
+use na::{self, RealField, Unit};
 
 use crate::math::{Isometry, Point, Vector};
 use crate::shape::{SupportMap, FeatureId, Segment};
-use crate::utils::IsometryOps;
 use crate::query::{ContactPreprocessor, Contact, ContactKinematic};
 
 
@@ -16,7 +15,7 @@ pub struct Capsule<N> {
     radius: N,
 }
 
-impl<N: Real> Capsule<N> {
+impl<N: RealField> Capsule<N> {
     /// Creates a new capsule.
     ///
     /// # Arguments:
@@ -69,7 +68,7 @@ impl<N: Real> Capsule<N> {
     }
 }
 
-impl<N: Real> SupportMap<N> for Capsule<N> {
+impl<N: RealField> SupportMap<N> for Capsule<N> {
     #[inline]
     fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
         self.support_point_toward(m, &Unit::new_normalize(*dir))
@@ -92,11 +91,11 @@ impl<N: Real> SupportMap<N> for Capsule<N> {
 }
 
 
-struct CapsuleContactPreprocessor<N: Real> {
+struct CapsuleContactPreprocessor<N: RealField> {
     radius: N
 }
 
-impl<N: Real> CapsuleContactPreprocessor<N> {
+impl<N: RealField> CapsuleContactPreprocessor<N> {
 //    pub fn new(radius: N) -> Self {
 //        CapsuleContactPreprocessor {
 //            radius
@@ -104,7 +103,7 @@ impl<N: Real> CapsuleContactPreprocessor<N> {
 //    }
 }
 
-impl<N: Real> ContactPreprocessor<N> for CapsuleContactPreprocessor<N> {
+impl<N: RealField> ContactPreprocessor<N> for CapsuleContactPreprocessor<N> {
     fn process_contact(
         &self,
         c: &mut Contact<N>,

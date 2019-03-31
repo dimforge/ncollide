@@ -1,12 +1,12 @@
 use crate::math::{Point, Vector};
-use na::{self, Real};
+use na::{self, RealField};
 
 /// Closest points between two lines.
 ///
 /// The result, say `res`, is such that the closest points between both lines are
 /// `orig1 + dir1 * res.0` and `orig2 + dir2 * res.1`.
 #[inline]
-pub fn line_against_line_parameters<N: Real>(
+pub fn line_against_line_parameters<N: RealField>(
     orig1: &Point<N>,
     dir1: &Vector<N>,
     orig2: &Point<N>,
@@ -24,7 +24,7 @@ pub fn line_against_line_parameters<N: Real>(
 /// then `res.2` is set to `true` and the returned closest points are `orig1` and
 /// its projection on the second line.
 #[inline]
-pub fn line_against_line_parameters_eps<N: Real>(
+pub fn line_against_line_parameters_eps<N: RealField>(
     orig1: &Point<N>,
     dir1: &Vector<N>,
     orig2: &Point<N>,
@@ -32,7 +32,7 @@ pub fn line_against_line_parameters_eps<N: Real>(
     eps: N,
 ) -> (N, N, bool)
 {
-    // Inspired by Real-time collision detection by Christer Ericson.
+    // Inspired by RealField-time collision detection by Christer Ericson.
     let r = *orig1 - *orig2;
 
     let a = dir1.norm_squared();
@@ -74,7 +74,7 @@ pub fn line_against_line_parameters_eps<N: Real>(
 // FIXME: can we re-used this for the segment/segment case?
 /// Closest points between two segments.
 #[inline]
-pub fn line_against_line<N: Real>(
+pub fn line_against_line<N: RealField>(
     orig1: &Point<N>,
     dir1: &Vector<N>,
     orig2: &Point<N>,

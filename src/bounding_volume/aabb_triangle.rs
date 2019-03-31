@@ -4,7 +4,7 @@ use crate::shape::Triangle;
 use crate::math::Matrix;
 use crate::math::{Point, Scalar, Vector};
 
-impl<N: Real> HasBoundingVolume<N, AABB<N>> for Triangle<N> {
+impl<N: RealField> HasBoundingVolume<N, AABB<N>> for Triangle<N> {
     #[inline]
     fn bounding_volume(&self, m: &Isometry<N>) -> AABB<N> {
         // FIXME: optimize that

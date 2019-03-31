@@ -1,4 +1,4 @@
-use alga::general::Real;
+use alga::general::RealField;
 use crate::math::Isometry;
 use crate::pipeline::broad_phase::ProxyHandle;
 use crate::pipeline::narrow_phase::InteractionGraphIndex;
@@ -17,7 +17,7 @@ use std::ops::{Index, IndexMut};
 /// * Contacts + Proximity = proximity test only.
 /// * Proximity + Proximity = proximity test only.
 #[derive(Debug, PartialEq, Clone, Copy)]
-pub enum GeometricQueryType<N: Real> {
+pub enum GeometricQueryType<N: RealField> {
     /// This objects can respond to both contact point computation and proximity queries.
     Contacts(N, N),
     /// This object can respond to proximity tests only.
@@ -25,7 +25,7 @@ pub enum GeometricQueryType<N: Real> {
     // FIXME: not yet implemented: Distance
 }
 
-impl<N: Real> GeometricQueryType<N> {
+impl<N: RealField> GeometricQueryType<N> {
     /// The numerical distance limit of relevance for this query.
     ///
     /// If two objects are separated by a distance greater than the sum of their respective
@@ -79,7 +79,7 @@ impl<N: Real> GeometricQueryType<N> {
 }
 
 /// A stand-alone object that has a position and a shape.
-pub struct CollisionObject<N: Real, T> {
+pub struct CollisionObject<N: RealField, T> {
     handle: CollisionObjectHandle,
     proxy_handle: ProxyHandle,
     graph_index: InteractionGraphIndex,
@@ -93,7 +93,7 @@ pub struct CollisionObject<N: Real, T> {
     pub(crate) timestamp: usize,
 }
 
-impl<N: Real, T> CollisionObject<N, T> {
+impl<N: RealField, T> CollisionObject<N, T> {
     /// Creates a new collision object.
     pub fn new(
         handle: CollisionObjectHandle,
@@ -235,11 +235,11 @@ impl CollisionObjectHandle {
 }
 
 /// A set of collision objects that can be indexed by collision object handles.
-pub struct CollisionObjectSlab<N: Real, T> {
+pub struct CollisionObjectSlab<N: RealField, T> {
     objects: Slab<CollisionObject<N, T>>,
 }
 
-impl<N: Real, T> CollisionObjectSlab<N, T> {
+impl<N: RealField, T> CollisionObjectSlab<N, T> {
     /// Creates a new empty collecton of collision objects.
     pub fn new() -> CollisionObjectSlab<N, T> {
         CollisionObjectSlab {
@@ -294,7 +294,7 @@ impl<N: Real, T> CollisionObjectSlab<N, T> {
     }
 }
 
-impl<N: Real, T> Index<CollisionObjectHandle> for CollisionObjectSlab<N, T> {
+impl<N: RealField, T> Index<CollisionObjectHandle> for CollisionObjectSlab<N, T> {
     type Output = CollisionObject<N, T>;
 
     #[inline]
@@ -303,7 +303,7 @@ impl<N: Real, T> Index<CollisionObjectHandle> for CollisionObjectSlab<N, T> {
     }
 }
 
-impl<N: Real, T> IndexMut<CollisionObjectHandle> for CollisionObjectSlab<N, T> {
+impl<N: RealField, T> IndexMut<CollisionObjectHandle> for CollisionObjectSlab<N, T> {
     #[inline]
     fn index_mut(&mut self, handle: CollisionObjectHandle) -> &mut Self::Output {
         &mut self.objects[handle.0]
@@ -311,11 +311,11 @@ impl<N: Real, T> IndexMut<CollisionObjectHandle> for CollisionObjectSlab<N, T> {
 }
 
 /// An iterator yielding references to collision objects.
-pub struct CollisionObjects<'a, N: 'a + Real, T: 'a> {
+pub struct CollisionObjects<'a, N: 'a + RealField, T: 'a> {
     iter: Iter<'a, CollisionObject<N, T>>,
 }
 
-impl<'a, N: 'a + Real, T: 'a> Iterator for CollisionObjects<'a, N, T> {
+impl<'a, N: 'a + RealField, T: 'a> Iterator for CollisionObjects<'a, N, T> {
     type Item = &'a CollisionObject<N, T>;
 
     #[inline]

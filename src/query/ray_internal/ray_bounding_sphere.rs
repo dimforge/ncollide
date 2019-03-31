@@ -1,10 +1,10 @@
 use crate::bounding_volume::BoundingSphere;
 use crate::math::Isometry;
-use na::Real;
+use na::RealField;
 use crate::query::{Ray, RayCast, RayIntersection};
 use crate::shape::Ball;
 
-impl<N: Real> RayCast<N> for BoundingSphere<N> {
+impl<N: RealField> RayCast<N> for BoundingSphere<N> {
     #[inline]
     fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, solid: bool) -> Option<N> {
         let centered_ray = ray.translate_by(-(m * self.center()).coords);

@@ -1,5 +1,5 @@
 use crate::math::{Isometry, Vector};
-use na::{self, Real, Unit};
+use na::{self, RealField, Unit};
 use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 use crate::query::closest_points_internal;
 use crate::query::{
@@ -14,7 +14,7 @@ use std::mem;
 use crate::utils::IdAllocator;
 
 /// Collision detector between a concave shape and another shape.
-pub struct TriMeshTriMeshManifoldGenerator<N: Real> {
+pub struct TriMeshTriMeshManifoldGenerator<N: RealField> {
     clip_cache: ClippingCache<N>,
     new_contacts: Vec<(Contact<N>, FeatureId, FeatureId)>,
     convex_feature1: ConvexPolygonalFeature<N>,
@@ -22,7 +22,7 @@ pub struct TriMeshTriMeshManifoldGenerator<N: Real> {
     interferences: Vec<(usize, usize)>,
 }
 
-impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
+impl<N: RealField> TriMeshTriMeshManifoldGenerator<N> {
     /// Creates a new collision detector between a concave shape and another shape.
     pub fn new() -> TriMeshTriMeshManifoldGenerator<N> {
         TriMeshTriMeshManifoldGenerator {
@@ -35,7 +35,7 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
     }
 }
 
-impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
+impl<N: RealField> TriMeshTriMeshManifoldGenerator<N> {
     fn compute_faces_closest_points(
         &mut self,
         m12: &Isometry<N>,
@@ -76,7 +76,7 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
              * Start with the SAT.
              */
             #[inline(always)]
-            fn penetration<N: Real>(a: (N, N), b: (N, N)) -> Option<(N, bool)> {
+            fn penetration<N: RealField>(a: (N, N), b: (N, N)) -> Option<(N, bool)> {
                 assert!(a.0 <= a.1 && b.0 <= b.1);
                 if a.0 > b.1 || b.0 > a.1 {
                     // The intervals are disjoint.
@@ -94,7 +94,7 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
             }
 
             #[inline(always)]
-            fn sort2<N: Real>(a: N, b: N) -> (N, N) {
+            fn sort2<N: RealField>(a: N, b: N) -> (N, N) {
                 if a > b {
                     (b, a)
                 } else {
@@ -518,7 +518,7 @@ impl<N: Real> TriMeshTriMeshManifoldGenerator<N> {
     }
 }
 
-impl<N: Real> ContactManifoldGenerator<N> for TriMeshTriMeshManifoldGenerator<N> {
+impl<N: RealField> ContactManifoldGenerator<N> for TriMeshTriMeshManifoldGenerator<N> {
     fn generate_contacts(
         &mut self,
         _: &ContactDispatcher<N>,

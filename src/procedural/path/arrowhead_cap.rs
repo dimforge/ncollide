@@ -1,4 +1,4 @@
-use alga::general::Real;
+use alga::general::RealField;
 use na::{self, Isometry3, Point3, Vector3};
 use crate::procedural::path::PolylineCompatibleCap;
 use crate::procedural::utils;
@@ -10,7 +10,7 @@ pub struct ArrowheadCap<N> {
     back_dist_to_head: N,
 }
 
-impl<N: Real> ArrowheadCap<N> {
+impl<N: RealField> ArrowheadCap<N> {
     /// Creates a cap that looks like an arrow.
     ///
     /// # Arguments:
@@ -106,7 +106,7 @@ impl<N: Real> ArrowheadCap<N> {
     }
 }
 
-impl<N: Real> PolylineCompatibleCap<N> for ArrowheadCap<N> {
+impl<N: RealField> PolylineCompatibleCap<N> for ArrowheadCap<N> {
     fn gen_end_cap(
         &self,
         attach_id: u32,

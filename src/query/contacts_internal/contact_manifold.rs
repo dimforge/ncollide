@@ -1,5 +1,5 @@
 use crate::math::Point;
-use na::{self, Real};
+use na::{self, RealField};
 use crate::query::{Contact, ContactKinematic, TrackedContact};
 use crate::shape::FeatureId;
 use slab::Slab;
@@ -9,7 +9,7 @@ use crate::query::ContactPreprocessor;
 
 /// The technique used for contact tracking.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum ContactTrackingMode<N: Real> {
+pub enum ContactTrackingMode<N: RealField> {
     /// Contact tracking using features.
     /// Two contacts are considered the same if they are on the same features.
     FeatureBased,
@@ -19,7 +19,7 @@ pub enum ContactTrackingMode<N: Real> {
 }
 
 #[derive(Clone, Debug)]
-enum ContactCache<N: Real> {
+enum ContactCache<N: RealField> {
     FeatureBased(HashMap<(FeatureId, FeatureId), usize>),
     DistanceBased(Vec<(Point<N>, usize)>, N),
 }
@@ -31,7 +31,7 @@ enum ContactCache<N: Real> {
 /// This structure is responsible for matching new contacts with old ones in order to perform an
 /// approximate tracking of the contact points.
 #[derive(Clone, Debug)]
-pub struct ContactManifold<N: Real> {
+pub struct ContactManifold<N: RealField> {
     ncontacts: usize,
     persistence: usize,
     deepest: usize,
@@ -39,7 +39,7 @@ pub struct ContactManifold<N: Real> {
     cache: ContactCache<N>,
 }
 
-impl<N: Real> ContactManifold<N> {
+impl<N: RealField> ContactManifold<N> {
     /// Initializes a contact manifold without any contact.
     ///
     /// The default contact tracking mode is set to `ContactTrackingMode::DistanceBased(0.02)`.

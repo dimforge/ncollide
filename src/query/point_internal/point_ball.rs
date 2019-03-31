@@ -1,12 +1,11 @@
-use alga::general::Real;
+use alga::general::RealField;
 use na;
 
 use crate::math::{Isometry, Point};
 use crate::query::{PointProjection, PointQuery};
 use crate::shape::{Ball, FeatureId};
-use crate::utils::IsometryOps;
 
-impl<N: Real> PointQuery<N> for Ball<N> {
+impl<N: RealField> PointQuery<N> for Ball<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> PointProjection<N> {
         let ls_pt = m.inverse_transform_point(pt);

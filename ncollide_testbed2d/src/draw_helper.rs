@@ -3,14 +3,14 @@ use sfml::graphics;
 use sfml::graphics::{Color, RenderTarget, Vertex, VertexArray};
 use sfml::system::Vector2f;
 
-use alga::general::Real;
+use alga::general::RealField;
 use na;
 use na::Point2;
 use ncollide2d::world::CollisionWorld;
 
 pub static DRAW_SCALE: f32 = 20.0;
 
-pub fn draw_colls<N: Real + ToPrimitive, T>(
+pub fn draw_colls<N: RealField + ToPrimitive, T>(
     window: &mut graphics::RenderWindow,
     world: &mut CollisionWorld<N, T>,
 ) {
@@ -41,7 +41,7 @@ pub fn draw_colls<N: Real + ToPrimitive, T>(
     }
 }
 
-pub fn draw_line<N: Real + ToPrimitive>(
+pub fn draw_line<N: RealField + ToPrimitive>(
     window: &mut graphics::RenderWindow,
     v1: &Point2<N>,
     v2: &Point2<N>,

@@ -1,4 +1,4 @@
-use na::Real;
+use na::RealField;
 
 use crate::math::{Point, Vector};
 use crate::query::{ray_internal, Ray};
@@ -6,7 +6,7 @@ use crate::shape::Ball;
 
 /// Time Of Impact of two balls under translational movement.
 #[inline]
-pub fn ball_against_ball<N: Real>(
+pub fn ball_against_ball<N: RealField>(
     center1: &Point<N>,
     vel1: &Vector<N>,
     b1: &Ball<N>,

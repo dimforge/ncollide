@@ -1,7 +1,7 @@
 use super::utils;
 use alga::linear::Translation;
 use crate::math::{Isometry, Point, Vector};
-use na::{self, Point2, Point3, Real};
+use na::{self, Point2, Point3, RealField};
 use std::collections::HashMap;
 use crate::utils::DeterministicState;
 
@@ -38,7 +38,7 @@ impl IndexBuffer {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 /// Geometric description of a mesh.
-pub struct TriMesh<N: Real> {
+pub struct TriMesh<N: RealField> {
     // FIXME: those should *not* be public.
     /// Coordinates of the mesh vertices.
     pub coords: Vec<Point<N>>,
@@ -50,7 +50,7 @@ pub struct TriMesh<N: Real> {
     pub indices: IndexBuffer,
 }
 
-impl<N: Real> TriMesh<N> {
+impl<N: RealField> TriMesh<N> {
     /// Creates a new `TriMesh`.
     ///
     /// If no `indices` is provided, trivial, sequential indices are generated.
@@ -147,7 +147,7 @@ impl<N: Real> TriMesh<N> {
     }
 }
 
-impl<N: Real> TriMesh<N> {
+impl<N: RealField> TriMesh<N> {
     /// Recomputes the mesh normals using its vertex coordinates and adjascency informations
     /// infered from the index buffer.
     #[inline]
@@ -213,7 +213,7 @@ impl<N: Real> TriMesh<N> {
     }
 }
 
-impl<N: Real> TriMesh<N> {
+impl<N: RealField> TriMesh<N> {
     /// Scales each vertex of this mesh.
     #[inline]
     pub fn scale_by_scalar(&mut self, s: N) {
@@ -223,7 +223,7 @@ impl<N: Real> TriMesh<N> {
     }
 }
 
-impl<N: Real> TriMesh<N> {
+impl<N: RealField> TriMesh<N> {
     // FIXME: looks very similar to the `reformat` on obj.rs
     /// Force the mesh to use the same index for vertices, normals and uvs.
     ///
@@ -348,7 +348,7 @@ impl<N: Real> TriMesh<N> {
     }
 }
 
-impl<N: Real> TriMesh<N> {
+impl<N: RealField> TriMesh<N> {
     /// Forces the mesh to use a different index for the vertices, normals and uvs.
     ///
     /// If `recover_topology` is true, this will merge exactly identical vertices together.

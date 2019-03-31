@@ -1,7 +1,7 @@
 //! Definition of the triangle shape.
 
 use crate::math::{Isometry, Point, Vector};
-use na::Real;
+use na::RealField;
 use na::{self, Unit};
 use crate::shape::Segment;
 use crate::shape::SupportMap;
@@ -10,12 +10,11 @@ use crate::shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId};
 #[cfg(feature = "dim3")]
 use std::f64;
 use std::mem;
-use crate::utils::IsometryOps;
 
 /// A triangle shape.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Clone)]
-pub struct Triangle<N: Real> {
+pub struct Triangle<N: RealField> {
     a: Point<N>,
     b: Point<N>,
     c: Point<N>,
@@ -23,7 +22,7 @@ pub struct Triangle<N: Real> {
 
 /// Description of the location of a point on a triangle.
 #[derive(Copy, Clone, Debug)]
-pub enum TrianglePointLocation<N: Real> {
+pub enum TrianglePointLocation<N: RealField> {
     /// The point lies on a vertex.
     OnVertex(usize),
     /// The point lies on an edge.
@@ -44,7 +43,7 @@ pub enum TrianglePointLocation<N: Real> {
     OnSolid,
 }
 
-impl<N: Real> TrianglePointLocation<N> {
+impl<N: RealField> TrianglePointLocation<N> {
     /// The barycentric coordinates corresponding to this point location.
     ///
     /// Returns `None` if the location is `TrianglePointLocation::OnSolid`.
@@ -87,7 +86,7 @@ impl<N: Real> TrianglePointLocation<N> {
     }
 }
 
-impl<N: Real> Triangle<N> {
+impl<N: RealField> Triangle<N> {
     /// Creates a triangle from three points.
     #[inline]
     pub fn new(a: Point<N>, b: Point<N>, c: Point<N>) -> Triangle<N> {
@@ -282,7 +281,7 @@ impl<N: Real> Triangle<N> {
     }
 }
 
-impl<N: Real> SupportMap<N> for Triangle<N> {
+impl<N: RealField> SupportMap<N> for Triangle<N> {
     #[inline]
     fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
         let local_dir = m.inverse_transform_vector(dir);
@@ -310,7 +309,7 @@ impl<N: Real> SupportMap<N> for Triangle<N> {
 }
 
 #[cfg(feature = "dim3")]
-impl<N: Real> ConvexPolyhedron<N> for Triangle<N> {
+impl<N: RealField> ConvexPolyhedron<N> for Triangle<N> {
     fn vertex(&self, id: FeatureId) -> Point<N> {
         match id.unwrap_vertex() {
             0 => self.a,

@@ -2,7 +2,7 @@
 use super::Polyline;
 #[cfg(feature = "dim3")]
 use super::{IndexBuffer, TriMesh};
-use alga::general::Real;
+use alga::general::RealField;
 use crate::math::{Point, Vector};
 use na;
 #[cfg(feature = "dim3")]
@@ -15,7 +15,7 @@ use na::Point2;
  * * `extents` - the extents of the cuboid.
  */
 #[cfg(feature = "dim3")]
-pub fn cuboid<N: Real>(extents: &Vector<N>) -> TriMesh<N> {
+pub fn cuboid<N: RealField>(extents: &Vector<N>) -> TriMesh<N> {
     let mut cuboid = unit_cuboid();
     cuboid.scale_by(extents);
 
@@ -28,7 +28,7 @@ pub fn cuboid<N: Real>(extents: &Vector<N>) -> TriMesh<N> {
  * The cuboid is centered at the origin, and has its half extents set to 0.5.
  */
 #[cfg(feature = "dim3")]
-pub fn unit_cuboid<N: Real>() -> TriMesh<N> {
+pub fn unit_cuboid<N: RealField>() -> TriMesh<N> {
     let mut coords = Vec::with_capacity(8);
     let mut uvs = Vec::with_capacity(4);
     let mut normals = Vec::with_capacity(6);
@@ -137,7 +137,7 @@ pub fn unit_cuboid<N: Real>() -> TriMesh<N> {
 
 /// The contour of a cuboid lying on the x-y plane.
 #[cfg(feature = "dim2")]
-pub fn rectangle<N: Real>(extents: &Vector<N>) -> Polyline<N> {
+pub fn rectangle<N: RealField>(extents: &Vector<N>) -> Polyline<N> {
     let mut rectangle = unit_rectangle();
 
     rectangle.scale_by(extents);
@@ -147,7 +147,7 @@ pub fn rectangle<N: Real>(extents: &Vector<N>) -> Polyline<N> {
 
 /// The contour of a unit cuboid lying on the x-y plane.
 #[cfg(feature = "dim2")]
-pub fn unit_rectangle<N: Real>() -> Polyline<N> {
+pub fn unit_rectangle<N: RealField>() -> Polyline<N> {
     let _0_5: N = na::convert(0.5);
     let m0_5: N = -_0_5;
 

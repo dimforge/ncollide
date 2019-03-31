@@ -1,5 +1,5 @@
 use crate::math::Isometry;
-use na::Real;
+use na::RealField;
 use crate::query::{Ray, RayCast, RayIntersection};
 use crate::shape::HeightField;
 #[cfg(feature = "dim2")]
@@ -9,7 +9,7 @@ use crate::query::closest_points_internal;
 
 
 #[cfg(feature = "dim2")]
-impl<N: Real> RayCast<N> for HeightField<N> {
+impl<N: RealField> RayCast<N> for HeightField<N> {
     #[inline]
     fn toi_and_normal_with_ray(
         &self,
@@ -100,7 +100,7 @@ impl<N: Real> RayCast<N> for HeightField<N> {
 
 
 #[cfg(feature = "dim3")]
-impl<N: Real> RayCast<N> for HeightField<N> {
+impl<N: RealField> RayCast<N> for HeightField<N> {
     #[inline]
     fn toi_and_normal_with_ray(
         &self,

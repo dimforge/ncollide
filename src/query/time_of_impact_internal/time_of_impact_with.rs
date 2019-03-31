@@ -41,8 +41,8 @@ macro_rules! impl_time_of_impact_with(
     ($name: ident | $g1: ty, $g2: ty) => {
         impl<N, P, V, M> TimeOfImpactWith<N, P, V, M, $g2> for $g1
             where N: Scalar,
-                  N: Real<N, V>,
-                  N: Real<N> + Translate<P> ,
+                  N: RealField<N, V>,
+                  N: RealField<N> + Translate<P> ,
                   M: Isometry<N, P, V> {
             #[inline]
             fn time_of_impact(m1: &Isometry<N>, vel1: &V, g1: &$g1, m2: &Isometry<N>, vel2: &V, g2: &$g2) -> Option<N> {
@@ -61,8 +61,8 @@ apply_with_mixed_args!(impl_time_of_impact_with,
 
 impl<N, P, V, M> TimeOfImpactWith<N, P, V, M, Ball<N>> for Ball<N>
     where N: Scalar,
-          N: Real<N, V>,
-          N: Real<N>,
+          N: RealField<N, V>,
+          N: RealField<N>,
           M: Isometry<N, P, V> {
     #[inline]
     fn time_of_impact(m1: &Isometry<N>, vel1: &V, g1: &Ball<N>, m2: &Isometry<N>, vel2: &V, g2: &Ball<N>) -> Option<N> {
@@ -75,8 +75,8 @@ impl<N, P, V, M> TimeOfImpactWith<N, P, V, M, Ball<N>> for Ball<N>
 /* FIXME: DST: ICE
 impl<N, P, V, M> TimeOfImpactWith<N, P, V, M, Shape<N, P, V, M> + Send + Sync> for Shape<N, P, V, M> + Send + Sync
     where N: Scalar,
-          N: Real<N, V>,
-          N: Real<N> + Translate<P>,
+          N: RealField<N, V>,
+          N: RealField<N> + Translate<P>,
           M: Isometry<N, P, V> {
     #[inline]
     fn time_of_impact(m1: &Isometry<N>, g1: &Shape<N, P, V, M> + Send + Sync,

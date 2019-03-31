@@ -1,11 +1,11 @@
 use crate::math::{Point, Vector};
-use na::Real;
+use na::RealField;
 use crate::procedural::path::{CurveSampler, PathSample};
 
 /// A path with its sample points given by a polyline.
 ///
 /// This will return sequencially each vertex of the polyline.
-pub struct PolylinePath<'a, N: 'a + Real> {
+pub struct PolylinePath<'a, N: 'a + RealField> {
     curr_len: N,
     curr_dir: Vector<N>,
     curr_pt_id: usize,
@@ -13,7 +13,7 @@ pub struct PolylinePath<'a, N: 'a + Real> {
     polyline: &'a Vec<Point<N>>,
 }
 
-impl<'a, N: Real> PolylinePath<'a, N> {
+impl<'a, N: RealField> PolylinePath<'a, N> {
     /// Creates a new polyline-based path.
     pub fn new(polyline: &'a Vec<Point<N>>) -> PolylinePath<'a, N> {
         assert!(
@@ -34,7 +34,7 @@ impl<'a, N: Real> PolylinePath<'a, N> {
     }
 }
 
-impl<'a, N: Real> CurveSampler<N> for PolylinePath<'a, N> {
+impl<'a, N: RealField> CurveSampler<N> for PolylinePath<'a, N> {
     fn next(&mut self) -> PathSample<N> {
         let poly_coords = self.polyline;
 

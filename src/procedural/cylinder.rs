@@ -1,11 +1,11 @@
 use super::utils;
 use super::{IndexBuffer, TriMesh};
-use alga::general::Real;
+use alga::general::RealField;
 use na;
 use na::{Point2, Vector3};
 
 /// Generates a cylinder with a given height and diameter.
-pub fn cylinder<N: Real>(diameter: N, height: N, nsubdiv: u32) -> TriMesh<N> {
+pub fn cylinder<N: RealField>(diameter: N, height: N, nsubdiv: u32) -> TriMesh<N> {
     let mut cylinder = unit_cylinder(nsubdiv);
 
     cylinder.scale_by(&Vector3::new(diameter, height, diameter));
@@ -14,7 +14,7 @@ pub fn cylinder<N: Real>(diameter: N, height: N, nsubdiv: u32) -> TriMesh<N> {
 }
 
 /// Generates a cylinder with unit height and diameter.
-pub fn unit_cylinder<N: Real>(nsubdiv: u32) -> TriMesh<N> {
+pub fn unit_cylinder<N: RealField>(nsubdiv: u32) -> TriMesh<N> {
     let two_pi = N::two_pi();
     let invsubdiv = na::one::<N>() / na::convert(nsubdiv as f64);
     let dtheta = two_pi * invsubdiv;

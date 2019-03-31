@@ -1,12 +1,12 @@
 use super::ToPolyline;
-use alga::general::Real;
+use alga::general::RealField;
 use na;
 use na::{Point2, Vector2};
 use crate::procedural::utils;
 use crate::procedural::Polyline;
 use crate::shape::Capsule;
 
-impl<N: Real> ToPolyline<N> for Capsule<N> {
+impl<N: RealField> ToPolyline<N> for Capsule<N> {
     type DiscretizationParameter = u32;
 
     fn to_polyline(&self, nsubdiv: u32) -> Polyline<N> {

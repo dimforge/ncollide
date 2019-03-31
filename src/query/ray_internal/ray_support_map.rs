@@ -1,4 +1,4 @@
-use na::{self, Real};
+use na::{self, RealField};
 
 use crate::math::Isometry;
 use crate::query::algorithms::{gjk, CSOPoint, VoronoiSimplex};
@@ -20,7 +20,7 @@ pub fn implicit_toi_and_normal_with_ray<N, G: ?Sized>(
     solid: bool,
 ) -> Option<RayIntersection<N>>
 where
-    N: Real,
+    N: RealField,
     G: SupportMap<N>,
 {
     let supp = shape.support_point(m, &-ray.dir);
@@ -55,7 +55,7 @@ where
 }
 
 #[cfg(feature = "dim3")]
-impl<N: Real> RayCast<N> for Cylinder<N> {
+impl<N: RealField> RayCast<N> for Cylinder<N> {
     fn toi_and_normal_with_ray(
         &self,
         m: &Isometry<N>,
@@ -80,7 +80,7 @@ impl<N: Real> RayCast<N> for Cylinder<N> {
 }
 
 #[cfg(feature = "dim3")]
-impl<N: Real> RayCast<N> for Cone<N> {
+impl<N: RealField> RayCast<N> for Cone<N> {
     fn toi_and_normal_with_ray(
         &self,
         m: &Isometry<N>,
@@ -104,7 +104,7 @@ impl<N: Real> RayCast<N> for Cone<N> {
     }
 }
 
-impl<N: Real> RayCast<N> for Capsule<N> {
+impl<N: RealField> RayCast<N> for Capsule<N> {
     fn toi_and_normal_with_ray(
         &self,
         m: &Isometry<N>,
@@ -129,7 +129,7 @@ impl<N: Real> RayCast<N> for Capsule<N> {
 }
 
 #[cfg(feature = "dim3")]
-impl<N: Real> RayCast<N> for ConvexHull<N> {
+impl<N: RealField> RayCast<N> for ConvexHull<N> {
     fn toi_and_normal_with_ray(
         &self,
         m: &Isometry<N>,
@@ -154,7 +154,7 @@ impl<N: Real> RayCast<N> for ConvexHull<N> {
 }
 
 #[cfg(feature = "dim2")]
-impl<N: Real> RayCast<N> for ConvexPolygon<N> {
+impl<N: RealField> RayCast<N> for ConvexPolygon<N> {
     fn toi_and_normal_with_ray(
         &self,
         m: &Isometry<N>,
@@ -179,7 +179,7 @@ impl<N: Real> RayCast<N> for ConvexPolygon<N> {
 }
 
 #[allow(unused_variables)]
-impl<N: Real> RayCast<N> for Segment<N> {
+impl<N: RealField> RayCast<N> for Segment<N> {
     fn toi_and_normal_with_ray(
         &self,
         m: &Isometry<N>,

@@ -1,4 +1,4 @@
-use na::{Real, Unit};
+use na::{RealField, Unit};
 
 use crate::math::{Isometry, Point, Translation, Vector};
 use crate::query::algorithms::{gjk, CSOPoint, VoronoiSimplex, EPA};
@@ -8,7 +8,6 @@ use crate::shape::ConvexPolygon;
 #[cfg(feature = "dim3")]
 use crate::shape::{Cone, ConvexHull, Cylinder};
 use crate::shape::{ConstantOrigin, ConvexPolyhedron, FeatureId, SupportMap};
-use crate::utils::IsometryOps;
 
 /// Projects a point on a shape using the GJK algorithm.
 pub fn support_map_point_projection<N, G>(
@@ -19,7 +18,7 @@ pub fn support_map_point_projection<N, G>(
     solid: bool,
 ) -> PointProjection<N>
 where
-    N: Real,
+    N: RealField,
     G: SupportMap<N>,
 {
     let id = Isometry::identity();
@@ -52,7 +51,7 @@ where
 }
 
 #[cfg(feature = "dim3")]
-impl<N: Real> PointQuery<N> for Cylinder<N> {
+impl<N: RealField> PointQuery<N> for Cylinder<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, point: &Point<N>, solid: bool) -> PointProjection<N> {
         support_map_point_projection(m, self, &mut VoronoiSimplex::new(), point, solid)
@@ -70,7 +69,7 @@ impl<N: Real> PointQuery<N> for Cylinder<N> {
 }
 
 #[cfg(feature = "dim3")]
-impl<N: Real> PointQuery<N> for Cone<N> {
+impl<N: RealField> PointQuery<N> for Cone<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, point: &Point<N>, solid: bool) -> PointProjection<N> {
         support_map_point_projection(m, self, &mut VoronoiSimplex::new(), point, solid)
@@ -88,7 +87,7 @@ impl<N: Real> PointQuery<N> for Cone<N> {
 }
 
 #[cfg(feature = "dim3")]
-impl<N: Real> PointQuery<N> for ConvexHull<N> {
+impl<N: RealField> PointQuery<N> for ConvexHull<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, point: &Point<N>, solid: bool) -> PointProjection<N> {
         support_map_point_projection(m, self, &mut VoronoiSimplex::new(), point, solid)
@@ -119,7 +118,7 @@ impl<N: Real> PointQuery<N> for ConvexHull<N> {
 }
 
 #[cfg(feature = "dim2")]
-impl<N: Real> PointQuery<N> for ConvexPolygon<N> {
+impl<N: RealField> PointQuery<N> for ConvexPolygon<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, point: &Point<N>, solid: bool) -> PointProjection<N> {
         support_map_point_projection(m, self, &mut VoronoiSimplex::new(), point, solid)

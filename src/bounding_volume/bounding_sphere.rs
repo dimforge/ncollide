@@ -2,7 +2,7 @@
 
 use crate::bounding_volume::{BoundingVolume, HasBoundingVolume};
 use crate::math::{Isometry, Point};
-use na::{self, Real};
+use na::{self, RealField};
 
 // Seems useful to help type inference. See issue #84.
 /// Computes the bounding sphere of a shape `g` transformed by `m`.
@@ -10,7 +10,7 @@ use na::{self, Real};
 /// Same as `g.bounding_sphere(m)`.
 pub fn bounding_sphere<N, G: ?Sized>(g: &G, m: &Isometry<N>) -> BoundingSphere<N>
 where
-    N: Real,
+    N: RealField,
     G: HasBoundingVolume<N, BoundingSphere<N>>,
 {
     g.bounding_volume(m)
@@ -19,12 +19,12 @@ where
 /// A Bounding Sphere.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, PartialEq, Clone)]
-pub struct BoundingSphere<N: Real> {
+pub struct BoundingSphere<N: RealField> {
     center: Point<N>,
     radius: N,
 }
 
-impl<N: Real> BoundingSphere<N> {
+impl<N: RealField> BoundingSphere<N> {
     /// Creates a new bounding sphere.
     pub fn new(center: Point<N>, radius: N) -> BoundingSphere<N> {
         BoundingSphere { center, radius }
@@ -49,7 +49,7 @@ impl<N: Real> BoundingSphere<N> {
     }
 }
 
-impl<N: Real> BoundingVolume<N> for BoundingSphere<N> {
+impl<N: RealField> BoundingVolume<N> for BoundingSphere<N> {
     #[inline]
     fn center(&self) -> Point<N> {
         *self.center()

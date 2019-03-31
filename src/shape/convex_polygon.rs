@@ -1,5 +1,5 @@
 use crate::math::{Isometry, Point, Vector};
-use na::{self, Real, Unit};
+use na::{self, RealField, Unit};
 use crate::shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
 use std::f64;
 use crate::transformation;
@@ -8,12 +8,12 @@ use crate::utils::{self, IsometryOps};
 /// A 2D convex polygon.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
-pub struct ConvexPolygon<N: Real> {
+pub struct ConvexPolygon<N: RealField> {
     points: Vec<Point<N>>,
     normals: Vec<Unit<Vector<N>>>,
 }
 
-impl<N: Real> ConvexPolygon<N> {
+impl<N: RealField> ConvexPolygon<N> {
     /// Creates a new 2D convex polygon from an arbitrary set of points.
     ///
     /// This explicitly computes the convex hull of the given set of points. Use
@@ -109,7 +109,7 @@ impl<N: Real> ConvexPolygon<N> {
     }
 }
 
-impl<N: Real> SupportMap<N> for ConvexPolygon<N> {
+impl<N: RealField> SupportMap<N> for ConvexPolygon<N> {
     #[inline]
     fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
         let local_dir = m.inverse_transform_vector(dir);
@@ -119,7 +119,7 @@ impl<N: Real> SupportMap<N> for ConvexPolygon<N> {
     }
 }
 
-impl<N: Real> ConvexPolyhedron<N> for ConvexPolygon<N> {
+impl<N: RealField> ConvexPolyhedron<N> for ConvexPolygon<N> {
     fn vertex(&self, id: FeatureId) -> Point<N> {
         self.points[id.unwrap_vertex()]
     }

@@ -1,18 +1,18 @@
 use crate::bounding_volume::AABB;
 use crate::math::{Isometry, Point};
-use na::{self, Real};
+use na::{self, RealField};
 use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
 use crate::query::{PointProjection, PointQuery};
 use crate::shape::CompositeShape;
 
 /// Best-fisrt traversal visitor for computin the point closest to a composite shape.
-pub struct CompositeClosestPointVisitor<'a, N: 'a + Real, S: 'a + CompositeShape<N>> {
+pub struct CompositeClosestPointVisitor<'a, N: 'a + RealField, S: 'a + CompositeShape<N>> {
     shape: &'a S,
     point: &'a Point<N>,
     solid: bool,
 }
 
-impl<'a, N: Real, S: CompositeShape<N>> CompositeClosestPointVisitor<'a, N, S> {
+impl<'a, N: RealField, S: CompositeShape<N>> CompositeClosestPointVisitor<'a, N, S> {
     /// Initializes a visitor that allows the computation of the point closest to `point` on `shape`.
     pub fn new(shape: &'a S, point: &'a Point<N>, solid: bool) -> Self {
         CompositeClosestPointVisitor {
@@ -23,7 +23,7 @@ impl<'a, N: Real, S: CompositeShape<N>> CompositeClosestPointVisitor<'a, N, S> {
     }
 }
 
-impl<'a, N: Real, S: CompositeShape<N> + PointQuery<N>> BestFirstVisitor<N, usize, AABB<N>>
+impl<'a, N: RealField, S: CompositeShape<N> + PointQuery<N>> BestFirstVisitor<N, usize, AABB<N>>
     for CompositeClosestPointVisitor<'a, N, S>
 {
     type Result = PointProjection<N>;

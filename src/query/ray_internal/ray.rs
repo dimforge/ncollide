@@ -3,20 +3,19 @@
 use crate::math::{Isometry, Point, Vector};
 #[cfg(feature = "dim3")]
 use na::Point2;
-use na::Real;
-use crate::utils::IsometryOps;
+use na::RealField;
 use crate::shape::FeatureId;
 
 /// A Ray.
 #[derive(Debug, Clone, Copy)]
-pub struct Ray<N: Real> {
+pub struct Ray<N: RealField> {
     /// Starting point of the ray.
     pub origin: Point<N>,
     /// Direction of the ray.
     pub dir: Vector<N>,
 }
 
-impl<N: Real> Ray<N> {
+impl<N: RealField> Ray<N> {
     /// Creates a new ray starting from `origin` and with the direction `dir`. `dir` must be
     /// normalized.
     pub fn new(origin: Point<N>, dir: Vector<N>) -> Ray<N> {
@@ -59,7 +58,7 @@ impl<N: Real> Ray<N> {
 /// Structure containing the result of a successful ray cast.
 #[derive(Copy, Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub struct RayIntersection<N: Real> {
+pub struct RayIntersection<N: RealField> {
     /// The time of impact of the ray with the object.  The exact contact point can be computed
     /// with: `ray.point_at(toi)` or equivalently `origin + dir * toi` where `origin` is the origin of the ray;
     /// `dir` is its direction and `toi` is the value of this field.
@@ -80,7 +79,7 @@ pub struct RayIntersection<N: Real> {
     pub uvs: Option<Point2<N>>,
 }
 
-impl<N: Real> RayIntersection<N> {
+impl<N: RealField> RayIntersection<N> {
     #[inline]
     /// Creates a new `RayIntersection`.
     #[cfg(feature = "dim3")]
@@ -118,7 +117,7 @@ impl<N: Real> RayIntersection<N> {
 }
 
 /// Traits of objects which can be transformed and tested for intersection with a ray.
-pub trait RayCast<N: Real> {
+pub trait RayCast<N: RealField> {
     /// Computes the time of impact between this transform shape and a ray.
     fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, solid: bool) -> Option<N> {
         self.toi_and_normal_with_ray(m, ray, solid)

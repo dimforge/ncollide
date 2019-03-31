@@ -1,11 +1,11 @@
-use na::{Real, Unit};
+use na::{RealField, Unit};
 
 use crate::math::{Isometry, Point, Vector};
 use crate::shape::SupportMap;
 
 pub struct ConstantOrigin;
 
-impl<N: Real> SupportMap<N> for ConstantOrigin {
+impl<N: RealField> SupportMap<N> for ConstantOrigin {
     fn support_point(&self, _: &Isometry<N>, _: &Vector<N>) -> Point<N> {
         Point::origin()
     }

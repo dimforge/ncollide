@@ -1,14 +1,13 @@
 use crate::bounding_volume::AABB;
 use crate::math::{Isometry, Point};
-use na::{self, Real};
+use na::{self, RealField};
 use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
 use crate::query::{
     visitors::CompositePointContainmentTest, PointProjection, PointQuery, PointQueryWithLocation,
 };
 use crate::shape::{CompositeShape, FeatureId, TriMesh, TrianglePointLocation};
-use crate::utils::IsometryOps;
 
-impl<N: Real> PointQuery<N> for TriMesh<N> {
+impl<N: RealField> PointQuery<N> for TriMesh<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, point: &Point<N>, solid: bool) -> PointProjection<N> {
         let (projection, _) = self.project_point_with_location(m, point, solid);
@@ -42,7 +41,7 @@ impl<N: Real> PointQuery<N> for TriMesh<N> {
     }
 }
 
-impl<N: Real> PointQueryWithLocation<N> for TriMesh<N> {
+impl<N: RealField> PointQueryWithLocation<N> for TriMesh<N> {
     type Location = (usize, TrianglePointLocation<N>);
 
     #[inline]
@@ -69,12 +68,12 @@ impl<N: Real> PointQueryWithLocation<N> for TriMesh<N> {
 /*
  * Visitors
  */
-struct TriMeshPointProjVisitor<'a, N: 'a + Real> {
+struct TriMeshPointProjVisitor<'a, N: 'a + RealField> {
     polyline: &'a TriMesh<N>,
     point: &'a Point<N>,
 }
 
-impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for TriMeshPointProjVisitor<'a, N> {
+impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for TriMeshPointProjVisitor<'a, N> {
     type Result = (PointProjection<N>, (usize, TrianglePointLocation<N>));
 
     #[inline]

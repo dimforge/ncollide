@@ -2,7 +2,7 @@
 
 use crate::bounding_volume::{self, BoundingVolume, AABB};
 use crate::math::{Isometry, Point, Vector, DIM};
-use na::{self, Id, Point2, Point3, Real, Unit};
+use na::{self, Id, Point2, Point3, RealField, Unit};
 use crate::partitioning::{BVHImpl, BVT};
 use crate::procedural;
 use crate::query::{LocalShapeApproximation, NeighborhoodGeometry, ContactPrediction, ContactPreprocessor, Contact, ContactKinematic};
@@ -17,7 +17,7 @@ use crate::utils::{DeterministicState, IsometryOps};
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
-struct DeformationInfos<N: Real> {
+struct DeformationInfos<N: RealField> {
     margin: N,
     curr_timestamp: usize,
     timestamps: Vec<usize>,
@@ -44,7 +44,7 @@ impl FaceAdjacentToEdge {
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
 /// A face of a triangle mesh.
-pub struct TriMeshFace<N: Real> {
+pub struct TriMeshFace<N: RealField> {
     /// Indices of the vertices of this face.
     pub indices: Point3<usize>,
     /// Indices of the edges of this face.
@@ -79,7 +79,7 @@ pub struct TriMeshVertex {
 /// A 3d triangle mesh.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
-pub struct TriMesh<N: Real> {
+pub struct TriMesh<N: RealField> {
     bvt: BVT<usize, AABB<N>>,
     uvs: Option<Vec<Point2<N>>>,
     points: Vec<Point<N>>,
@@ -92,7 +92,7 @@ pub struct TriMesh<N: Real> {
     oriented: bool,
 }
 
-impl<N: Real> TriMesh<N> {
+impl<N: RealField> TriMesh<N> {
     /// Builds a new mesh.
     pub fn new(
         points: Vec<Point<N>>,
@@ -684,7 +684,7 @@ impl<N: Real> TriMesh<N> {
     }
 }
 
-impl<N: Real> CompositeShape<N> for TriMesh<N> {
+impl<N: RealField> CompositeShape<N> for TriMesh<N> {
     #[inline]
     fn nparts(&self) -> usize {
         self.faces.len()
@@ -728,7 +728,7 @@ impl<N: Real> CompositeShape<N> for TriMesh<N> {
     }
 }
 
-impl<N: Real> DeformableShape<N> for TriMesh<N> {
+impl<N: RealField> DeformableShape<N> for TriMesh<N> {
     fn deformations_type(&self) -> DeformationsType {
         DeformationsType::Vectors
     }
@@ -869,7 +869,7 @@ impl<N: Real> DeformableShape<N> for TriMesh<N> {
     }
 }
 
-impl<N: Real> From<procedural::TriMesh<N>> for TriMesh<N> {
+impl<N: RealField> From<procedural::TriMesh<N>> for TriMesh<N> {
     fn from(trimesh: procedural::TriMesh<N>) -> Self {
         let indices = trimesh
             .flat_indices()
@@ -881,14 +881,14 @@ impl<N: Real> From<procedural::TriMesh<N>> for TriMesh<N> {
 }
 
 
-struct TriMeshContactProcessor<'a, N: Real> {
+struct TriMeshContactProcessor<'a, N: RealField> {
     mesh: &'a TriMesh<N>,
     pos: &'a Isometry<N>,
     face_id: usize,
     prediction: &'a ContactPrediction<N>
 }
 
-impl<'a, N: Real> TriMeshContactProcessor<'a, N> {
+impl<'a, N: RealField> TriMeshContactProcessor<'a, N> {
     pub fn new(mesh: &'a TriMesh<N>, pos: &'a Isometry<N>, face_id: usize, prediction: &'a ContactPrediction<N>) -> Self {
         TriMeshContactProcessor {
             mesh, pos, face_id, prediction
@@ -896,7 +896,7 @@ impl<'a, N: Real> TriMeshContactProcessor<'a, N> {
     }
 }
 
-impl<'a, N: Real> ContactPreprocessor<N> for TriMeshContactProcessor<'a, N> {
+impl<'a, N: RealField> ContactPreprocessor<N> for TriMeshContactProcessor<'a, N> {
     fn process_contact(
         &self,
         c: &mut Contact<N>,

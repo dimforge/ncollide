@@ -1,4 +1,4 @@
-use na::{self, Real};
+use na::{self, RealField};
 
 use crate::math::{Isometry, Point, Vector};
 use crate::query::{Ray, RayCast, RayIntersection};
@@ -6,7 +6,7 @@ use crate::shape::{Plane, FeatureId};
 
 /// Computes the toi of an unbounded line with a plane described by its center and normal.
 #[inline]
-pub fn plane_toi_with_line<N: Real>(
+pub fn plane_toi_with_line<N: RealField>(
     plane_center: &Point<N>,
     plane_normal: &Vector<N>,
     line_origin: &Point<N>,
@@ -25,7 +25,7 @@ pub fn plane_toi_with_line<N: Real>(
 
 /// Computes the toi of a ray with a plane described by its center and normal.
 #[inline]
-pub fn plane_toi_with_ray<N: Real>(
+pub fn plane_toi_with_ray<N: RealField>(
     center: &Point<N>,
     normal: &Vector<N>,
     ray: &Ray<N>,
@@ -40,7 +40,7 @@ pub fn plane_toi_with_ray<N: Real>(
     None
 }
 
-impl<N: Real> RayCast<N> for Plane<N> {
+impl<N: RealField> RayCast<N> for Plane<N> {
     #[inline]
     fn toi_and_normal_with_ray(
         &self,

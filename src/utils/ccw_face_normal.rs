@@ -1,12 +1,12 @@
 use crate::math::{Point, Vector};
-use na::{Real, Unit};
+use na::{RealField, Unit};
 
 /// Computes the direction pointing toward the right-hand-side of an oriented segment.
 ///
 /// Returns `None` if the segment is degenerate.
 #[inline]
 #[cfg(feature = "dim2")]
-pub fn ccw_face_normal<N: Real>(pts: [&Point<N>; 2]) -> Option<Unit<Vector<N>>> {
+pub fn ccw_face_normal<N: RealField>(pts: [&Point<N>; 2]) -> Option<Unit<Vector<N>>> {
     let ab = pts[1] - pts[0];
     let res = Vector::new(ab[1], -ab[0]);
 
@@ -18,7 +18,7 @@ pub fn ccw_face_normal<N: Real>(pts: [&Point<N>; 2]) -> Option<Unit<Vector<N>>> 
 /// Returns `None` if the triangle is degenerate.
 #[inline]
 #[cfg(feature = "dim3")]
-pub fn ccw_face_normal<N: Real>(pts: [&Point<N>; 3]) -> Option<Unit<Vector<N>>> {
+pub fn ccw_face_normal<N: RealField>(pts: [&Point<N>; 3]) -> Option<Unit<Vector<N>>> {
     let ab = pts[1] - pts[0];
     let ac = pts[2] - pts[0];
     let res = ab.cross(&ac);

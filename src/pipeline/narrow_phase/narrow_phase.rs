@@ -1,4 +1,4 @@
-use na::Real;
+use na::RealField;
 
 use crate::pipeline::events::{ContactEvent, ContactEvents, ProximityEvent, ProximityEvents};
 use crate::pipeline::narrow_phase::{
@@ -11,14 +11,14 @@ use crate::utils::SortedPair;
 
 // FIXME: move this to the `narrow_phase` module.
 /// Collision detector dispatcher for collision objects.
-pub struct NarrowPhase<N: Real> {
+pub struct NarrowPhase<N: RealField> {
     id_alloc: IdAllocator,
     contact_dispatcher: Box<ContactDispatcher<N>>,
     proximity_dispatcher: Box<ProximityDispatcher<N>>,
     interactions: InteractionGraph<N>
 }
 
-impl<N: Real> NarrowPhase<N> {
+impl<N: RealField> NarrowPhase<N> {
     /// Creates a new `NarrowPhase`.
     pub fn new(
         contact_dispatcher: Box<ContactDispatcher<N>>,

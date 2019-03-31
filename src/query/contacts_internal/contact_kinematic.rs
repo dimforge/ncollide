@@ -1,12 +1,12 @@
 use crate::math::{Isometry, Point, Vector};
-use na::{self, Real, Unit};
+use na::{self, RealField, Unit};
 use crate::query::closest_points_internal;
 use crate::query::Contact;
 use crate::shape::{FeatureId, Shape};
 
 /// A shape geometry type at the neighborhood of a point.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum NeighborhoodGeometry<N: Real> {
+pub enum NeighborhoodGeometry<N: RealField> {
     /// A punctual approximation.
     Point,
     /// A line approximation.
@@ -17,7 +17,7 @@ pub enum NeighborhoodGeometry<N: Real> {
 
 /// The approximation of a shape on the neighborhood of a point.
 #[derive(Clone, Debug)]
-pub struct LocalShapeApproximation<N: Real> {
+pub struct LocalShapeApproximation<N: RealField> {
     // XXX: currently, there is no explicit representation
     // of the point where the approximation occurs in terms
     // of shape-specific parameters. That's because we work
@@ -37,7 +37,7 @@ pub struct LocalShapeApproximation<N: Real> {
     pub geometry: NeighborhoodGeometry<N>,
 }
 
-impl<N: Real> LocalShapeApproximation<N> {
+impl<N: RealField> LocalShapeApproximation<N> {
     /// Initializes a new local shape approximation at `point`.
     pub fn new(feature: FeatureId, point: Point<N>, geometry: NeighborhoodGeometry<N>) -> Self {
         LocalShapeApproximation {
@@ -55,7 +55,7 @@ impl<N: Real> LocalShapeApproximation<N> {
 /// around the given points are approximated by either dilated lines (unbounded
 /// cylinders), planes, dilated points (spheres).
 #[derive(Clone, Debug)]
-pub struct ContactKinematic<N: Real> {
+pub struct ContactKinematic<N: RealField> {
     approx1: LocalShapeApproximation<N>,
     approx2: LocalShapeApproximation<N>,
 
@@ -63,7 +63,7 @@ pub struct ContactKinematic<N: Real> {
     margin2: N,
 }
 
-impl<N: Real> ContactKinematic<N> {
+impl<N: RealField> ContactKinematic<N> {
     /// Initializes an empty contact kinematic.
     ///
     /// All the contact kinematic information must be filled using methods

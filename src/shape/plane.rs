@@ -1,16 +1,16 @@
 //! Support mapping based Plane shape.
 use crate::math::Vector;
-use na::{Real, Unit};
+use na::{RealField, Unit};
 
 /// SupportMap description of a plane.
 #[derive(PartialEq, Debug, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub struct Plane<N: Real> {
+pub struct Plane<N: RealField> {
     /// The plane normal.
     normal: Unit<Vector<N>>,
 }
 
-impl<N: Real> Plane<N> {
+impl<N: RealField> Plane<N> {
     /// Builds a new plane from its center and its normal.
     #[inline]
     pub fn new(normal: Unit<Vector<N>>) -> Plane<N> {

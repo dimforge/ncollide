@@ -1,4 +1,4 @@
-use na::Real;
+use na::RealField;
 
 use crate::math::{Isometry, Point, Vector};
 use crate::query::time_of_impact_internal;
@@ -7,7 +7,7 @@ use crate::shape::{Ball, Plane, Shape};
 /// Computes the smallest time of impact of two shapes under translational movement.
 ///
 /// Returns `0.0` if the objects are touching or penetrating.
-pub fn shape_against_shape<N: Real>(
+pub fn shape_against_shape<N: RealField>(
     m1: &Isometry<N>,
     vel1: &Vector<N>,
     g1: &Shape<N>,

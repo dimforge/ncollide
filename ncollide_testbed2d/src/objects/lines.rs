@@ -2,19 +2,19 @@ use num::ToPrimitive;
 use sfml::graphics;
 use sfml::graphics::Color;
 
-use alga::general::Real;
+use alga::general::RealField;
 use draw_helper::draw_line;
 use na::{Isometry2, Point2, Point3};
 use ncollide2d::world::CollisionObject;
 
-pub struct Lines<N: Real> {
+pub struct Lines<N: RealField> {
     color: Point3<u8>,
     base_color: Point3<u8>,
     delta: Isometry2<N>,
     vertices: Vec<Point2<N>>,
 }
 
-impl<N: Real> Lines<N> {
+impl<N: RealField> Lines<N> {
     pub fn new(delta: Isometry2<N>, vertices: Vec<Point2<N>>, color: Point3<u8>) -> Lines<N> {
         Lines {
             color: color,
@@ -25,7 +25,7 @@ impl<N: Real> Lines<N> {
     }
 }
 
-impl<N: Real + ToPrimitive> Lines<N> {
+impl<N: RealField + ToPrimitive> Lines<N> {
     pub fn update(&mut self) {}
 
     pub fn draw<T>(&self, rw: &mut graphics::RenderWindow, object: &CollisionObject<N, T>) {

@@ -1,4 +1,4 @@
-use na::{self, Real, Unit};
+use na::{self, RealField, Unit};
 
 use crate::math::{Isometry, Vector};
 use crate::query::algorithms::VoronoiSimplex;
@@ -15,7 +15,7 @@ pub fn support_map_against_support_map<N, G1: ?Sized, G2: ?Sized>(
     margin: N,
 ) -> Proximity
 where
-    N: Real,
+    N: RealField,
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
@@ -44,7 +44,7 @@ pub fn support_map_against_support_map_with_params<N, G1: ?Sized, G2: ?Sized>(
     init_dir: Option<Unit<Vector<N>>>,
 ) -> (Proximity, Unit<Vector<N>>)
 where
-    N: Real,
+    N: RealField,
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {

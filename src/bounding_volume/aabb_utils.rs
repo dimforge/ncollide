@@ -3,13 +3,13 @@ use std::iter::IntoIterator;
 use alga::linear::Transformation;
 use crate::bounding_volume::AABB;
 use crate::math::{Isometry, Point, Vector, DIM};
-use na::{self, Real};
+use na::{self, RealField};
 use crate::shape::SupportMap;
 
 /// Computes the AABB of an support mapped shape.
 pub fn support_map_aabb<N, G>(m: &Isometry<N>, i: &G) -> AABB<N>
 where
-    N: Real,
+    N: RealField,
     G: SupportMap<N>,
 {
     let mut min = na::zero::<Vector<N>>();
@@ -32,7 +32,7 @@ where
 }
 
 /// Computes the AABB of a set of point.
-pub fn point_cloud_aabb<'a, N: Real, M: Transformation<Point<N>>, I>(m: &M, pts: I) -> AABB<N>
+pub fn point_cloud_aabb<'a, N: RealField, M: Transformation<Point<N>>, I>(m: &M, pts: I) -> AABB<N>
     where I: IntoIterator<Item = &'a Point<N>> {
     let mut it = pts.into_iter();
 

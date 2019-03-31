@@ -1,14 +1,13 @@
 use crate::bounding_volume::AABB;
 use crate::math::{Isometry, Point};
-use na::{self, Real};
+use na::{self, RealField};
 use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor, BVH};
 use crate::query::{
     visitors::CompositePointContainmentTest, PointProjection, PointQuery, PointQueryWithLocation,
 };
 use crate::shape::{FeatureId, Polyline, SegmentPointLocation};
-use crate::utils::IsometryOps;
 
-impl<N: Real> PointQuery<N> for Polyline<N> {
+impl<N: RealField> PointQuery<N> for Polyline<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, point: &Point<N>, solid: bool) -> PointProjection<N> {
         let (projection, _) = self.project_point_with_location(m, point, solid);
@@ -42,7 +41,7 @@ impl<N: Real> PointQuery<N> for Polyline<N> {
     }
 }
 
-impl<N: Real> PointQueryWithLocation<N> for Polyline<N> {
+impl<N: RealField> PointQueryWithLocation<N> for Polyline<N> {
     type Location = (usize, SegmentPointLocation<N>);
 
     #[inline]
@@ -69,12 +68,12 @@ impl<N: Real> PointQueryWithLocation<N> for Polyline<N> {
 /*
  * Visitors
  */
-struct PolylinePointProjVisitor<'a, N: 'a + Real> {
+struct PolylinePointProjVisitor<'a, N: 'a + RealField> {
     polyline: &'a Polyline<N>,
     point: &'a Point<N>,
 }
 
-impl<'a, N: Real> BestFirstVisitor<N, usize, AABB<N>> for PolylinePointProjVisitor<'a, N> {
+impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for PolylinePointProjVisitor<'a, N> {
     type Result = (PointProjection<N>, (usize, SegmentPointLocation<N>));
 
     #[inline]

@@ -1,11 +1,11 @@
 use super::ToTriMesh;
-use alga::general::Real;
+use alga::general::RealField;
 use na;
 use crate::procedural;
 use crate::procedural::TriMesh;
 use crate::shape::Cone;
 
-impl<N: Real> ToTriMesh<N> for Cone<N> {
+impl<N: RealField> ToTriMesh<N> for Cone<N> {
     type DiscretizationParameter = u32;
 
     fn to_trimesh(&self, nsubdiv: u32) -> TriMesh<N> {

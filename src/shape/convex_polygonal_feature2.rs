@@ -1,4 +1,4 @@
-use na::{self, Real, Unit};
+use na::{self, RealField, Unit};
 
 use crate::math::{Isometry, Point, Vector};
 use crate::query::{Contact, ContactPrediction};
@@ -9,7 +9,7 @@ use crate::utils::{IdAllocator, IsometryOps};
 
 /// A feature (face or vertex) of a 2D convex polygon.
 #[derive(Clone, Debug)]
-pub struct ConvexPolygonalFeature<N: Real> {
+pub struct ConvexPolygonalFeature<N: RealField> {
     // FIXME: don't keep all those public.
     /// The vertices of this face.
     pub vertices: [Point<N>; 2],
@@ -23,7 +23,7 @@ pub struct ConvexPolygonalFeature<N: Real> {
     pub vertices_id: [FeatureId; 2],
 }
 
-impl<N: Real> ConvexPolygonalFeature<N> {
+impl<N: RealField> ConvexPolygonalFeature<N> {
     /// Creates a new empty convex polygonal faces.
     pub fn new() -> Self {
         ConvexPolygonalFeature {

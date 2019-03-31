@@ -1,5 +1,5 @@
 use crate::math::{Isometry, Vector};
-use na::{self, Real, Unit};
+use na::{self, RealField, Unit};
 use crate::query::algorithms::VoronoiSimplex;
 use crate::query::algorithms::{gjk, gjk::GJKResult, CSOPoint};
 use crate::shape::SupportMap;
@@ -12,7 +12,7 @@ pub fn support_map_against_support_map<N, G1: ?Sized, G2: ?Sized>(
     g2: &G2,
 ) -> N
 where
-    N: Real,
+    N: RealField,
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
@@ -31,7 +31,7 @@ pub fn support_map_against_support_map_with_params<N, G1: ?Sized, G2: ?Sized>(
     init_dir: Option<Vector<N>>,
 ) -> N
 where
-    N: Real,
+    N: RealField,
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {

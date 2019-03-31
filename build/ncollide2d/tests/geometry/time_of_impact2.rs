@@ -46,7 +46,7 @@ fn ball_cuboid_toi() {
     assert_eq!(toi_intersecting, Some(0.0));
     assert!(relative_eq!(
         toi_will_touch.unwrap(),
-        (2.0_f32.sqrt() - 1.0) / (ball_vel2 - box_vel2).norm()
+        (2.0f64.sqrt() - 1.0) / (ball_vel2 - box_vel2).norm()
     ));
     assert_eq!(toi_wont_touch, None);
 }

@@ -1,8 +1,8 @@
 use crate::math::{Isometry, Point};
-use na::Real;
+use na::RealField;
 
 /// Traits of objects having a bounding volume.
-pub trait HasBoundingVolume<N: Real, BV> {
+pub trait HasBoundingVolume<N: RealField, BV> {
     /// The bounding volume of `self` transformed by `m`.
     fn bounding_volume(&self, m: &Isometry<N>) -> BV;
 }
@@ -12,7 +12,7 @@ pub trait HasBoundingVolume<N: Real, BV> {
 /// Bounding volumes are coarse approximations of shapes. It usually have constant time
 /// intersection, inclusion test. Two bounding volume must also be mergeable into a bigger bounding
 /// volume.
-pub trait BoundingVolume<N: Real> {
+pub trait BoundingVolume<N: RealField> {
     // FIXME: keep that ? What about non-spacial bounding volumes (e.g. bounding cones, curvature
     // bounds, etc.) ?
     /// Returns a point inside of this bounding volume. This is ideally its center.

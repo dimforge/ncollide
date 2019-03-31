@@ -1,6 +1,6 @@
 //! A read-only Bounding Volume Tree.
 
-use alga::general::Real;
+use alga::general::RealField;
 use crate::bounding_volume::BoundingVolume;
 use crate::math::{Point, DIM};
 use crate::partitioning::BVH;
@@ -157,7 +157,7 @@ impl<T, BV> BVT<T, BV> {
     /// If `refit_now` is `false`, no ancestor update will be performed until the
     /// `.refit()` method is called. This is useful to refit the tree only once after
     /// several leaf bounding volume modifications.
-    pub fn set_leaf_bounding_volume<N: Real>(&mut self, i: usize, bv: BV, refit_now: bool)
+    pub fn set_leaf_bounding_volume<N: RealField>(&mut self, i: usize, bv: BV, refit_now: bool)
     where BV: BoundingVolume<N> {
         self.init_deformation_infos();
         self.leaves[i].bounding_volume = bv;
@@ -199,7 +199,7 @@ impl<T, BV> BVT<T, BV> {
     /// The larger this margin here, the looser will the resulting AABB will be, but the less frequent
     /// future updates will be necessary.
     /// Setting a margin equal to 0.0 is allowed.
-    pub fn refit<N: Real>(&mut self, margin: N)
+    pub fn refit<N: RealField>(&mut self, margin: N)
     where BV: BoundingVolume<N> {
         assert!(margin >= N::zero(), "Cannot set a negative margin.");
 
@@ -274,7 +274,7 @@ impl<T, BV> BVT<T, BV> {
     /// Creates a balanced `BVT`.
     pub fn new_balanced<N>(leaves: Vec<(T, BV)>) -> BVT<T, BV>
     where
-        N: Real,
+        N: RealField,
         BV: BoundingVolume<N> + Clone,
     {
         BVT::from_partitioning(leaves, &mut Self::median_partitioning)
@@ -287,7 +287,7 @@ impl<T, BV> BVT<T, BV> {
         center: &mut F,
     ) -> (BV, BinaryPartition<T, BV>)
     where
-        N: Real,
+        N: RealField,
         BV: BoundingVolume<N> + Clone,
     {
         if leaves.len() == 0 {
@@ -349,7 +349,7 @@ impl<T, BV> BVT<T, BV> {
         leaves: Vec<(T, BV)>,
     ) -> (BV, BinaryPartition<T, BV>)
     where
-        N: Real,
+        N: RealField,
         BV: BoundingVolume<N> + Clone,
     {
         Self::median_partitioning_with_centers(depth, leaves, &mut |_, bv| bv.center())

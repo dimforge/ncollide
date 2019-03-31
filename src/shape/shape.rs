@@ -1,20 +1,20 @@
 // Queries.
 use crate::bounding_volume::{BoundingSphere, AABB};
 use crate::math::{Isometry, Vector};
-use na::{self, Real, Unit};
+use na::{self, RealField, Unit};
 use crate::query::{PointQuery, RayCast};
 use crate::shape::{CompositeShape, ConvexPolyhedron, DeformableShape, FeatureId, SupportMap};
 use std::ops::Deref;
 use std::sync::Arc;
 use downcast_rs::Downcast;
 
-pub trait ShapeClone<N: Real> {
+pub trait ShapeClone<N: RealField> {
     fn clone_box(&self) -> Box<Shape<N>> {
         unimplemented!()
     }
 }
 
-impl<N: Real, T: 'static + Shape<N> + Clone> ShapeClone<N> for T {
+impl<N: RealField, T: 'static + Shape<N> + Clone> ShapeClone<N> for T {
     fn clone_box(&self) -> Box<Shape<N>> {
         Box::new(self.clone())
     }
@@ -23,7 +23,7 @@ impl<N: Real, T: 'static + Shape<N> + Clone> ShapeClone<N> for T {
 /// Trait implemented by all shapes supported by ncollide.
 ///
 /// This allows dynamic inspection of the shape capabilities.
-pub trait Shape<N: Real>: Send + Sync + Downcast + ShapeClone<N> {
+pub trait Shape<N: RealField>: Send + Sync + Downcast + ShapeClone<N> {
     /// The AABB of `self`.
     #[inline]
     fn aabb(&self, m: &Isometry<N>) -> AABB<N>;
@@ -121,10 +121,10 @@ pub trait Shape<N: Real>: Send + Sync + Downcast + ShapeClone<N> {
     }
 }
 
-impl_downcast!(Shape<N> where N: Real);
+impl_downcast!(Shape<N> where N: RealField);
 
 /// Trait for casting shapes to its exact represetation.
-impl<N: Real> Shape<N> {
+impl<N: RealField> Shape<N> {
     /// Tests if this shape has a specific type `T`.
     #[inline]
     pub fn is_shape<T: Shape<N>>(&self) -> bool {
@@ -138,7 +138,7 @@ impl<N: Real> Shape<N> {
     }
 }
 
-impl<N: Real> Clone for Box<Shape<N>> {
+impl<N: RealField> Clone for Box<Shape<N>> {
     fn clone(&self) -> Box<Shape<N>> {
         self.clone_box()
     }
@@ -148,9 +148,9 @@ impl<N: Real> Clone for Box<Shape<N>> {
 ///
 /// This can be mutated using COW.
 #[derive(Clone)]
-pub struct ShapeHandle<N: Real>(Arc<Box<Shape<N>>>);
+pub struct ShapeHandle<N: RealField>(Arc<Box<Shape<N>>>);
 
-impl<N: Real> ShapeHandle<N> {
+impl<N: RealField> ShapeHandle<N> {
     /// Creates a sharable shape handle from a shape.
     #[inline]
     pub fn new<S: Shape<N> + Clone>(shape: S) -> ShapeHandle<N> {
@@ -162,14 +162,14 @@ impl<N: Real> ShapeHandle<N> {
     }
 }
 
-impl<N: Real> AsRef<Shape<N>> for ShapeHandle<N> {
+impl<N: RealField> AsRef<Shape<N>> for ShapeHandle<N> {
     #[inline]
     fn as_ref(&self) -> &Shape<N> {
         &*self.deref()
     }
 }
 
-impl<N: Real> Deref for ShapeHandle<N> {
+impl<N: RealField> Deref for ShapeHandle<N> {
     type Target = Shape<N>;
 
     #[inline]

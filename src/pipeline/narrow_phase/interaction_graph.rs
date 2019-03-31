@@ -1,6 +1,6 @@
 use petgraph::graph::{UnGraph, NodeIndex};
 use petgraph::visit::EdgeRef;
-use na::Real;
+use na::RealField;
 
 use crate::query::{ContactManifold, Proximity};
 use crate::world::CollisionObjectHandle;
@@ -10,7 +10,7 @@ use crate::pipeline::narrow_phase::{ContactAlgorithm, ProximityAlgorithm};
 pub type InteractionGraphIndex = NodeIndex<usize>;
 
 /// An interaction between two collision objects.
-pub enum Interaction<N: Real> {
+pub enum Interaction<N: RealField> {
     /// A potential contact between two collision objects.
     ///
     /// Generated only for pairs of collision objects both configured
@@ -23,7 +23,7 @@ pub enum Interaction<N: Real> {
     Proximity(ProximityAlgorithm<N>)
 }
 
-impl<N: Real> Interaction<N> {
+impl<N: RealField> Interaction<N> {
     /// Checks if this interaction is a potential contact interaction.
     pub fn is_contact(&self) -> bool {
         match self {
@@ -42,11 +42,11 @@ impl<N: Real> Interaction<N> {
 }
 
 /// A graph where nodes are collision objects and edges are contact or proximity algorithms.
-pub struct InteractionGraph<N: Real> {
+pub struct InteractionGraph<N: RealField> {
     pub(crate) graph: UnGraph<CollisionObjectHandle, Interaction<N>, usize>
 }
 
-impl<N: Real> InteractionGraph<N> {
+impl<N: RealField> InteractionGraph<N> {
     /// Creates a new empty collection of collision objects.
     pub fn new() -> Self {
         InteractionGraph {

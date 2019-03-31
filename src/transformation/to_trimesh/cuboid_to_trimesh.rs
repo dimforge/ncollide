@@ -1,11 +1,11 @@
 use super::ToTriMesh;
-use alga::general::Real;
+use alga::general::RealField;
 use na;
 use crate::procedural;
 use crate::procedural::TriMesh;
 use crate::shape::Cuboid;
 
-impl<N: Real> ToTriMesh<N> for Cuboid<N> {
+impl<N: RealField> ToTriMesh<N> for Cuboid<N> {
     type DiscretizationParameter = ();
 
     fn to_trimesh(&self, _: ()) -> TriMesh<N> {

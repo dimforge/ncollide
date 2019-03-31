@@ -1,10 +1,9 @@
 use crate::math::{Isometry, Point};
-use na::{self, Real};
+use na::{self, RealField};
 use crate::query::{PointProjection, PointQuery};
 use crate::shape::{FeatureId, Plane};
-use crate::utils::IsometryOps;
 
-impl<N: Real> PointQuery<N> for Plane<N> {
+impl<N: RealField> PointQuery<N> for Plane<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> PointProjection<N> {
         let ls_pt = m.inverse_transform_point(pt);
