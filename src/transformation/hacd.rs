@@ -742,7 +742,7 @@ fn compute_dual_graph<N: RealField>(
         .collect();
 
     {
-        let mut add_triangle_edges = Box::new(|i: usize, t: &Point3<u32>| {
+        let mut add_triangle_edges = |i: usize, t: &Point3<u32>| {
             let es = [edge(t.x, t.y), edge(t.y, t.z), edge(t.z, t.x)];
 
             for e in es.iter() {
@@ -757,7 +757,7 @@ fn compute_dual_graph<N: RealField>(
                     let _ = dual_vertices[*other].neighbors.as_mut().unwrap().insert(i);
                 }
             }
-        });
+        };
 
         match mesh.indices {
             IndexBuffer::Unified(ref b) => {
