@@ -183,7 +183,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
         })
     }
 
-    /// Sets the position the collision object attached to the specified object.
+    /// Sets the position of the collision object attached to the specified object.
     pub fn set_position(&mut self, handle: CollisionObjectHandle, pos: Isometry<N>) {
         let co = self
             .objects
@@ -195,6 +195,25 @@ impl<N: RealField, T> CollisionWorld<N, T> {
         aabb.loosen(co.query_type().query_limit());
         self.broad_phase
             .deferred_set_bounding_volume(co.proxy_handle(), aabb);
+    }
+
+    /// Sets the position of the collision object attached to the specified object and update its bounding volume
+    /// by taking into account its predicted next position.
+    pub fn set_position_with_prediction(&mut self, handle: CollisionObjectHandle, pos: Isometry<N>, predicted_pos: &Isometry<N>) {
+        let co = self
+            .objects
+            .get_mut(handle)
+            .expect("Set position: collision object not found.");
+        co.set_position(pos.clone());
+        co.timestamp = self.timestamp;
+        let mut aabb1 = bounding_volume::aabb(co.shape().as_ref(), &pos);
+        let mut aabb2 = bounding_volume::aabb(co.shape().as_ref(), predicted_pos);
+        aabb1.loosen(co.query_type().query_limit());
+        aabb2.loosen(co.query_type().query_limit());
+        aabb1.merge(&aabb2);
+        self.broad_phase
+            .deferred_set_bounding_volume(co.proxy_handle(), aabb1);
+
     }
 
     /// Sets the `GeometricQueryType` of the collision object.
@@ -213,7 +232,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
     pub fn set_shape(&mut self, handle: CollisionObjectHandle, shape: ShapeHandle<N>) {
         if let Some(co) = self.objects.get_mut(handle) {
             co.set_shape(shape);
-            
+
             let mut aabb = bounding_volume::aabb(co.shape().as_ref(), co.position());
 
             aabb.loosen(co.query_type().query_limit());
@@ -282,6 +301,17 @@ impl<N: RealField, T> CollisionWorld<N, T> {
             self.timestamp,
         );
         self.timestamp = self.timestamp + 1;
+    }
+
+    /// The broad-phase used by this collision world.
+    pub fn broad_phase(&self) -> &BroadPhase<N, AABB<N>, CollisionObjectHandle> {
+        &*self.broad_phase
+    }
+
+    /// The broad-phase aabb for the given collision object.
+    pub fn broad_phase_aabb(&self, handle: CollisionObjectHandle) -> Option<&AABB<N>> {
+        let co = self.objects.get(handle)?;
+        self.broad_phase.proxy(co.proxy_handle()).map(|p| p.0)
     }
 
     /// Iterates through all collision objects.

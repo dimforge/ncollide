@@ -325,6 +325,12 @@ impl<N: RealField, T, BV: BoundingVolume<N>> DBVT<N, T, BV> {
 
         leaf
     }
+
+    /// Gets the given leaf if it exists.
+    #[inline]
+    pub fn get(&self, DBVTLeafId(id): DBVTLeafId) -> Option<&DBVTLeaf<N, T, BV>> {
+        self.leaves.get(id)
+    }
 }
 
 impl<N: RealField, T, BV> Index<DBVTLeafId> for DBVT<N, T, BV> {

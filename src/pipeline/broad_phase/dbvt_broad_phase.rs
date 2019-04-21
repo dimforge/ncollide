@@ -253,6 +253,21 @@ impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
         self.update_activation_states();
     }
 
+    /// Retrieves the bounding volume and data associated to the given proxy.
+    fn proxy(&self, handle: ProxyHandle) -> Option<(&BV, &T)> {
+        let proxy = self.proxies.get(handle.uid())?;
+        match proxy.status {
+            ProxyStatus::OnDynamicTree(id, _) => {
+                Some((&self.tree.get(id)?.bounding_volume, &proxy.data))
+            },
+            ProxyStatus::OnStaticTree(id) => {
+                Some((&self.stree.get(id)?.bounding_volume, &proxy.data))
+            },
+            _ => None
+        }
+
+    }
+
     fn create_proxy(&mut self, bv: BV, data: T) -> ProxyHandle {
         let proxy = DBVTBroadPhaseProxy::new(data);
         let handle = ProxyHandle(self.proxies.insert(proxy));

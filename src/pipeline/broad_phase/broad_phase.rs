@@ -42,6 +42,9 @@ pub trait BroadPhase<N: RealField, BV, T>: Any + Sync + Send {
     /// Tells the broad phase to add a bounding-volume at the next update.
     fn create_proxy(&mut self, bv: BV, data: T) -> ProxyHandle;
 
+    /// Retrieves the bounding volume and data associated to the given proxy.
+    fn proxy(&self, handle: ProxyHandle) -> Option<(&BV, &T)>;
+
     /// Tells the broad phase to remove the given set of handles.
     fn remove(&mut self, handles: &[ProxyHandle], removal_handler: &mut FnMut(&T, &T));
 
