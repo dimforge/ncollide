@@ -3,9 +3,7 @@ use na::{self, Point2, RealField, Unit};
 use std::iter;
 
 use crate::math::{Isometry, Point, Vector};
-use crate::query::closest_points_internal;
-use crate::query::ray_internal;
-use crate::query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry};
+use crate::query::{self, Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry};
 use crate::shape::{FeatureId, Segment, SegmentPointLocation};
 use crate::query::ContactPreprocessor;
 use crate::utils::{self, IdAllocator, IsometryOps};
@@ -267,7 +265,7 @@ impl<N: RealField> ConvexPolygonalFeature<N> {
                     let n2 = other.normal.as_ref().unwrap().into_inner();
                     let p2 = &other.vertices[0];
                     if let Some(toi2) =
-                        ray_internal::plane_toi_with_line(p2, &n2, &origin, &normal.into_inner())
+                        query::line_toi_with_plane(p2, &n2, &origin, &normal.into_inner())
                     {
                         let world2 = origin + normal.into_inner() * toi2;
                         let world1 = self.vertices[i];
@@ -293,7 +291,7 @@ impl<N: RealField> ConvexPolygonalFeature<N> {
                     let n1 = self.normal.as_ref().unwrap().into_inner();
                     let p1 = &self.vertices[0];
                     if let Some(toi1) =
-                        ray_internal::plane_toi_with_line(p1, &n1, &origin, &normal.into_inner())
+                        query::line_toi_with_plane(p1, &n1, &origin, &normal.into_inner())
                     {
                         let world1 = origin + normal.into_inner() * toi1;
                         let world2 = other.vertices[i];
@@ -321,7 +319,7 @@ impl<N: RealField> ConvexPolygonalFeature<N> {
                 let seg2 = (&cache.poly2[i2], &cache.poly2[j2]);
 
                 if let (SegmentPointLocation::OnEdge(e1), SegmentPointLocation::OnEdge(e2)) =
-                    closest_points_internal::segment_against_segment_with_locations_nD(seg1, seg2)
+                    query::closest_points_segment_segment_with_locations_nD(seg1, seg2)
                 {
                     let original1 = Segment::new(self.vertices[i1], self.vertices[j1]);
                     let original2 = Segment::new(other.vertices[i2], other.vertices[j2]);

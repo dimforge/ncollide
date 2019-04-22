@@ -43,11 +43,6 @@ impl<N: RealField> ContactDispatcher<N> for DefaultContactDispatcher {
             }
         }
 
-        {
-        }
-
-
-
         if a_is_heightfield || b_is_heightfield {
             return Some(Box::new(HeightFieldShapeManifoldGenerator::<N>::new(b_is_heightfield)));
         } else if a_is_capsule && b_is_capsule {

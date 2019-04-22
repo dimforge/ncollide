@@ -1,8 +1,7 @@
 use crate::math::{Isometry, Point};
 use na::RealField;
 use crate::pipeline::narrow_phase::{ProximityDetector, ProximityDispatcher};
-use crate::query::proximity_internal;
-use crate::query::Proximity;
+use crate::query::{self, Proximity};
 use crate::shape::{Ball, Shape};
 
 /// Proximity detector between two balls.
@@ -40,7 +39,7 @@ impl<N: RealField> ProximityDetector<N> for BallBallProximityDetector {
     ) -> bool
     {
         if let (Some(a), Some(b)) = (a.as_shape::<Ball<N>>(), b.as_shape::<Ball<N>>()) {
-            self.proximity = proximity_internal::ball_against_ball(
+            self.proximity = query::proximity_ball_ball(
                 &Point::from(ma.translation.vector),
                 a,
                 &Point::from(mb.translation.vector),

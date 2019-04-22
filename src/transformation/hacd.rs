@@ -6,7 +6,7 @@ use crate::partitioning::{BVH, BVT};
 use crate::procedural::{IndexBuffer, TriMesh};
 use crate::query::algorithms::VoronoiSimplex;
 use crate::query::{
-    ray_internal, visitors::BoundingVolumeInterferencesCollector, Ray, RayCast, RayIntersection,
+    self, visitors::BoundingVolumeInterferencesCollector, Ray, RayCast, RayIntersection,
 };
 use crate::shape::SupportMap;
 use std::cmp::Ordering;
@@ -811,7 +811,7 @@ impl<'a, N: RealField> RayCast<N> for ConvexPair<'a, N> {
         solid: bool,
     ) -> Option<RayIntersection<N>>
     {
-        ray_internal::implicit_toi_and_normal_with_ray(
+        query::ray_intersection_with_support_map_with_params(
             id,
             self,
             &mut VoronoiSimplex::new(),

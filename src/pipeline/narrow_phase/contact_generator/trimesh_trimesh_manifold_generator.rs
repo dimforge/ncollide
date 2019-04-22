@@ -1,8 +1,8 @@
 use crate::math::{Isometry, Vector};
 use na::{self, RealField, Unit};
 use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
-use crate::query::closest_points_internal;
 use crate::query::{
+    self,
     visitors::AABBSetsInterferencesCollector, Contact, ContactKinematic, ContactManifold,
     ContactPrediction, ContactTrackingMode, NeighborhoodGeometry, ContactPreprocessor
 };
@@ -295,7 +295,7 @@ impl<N: RealField> TriMeshTriMeshManifoldGenerator<N> {
                     // Use the corresponding edge from t2 instead.
                     let seg2 = Segment::new(m12 * pts2[e2.indices.x], m12 * pts2[e2.indices.y]);
 
-                    let locs = closest_points_internal::segment_against_segment_with_locations_nD(
+                    let locs = query::closest_points_segment_segment_with_locations_nD(
                         (seg1.a(), seg1.b()),
                         (seg2.a(), seg2.b()),
                     );

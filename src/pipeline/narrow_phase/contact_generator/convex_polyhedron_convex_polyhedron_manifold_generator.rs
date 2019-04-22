@@ -3,8 +3,7 @@ use na::{self, RealField, Unit};
 use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 use crate::query::algorithms::gjk::GJKResult;
 use crate::query::algorithms::VoronoiSimplex;
-use crate::query::contacts_internal;
-use crate::query::{Contact, ContactManifold, ContactPrediction, ContactPreprocessor};
+use crate::query::{self, Contact, ContactManifold, ContactPrediction, ContactPreprocessor};
 #[cfg(feature = "dim3")]
 use crate::shape::ClippingCache;
 use crate::shape::ConvexPolygonalFeature;
@@ -95,7 +94,7 @@ impl<N: RealField> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhed
     ) -> bool
     {
         if let (Some(cpa), Some(cpb)) = (a.as_convex_polyhedron(), b.as_convex_polyhedron()) {
-            let contact = contacts_internal::support_map_against_support_map_with_params(
+            let contact = query::contact_support_map_support_map_with_params(
                 ma,
                 cpa,
                 mb,

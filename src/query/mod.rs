@@ -1,35 +1,19 @@
 //! Non-persistant pairwise geometric queries.
 
-#[doc(inline)]
-pub use self::closest_points_internal::closest_points_internal as closest_points;
-#[doc(inline)]
-pub use self::closest_points_internal::ClosestPoints;
-#[doc(inline)]
-pub use self::contacts_internal::contact_internal as contact;
-#[doc(inline)]
-pub use self::contacts_internal::{
-    Contact, ContactKinematic, ContactManifold, ContactPrediction, ContactTrackingMode,
-    LocalShapeApproximation, NeighborhoodGeometry, TrackedContact, ContactPreprocessor
-};
-#[doc(inline)]
-pub use self::distance_internal::distance;
-#[doc(inline)]
-pub use self::point_internal::{PointProjection, PointQuery, PointQueryWithLocation};
-#[doc(inline)]
-pub use self::proximity_internal::proximity_internal as proximity;
-#[doc(inline)]
-pub use self::proximity_internal::Proximity;
-#[doc(inline)]
-pub use self::ray_internal::{Ray, RayCast, RayIntersection};
-#[doc(inline)]
-pub use self::time_of_impact_internal::time_of_impact;
+pub use self::closest_points::*;
+pub use self::contact::*;
+pub use self::distance::*;
+pub use self::point::*;
+pub use self::proximity::*;
+pub use self::ray::*;
+pub use self::time_of_impact::*;
 
 pub mod algorithms;
-pub mod closest_points_internal;
-pub mod contacts_internal;
-pub mod distance_internal;
-pub mod point_internal;
-pub mod proximity_internal;
-pub mod ray_internal;
-pub mod time_of_impact_internal;
+mod closest_points;
+mod contact;
+mod distance;
+mod point;
+mod proximity;
+mod ray;
+mod time_of_impact;
 pub mod visitors;

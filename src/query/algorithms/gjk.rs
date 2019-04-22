@@ -8,7 +8,7 @@ use crate::query::algorithms::{CSOPoint, VoronoiSimplex};
 use crate::shape::{ConstantOrigin, SupportMap};
 // use query::Proximity;
 use crate::math::{Isometry, Point, Vector, DIM};
-use crate::query::{ray_internal, Ray};
+use crate::query::{self, Ray};
 
 /// Results of the GJK algorithm.
 #[derive(Clone, Debug, PartialEq)]
@@ -272,7 +272,7 @@ where
         //          < 0        |  > 0  | New lower bound, move the origin.
         //          > 0        |  < 0  | Miss. No intersection.
         //          > 0        |  > 0  | New higher bound.
-        match ray_internal::plane_toi_with_ray(&support_point.point, &dir, &curr_ray) {
+        match query::ray_toi_with_plane(&support_point.point, &dir, &curr_ray) {
             Some(t) => {
                 if dir.dot(&curr_ray.dir) < na::zero() && t > N::zero() {
                     // new lower bound
