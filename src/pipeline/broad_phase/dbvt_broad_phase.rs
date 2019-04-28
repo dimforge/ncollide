@@ -132,6 +132,9 @@ impl<N, BV, T> DBVTBroadPhase<N, BV, T>
                             handler.interference_stopped(&proxy1.data, &proxy2.data);
                             retain = false;
                         }
+                    } else {
+                        handler.interference_stopped(&proxy1.data, &proxy2.data);
+                        retain = false;
                     }
                 }
             }
