@@ -20,4 +20,6 @@ pub mod gjk;
 mod voronoi_simplex2;
 #[cfg(feature = "dim3")]
 mod voronoi_simplex3;
+/// Special support map function like constants and Minkowski sums.
+pub mod special_support_maps;
 // pub mod minkowski_sampling;

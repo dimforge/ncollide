@@ -7,7 +7,6 @@ pub use self::composite_shape::CompositeShape;
 pub use self::compound::Compound;
 #[cfg(feature = "dim3")]
 pub use self::cone::Cone;
-pub(crate) use self::constant_origin::ConstantOrigin;
 #[cfg(feature = "dim3")]
 pub use self::convex::ConvexHull;
 #[cfg(feature = "dim2")]
@@ -47,7 +46,6 @@ pub mod composite_shape;
 mod compound;
 #[cfg(feature = "dim3")]
 mod cone;
-mod constant_origin;
 #[cfg(feature = "dim3")]
 mod convex;
 #[cfg(feature = "dim2")]

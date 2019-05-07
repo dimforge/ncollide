@@ -31,6 +31,7 @@ pub use self::point::*;
 pub use self::proximity::*;
 pub use self::ray::*;
 pub use self::time_of_impact::*;
+//pub use self::nonlinear_time_of_impact::*;
 
 pub mod algorithms;
 mod closest_points;
@@ -40,4 +41,5 @@ mod point;
 mod proximity;
 mod ray;
 mod time_of_impact;
+//mod nonlinear_time_of_impact;
 pub mod visitors;

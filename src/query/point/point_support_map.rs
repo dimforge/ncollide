@@ -1,13 +1,13 @@
 use na::{RealField, Unit};
 
 use crate::math::{Isometry, Point, Translation, Vector};
-use crate::query::algorithms::{gjk, CSOPoint, VoronoiSimplex, EPA};
+use crate::query::algorithms::{gjk, CSOPoint, VoronoiSimplex, EPA, special_support_maps::ConstantOrigin};
 use crate::query::{PointProjection, PointQuery};
 #[cfg(feature = "dim2")]
 use crate::shape::ConvexPolygon;
 #[cfg(feature = "dim3")]
 use crate::shape::{Cone, ConvexHull, Cylinder};
-use crate::shape::{ConstantOrigin, ConvexPolyhedron, FeatureId, SupportMap};
+use crate::shape::{ConvexPolyhedron, FeatureId, SupportMap};
 
 /// Projects a point on a shape using the GJK algorithm.
 pub fn point_projection_on_support_map<N, G>(

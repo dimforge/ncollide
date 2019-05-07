@@ -5,7 +5,7 @@ use crate::shape::HeightField;
 #[cfg(feature = "dim2")]
 use crate::shape::FeatureId;
 #[cfg(feature = "dim2")]
-use crate::query::closest_points_internal;
+use crate::query;
 
 
 #[cfg(feature = "dim2")]
@@ -34,7 +34,7 @@ impl<N: RealField> RayCast<N> for HeightField<N> {
          * Test the segment under the ray.
          */
         if let Some(seg) = self.segment_at(curr) {
-            let (s, t) = closest_points_internal::line_against_line_parameters(&ray.origin, &ray.dir, seg.a(), &seg.scaled_direction());
+            let (s, t) = query::closest_points_line_line_parameters(&ray.origin, &ray.dir, seg.a(), &seg.scaled_direction());
             if s >= N::zero() && t >= N::zero() && t <= N::one() {
                 // Cast succeeded on the first element!
                 let n = seg.normal().unwrap().into_inner();
@@ -79,7 +79,7 @@ impl<N: RealField> RayCast<N> for HeightField<N> {
 
             if let Some(seg) = self.segment_at(curr) {
                 // TODO: test the y-coordinates (equivalent to an AABB test) before actually computing the intersection.
-                let (s, t) = closest_points_internal::line_against_line_parameters(&ray.origin, &ray.dir, seg.a(), &seg.scaled_direction());
+                let (s, t) = query::closest_points_line_line_parameters(&ray.origin, &ray.dir, seg.a(), &seg.scaled_direction());
                 if t >= N::zero() && t <= N::one() {
                     let n = seg.normal().unwrap().into_inner();
                     let fid = if n.dot(&ls_ray.dir) > N::zero() {

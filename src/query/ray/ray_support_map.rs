@@ -191,7 +191,7 @@ impl<N: RealField> RayCast<N> for Segment<N> {
         {
             let seg = self.transformed(m);
             let seg_dir = seg.scaled_direction();
-            let (s, t, parallel) = query::closest_points_internal::line_against_line_parameters_eps(
+            let (s, t, parallel) = query::closest_points_line_line_parameters_eps(
                 &ray.origin, &ray.dir, seg.a(), &seg_dir, N::default_epsilon());
 
             if parallel {
