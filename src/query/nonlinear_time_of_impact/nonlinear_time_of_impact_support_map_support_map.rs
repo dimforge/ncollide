@@ -1,7 +1,7 @@
 use na::RealField;
 
 use crate::math::{Isometry, Vector};
-use crate::query::algorithms::{gjk, VoronoiSimplex, special_support_maps::DilatedShape};
+use crate::query::algorithms::{gjk, VoronoiSimplex};
 use crate::shape::SupportMap;
 
 /// Time of impacts between two support-mapped shapes under translational movement.
@@ -12,7 +12,6 @@ pub fn time_of_impact_support_map_support_map<N, G1: ?Sized, G2: ?Sized>(
     m2: &Isometry<N>,
     vel2: &Vector<N>,
     g2: &G2,
-    distance: N,
 ) -> Option<N>
 where
     N: RealField,
@@ -20,15 +19,5 @@ where
     G2: SupportMap<N>,
 {
     let dvel = vel2 - vel1;
-
-    if distance.is_zero() {
-        gjk::directional_distance(m1, g1, m2, g2, &dvel, &mut VoronoiSimplex::new())
-    } else {
-        let dilated1 = DilatedShape {
-            shape: g1,
-            radius: distance
-        };
-
-        gjk::directional_distance(m1, &dilated1, m2, g2, &dvel, &mut VoronoiSimplex::new())
-    }
+    gjk::directional_distance(m1, g1, m2, g2, &dvel, &mut VoronoiSimplex::new())
 }

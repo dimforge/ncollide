@@ -4,7 +4,6 @@ use na::{self, RealField};
 use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
 use crate::query::{self, Ray, RayCast};
 use crate::shape::{CompositeShape, Shape};
-use crate::bounding_volume::bounding_volume::BoundingVolume;
 
 /// Time Of Impact of a composite shape with any other shape, under translational movement.
 pub fn time_of_impact_composite_shape_shape<N, G1: ?Sized>(
@@ -14,13 +13,12 @@ pub fn time_of_impact_composite_shape_shape<N, G1: ?Sized>(
     m2: &Isometry<N>,
     vel2: &Vector<N>,
     g2: &Shape<N>,
-    distance: N,
 ) -> Option<N>
 where
     N: RealField,
     G1: CompositeShape<N>,
 {
-    let mut visitor = CompositeShapeAgainstAnyTOIVisitor::new(m1, vel1, g1, m2, vel2, g2, distance);
+    let mut visitor = CompositeShapeAgainstAnyTOIVisitor::new(m1, vel1, g1, m2, vel2, g2);
 
     g1.bvh().best_first_search(&mut visitor)
 }
@@ -33,13 +31,12 @@ pub fn time_of_impact_shape_composite_shape<N, G2: ?Sized>(
     m2: &Isometry<N>,
     vel2: &Vector<N>,
     g2: &G2,
-    distance: N,
 ) -> Option<N>
 where
     N: RealField,
     G2: CompositeShape<N>,
 {
-    time_of_impact_composite_shape_shape(m2, vel2, g2, m1, vel1, g1, distance)
+    time_of_impact_composite_shape_shape(m2, vel2, g2, m1, vel1, g1)
 }
 
 struct CompositeShapeAgainstAnyTOIVisitor<'a, N: 'a + RealField, G1: ?Sized + 'a> {
@@ -53,7 +50,6 @@ struct CompositeShapeAgainstAnyTOIVisitor<'a, N: 'a + RealField, G1: ?Sized + 'a
     m2: &'a Isometry<N>,
     vel2: &'a Vector<N>,
     g2: &'a Shape<N>,
-    distance: N,
 }
 
 impl<'a, N, G1: ?Sized> CompositeShapeAgainstAnyTOIVisitor<'a, N, G1>
@@ -68,11 +64,10 @@ where
         m2: &'a Isometry<N>,
         vel2: &'a Vector<N>,
         g2: &'a Shape<N>,
-        distance: N,
     ) -> CompositeShapeAgainstAnyTOIVisitor<'a, N, G1>
     {
         let ls_m2 = m1.inverse() * m2.clone();
-        let ls_aabb2 = g2.aabb(&ls_m2).loosened(distance);
+        let ls_aabb2 = g2.aabb(&ls_m2);
 
         CompositeShapeAgainstAnyTOIVisitor {
             msum_shift: -ls_aabb2.center().coords,
@@ -81,13 +76,12 @@ where
                 Point::origin(),
                 m1.inverse_transform_vector(&(*vel2 - *vel1)),
             ),
-            m1,
-            vel1,
-            g1,
-            m2,
-            vel2,
-            g2,
-            distance,
+            m1: m1,
+            vel1: vel1,
+            g1: g1,
+            m2: m2,
+            vel2: vel2,
+            g2: g2,
         }
     }
 }
@@ -122,7 +116,7 @@ where
         self.g1
             .map_part_at(*b, self.m1, &mut |m1, g1| {
                 if let Some(toi) = query::time_of_impact(
-                    m1, self.vel1, g1, self.m2, self.vel2, self.g2, self.distance,
+                    m1, self.vel1, g1, self.m2, self.vel2, self.g2,
                 ) {
                     res = BestFirstDataVisitStatus::ContinueWithResult(toi, toi)
                 }
