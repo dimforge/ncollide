@@ -4,7 +4,7 @@ use crate::math::{Point, Vector};
 use crate::query::{self, Ray};
 use crate::shape::Ball;
 
-/// Time Of Impact of two balls under translational movement.
+/// Non-linear Time Of Impact of two balls under a rigid motion (translation + rotation).
 #[inline]
 pub fn nonlinear_time_of_impact_ball_ball<N: RealField>(
     center1: &Point<N>,
@@ -15,9 +15,5 @@ pub fn nonlinear_time_of_impact_ball_ball<N: RealField>(
     b2: &Ball<N>,
 ) -> Option<N>
 {
-    let vel = *vel1 - *vel2;
-    let radius = b1.radius() + b2.radius();
-    let center = *center1 + (-center2.coords);
-
-    query::ray_toi_with_ball(&center, radius, &Ray::new(Point::origin(), -vel), true).1
+    query::time_of_impact_ball_ball(center1, vel1, b1, center2, vel2, b2)
 }

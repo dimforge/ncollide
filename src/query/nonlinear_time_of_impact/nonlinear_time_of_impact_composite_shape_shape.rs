@@ -5,8 +5,8 @@ use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, Best
 use crate::query::{self, Ray, RayCast};
 use crate::shape::{CompositeShape, Shape};
 
-/// Time Of Impact of a composite shape with any other shape, under translational movement.
-pub fn time_of_impact_composite_shape_shape<N, G1: ?Sized>(
+/// Time Of Impact of a composite shape with any other shape, under a rigid motion (translation + rotation).
+pub fn nonlinear_time_of_impact_composite_shape_shape<N, G1: ?Sized>(
     m1: &Isometry<N>,
     vel1: &Vector<N>,
     g1: &G1,
@@ -23,8 +23,8 @@ where
     g1.bvh().best_first_search(&mut visitor)
 }
 
-/// Time Of Impact of any shape with a composite shape, under translational movement.
-pub fn time_of_impact_shape_composite_shape<N, G2: ?Sized>(
+/// Time Of Impact of any shape with a composite shape, under a rigid motion (translation + rotation).
+pub fn nonlinear_time_of_impact_shape_composite_shape<N, G2: ?Sized>(
     m1: &Isometry<N>,
     vel1: &Vector<N>,
     g1: &Shape<N>,
@@ -36,7 +36,7 @@ where
     N: RealField,
     G2: CompositeShape<N>,
 {
-    time_of_impact_composite_shape_shape(m2, vel2, g2, m1, vel1, g1)
+    nonlinear_time_of_impact_composite_shape_shape(m2, vel2, g2, m1, vel1, g1)
 }
 
 struct CompositeShapeAgainstAnyTOIVisitor<'a, N: 'a + RealField, G1: ?Sized + 'a> {
@@ -115,7 +115,7 @@ where
 
         self.g1
             .map_part_at(*b, self.m1, &mut |m1, g1| {
-                if let Some(toi) = query::time_of_impact(
+                if let Some(toi) = query::nonlinear_time_of_impact(
                     m1, self.vel1, g1, self.m2, self.vel2, self.g2,
                 ) {
                     res = BestFirstDataVisitStatus::ContinueWithResult(toi, toi)
