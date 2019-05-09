@@ -26,13 +26,15 @@ mod aabb_convex;
 #[cfg(feature = "dim2")]
 mod aabb_convex_polygon;
 mod aabb_cuboid;
+mod aabb_heightfield;
 mod aabb_plane;
 mod aabb_polyline;
 mod aabb_shape;
 mod aabb_support_map;
 #[cfg(feature = "dim3")]
+mod aabb_triangle;
+#[cfg(feature = "dim3")]
 mod aabb_trimesh;
-mod aabb_heightfield;
 mod aabb_utils;
 
 #[doc(hidden)]
@@ -49,6 +51,7 @@ mod bounding_sphere_convex_polygon;
 mod bounding_sphere_cuboid;
 #[cfg(feature = "dim3")]
 mod bounding_sphere_cylinder;
+mod bounding_sphere_heightfield;
 mod bounding_sphere_plane;
 mod bounding_sphere_polyline;
 mod bounding_sphere_segment;
@@ -57,7 +60,6 @@ mod bounding_sphere_shape;
 mod bounding_sphere_triangle;
 #[cfg(feature = "dim3")]
 mod bounding_sphere_trimesh;
-mod bounding_sphere_heightfield;
 mod bounding_sphere_utils;
 
 pub(crate) mod circular_cone;
