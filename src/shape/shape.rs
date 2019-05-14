@@ -38,7 +38,7 @@ pub trait Shape<N: RealField>: Send + Sync + Downcast + ShapeClone<N> {
     #[inline]
     fn bounding_sphere(&self, m: &Isometry<N>) -> BoundingSphere<N> {
         let aabb = self.aabb(m);
-        BoundingSphere::new(aabb.center(), aabb.half_extents().norm_squared())
+        BoundingSphere::new(aabb.center(), aabb.half_extents().norm())
     }
 
     /// The bounding sphere of `self`.
