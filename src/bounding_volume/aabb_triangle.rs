@@ -22,6 +22,23 @@ impl<N: RealField> HasBoundingVolume<N, AABB<N>> for Triangle<N> {
 
         AABB::new(min, max)
     }
+
+    #[inline]
+    fn local_bounding_volume(&self) -> AABB<N> {
+        let a = self.a().coords;
+        let b = self.b().coords;
+        let c = self.c().coords;
+
+        let mut min = unsafe { Point::new_uninitialized() };
+        let mut max = unsafe { Point::new_uninitialized() };
+
+        for d in 0..DIM {
+            min.coords[d] = a[d].min(b[d]).min(c[d]);
+            max.coords[d] = a[d].max(b[d]).max(c[d]);
+        }
+
+        AABB::new(min, max)
+    }
 }
 
 #[cfg(test)]
@@ -47,5 +64,8 @@ mod test {
         );
 
         assert_eq!(t.aabb(&m), support_map_aabb(&m, &t));
+
+        // TODO: also test local AABB once support maps have a local AABB
+        // function too
     }
 }

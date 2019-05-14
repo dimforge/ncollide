@@ -8,4 +8,9 @@ impl<N: RealField> HasBoundingVolume<N, BoundingSphere<N>> for Shape<N> {
     fn bounding_volume(&self, m: &Isometry<N>) -> BoundingSphere<N> {
         self.bounding_sphere(m)
     }
+
+    #[inline]
+    fn local_bounding_volume(&self) -> BoundingSphere<N> {
+        self.local_bounding_sphere()
+    }
 }

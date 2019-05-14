@@ -24,15 +24,28 @@ impl<N: RealField, T: 'static + Shape<N> + Clone> ShapeClone<N> for T {
 ///
 /// This allows dynamic inspection of the shape capabilities.
 pub trait Shape<N: RealField>: Send + Sync + Downcast + ShapeClone<N> {
-    /// The AABB of `self`.
+    /// The AABB of `self` transformed by `m`.
     #[inline]
     fn aabb(&self, m: &Isometry<N>) -> AABB<N>;
 
-    /// The bounding sphere of `self`.
+    /// The AABB of `self`.
+    #[inline]
+    fn local_aabb(&self) -> AABB<N> {
+        self.aabb(&Isometry::identity())
+    }
+
+    /// The bounding sphere of `self` transformed by `m`.
     #[inline]
     fn bounding_sphere(&self, m: &Isometry<N>) -> BoundingSphere<N> {
         let aabb = self.aabb(m);
         BoundingSphere::new(aabb.center(), aabb.half_extents().norm_squared())
+    }
+
+    /// The bounding sphere of `self`.
+    #[inline]
+    fn local_bounding_sphere(&self) -> BoundingSphere<N> {
+        let aabb = self.local_aabb();
+        BoundingSphere::new(aabb.center(), aabb.half_extents().norm())
     }
 
     /// Check if if the feature `_feature` of the `i-th` subshape of `self` transformed by `m` has a tangent

@@ -127,7 +127,7 @@ impl<N: RealField> TriMesh<N> {
                     ]
                 });
 
-                let bv = triangle.aabb(&Isometry::identity());
+                let bv = triangle.local_aabb();
                 leaves.push((i, bv.clone()));
                 faces.push(TriMeshFace {
                     indices: *is,

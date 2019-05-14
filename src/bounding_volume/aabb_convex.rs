@@ -9,4 +9,9 @@ impl<N: RealField> HasBoundingVolume<N, AABB<N>> for ConvexHull<N> {
     fn bounding_volume(&self, m: &Isometry<N>) -> AABB<N> {
         aabb_utils::point_cloud_aabb(m, self.points())
     }
+
+    #[inline]
+    fn local_bounding_volume(&self) -> AABB<N> {
+        aabb_utils::local_point_cloud_aabb(self.points())
+    }
 }
