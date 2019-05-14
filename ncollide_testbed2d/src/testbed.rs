@@ -80,7 +80,7 @@ impl<N: RealField + ToPrimitive> Testbed<N> {
             // font:           fnt,
             // fps:            Fps::new(&fnt),
             grabbed_object: None,
-            grab_anchor: na::origin(),
+            grab_anchor: Point2::origin(),
         }
     }
 
