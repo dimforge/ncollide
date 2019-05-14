@@ -1,6 +1,5 @@
 use na::Point3;
 use ncollide3d::query::algorithms::{CSOPoint, VoronoiSimplex};
-use test;
 use test::Bencher;
 
 #[bench]

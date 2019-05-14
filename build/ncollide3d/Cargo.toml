@@ -35,3 +35,6 @@ nalgebra   = "0.18"
 approx     = { version = "0.3", default-features = false }
 rand       = { version = "0.6", default-features = false }
 serde      = { version = "1.0", optional = true, features = ["derive", "rc"]}
+
+[dev-dependencies]
+rand_isaac = "0.1"

@@ -1,9 +1,9 @@
-use common::{generate, unref};
+use crate::common::{generate, unref};
 use na::{Isometry3, Vector3};
 use ncollide3d::shape::{Ball, Capsule, Cone, ConvexHull, Cuboid, Cylinder, Segment, Triangle};
 use ncollide3d::shape::SupportMap;
-use rand::IsaacRng;
-use test;
+use rand::SeedableRng;
+use rand_isaac::IsaacRng;
 use test::Bencher;
 
 #[path = "../common/macros.rs"]
