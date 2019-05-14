@@ -1,7 +1,7 @@
 extern crate nalgebra as na;
 extern crate ncollide2d;
 
-use na::{Isometry2, Vector2};
+use na::{Isometry2, Vector2, Point2};
 use ncollide2d::bounding_volume::{self, BoundingSphere, HasBoundingVolume};
 use ncollide2d::partitioning::{BVT, BVH};
 use ncollide2d::query::{Ray, RayCast, visitors::RayInterferencesCollector};
@@ -55,8 +55,8 @@ fn main() {
     ];
 
     let bvt = BVT::new_balanced(idx_and_bounding_spheres);
-    let ray_hit = Ray::new(na::origin(), Vector2::x());
-    let ray_miss = Ray::new(na::origin(), -Vector2::x());
+    let ray_hit = Ray::new(Point2::origin(), Vector2::x());
+    let ray_miss = Ray::new(Point2::origin(), -Vector2::x());
 
     /*
      * Collecting all objects with bounding volumes intersecting the ray.

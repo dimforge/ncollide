@@ -66,8 +66,8 @@ impl<N, P, V, M> TimeOfImpactWith<N, P, V, M, Ball<N>> for Ball<N>
           M: Isometry<N, P, V> {
     #[inline]
     fn time_of_impact(m1: &Isometry<N>, vel1: &V, g1: &Ball<N>, m2: &Isometry<N>, vel2: &V, g2: &Ball<N>) -> Option<N> {
-        let p1 = m1.translate(&na::origin());
-        let p2 = m2.translate(&na::origin());
+        let p1 = m1.translate(&Point::origin());
+        let p2 = m2.translate(&Point::origin());
         time_of_impact_internal::ball_against_ball(&p1, vel1, g1, &p2, vel2, g2)
     }
 }
