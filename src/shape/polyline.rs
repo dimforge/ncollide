@@ -79,7 +79,7 @@ impl<N: RealField> Polyline<N> {
                 let segment = Segment::new(points[is.x], points[is.y]);
                 let normal = segment.normal();
 
-                let bv = segment.aabb(&Isometry::identity());
+                let bv = segment.local_aabb();
                 leaves.push((i, bv.clone()));
                 edges.push(PolylineEdge {
                     indices: *is,

@@ -31,7 +31,7 @@ where
     AABB::new(Point::from(min), Point::from(max))
 }
 
-/// Computes the AABB of a set of point.
+/// Computes the AABB of a set of points transformed by `m`.
 pub fn point_cloud_aabb<'a, N: RealField, M: Transformation<Point<N>>, I>(m: &M, pts: I) -> AABB<N>
     where I: IntoIterator<Item = &'a Point<N>> {
     let mut it = pts.into_iter();
@@ -45,6 +45,23 @@ pub fn point_cloud_aabb<'a, N: RealField, M: Transformation<Point<N>>, I>(m: &M,
         let wpt = m.transform_point(pt);
         min = na::inf(&min, &wpt);
         max = na::sup(&max, &wpt);
+    }
+
+    AABB::new(min, max)
+}
+
+/// Computes the AABB of a set of points.
+pub fn local_point_cloud_aabb<'a, N: RealField, I>(pts: I) -> AABB<N>
+    where I: IntoIterator<Item = &'a Point<N>> {
+    let mut it = pts.into_iter();
+
+    let p0 = it.next().expect("Point cloud AABB construction: the input iterator should yield at least one point.");
+    let mut min: Point<N> = *p0;
+    let mut max: Point<N> = *p0;
+
+    for pt in it {
+        min = na::inf(&min, &pt);
+        max = na::sup(&max, &pt);
     }
 
     AABB::new(min, max)

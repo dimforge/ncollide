@@ -13,4 +13,11 @@ impl<N: RealField> HasBoundingVolume<N, AABB<N>> for Cuboid<N> {
 
         AABB::from_half_extents(center, ws_half_extents)
     }
+
+    #[inline]
+    fn local_bounding_volume(&self) -> AABB<N> {
+        let half_extents = Point::from(*self.half_extents());
+
+        AABB::new(-half_extents, half_extents)
+    }
 }

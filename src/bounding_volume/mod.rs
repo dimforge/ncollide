@@ -3,11 +3,11 @@
 pub use self::circular_cone::CircularCone;
 pub use self::spatialized_normal_cone::SpatializedNormalCone;
 #[doc(inline)]
-pub use crate::bounding_volume::aabb::{aabb, AABB};
+pub use crate::bounding_volume::aabb::{aabb, AABB, local_aabb};
 pub use crate::bounding_volume::aabb_ball::ball_aabb;
 pub use crate::bounding_volume::aabb_utils::{point_cloud_aabb, support_map_aabb};
 #[doc(inline)]
-pub use crate::bounding_volume::bounding_sphere::{bounding_sphere, BoundingSphere};
+pub use crate::bounding_volume::bounding_sphere::{bounding_sphere, BoundingSphere, local_bounding_sphere};
 pub use crate::bounding_volume::bounding_sphere_utils::{
     point_cloud_bounding_sphere, point_cloud_bounding_sphere_with_center,
 };
