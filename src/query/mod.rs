@@ -22,7 +22,9 @@ pub use self::proximity_internal::Proximity;
 #[doc(inline)]
 pub use self::ray_internal::{Ray, RayCast, RayIntersection};
 #[doc(inline)]
-pub use self::time_of_impact_internal::time_of_impact;
+pub use self::time_of_impact_internal::{
+    time_of_impact, time_of_impact_and_normal,
+};
 
 pub mod algorithms;
 pub mod closest_points_internal;

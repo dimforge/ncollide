@@ -9,16 +9,16 @@ use traits::Shape;
 use time_of_impact_internal;
 use math::{Scalar, Point, Vector, Isometry};
 
-/// Trait implemented by object that can have their Time Of Impact under translational movement
+/// Trait implemented by object that can have their time of impact under translational movement
 /// computed.
 pub trait TimeOfImpactWith<N, P, V, M, G: ?Sized> for Sized? {
-    /// Computes the Time Of Impact separating two shapes.
+    /// Computes the time of impact separating two shapes.
     ///
     /// Returns `None` if they never move.
     fn time_of_impact(m1: &Isometry<N>, vel1: &V, g1: &Self, m2: &Isometry<N>, vel2: &V, g2: &G) -> Option<N>;
 }
 
-/// Computes the Time Of Impact separating two shapes under translational movement.
+/// Computes the time of impact separating two shapes under translational movement.
 pub fn time_of_impact<N, P, V, M, G1: ?Sized, G2: ?Sized>(m1: &Isometry<N>, vel1: &V, g1: &G1,
                                                           m2: &Isometry<N>, vel2: &V, g2: &G2)
                                                           -> Option<N>
