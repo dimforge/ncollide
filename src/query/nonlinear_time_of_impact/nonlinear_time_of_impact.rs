@@ -1,5 +1,6 @@
 use na::RealField;
 
+use crate::interpolation::RigidMotion;
 use crate::math::{Isometry, Point, Vector};
 use crate::query;
 use crate::shape::{Ball, Plane, Shape};
@@ -8,60 +9,68 @@ use crate::shape::{Ball, Plane, Shape};
 ///
 /// Returns `0.0` if the objects are touching or penetrating.
 pub fn nonlinear_time_of_impact<N: RealField>(
-    m1: &Isometry<N>,
-    vel1: &Vector<N>,
+    motion1: &impl RigidMotion<N>,
     g1: &Shape<N>,
-    m2: &Isometry<N>,
-    vel2: &Vector<N>,
+    motion2: &impl RigidMotion<N>,
     g2: &Shape<N>,
-) -> Option<N>
+    max_toi: N,
+    target_distance: N,
+) -> Option<NonlinearTOI<N>>
 {
     if let (Some(b1), Some(b2)) = (g1.as_shape::<Ball<N>>(), g2.as_shape::<Ball<N>>()) {
-        let p1 = Point::from(m1.translation.vector);
-        let p2 = Point::from(m2.translation.vector);
-
-        query::nonlinear_time_of_impact_ball_ball(&p1, vel1, b1, &p2, vel2, b2)
+//        let p1 = Point::from(m1.translation.vector);
+//        let p2 = Point::from(m2.translation.vector);
+//        query::nonlinear_time_of_impact_ball_ball(&p1, vel1, b1, &p2, vel2, b2)
+        unimplemented!()
     } else if let (Some(p1), Some(s2)) = (g1.as_shape::<Plane<N>>(), g2.as_support_map()) {
-        query::nonlinear_time_of_impact_plane_support_map(m1, vel1, p1, m2, vel2, s2)
+//        query::nonlinear_time_of_impact_plane_support_map(m1, vel1, p1, m2, vel2, s2)
+        unimplemented!()
     } else if let (Some(s1), Some(p2)) = (g1.as_support_map(), g2.as_shape::<Plane<N>>()) {
-        query::nonlinear_time_of_impact_support_map_plane(m1, vel1, s1, m2, vel2, p2)
+//        query::nonlinear_time_of_impact_support_map_plane(m1, vel1, s1, m2, vel2, p2)
+        unimplemented!()
     } else if let (Some(s1), Some(s2)) = (g1.as_support_map(), g2.as_support_map()) {
-        query::nonlinear_time_of_impact_support_map_support_map(m1, vel1, s1, m2, vel2, s2)
+        query::nonlinear_time_of_impact_support_map_support_map(motion1, s1, motion2, s2, max_toi, target_distance)
     } else if let Some(c1) = g1.as_composite_shape() {
-        query::nonlinear_time_of_impact_composite_shape_shape(m1, vel1, c1, m2, vel2, g2)
+        unimplemented!()
+//        query::nonlinear_time_of_impact_composite_shape_shape(m1, vel1, c1, m2, vel2, g2)
     } else if let Some(c2) = g2.as_composite_shape() {
-        query::nonlinear_time_of_impact_shape_composite_shape(m1, vel1, g1, m2, vel2, c2)
+        unimplemented!()
+//        query::nonlinear_time_of_impact_shape_composite_shape(m1, vel1, g1, m2, vel2, c2)
     } else {
         panic!("No algorithm known to compute a contact point between the given pair of shapes.")
     }
 }
 
-struct RigidBodyMotion<'a> {
-    start: &'a Isometry<N>,
-    linvel: &'a Vector<N>,
-    #[cfg(feature = "dim3")]
-    angvel: &'a Vector<N>,
-    #[cfg(feature = "dim2")]
-    angvel: N
+/// The status of the time-of-impact computation algorithm.
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum NonlinearTOIStatus {
+    /// The nonlinear TOI algorithm ran out of iterations before achieving convergence.
+    ///
+    /// If this happens, the content of the `NonlinearTOI` will still be a conservative approximation
+    /// of the actual result so it is often fine to interpret this case as a success.
+    OutOfIterations,
+    /// The nonlinear TOI algorithm converged successfully.
+    Converged,
+    /// Something went wrong during the TOI computation, likely due to numerical instabilities.
+    ///
+    /// If this happens, the content of the `NonlinearTOI` will still be a conservative approximation
+    /// of the actual result so it is often fine to interpret this case as a success.
+    Failed,
+    /// The two shape already overlap at the time 0.
+    ///
+    /// If this happens, the witness points provided by the `NonlinearTOI` will be invalid.
+    Penetrating,
 }
 
-impl<'a> RigidBodyMotion<'a> {
-    #[cfg(feature = "dim3")]
-    fn new(start: &'a Isometry<N>, linvel: &'a Vector<N>, angvel: &'a Vector<N>) -> Self {
-        Self {
-            start, linvel, angvel
-        }
-    }
-
-    #[cfg(feature = "dim2")]
-    fn new(start: &'a Isometry<N>, linvel: &'a Vector<N>, angvel: N) -> Self {
-        Self {
-            start, linvel, angvel
-        }
-    }
-
-    fn interpolate(&self, t: N) -> Isometry<N> {
-        let dpos = Isometry::new(self.linvel * t, self.angvel * t);
-        dpos * *self.start
-    }
+/// The result of a nonlinear time-of-impact (TOI) computation.
+#[derive(Clone, Debug)]
+pub struct NonlinearTOI<N: RealField> {
+    /// The time at which the objects touch.
+    pub toi: N,
+    /// The local-space closest point on the first shape at the time of impact.
+    pub witness1: Point<N>,
+    /// The local-space closest point on the second shape at the time of impact.
+    pub witness2: Point<N>,
+    /// The way the time-of-impact computation algorithm terminated.
+    pub status: NonlinearTOIStatus
 }

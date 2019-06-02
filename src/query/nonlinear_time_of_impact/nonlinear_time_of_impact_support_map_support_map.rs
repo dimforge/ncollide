@@ -1,43 +1,142 @@
-use na::RealField;
+use na::{RealField, Unit};
 
-use crate::math::{Isometry, Vector};
-use crate::query::{self, ClosestPoints};
+use crate::utils::IsometryOps;
+use crate::math::{Isometry, Vector, Point};
+use crate::query::{self, ClosestPoints, NonlinearTOIStatus, NonlinearTOI};
 use crate::shape::SupportMap;
+use crate::interpolation::RigidMotion;
+
+
+//struct SeparationFunction<N: RealField> {
+//    dir: Unit<Vector<N>>
+//}
+//
+//impl<N: RealField> SeparationFunction<N> {
+//
+//}
 
 /// Time of impacts between two support-mapped shapes under a rigid motion.
 pub fn nonlinear_time_of_impact_support_map_support_map<N, G1: ?Sized, G2: ?Sized>(
-    m1: &Isometry<N>,
-    vel1: &Vector<N>,
+    motion1: &impl RigidMotion<N>,
     g1: &G1,
-    m2: &Isometry<N>,
-    vel2: &Vector<N>,
+    motion2: &impl RigidMotion<N>,
     g2: &G2,
-) -> Option<N>
+    max_toi: N,
+    target_distance: N,
+) -> Option<NonlinearTOI<N>>
 where
     N: RealField,
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
-    unimplemented!()
-    /*
-    let motion = RigidBodyMotion::new();
-    let mut toi = N::zero();
+    let _0_5 = na::convert(0.5);
+    let mut min_t = N::zero();
+    let mut prev_min_t = min_t;
+    let mut ngjk = 0;
+    let mut total_niter = 0;
+    let abs_tol: N = query::algorithms::gjk::eps_tol();
+    let rel_tol = abs_tol.sqrt();
+    let mut result = NonlinearTOI {
+        toi: N::zero(),
+        witness1: Point::origin(),
+        witness2: Point::origin(),
+        status: NonlinearTOIStatus::Penetrating,
+    };
 
     loop {
-        let pos1 = motion.iterpolate(toi);
-        match query::closest_points(&pos1, g1, m2, g2, N::max_value()) {
-            ClosestPoints::Intersecting => return None,
-            ClosestPoints::WithinMargin(p1, p2) => {
-                if let Some((dir, dist)) = Unit::try_new_and_get(p2 - p1, N::default_epsilon()) {
-                    let cross = motion.angular.cross(dir);
-                    let pt = g1.support_point(&pos1, &bitangent);
-                    let mu = cross.dot(&(pt - pos1.translation.vector())) + dir.dot(&motion.linear);
-                    toi += dist / mu;
+        let pos1 = motion1.position_at_time(result.toi);
+        let pos2 = motion2.position_at_time(result.toi);
+
+        // FIXME: use the _with_params version of the closest points query.
+        match query::closest_points_support_map_support_map(&pos1, g1, &pos2, g2, N::max_value()) {
+            ClosestPoints::Intersecting => {
+                if result.toi == N::zero() {
+                    result.status = NonlinearTOIStatus::Penetrating
                 } else {
-                    return None;
+                    result.status = NonlinearTOIStatus::Failed;
+                }
+                break;
+            },
+            ClosestPoints::WithinMargin(p1, p2) => {
+                // FIXME: do the "inverse_transform_point" only when we are about to return
+                // the result.
+                result.witness1 = pos1.inverse_transform_point(&p1);
+                result.witness2 = pos2.inverse_transform_point(&p2);
+
+                ngjk += 1;
+                if let Some((dir, mut dist)) = Unit::try_new_and_get(p2 - p1, N::default_epsilon()) {
+                    let mut niter = 0;
+                    min_t = result.toi;
+                    let mut max_t = max_toi;
+                    let min_target_distance = (target_distance - rel_tol).max(N::zero());
+                    let max_target_distance = target_distance + rel_tol;
+
+                    loop {
+//                        println!("Curr toi range: [{}, {}], dist: {}, separator: {}", min_t, max_t, dist, *dir);
+                        // FIXME: use the secant method too for finding the next iterate.
+                        if dist < min_target_distance {
+                            // Too close or penetration, go back in time.
+                            max_t = result.toi;
+                            result.toi = (min_t + result.toi) * _0_5;
+                        } else if dist > max_target_distance {
+                            // Too far apart, go forward in time.
+                            min_t = result.toi;
+                            result.toi = (result.toi + max_t) * _0_5;
+                        } else {
+                            // Reached tolerance, break.
+                            break;
+                        }
+
+                        if max_t - min_t < abs_tol {
+                            result.toi = min_t;
+                            break;
+                        }
+
+                        let pos1 = motion1.position_at_time(result.toi);
+                        let pos2 = motion2.position_at_time(result.toi);
+                        let pt1 = g1.support_point_toward(&pos1, &dir);
+                        let pt2 = g2.support_point_toward(&pos2, &-dir);
+
+                        dist = (pt2 - pt1).dot(&dir);
+
+                        niter += 1;
+                        total_niter += 1;
+                    }
+
+                    if min_t - prev_min_t < abs_tol {
+                        if max_t == max_toi {
+                            let pos1 = motion1.position_at_time(max_t);
+                            let pos2 = motion2.position_at_time(max_t);
+                            // Check the configuration at max_t to see if the object are not disjoint.
+                            // NOTE: could we do this earlier, before the above loop?
+                            // It feels like this could prevent catching some corner-cases like
+                            // if one object is rotated by almost 180 degrees while the other is immobile.
+                            let pt1 = g1.support_point_toward(&pos1, &dir);
+                            let pt2 = g2.support_point_toward(&pos2, &-dir);
+                            if (pt2 - pt1).dot(&dir) > target_distance {
+                                // We found an axis that separate both objects at the end configuration.
+                                return None;
+                            }
+                        }
+
+                        result.status = NonlinearTOIStatus::Converged;
+                        break;
+                    }
+
+                    prev_min_t = min_t;
+
+                    if niter == 0 {
+                        result.status = NonlinearTOIStatus::Converged;
+                        break;
+                    }
+                } else {
+                    result.status = NonlinearTOIStatus::Failed;
+                    break;
                 }
             }
+            ClosestPoints::Disjoint => unreachable!()
         }
     }
-    */
+
+    Some(result)
 }
