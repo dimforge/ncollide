@@ -377,14 +377,14 @@ where
             dir = new_dir;
             max_bound = dist;
         } else {
-            println!("Exit 5: {}", ltoi);
+//            println!("Exit 5: {}", ltoi);
             // The origin is inside the simplex.
             return Some((ltoi / ray_length, ldir));
         }
 
         let support_point = if max_bound >= old_max_bound {
             // Upper bounds inconsistencies. Consider the projection as a valid support point.
-            println!("Exit 6: {}, {}, {}, proj: {}", ltoi, max_bound, old_max_bound, proj);
+//            println!("Exit 6: {}, {}, {}, proj: {}", ltoi, max_bound, old_max_bound, proj);
             last_chance = true;
             CSOPoint::single_point(proj + curr_ray.origin.coords)
         } else {
@@ -406,12 +406,12 @@ where
         //          < 0             |  > 0  | New lower bound, move the origin.
         //          > 0             |  < 0  | Miss. No intersection.
         //          > 0             |  > 0  | New higher bound.
-        println!("Cast on plane: {:?}, {:?}, {:?}", support_point.point, dir, curr_ray);
+//        println!("Cast on plane: {:?}, {:?}, {:?}", support_point.point, dir, curr_ray);
         match query::ray_toi_with_plane(&support_point.point, &dir, &curr_ray) {
             Some(t) => {
 //                println!("Fount t: {}", t);
                 if dir.dot(&curr_ray.dir) < na::zero() && t > N::zero() {
-                    println!("Ray advances by t: {}", t);
+//                    println!("Ray advances by t: {}", t);
                     // new lower bound
                     ldir = *dir;
                     ltoi += t;
@@ -430,7 +430,7 @@ where
             }
             None => {
                 if dir.dot(&curr_ray.dir) > N::default_epsilon() {
-                    println!("Exit 1");
+//                    println!("Exit 1");
                     // miss
                     return None;
                 }
@@ -439,7 +439,7 @@ where
 
 
         if last_chance {
-            println!("Last chance failed: {}", ltoi);
+//            println!("Last chance failed: {}", ltoi);
             return None;
         }
 
@@ -449,12 +449,12 @@ where
         assert!(min_bound == min_bound);
 
         if max_bound - min_bound <= _eps_rel * max_bound {
-            println!("Exit 2: {}, {}", min_bound, max_bound);
+//            println!("Exit 2: {}, {}", min_bound, max_bound);
             return None; // Some((ltoi, ldir)); // the distance found has a good enough precision
         }
 
         if !simplex.add_point(support_point.translate1(&-curr_ray.origin.coords)) {
-            println!("Exit 3");
+//            println!("Exit 3");
             // return Some((ltoi, ldir));
         }
 
@@ -462,7 +462,7 @@ where
         proj = simplex.project_origin_and_reduce();
 
         if simplex.dimension() == DIM {
-            println!("Exit 4");
+//            println!("Exit 4");
 
             if min_bound >= _eps_tol {
                 return None; // Some((ltoi, ldir));

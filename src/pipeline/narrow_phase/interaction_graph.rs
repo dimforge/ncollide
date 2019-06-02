@@ -5,9 +5,13 @@ use na::RealField;
 use crate::query::{ContactManifold, Proximity};
 use crate::world::CollisionObjectHandle;
 use crate::pipeline::narrow_phase::{ContactAlgorithm, ProximityAlgorithm};
+use petgraph::prelude::EdgeIndex;
+use petgraph::Direction;
 
 /// Index of a node of the interaction graph.
 pub type InteractionGraphIndex = NodeIndex<usize>;
+/// Temporary index to and edge of the interaction graph.
+pub type TemporaryInteractionIndex = EdgeIndex<usize>;
 
 /// An interaction between two collision objects.
 pub enum Interaction<N: RealField> {
@@ -193,11 +197,37 @@ impl<N: RealField> InteractionGraph<N> {
             let inter = e.weight();
 
             if !effective_only || Self::is_interaction_effective(inter) {
-                Some((self.graph[e.source()], self.graph[e.target()], e.weight()))
+                let endpoints = self.graph.edge_endpoints(e.id()).unwrap();
+                Some((self.graph[endpoints.0], self.graph[endpoints.1], e.weight()))
             } else {
                 None
             }
         })
+    }
+
+    /// Gets the interaction with the given index.
+    pub fn index_interaction(&self, id: TemporaryInteractionIndex) -> Option<(CollisionObjectHandle, CollisionObjectHandle, &Interaction<N>)> {
+        if let (Some(e), Some(endpoints)) = (self.graph.edge_weight(id), self.graph.edge_endpoints(id)) {
+            Some((self.graph[endpoints.0], self.graph[endpoints.1], e))
+        } else {
+            None
+        }
+    }
+
+    /// All the mutable references to interactions involving the collision object with graph index `id`.
+    ///
+    /// Refer to the official [user guide](https://ncollide.org/interaction_handling_and_sensors/#interaction-iterators)
+    /// for details.
+    pub fn interactions_with_mut(&mut self, id: InteractionGraphIndex, effective_only: bool) -> impl Iterator<Item = (CollisionObjectHandle, CollisionObjectHandle, TemporaryInteractionIndex, &mut Interaction<N>)> {
+        let incoming_edge = self.graph.first_edge(id, Direction::Incoming);
+        let outgoing_edge = self.graph.first_edge(id, Direction::Outgoing);
+
+        InteractionsWithMut {
+            graph: self,
+            incoming_edge,
+            outgoing_edge,
+            effective_only,
+        }
     }
 
     /// All the proximity pairs involving the collision object with graph index `id`.
@@ -304,5 +334,35 @@ impl<N: RealField> InteractionGraph<N> {
             },
             Interaction::Proximity(alg) => alg.proximity() == Proximity::Intersecting,
         }
+    }
+}
+
+
+pub struct InteractionsWithMut<'a, N: RealField> {
+    graph: &'a mut InteractionGraph<N>,
+    incoming_edge: Option<EdgeIndex<usize>>,
+    outgoing_edge: Option<EdgeIndex<usize>>,
+    effective_only: bool,
+}
+
+impl<'a, N: RealField> Iterator for InteractionsWithMut<'a, N> {
+    type Item = (CollisionObjectHandle, CollisionObjectHandle, TemporaryInteractionIndex, &'a mut Interaction<N>);
+
+    #[inline]
+    fn next(&mut self) -> Option<(CollisionObjectHandle, CollisionObjectHandle, TemporaryInteractionIndex, &'a mut Interaction<N>)> {
+        if let Some(edge) = self.incoming_edge {
+            self.incoming_edge = self.graph.graph.next_edge(edge, Direction::Incoming);
+            let endpoints = self.graph.graph.edge_endpoints(edge).unwrap();
+            let (co1, co2) = (self.graph.graph[endpoints.0], self.graph.graph[endpoints.1]);
+            let interaction = self.graph.graph.edge_weight_mut(edge)?;
+            return Some((co1, co2, edge, unsafe { std::mem::transmute(interaction) }));
+        }
+
+        let edge = self.outgoing_edge?;
+        self.outgoing_edge = self.graph.graph.next_edge(edge, Direction::Outgoing);
+        let endpoints = self.graph.graph.edge_endpoints(edge).unwrap();
+        let (co1, co2) = (self.graph.graph[endpoints.0], self.graph.graph[endpoints.1]);
+        let interaction = self.graph.graph.edge_weight_mut(edge)?;
+        Some((co1, co2, edge, unsafe { std::mem::transmute(interaction) }))
     }
 }

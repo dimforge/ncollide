@@ -50,7 +50,7 @@ impl<N: RealField> Contact<N> {
     }
 }
 
-/// A contact combined with contact kinematic information as well as a persistant identifier.
+/// A contact combined with contact kinematic information as well as a persistent identifier.
 ///
 /// When ncollide is used to compute contact points between moving solids, it will attempt to
 /// match contact points found at successive frames. Two contact points are said to "match" if

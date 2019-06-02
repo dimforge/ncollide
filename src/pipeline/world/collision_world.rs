@@ -9,11 +9,13 @@ use crate::pipeline::events::{ContactEvent, ContactEvents, ProximityEvents};
 use crate::pipeline::narrow_phase::{
     DefaultContactDispatcher, NarrowPhase, DefaultProximityDispatcher,
     InteractionGraphIndex, Interaction, ContactAlgorithm, ProximityAlgorithm,
+    TemporaryInteractionIndex,
 };
 use crate::pipeline::world::{
     CollisionGroups, CollisionGroupsPairFilter, CollisionObject, CollisionObjectHandle,
     CollisionObjectSlab, CollisionObjects, GeometricQueryType,
 };
+use crate::pipeline::narrow_phase::InteractionGraph;
 use crate::query::{PointQuery, Ray, RayCast, RayIntersection, ContactManifold};
 use crate::shape::ShapeHandle;
 use std::vec::IntoIter;
@@ -21,21 +23,24 @@ use std::vec::IntoIter;
 /// Type of the broad phase trait-object used by the collision world.
 pub type BroadPhaseObject<N> = Box<BroadPhase<N, AABB<N>, CollisionObjectHandle>>;
 
+
 /// A world that handles collision objects.
 pub struct CollisionWorld<N: RealField, T> {
-    objects: CollisionObjectSlab<N, T>,
-    broad_phase: BroadPhaseObject<N>,
-    narrow_phase: NarrowPhase<N>,
-    contact_events: ContactEvents,
-    proximity_events: ProximityEvents,
+    /// The set of objects on this collision world.
+    pub objects: CollisionObjectSlab<N, T>,
+    /// The broad phase used by this collision world.
+    pub broad_phase: BroadPhaseObject<N>,
+    /// The narrow-phase used by this collision world.
+    pub narrow_phase: NarrowPhase<N>,
+    /// The graph of interactions detected so far.
+    pub interactions: InteractionGraph<N>,
     pair_filters: BroadPhasePairFilters<N, T>,
     timestamp: usize, // FIXME: allow modification of the other properties too.
 }
 
 struct CollisionWorldInterferenceHandler<'a, N: RealField, T: 'a> {
     narrow_phase: &'a mut NarrowPhase<N>,
-    contact_events: &'a mut ContactEvents,
-    proximity_events: &'a mut ProximityEvents,
+    interactions: &'a mut InteractionGraph<N>,
     objects: &'a CollisionObjectSlab<N, T>,
     pair_filters: &'a BroadPhasePairFilters<N, T>,
 }
@@ -47,8 +52,7 @@ impl <'a, N: RealField, T> BroadPhaseInterferenceHandler<CollisionObjectHandle> 
 
     fn interference_started(&mut self, b1: &CollisionObjectHandle, b2: &CollisionObjectHandle) {
         self.narrow_phase.handle_interaction(
-            &mut self.contact_events,
-            &mut self.proximity_events,
+            self.interactions,
             &self.objects,
             *b1, *b2,
             true
@@ -57,8 +61,7 @@ impl <'a, N: RealField, T> BroadPhaseInterferenceHandler<CollisionObjectHandle> 
 
     fn interference_stopped(&mut self, b1: &CollisionObjectHandle, b2: &CollisionObjectHandle) {
         self.narrow_phase.handle_interaction(
-            &mut self.contact_events,
-            &mut self.proximity_events,
+            &mut self.interactions,
             &self.objects,
             *b1, *b2,
             false
@@ -79,8 +82,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
         let narrow_phase = NarrowPhase::new(coll_dispatcher, prox_dispatcher);
 
         CollisionWorld {
-            contact_events: ContactEvents::new(),
-            proximity_events: ProximityEvents::new(),
+            interactions: InteractionGraph::new(),
             objects,
             broad_phase,
             narrow_phase,
@@ -117,7 +119,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
         let mut aabb = bounding_volume::aabb(co.shape().as_ref(), co.position());
         aabb.loosen(co.query_type().query_limit());
         let proxy_handle = self.broad_phase.create_proxy(aabb, handle);
-        let graph_index = self.narrow_phase.handle_collision_object_added(handle);
+        let graph_index = self.narrow_phase.handle_collision_object_added(&mut self.interactions, handle);
 
         co.set_handle(handle);
         co.set_proxy_handle(proxy_handle);
@@ -139,8 +141,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
 
     /// Empty the contact and proximity event pools.
     pub fn clear_events(&mut self) {
-        self.contact_events.clear();
-        self.proximity_events.clear();
+        self.narrow_phase.clear_events();
     }
 
     /// Removed the specified set of collision objects from the world.
@@ -158,7 +159,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
                 let graph_index = co.graph_index();
                 proxy_handles.push(co.proxy_handle());
 
-                if let Some(handle2) = self.narrow_phase.handle_collision_object_removed(co) {
+                if let Some(handle2) = self.narrow_phase.handle_collision_object_removed(&mut self.interactions, co) {
                     // Properly transfer the graph index.
                     self.objects[handle2].set_graph_index(graph_index)
                 }
@@ -172,15 +173,6 @@ impl<N: RealField, T> CollisionWorld<N, T> {
         for handle in handles {
             let _ = self.objects.remove(*handle);
         }
-
-        let objects = &self.objects;
-        self.proximity_events
-            .retain(|e| objects.contains(e.collider1) && objects.contains(e.collider2));
-        self.contact_events.retain(|e| match *e {
-            ContactEvent::Started(co1, co2) | ContactEvent::Stopped(co1, co2) => {
-                objects.contains(co1) && objects.contains(co2)
-            }
-        })
     }
 
     /// Sets the position of the collision object attached to the specified object.
@@ -284,9 +276,8 @@ impl<N: RealField, T> CollisionWorld<N, T> {
     /// Executes the broad phase of the collision detection pipeline.
     pub fn perform_broad_phase(&mut self) {
         self.broad_phase.update(&mut CollisionWorldInterferenceHandler {
+            interactions: &mut self.interactions,
             narrow_phase: &mut self.narrow_phase,
-            contact_events: &mut self.contact_events,
-            proximity_events: &mut self.proximity_events,
             pair_filters: &self.pair_filters,
             objects: &self.objects,
         });
@@ -294,18 +285,8 @@ impl<N: RealField, T> CollisionWorld<N, T> {
 
     /// Executes the narrow phase of the collision detection pipeline.
     pub fn perform_narrow_phase(&mut self) {
-        self.narrow_phase.update(
-            &self.objects,
-            &mut self.contact_events,
-            &mut self.proximity_events,
-            self.timestamp,
-        );
+        self.narrow_phase.update(&mut self.interactions, &self.objects, self.timestamp);
         self.timestamp = self.timestamp + 1;
-    }
-
-    /// The broad-phase used by this collision world.
-    pub fn broad_phase(&self) -> &BroadPhase<N, AABB<N>, CollisionObjectHandle> {
-        &*self.broad_phase
     }
 
     /// The broad-phase aabb for the given collision object.
@@ -338,6 +319,19 @@ impl<N: RealField, T> CollisionWorld<N, T> {
     ) -> Option<&mut CollisionObject<N, T>>
     {
         self.objects.get_mut(handle)
+    }
+
+    /// Returns a mutable reference to a pair collision object identified by their handles.
+    ///
+    /// Panics if both handles are equal.
+    #[inline]
+    pub fn collision_object_pair_mut(
+        &mut self,
+        handle1: CollisionObjectHandle,
+        handle2: CollisionObjectHandle,
+    ) -> (Option<&mut CollisionObject<N, T>>, Option<&mut CollisionObject<N, T>>)
+    {
+        self.objects.get_pair_mut(handle1, handle2)
     }
 
     /// Sets the collision groups of the given collision object.
@@ -432,9 +426,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
         CollisionObjectHandle,
         &Interaction<N>
     )> {
-        self.narrow_phase
-            .interaction_graph()
-            .interaction_pairs(effective_only)
+        self.interactions.interaction_pairs(effective_only)
     }
 
     /// All the potential contact pairs.
@@ -447,9 +439,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
         &ContactAlgorithm<N>,
         &ContactManifold<N>,
     )> {
-        self.narrow_phase
-            .interaction_graph()
-            .contact_pairs(effective_only)
+        self.interactions.contact_pairs(effective_only)
     }
 
     /// All the potential proximity pairs.
@@ -461,9 +451,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
         CollisionObjectHandle,
         &ProximityAlgorithm<N>,
     )> {
-        self.narrow_phase
-            .interaction_graph()
-            .proximity_pairs(effective_only)
+        self.interactions.proximity_pairs(effective_only)
     }
 
     /// The potential interaction pair between the two specified collision objects.
@@ -476,9 +464,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
         let co2 = self.objects.get(handle2)?;
         let id1 = co1.graph_index();
         let id2 = co2.graph_index();
-        self.narrow_phase
-            .interaction_graph()
-            .interaction_pair(id1, id2, effective_only)
+        self.interactions.interaction_pair(id1, id2, effective_only)
     }
 
     /// The potential contact pair between the two specified collision objects.
@@ -491,9 +477,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
         let co2 = self.objects.get(handle2)?;
         let id1 = co1.graph_index();
         let id2 = co2.graph_index();
-        self.narrow_phase
-            .interaction_graph()
-            .contact_pair(id1, id2, effective_only)
+        self.interactions.contact_pair(id1, id2, effective_only)
     }
 
 
@@ -507,7 +491,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
         let co2 = self.objects.get(handle2)?;
         let id1 = co1.graph_index();
         let id2 = co2.graph_index();
-        self.narrow_phase.interaction_graph().proximity_pair(id1, id2, effective_only)
+        self.interactions.proximity_pair(id1, id2, effective_only)
     }
 
     /// All the interaction pairs involving the specified collision object.
@@ -518,7 +502,18 @@ impl<N: RealField, T> CollisionWorld<N, T> {
         -> Option<impl Iterator<Item = (CollisionObjectHandle, CollisionObjectHandle, &Interaction<N>)>> {
         let co = self.objects.get(handle)?;
         let id = co.graph_index();
-        Some(self.narrow_phase.interaction_graph().interactions_with(id, effective_only))
+        Some(self.interactions.interactions_with(id, effective_only))
+    }
+
+    /// All the mutable interactions pairs involving the specified collision object.
+    ///
+    /// This also returns a mutable reference to the narrow-phase which is necessary for updating the interaction if needed.
+    /// For interactions between a collision object and itself, only one mutable reference to the collision object is returned.
+    pub fn interactions_with_mut(&mut self, handle: CollisionObjectHandle, effective_only: bool)
+        -> Option<(&mut NarrowPhase<N>, impl Iterator<Item = (CollisionObjectHandle, CollisionObjectHandle, TemporaryInteractionIndex, &mut Interaction<N>)>)> {
+        let co = self.objects.get(handle)?;
+        let id = co.graph_index();
+        Some((&mut self.narrow_phase, self.interactions.interactions_with_mut(id, effective_only)))
     }
 
     /// All the proximity pairs involving the specified collision object.
@@ -529,7 +524,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
         -> Option<impl Iterator<Item = (CollisionObjectHandle, CollisionObjectHandle, &ProximityAlgorithm<N>)>> {
         let co = self.objects.get(handle)?;
         let id = co.graph_index();
-        Some(self.narrow_phase.interaction_graph().proximities_with(id, effective_only))
+        Some(self.interactions.proximities_with(id, effective_only))
     }
 
     /// All the contact pairs involving the specified collision object.
@@ -540,9 +535,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
         -> Option<impl Iterator<Item = (CollisionObjectHandle, CollisionObjectHandle, &ContactAlgorithm<N>, &ContactManifold<N>)>> {
         let co = self.objects.get(handle)?;
         let id = co.graph_index();
-        Some(self.narrow_phase
-            .interaction_graph()
-            .contacts_with(id, effective_only))
+        Some(self.interactions.contacts_with(id, effective_only))
     }
 
     /// All the collision object handles of collision objects interacting with the specified collision object.
@@ -553,9 +546,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
         -> Option<impl Iterator<Item = CollisionObjectHandle> + 'a> {
         let co = self.objects.get(handle)?;
         let id = co.graph_index();
-        Some(self.narrow_phase
-            .interaction_graph()
-            .collision_objects_interacting_with(id))
+        Some(self.interactions.collision_objects_interacting_with(id))
     }
 
     /// All the collision object handles of collision objects in potential contact with the specified collision
@@ -567,9 +558,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
         -> Option<impl Iterator<Item = CollisionObjectHandle> + 'a> {
         let co = self.objects.get(handle)?;
         let id = co.graph_index();
-        Some(self.narrow_phase
-            .interaction_graph()
-            .collision_objects_in_contact_with(id))
+        Some(self.interactions.collision_objects_in_contact_with(id))
     }
 
 
@@ -582,9 +571,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
         -> Option<impl Iterator<Item = CollisionObjectHandle> + 'a> {
         let co = self.objects.get(handle)?;
         let id = co.graph_index();
-        Some(self.narrow_phase
-            .interaction_graph()
-            .collision_objects_in_proximity_of(id))
+        Some(self.interactions.collision_objects_in_proximity_of(id))
     }
 
 
@@ -595,12 +582,12 @@ impl<N: RealField, T> CollisionWorld<N, T> {
      */
     /// The contact events pool.
     pub fn contact_events(&self) -> &ContactEvents {
-        &self.contact_events
+        self.narrow_phase.contact_events()
     }
 
     /// The proximity events pool.
     pub fn proximity_events(&self) -> &ProximityEvents {
-        &self.proximity_events
+        self.narrow_phase.proximity_events()
     }
 
     // Filters by group and by the user-provided callback.

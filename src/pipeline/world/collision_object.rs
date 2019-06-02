@@ -286,6 +286,19 @@ impl<N: RealField, T> CollisionObjectSlab<N, T> {
         self.objects.get_mut(handle.0)
     }
 
+    /// If they exists, retrieves a mutable reference to the two collision object identified by the given handles.
+    ///
+    /// Panics if both handles are equal.
+    #[inline]
+    pub fn get_pair_mut(&mut self,
+                        handle1: CollisionObjectHandle,
+                        handle2: CollisionObjectHandle)
+                        -> (Option<&mut CollisionObject<N, T>>, Option<&mut CollisionObject<N, T>>) {
+        assert_ne!(handle1, handle2, "The two handles must not be the same.");
+        let a = self.objects.get_mut(handle1.0).map(|o| o as *mut _);
+        (a.map(|a| unsafe { std::mem::transmute(a) }), self.objects.get_mut(handle2.0))
+    }
+
     /// Returns `true` if the specified handle identifies a collision object stored in this collection.
     #[inline]
     pub fn contains(&self, handle: CollisionObjectHandle) -> bool {

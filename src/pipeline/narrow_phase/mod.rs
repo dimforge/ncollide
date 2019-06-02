@@ -18,7 +18,8 @@ pub use self::proximity_detector::{
     PlaneSupportMapProximityDetector, ProximityAlgorithm, ProximityDetector, ProximityDispatcher,
     SupportMapPlaneProximityDetector, SupportMapSupportMapProximityDetector,
 };
-pub use self::interaction_graph::{InteractionGraph, InteractionGraphIndex, Interaction};
+pub use self::interaction_graph::{InteractionGraph, InteractionGraphIndex,
+                                  TemporaryInteractionIndex, Interaction};
 
 #[doc(hidden)]
 pub mod contact_generator;
