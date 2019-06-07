@@ -33,5 +33,7 @@ petgraph        = "0.4"
 alga            = "0.9"
 nalgebra        = "0.18"
 approx          = { version = "0.3", default-features = false }
-rand            = { version = "0.6", default-features = false }
 serde           = { version = "1.0", optional = true, features = ["derive"]}
+
+[dev-dependencies]
+rand            = { version = "0.6", default-features = false }
