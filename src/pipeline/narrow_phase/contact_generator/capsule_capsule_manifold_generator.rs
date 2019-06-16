@@ -3,7 +3,6 @@ use na::{self, RealField};
 use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator, ConvexPolyhedronConvexPolyhedronManifoldGenerator};
 use crate::query::{ContactManifold, ContactPrediction, ContactPreprocessor};
 use crate::shape::{Capsule, Shape};
-use crate::utils::IdAllocator;
 
 /// Collision detector between a concave shape and another shape.
 pub struct CapsuleCapsuleManifoldGenerator<N: RealField> {
@@ -29,7 +28,6 @@ impl<N: RealField> CapsuleCapsuleManifoldGenerator<N> {
         g2: &Capsule<N>,
         proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>
     ) -> bool
     {
@@ -50,7 +48,6 @@ impl<N: RealField> CapsuleCapsuleManifoldGenerator<N> {
             &segment2,
             Some(&(proc2, &g2.contact_preprocessor())),
             &prediction,
-            id_alloc,
             manifold
         )
     }
@@ -67,12 +64,11 @@ impl<N: RealField> ContactManifoldGenerator<N> for CapsuleCapsuleManifoldGenerat
         b: &Shape<N>,
         proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
     ) -> bool
     {
         if let (Some(cs1), Some(cs2)) = (a.as_shape::<Capsule<N>>(), b.as_shape::<Capsule<N>>()) {
-            self.do_update(d, ma, cs1, proc1, mb, cs2, proc2, prediction, id_alloc, manifold)
+            self.do_update(d, ma, cs1, proc1, mb, cs2, proc2, prediction, manifold)
         } else {
             false
         }

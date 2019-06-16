@@ -56,7 +56,6 @@ extern crate approx;
 #[macro_use]
 extern crate downcast_rs;
 #[macro_use]
-#[cfg(feature = "dim3")]
 extern crate bitflags;
 extern crate either;
 extern crate nalgebra as na;

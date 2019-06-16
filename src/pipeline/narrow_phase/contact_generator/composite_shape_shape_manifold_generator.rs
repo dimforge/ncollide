@@ -7,7 +7,6 @@ use crate::query::{visitors::BoundingVolumeInterferencesCollector, ContactManifo
 use crate::shape::{CompositeShape, Shape};
 use std::collections::{hash_map::Entry, HashMap};
 use crate::utils::DeterministicState;
-use crate::utils::IdAllocator;
 
 /// Collision detector between a concave shape and another shape.
 pub struct CompositeShapeShapeManifoldGenerator<N: RealField> {
@@ -38,7 +37,6 @@ impl<N: RealField> CompositeShapeShapeManifoldGenerator<N> {
         g2: &Shape<N>,
         proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
         flip: bool,
     )
@@ -98,7 +96,6 @@ impl<N: RealField> CompositeShapeShapeManifoldGenerator<N> {
                             g1,
                             Some(&(proc1, part_proc1)),
                             prediction,
-                            id_alloc,
                             manifold
                         )
                     } else {
@@ -111,7 +108,6 @@ impl<N: RealField> CompositeShapeShapeManifoldGenerator<N> {
                             g2,
                             proc2,
                             prediction,
-                            id_alloc,
                             manifold
                         )
                     }
@@ -134,18 +130,17 @@ impl<N: RealField> ContactManifoldGenerator<N> for CompositeShapeShapeManifoldGe
         b: &Shape<N>,
         proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
     ) -> bool
     {
         if !self.flip {
             if let Some(cs) = a.as_composite_shape() {
-                self.do_update(d, ma, cs, proc1, mb, b, proc2, prediction, id_alloc, manifold, false);
+                self.do_update(d, ma, cs, proc1, mb, b, proc2, prediction, manifold, false);
                 return true;
             }
         } else {
             if let Some(cs) = b.as_composite_shape() {
-                self.do_update(d, mb, cs, proc2, ma, a, proc1, prediction, id_alloc, manifold, true);
+                self.do_update(d, mb, cs, proc2, ma, a, proc1, prediction, manifold, true);
                 return true;
             }
         }

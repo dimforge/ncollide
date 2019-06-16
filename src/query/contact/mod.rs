@@ -1,6 +1,6 @@
 //! Implementation details of the `contact` and `contacts` functions.
 
-pub use self::contact::{Contact, ContactPrediction, TrackedContact};
+pub use self::contact::{Contact, ContactPrediction, TrackedContact, ContactId};
 pub use self::contact_kinematic::{
     ContactKinematic, LocalShapeApproximation, NeighborhoodGeometry,
 };

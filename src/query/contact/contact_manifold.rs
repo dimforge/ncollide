@@ -4,7 +4,6 @@ use crate::query::{Contact, ContactKinematic, TrackedContact};
 use crate::shape::FeatureId;
 use slab::Slab;
 use std::collections::{hash_map::Entry, HashMap};
-use crate::utils::IdAllocator;
 use crate::query::ContactPreprocessor;
 
 /// The technique used for contact tracking.
@@ -88,11 +87,7 @@ impl<N: RealField> ContactManifold<N> {
     }
 
     /// Empty the manifold as well as its cache.
-    pub fn clear(&mut self, gen: &mut IdAllocator) {
-        for c in &self.contacts {
-            gen.free((c.1).0.id)
-        }
-
+    pub fn clear(&mut self) {
         match &mut self.cache {
             ContactCache::FeatureBased(h) => h.clear(),
             ContactCache::DistanceBased(v, _) => v.clear()
@@ -136,7 +131,7 @@ impl<N: RealField> ContactManifold<N> {
     }
 
     /// Save the contacts to a cache and empty the manifold.
-    pub fn save_cache_and_clear(&mut self, gen: &mut IdAllocator) {
+    pub fn save_cache_and_clear(&mut self) {
         match &mut self.cache {
             ContactCache::DistanceBased(cache, _) => {
                 let ctcts = &self.contacts;
@@ -152,7 +147,6 @@ impl<N: RealField> ContactManifold<N> {
         self.ncontacts = 0;
         self.contacts.retain(|_i, c| {
             if c.1 == 0 {
-                gen.free(c.0.id);
                 false
             } else {
                 c.1 -= 1;
@@ -175,7 +169,6 @@ impl<N: RealField> ContactManifold<N> {
         tracking_pt: Point<N>,
         preprocessor1: Option<&ContactPreprocessor<N>>,
         preprocessor2: Option<&ContactPreprocessor<N>>,
-        gen: &mut IdAllocator,
     ) -> bool
     {
         if let Some(pp) = preprocessor1 {
@@ -207,7 +200,7 @@ impl<N: RealField> ContactManifold<N> {
                 }
 
                 if closest == cache.len() {
-                    let tracked = TrackedContact::new(contact, kinematic, gen.alloc());
+                    let tracked = TrackedContact::new(contact, kinematic);
                     let i = self.contacts.insert((tracked, self.persistence));
                     cache.push((tracking_pt, i));
                     self.ncontacts += 1;
@@ -245,7 +238,7 @@ impl<N: RealField> ContactManifold<N> {
             ContactCache::FeatureBased(cache) => {
                 match cache.entry((kinematic.feature1(), kinematic.feature2())) {
                     Entry::Vacant(e) => {
-                        let tracked = TrackedContact::new(contact, kinematic, gen.alloc());
+                        let tracked = TrackedContact::new(contact, kinematic);
                         let i = self.contacts.insert((tracked, self.persistence));
                         let _ = e.insert(i);
                         self.ncontacts += 1;

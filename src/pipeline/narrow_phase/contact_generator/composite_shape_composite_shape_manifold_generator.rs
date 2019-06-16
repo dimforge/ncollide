@@ -5,7 +5,6 @@ use crate::query::{visitors::AABBSetsInterferencesCollector, ContactManifold, Co
 use crate::shape::{CompositeShape, Shape};
 use std::collections::{hash_map::Entry, HashMap};
 use crate::utils::DeterministicState;
-use crate::utils::IdAllocator;
 
 /// Collision detector between a concave shape and another shape.
 pub struct CompositeShapeCompositeShapeManifoldGenerator<N> {
@@ -36,7 +35,6 @@ impl<N: RealField> CompositeShapeCompositeShapeManifoldGenerator<N> {
         g2: &CompositeShape<N>,
         proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
     )
     {
@@ -89,7 +87,7 @@ impl<N: RealField> CompositeShapeCompositeShapeManifoldGenerator<N> {
                     g2.map_part_and_preprocessor_at(key.1, m2, prediction, &mut |m2, g2, part_proc2| {
                         // FIXME: change the update functions.
                         keep = detector.0.generate_contacts(
-                            dispatcher, m1, g1, Some(&(proc1, part_proc1)), m2, g2, Some(&(proc2, part_proc2)), prediction, id_alloc,
+                            dispatcher, m1, g1, Some(&(proc1, part_proc1)), m2, g2, Some(&(proc2, part_proc2)), prediction,
                             manifold
                         );
                     });
@@ -112,13 +110,12 @@ impl<N: RealField> ContactManifoldGenerator<N> for CompositeShapeCompositeShapeM
         b: &Shape<N>,
         proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
     ) -> bool
     {
         if let (Some(csa), Some(csb)) = (a.as_composite_shape(), b.as_composite_shape()) {
             self.do_update(
-                d, ma, csa, proc1, mb, csb, proc2, prediction, id_alloc, manifold,
+                d, ma, csa, proc1, mb, csb, proc2, prediction, manifold,
             );
             true
         } else {

@@ -5,7 +5,7 @@ use crate::query::{Contact, ContactPrediction};
 use crate::query::{ContactKinematic, ContactManifold, NeighborhoodGeometry};
 use crate::shape::{FeatureId, Segment, SegmentPointLocation};
 use crate::query::ContactPreprocessor;
-use crate::utils::{IdAllocator, IsometryOps};
+use crate::utils::IsometryOps;
 
 /// A feature (face or vertex) of a 2D convex polygon.
 #[derive(Clone, Debug)]
@@ -210,7 +210,6 @@ impl<N: RealField> ConvexPolygonalFeature<N> {
         m2: &Isometry<N>,
         f2: FeatureId,
         proc2: Option<&ContactPreprocessor<N>>,
-        ids: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
     )
     {
@@ -245,6 +244,6 @@ impl<N: RealField> ConvexPolygonalFeature<N> {
             FeatureId::Unknown => return,
         }
 
-        let _ = manifold.push(c, kinematic, local1, proc1, proc2, ids);
+        let _ = manifold.push(c, kinematic, local1, proc1, proc2);
     }
 }

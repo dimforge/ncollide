@@ -4,7 +4,6 @@ use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator}
 use crate::query::{self, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry, ContactPreprocessor};
 use crate::shape::{Ball, FeatureId, Shape};
 use std::marker::PhantomData;
-use crate::utils::IdAllocator;
 
 /// Collision detector between two balls.
 #[derive(Clone)]
@@ -33,7 +32,6 @@ impl<N: RealField> ContactManifoldGenerator<N> for BallBallManifoldGenerator<N> 
         b: &Shape<N>,
         proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
     ) -> bool
     {
@@ -61,7 +59,7 @@ impl<N: RealField> ContactManifoldGenerator<N> for BallBallManifoldGenerator<N> 
                 kinematic.set_dilation1(a.radius());
                 kinematic.set_dilation2(b.radius());
 
-                let _ = manifold.push(contact, kinematic, Point::origin(), proc1, proc2, id_alloc);
+                let _ = manifold.push(contact, kinematic, Point::origin(), proc1, proc2);
             }
 
             true

@@ -6,7 +6,7 @@ use crate::math::{Isometry, Point, Vector};
 use crate::query::{self, Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry};
 use crate::shape::{FeatureId, Segment, SegmentPointLocation};
 use crate::query::ContactPreprocessor;
-use crate::utils::{self, IdAllocator, IsometryOps};
+use crate::utils::{self, IsometryOps};
 
 /// A cache used for polygonal clipping.
 #[derive(Clone)]
@@ -348,7 +348,6 @@ impl<N: RealField> ConvexPolygonalFeature<N> {
         m2: &Isometry<N>,
         f2: FeatureId,
         proc2: Option<&ContactPreprocessor<N>>,
-        ids: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
     )
     {
@@ -405,6 +404,6 @@ impl<N: RealField> ConvexPolygonalFeature<N> {
 
 //        println!("Accepted contact: {:?}", c);
 //        println!("Accepted kinematic: {:?}", kinematic);
-        let _ = manifold.push(c, kinematic, local1, proc1, proc2, ids);
+        let _ = manifold.push(c, kinematic, local1, proc1, proc2);
     }
 }

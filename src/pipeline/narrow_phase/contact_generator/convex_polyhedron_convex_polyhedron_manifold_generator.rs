@@ -8,7 +8,6 @@ use crate::query::{self, Contact, ContactManifold, ContactPrediction, ContactPre
 use crate::shape::ClippingCache;
 use crate::shape::ConvexPolygonalFeature;
 use crate::shape::{FeatureId, Shape};
-use crate::utils::IdAllocator;
 
 #[cfg(feature = "dim2")]
 #[derive(Clone)]
@@ -89,7 +88,6 @@ impl<N: RealField> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhed
         b: &Shape<N>,
         proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
     ) -> bool
     {
@@ -157,7 +155,6 @@ impl<N: RealField> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhed
                     mb,
                     f2,
                     proc2,
-                    id_alloc,
                     manifold,
                 )
             }

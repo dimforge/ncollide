@@ -4,7 +4,6 @@ use crate::query::{ContactManifold, ContactPrediction};
 use crate::shape::Shape;
 use crate::query::ContactPreprocessor;
 use std::any::Any;
-use crate::utils::IdAllocator;
 
 /// An algorithm to compute contact points, normals and penetration depths between two specific
 /// objects.
@@ -27,7 +26,6 @@ pub trait ContactManifoldGenerator<N: RealField>: Any + Send + Sync {
         b: &Shape<N>,
         proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
     ) -> bool;
 

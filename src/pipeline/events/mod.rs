@@ -16,6 +16,10 @@ pub struct EventPool<E> {
 pub type ContactEvents = EventPool<ContactEvent>;
 /// A set of proximity events.
 pub type ProximityEvents = EventPool<ProximityEvent>;
+/// A set of contact events.
+pub type ContactEvents2<Handle> = EventPool<ContactEvent2<Handle>>;
+/// A set of proximity events.
+pub type ProximityEvents2<Handle> = EventPool<ProximityEvent2<Handle>>;
 
 impl<E> EventPool<E> {
     /// Creates a new empty set of events.
@@ -23,7 +27,7 @@ impl<E> EventPool<E> {
         EventPool { events: Vec::new() }
     }
 
-    /// Emties this set of events.
+    /// Empties this set of events.
     pub fn clear(&mut self) {
         self.events.clear();
     }
@@ -33,7 +37,7 @@ impl<E> EventPool<E> {
         self.events.push(event);
     }
 
-    /// Iterates through all events contained on this set in a FIFO maneer.
+    /// Iterates through all events contained on this set in a FIFO manner.
     pub fn iter(&self) -> Iter<E> {
         self.events.iter()
     }
@@ -99,6 +103,54 @@ impl ProximityEvent {
     {
         assert!(prev_status != new_status);
         ProximityEvent {
+            collider1,
+            collider2,
+            prev_status,
+            new_status,
+        }
+    }
+}
+
+
+#[derive(Copy, Clone, Hash, Debug)]
+/// Events occuring when two collision objects start or stop being in contact (or penetration).
+pub enum ContactEvent2<Handle> {
+    /// Event occuring when two collision objects start being in contact.
+    ///
+    /// This event is generated whenever the narrow-phase finds a contact between two collision objects that did not have any contact at the last update.
+    Started(Handle, Handle),
+    /// Event occuring when two collision objects stop being in contact.
+    ///
+    /// This event is generated whenever the narrow-phase fails to find any contact between two collision objects that did have at least one contact at the last update.
+    Stopped(Handle, Handle),
+}
+
+#[derive(Copy, Clone, Debug)]
+/// Events occuring when two collision objects start or stop being in close proximity, contact, or disjoint.
+pub struct ProximityEvent2<Handle> {
+    /// The first collider to which the proximity event applies.
+    pub collider1: Handle,
+    /// The second collider to which the proximity event applies.
+    pub collider2: Handle,
+    /// The previous state of proximity between the two collision objects.
+    pub prev_status: Proximity,
+    /// The new state of proximity between the two collision objects.
+    pub new_status: Proximity,
+}
+
+impl<Handle> ProximityEvent2<Handle> {
+    /// Instantiates a new proximity event.
+    ///
+    /// Panics if `prev_status` is equal to `new_status`.
+    pub fn new(
+        collider1: Handle,
+        collider2: Handle,
+        prev_status: Proximity,
+        new_status: Proximity,
+    ) -> Self
+    {
+        assert_ne!(prev_status, new_status, "The previous and new status of a proximity event must not be the same.");
+        Self {
             collider1,
             collider2,
             prev_status,

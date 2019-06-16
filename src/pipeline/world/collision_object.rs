@@ -1,7 +1,7 @@
 use alga::general::RealField;
 use crate::math::Isometry;
-use crate::pipeline::broad_phase::ProxyHandle;
-use crate::pipeline::narrow_phase::InteractionGraphIndex;
+use crate::pipeline::broad_phase::BroadPhaseProxyHandle;
+use crate::pipeline::narrow_phase::CollisionObjectGraphIndex;
 use crate::pipeline::world::CollisionGroups;
 use crate::query::ContactPrediction;
 use crate::shape::ShapeHandle;
@@ -81,8 +81,8 @@ impl<N: RealField> GeometricQueryType<N> {
 /// A stand-alone object that has a position and a shape.
 pub struct CollisionObject<N: RealField, T> {
     handle: CollisionObjectHandle,
-    proxy_handle: ProxyHandle,
-    graph_index: InteractionGraphIndex,
+    proxy_handle: BroadPhaseProxyHandle,
+    graph_index: CollisionObjectGraphIndex,
     position: Isometry<N>,
     shape: ShapeHandle<N>,
     collision_groups: CollisionGroups,
@@ -97,8 +97,8 @@ impl<N: RealField, T> CollisionObject<N, T> {
     /// Creates a new collision object.
     pub fn new(
         handle: CollisionObjectHandle,
-        proxy_handle: ProxyHandle,
-        graph_index: InteractionGraphIndex,
+        proxy_handle: BroadPhaseProxyHandle,
+        graph_index: CollisionObjectGraphIndex,
         position: Isometry<N>,
         shape: ShapeHandle<N>,
         groups: CollisionGroups,
@@ -129,7 +129,7 @@ impl<N: RealField, T> CollisionObject<N, T> {
     ///
     /// This index may change whenever a collision object is removed from the world.
     #[inline]
-    pub fn graph_index(&self) -> InteractionGraphIndex {
+    pub fn graph_index(&self) -> CollisionObjectGraphIndex {
         self.graph_index
     }
 
@@ -140,19 +140,19 @@ impl<N: RealField, T> CollisionObject<N, T> {
 
     /// Sets the collision object unique but non-stable graph index.
     #[inline]
-    pub(crate) fn set_graph_index(&mut self, index: InteractionGraphIndex) {
+    pub(crate) fn set_graph_index(&mut self, index: CollisionObjectGraphIndex) {
         self.graph_index = index
     }
 
     /// The collision object's broad phase proxy unique identifier.
     #[inline]
-    pub fn proxy_handle(&self) -> ProxyHandle {
+    pub fn proxy_handle(&self) -> BroadPhaseProxyHandle {
         self.proxy_handle
     }
 
     /// Sets the collision object's broad phase proxy unique identifier.
     #[inline]
-    pub(crate) fn set_proxy_handle(&mut self, handle: ProxyHandle) {
+    pub(crate) fn set_proxy_handle(&mut self, handle: BroadPhaseProxyHandle) {
         self.proxy_handle = handle
     }
 
@@ -249,11 +249,11 @@ impl CollisionObjectHandle {
 
 /// A set of collision objects that can be indexed by collision object handles.
 pub struct CollisionObjectSlab<N: RealField, T> {
-    objects: Slab<CollisionObject<N, T>>,
+    pub(crate) objects: Slab<CollisionObject<N, T>>,
 }
 
 impl<N: RealField, T> CollisionObjectSlab<N, T> {
-    /// Creates a new empty collecton of collision objects.
+    /// Creates a new empty collection of collision objects.
     pub fn new() -> CollisionObjectSlab<N, T> {
         CollisionObjectSlab {
             objects: Slab::new(),

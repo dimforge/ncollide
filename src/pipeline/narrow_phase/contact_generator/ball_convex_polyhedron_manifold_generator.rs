@@ -4,7 +4,7 @@ use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator}
 use crate::query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry, ContactPreprocessor};
 use crate::shape::{Ball, FeatureId, Shape};
 use std::marker::PhantomData;
-use crate::utils::{IdAllocator, IsometryOps};
+use crate::utils::IsometryOps;
 
 /// Collision detector between two balls.
 #[derive(Clone)]
@@ -32,7 +32,6 @@ impl<N: RealField> BallConvexPolyhedronManifoldGenerator<N> {
         b: &Shape<N>,
         proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
     ) -> bool
     {
@@ -115,10 +114,10 @@ impl<N: RealField> BallConvexPolyhedronManifoldGenerator<N> {
 
                 if !self.flip {
                     kinematic.set_approx2(f2, local2, geom2);
-                    let _ = manifold.push(contact, kinematic, Point::origin(), proc1, proc2, id_alloc);
+                    let _ = manifold.push(contact, kinematic, Point::origin(), proc1, proc2);
                 } else {
                     kinematic.set_approx1(f2, local2, geom2);
-                    let _ = manifold.push(contact, kinematic, Point::origin(), proc2, proc1, id_alloc);
+                    let _ = manifold.push(contact, kinematic, Point::origin(), proc2, proc1);
                 }
             }
 
@@ -140,14 +139,13 @@ impl<N: RealField> ContactManifoldGenerator<N> for BallConvexPolyhedronManifoldG
         b: &Shape<N>,
         proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
     ) -> bool
     {
         if !self.flip {
-            self.do_generate(m1, a, proc1, m2, b, proc2, prediction, id_alloc, manifold)
+            self.do_generate(m1, a, proc1, m2, b, proc2, prediction, manifold)
         } else {
-            self.do_generate(m2, b, proc2, m1, a, proc1, prediction, id_alloc, manifold)
+            self.do_generate(m2, b, proc2, m1, a, proc1, prediction, manifold)
         }
     }
 }

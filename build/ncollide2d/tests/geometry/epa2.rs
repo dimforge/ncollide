@@ -40,7 +40,6 @@ fn cuboids_large_size_ratio_issue_181() {
 
     let mut p = Vector2::new(0.0, 0.0);
     let mut angle = 0.0;
-    let mut id_alloc = IdAllocator::new();
 
     // Used to panic at some point:
     // thread 'main' panicked at 'assertion failed: neg_dist <= gjk::eps_tol()', ncollide_geometry/query/algorithms/EPA.rs:26:9
@@ -61,7 +60,6 @@ fn cuboids_large_size_ratio_issue_181() {
             &cuboid_b,
             None,
             &prediction,
-            &mut id_alloc,
             &mut manifold
         );
 

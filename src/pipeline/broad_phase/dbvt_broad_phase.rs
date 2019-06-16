@@ -2,7 +2,7 @@ use crate::bounding_volume::BoundingVolume;
 use crate::math::Point;
 use na::RealField;
 use crate::partitioning::{DBVTLeaf, DBVTLeafId, BVH, DBVT};
-use crate::pipeline::broad_phase::{BroadPhase, ProxyHandle, BroadPhaseInterferenceHandler};
+use crate::pipeline::broad_phase::{BroadPhase, BroadPhaseProxyHandle, BroadPhaseInterferenceHandler};
 use crate::query::visitors::{
     BoundingVolumeInterferencesCollector, PointInterferencesCollector, RayInterferencesCollector,
 };
@@ -55,19 +55,19 @@ const DEACTIVATION_THRESHOLD: usize = 100;
 pub struct DBVTBroadPhase<N: RealField, BV, T> {
     proxies: Slab<DBVTBroadPhaseProxy<T>>,
     // DBVT for moving objects.
-    tree: DBVT<N, ProxyHandle, BV>,
+    tree: DBVT<N, BroadPhaseProxyHandle, BV>,
     // DBVT for static objects.
-    stree: DBVT<N, ProxyHandle, BV>,
+    stree: DBVT<N, BroadPhaseProxyHandle, BV>,
     // Pairs detected.
-    pairs: HashMap<SortedPair<ProxyHandle>, bool, DeterministicState>,
+    pairs: HashMap<SortedPair<BroadPhaseProxyHandle>, bool, DeterministicState>,
     // The margin added to each bounding volume.
     margin: N,
     purge_all: bool,
 
     // Just to avoid dynamic allocations.
-    collector: Vec<ProxyHandle>,
-    leaves_to_update: Vec<DBVTLeaf<N, ProxyHandle, BV>>,
-    proxies_to_update: Vec<(ProxyHandle, BV)>,
+    collector: Vec<BroadPhaseProxyHandle>,
+    leaves_to_update: Vec<DBVTLeaf<N, BroadPhaseProxyHandle, BV>>,
+    proxies_to_update: Vec<(BroadPhaseProxyHandle, BV)>,
 }
 
 impl<N, BV, T> DBVTBroadPhase<N, BV, T>
@@ -254,7 +254,7 @@ impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
     }
 
     /// Retrieves the bounding volume and data associated to the given proxy.
-    fn proxy(&self, handle: ProxyHandle) -> Option<(&BV, &T)> {
+    fn proxy(&self, handle: BroadPhaseProxyHandle) -> Option<(&BV, &T)> {
         let proxy = self.proxies.get(handle.uid())?;
         match proxy.status {
             ProxyStatus::OnDynamicTree(id, _) => {
@@ -268,14 +268,14 @@ impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
 
     }
 
-    fn create_proxy(&mut self, bv: BV, data: T) -> ProxyHandle {
+    fn create_proxy(&mut self, bv: BV, data: T) -> BroadPhaseProxyHandle {
         let proxy = DBVTBroadPhaseProxy::new(data);
-        let handle = ProxyHandle(self.proxies.insert(proxy));
+        let handle = BroadPhaseProxyHandle(self.proxies.insert(proxy));
         self.proxies_to_update.push((handle, bv));
         handle
     }
 
-    fn remove(&mut self, handles: &[ProxyHandle], handler: &mut FnMut(&T, &T)) {
+    fn remove(&mut self, handles: &[BroadPhaseProxyHandle], handler: &mut FnMut(&T, &T)) {
         for handle in handles {
             if let Some(proxy) = self.proxies.get_mut(handle.uid()) {
                 match proxy.status {
@@ -318,7 +318,7 @@ impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
         }
     }
 
-    fn deferred_set_bounding_volume(&mut self, handle: ProxyHandle, bounding_volume: BV) {
+    fn deferred_set_bounding_volume(&mut self, handle: BroadPhaseProxyHandle, bounding_volume: BV) {
         if let Some(proxy) = self.proxies.get(handle.uid()) {
             let needs_update = match proxy.status {
                 ProxyStatus::OnStaticTree(leaf) => {
@@ -342,7 +342,7 @@ impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
         }
     }
 
-    fn deferred_recompute_all_proximities_with(&mut self, handle: ProxyHandle) {
+    fn deferred_recompute_all_proximities_with(&mut self, handle: BroadPhaseProxyHandle) {
         if let Some(proxy) = self.proxies.get(handle.uid()) {
             let bv = match proxy.status {
                 ProxyStatus::OnStaticTree(leaf) => self.stree[leaf].bounding_volume.clone(),
@@ -375,7 +375,7 @@ impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
                 }
             }
 
-            self.proxies_to_update.push((ProxyHandle(handle), bv));
+            self.proxies_to_update.push((BroadPhaseProxyHandle(handle), bv));
         }
 
         self.proxies_to_update.append(&mut user_updates);

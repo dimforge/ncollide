@@ -2,10 +2,15 @@ use crate::math::{Point, Vector};
 use na::{self, RealField, Unit};
 use crate::query::ContactKinematic;
 use std::mem;
-use crate::utils::GenerationalId;
+use slotmap::Key;
+
+slotmap::new_key_type! {
+    /// A contact identifier which is unique within a contact manifold.
+    pub struct ContactId;
+}
 
 /// Geometric description of a contact.
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Copy, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Contact<N: RealField> {
     /// Position of the contact on the first object. The position is expressed in world space.
@@ -56,23 +61,23 @@ impl<N: RealField> Contact<N> {
 /// match contact points found at successive frames. Two contact points are said to "match" if
 /// they can be seen as the same contact point that moved in-between frames. Two matching
 /// contact points are given the same `id` here.
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct TrackedContact<N: RealField> {
     /// The geometric contact information.
     pub contact: Contact<N>,
     /// The local contact kinematic.
     pub kinematic: ContactKinematic<N>,
     /// The identifier of this contact.
-    pub id: GenerationalId,
+    pub id: ContactId,
 }
 
 impl<N: RealField> TrackedContact<N> {
     /// Creates a new tracked contact.
-    pub fn new(contact: Contact<N>, kinematic: ContactKinematic<N>, id: GenerationalId) -> Self {
+    pub fn new(contact: Contact<N>, kinematic: ContactKinematic<N>) -> Self {
         TrackedContact {
             contact,
             kinematic,
-            id,
+            id: ContactId::null(),
         }
     }
 }

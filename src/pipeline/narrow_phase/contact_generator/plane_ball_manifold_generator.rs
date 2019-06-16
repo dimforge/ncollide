@@ -5,7 +5,6 @@ use na::{self, RealField};
 use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 use crate::query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry, ContactPreprocessor};
 use crate::shape::{Ball, FeatureId, Plane, Shape};
-use crate::utils::IdAllocator;
 
 /// Collision detector between g1 plane and g1 shape implementing the `SupportMap` trait.
 #[derive(Clone)]
@@ -34,7 +33,6 @@ impl<N: RealField> PlaneBallManifoldGenerator<N> {
         g2: &Shape<N>,
         proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
         flip: bool,
     ) -> bool
@@ -67,13 +65,13 @@ impl<N: RealField> PlaneBallManifoldGenerator<N> {
                     kinematic.set_approx1(f1, local1, approx_plane);
                     kinematic.set_approx2(f2, local2, approx_ball);
                     kinematic.set_dilation2(ball.radius());
-                    let _ = manifold.push(contact, kinematic, Point::origin(), proc1, proc2, id_alloc);
+                    let _ = manifold.push(contact, kinematic, Point::origin(), proc1, proc2);
                 } else {
                     contact = Contact::new(world2, world1, -plane_normal, depth);
                     kinematic.set_approx1(f2, local2, approx_ball);
                     kinematic.set_dilation1(ball.radius());
                     kinematic.set_approx2(f1, local1, approx_plane);
-                    let _ = manifold.push(contact, kinematic, Point::origin(), proc2, proc1, id_alloc);
+                    let _ = manifold.push(contact, kinematic, Point::origin(), proc2, proc1);
                 }
             }
 
@@ -96,7 +94,6 @@ impl<N: RealField> ContactManifoldGenerator<N> for PlaneBallManifoldGenerator<N>
         g2: &Shape<N>,
         proc2: Option<&ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
     ) -> bool
     {
@@ -109,7 +106,6 @@ impl<N: RealField> ContactManifoldGenerator<N> for PlaneBallManifoldGenerator<N>
                 g2,
                 proc2,
                 prediction,
-                id_alloc,
                 manifold,
                 false,
             )
@@ -122,7 +118,6 @@ impl<N: RealField> ContactManifoldGenerator<N> for PlaneBallManifoldGenerator<N>
                 g1,
                 proc1,
                 prediction,
-                id_alloc,
                 manifold,
                 true,
             )

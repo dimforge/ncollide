@@ -15,7 +15,7 @@ pub enum NeighborhoodGeometry<N: RealField> {
 }
 
 /// The approximation of a shape on the neighborhood of a point.
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct LocalShapeApproximation<N: RealField> {
     // XXX: currently, there is no explicit representation
     // of the point where the approximation occurs in terms
@@ -53,7 +53,7 @@ impl<N: RealField> LocalShapeApproximation<N> {
 /// from one frame to another. To achieve this, the local shape of the solids
 /// around the given points are approximated by either dilated lines (unbounded
 /// cylinders), planes, dilated points (spheres).
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct ContactKinematic<N: RealField> {
     approx1: LocalShapeApproximation<N>,
     approx2: LocalShapeApproximation<N>,
