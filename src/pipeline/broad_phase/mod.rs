@@ -2,7 +2,7 @@
 
 #[doc(inline)]
 pub use self::broad_phase::{BroadPhase, BroadPhaseInterferenceHandler, BroadPhaseProxyHandle};
-pub use self::broad_phase_pair_filter::{BroadPhasePairFilter, BroadPhasePairFilters};
+pub use self::broad_phase_pair_filter::{BroadPhasePairFilter, BroadPhasePairFilter2, BroadPhasePairFilters};
 pub use self::dbvt_broad_phase::DBVTBroadPhase;
 
 #[doc(hidden)]

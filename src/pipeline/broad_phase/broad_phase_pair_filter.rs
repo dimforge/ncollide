@@ -2,11 +2,18 @@ use na::RealField;
 use std::any::Any;
 
 use crate::pipeline::world::CollisionObject;
+use crate::pipeline::world2::CollisionObjectRef;
 
 /// A signal handler for contact detection.
 pub trait BroadPhasePairFilter<N: RealField, T>: Any + Send + Sync {
     /// Activate an action for when two objects start or stop to be close to each other.
     fn is_pair_valid(&self, b1: &CollisionObject<N, T>, b2: &CollisionObject<N, T>) -> bool;
+}
+
+/// A signal handler for contact detection.
+pub trait BroadPhasePairFilter2<'a, N: RealField, Object: CollisionObjectRef<'a, N>>: Any + Send + Sync {
+    /// Activate an action for when two objects start or stop to be close to each other.
+    fn is_pair_valid(&self, b1: Object, b2: Object) -> bool;
 }
 
 /// Filters deciding whether a proximity is to be further investigated by the narrow phase or not.

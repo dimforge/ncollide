@@ -1,7 +1,7 @@
 use na::RealField;
 use slotmap::{Key, SlotMap};
 
-use crate::pipeline::events::{ContactEvent, ContactEvents2, ProximityEvent, ProximityEvents2};
+use crate::pipeline::events::{ContactEvent, ContactEvents2, ContactEvent2, ProximityEvent, ProximityEvent2, ProximityEvents2};
 use crate::pipeline::narrow_phase::{
     ContactDispatcher, ProximityDispatcher, InteractionGraph2, Interaction2, CollisionObjectGraphIndex2,
     ContactManifoldGenerator, ProximityDetector,
@@ -59,8 +59,8 @@ impl<N: RealField, Handle: Copy> NarrowPhase<N, Handle> {
     /// Update the specified contact manifold between two collision objects.
     pub fn update_contact<'a>(
         &mut self,
-        co1: impl CollisionObjectRef<'a, N>,
-        co2: impl CollisionObjectRef<'a, N>,
+        co1: impl CollisionObjectRef<'a, N, Handle = Handle>,
+        co2: impl CollisionObjectRef<'a, N, Handle = Handle>,
         detector: &mut ContactManifoldGenerator<N>,
         manifold: &mut ContactManifold<N>) {
         let had_contacts = manifold.len() != 0;
@@ -73,10 +73,10 @@ impl<N: RealField, Handle: Copy> NarrowPhase<N, Handle> {
             let _ = detector.generate_contacts(
                 &*self.contact_dispatcher,
                 &co1.position(),
-                co1.shape().as_ref(),
+                co1.shape(),
                 None,
                 &co2.position(),
-                co2.shape().as_ref(),
+                co2.shape(),
                 None,
                 &prediction,
                 manifold,
@@ -93,13 +93,11 @@ impl<N: RealField, Handle: Copy> NarrowPhase<N, Handle> {
 
         if manifold.len() == 0 {
             if had_contacts {
-                unimplemented!()
-//                self.contact_events.push(ContactEvent::Stopped(co1.handle(), co2.handle()));
+                self.contact_events.push(ContactEvent2::Stopped(co1.handle(), co2.handle()));
             }
         } else {
             if !had_contacts {
-                unimplemented!()
-//                self.contact_events.push(ContactEvent::Started(co1.handle(), co2.handle()));
+                self.contact_events.push(ContactEvent2::Started(co1.handle(), co2.handle()));
             }
         }
     }
@@ -107,38 +105,37 @@ impl<N: RealField, Handle: Copy> NarrowPhase<N, Handle> {
     /// Update the specified proximity between two collision objects.
     pub fn update_proximity<'a>(
         &mut self,
-        co1: impl CollisionObjectRef<'a, N>,
-        co2: impl CollisionObjectRef<'a, N>,
+        co1: impl CollisionObjectRef<'a, N, Handle = Handle>,
+        co2: impl CollisionObjectRef<'a, N, Handle = Handle>,
         detector: &mut ProximityDetector<N>) {
         let prev_prox = detector.proximity();
 
         let _ = detector.update(
             &*self.proximity_dispatcher,
             &co1.position(),
-            co1.shape().as_ref(),
+            co1.shape(),
             &co2.position(),
-            co2.shape().as_ref(),
+            co2.shape(),
             co1.query_type().query_limit() + co2.query_type().query_limit(),
         );
 
         let new_prox = detector.proximity();
 
         if new_prox != prev_prox {
-            unimplemented!()
-//            self.proximity_events.push(ProximityEvent::new(
-//                co1.handle(),
-//                co2.handle(),
-//                prev_prox,
-//                new_prox,
-//            ));
+            self.proximity_events.push(ProximityEvent2::new(
+                co1.handle(),
+                co2.handle(),
+                prev_prox,
+                new_prox,
+            ));
         }
     }
 
     /// Update the specified interaction between two collision objects.
     pub fn update_interaction<'a>(
         &mut self,
-        co1: impl CollisionObjectRef<'a, N>,
-        co2: impl CollisionObjectRef<'a, N>,
+        co1: impl CollisionObjectRef<'a, N, Handle = Handle>,
+        co2: impl CollisionObjectRef<'a, N, Handle = Handle>,
         interaction: &mut Interaction2<N>) {
         match interaction {
             Interaction2::Contact(detector, manifold) => {
@@ -185,7 +182,7 @@ impl<N: RealField, Handle: Copy> NarrowPhase<N, Handle> {
         handle2: Objects::Handle,
         started: bool,
     )
-        where Objects: CollisionObjectSet<'a, N>
+        where Objects: CollisionObjectSet<'a, N, Handle = Handle>
     {
         let mut co1 = objects.get(handle1).unwrap();
         let mut co2 = objects.get(handle2).unwrap();
@@ -204,7 +201,7 @@ impl<N: RealField, Handle: Copy> NarrowPhase<N, Handle> {
                         let dispatcher = &self.contact_dispatcher;
 
                         if let Some(detector) = dispatcher
-                            .get_contact_algorithm(co1.shape().as_ref(), co2.shape().as_ref())
+                            .get_contact_algorithm(co1.shape(), co2.shape())
                             {
                                 let manifold = detector.init_manifold();
                                 let _ = interactions.0.add_edge(id1, id2, Interaction2::Contact(detector, manifold));
@@ -214,7 +211,7 @@ impl<N: RealField, Handle: Copy> NarrowPhase<N, Handle> {
                         let dispatcher = &self.proximity_dispatcher;
 
                         if let Some(detector) = dispatcher
-                            .get_proximity_algorithm(co1.shape().as_ref(), co2.shape().as_ref())
+                            .get_proximity_algorithm(co1.shape(), co2.shape())
                             {
                                 let _ = interactions.0.add_edge(id1, id2, Interaction2::Proximity(detector));
                             }
@@ -228,8 +225,7 @@ impl<N: RealField, Handle: Copy> NarrowPhase<N, Handle> {
                         Interaction2::Contact(_, mut manifold) => {
                             // Register a collision lost event if there was a contact.
                             if manifold.len() != 0 {
-                                unimplemented!()
-//                                self.contact_events.push(ContactEvent::Stopped(co1.handle(), co2.handle()));
+                                self.contact_events.push(ContactEvent2::Stopped(co1.handle(), co2.handle()));
                             }
 
                             manifold.clear();
@@ -239,14 +235,13 @@ impl<N: RealField, Handle: Copy> NarrowPhase<N, Handle> {
                             let prev_prox = detector.proximity();
 
                             if prev_prox != Proximity::Disjoint {
-                                unimplemented!()
-//                                let event = ProximityEvent::new(
-//                                    co1.handle(),
-//                                    co2.handle(),
-//                                    prev_prox,
-//                                    Proximity::Disjoint,
-//                                );
-//                                self.proximity_events.push(event);
+                                let event = ProximityEvent2::new(
+                                    co1.handle(),
+                                    co2.handle(),
+                                    prev_prox,
+                                    Proximity::Disjoint,
+                                );
+                                self.proximity_events.push(event);
                             }
                         }
                     }
@@ -264,7 +259,6 @@ impl<N: RealField, Handle: Copy> NarrowPhase<N, Handle> {
     pub fn proximity_events(&self) -> &ProximityEvents2<Handle> {
         &self.proximity_events
     }
-
 
     /// Clear the events generated by this narrow-phase.
     pub fn clear_events(&mut self) {

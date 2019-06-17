@@ -41,7 +41,7 @@ And various traits for collision detectors and broad phase collision detection.
 #![deny(unused_parens)]
 #![deny(non_upper_case_globals)]
 #![deny(unused_qualifications)]
-#![deny(missing_docs)]
+#![warn(missing_docs)] // FIXME: should be denied.
 #![deny(unused_results)]
 #![warn(unused_imports)]
 #![allow(missing_copy_implementations)]
@@ -63,7 +63,20 @@ extern crate num_traits as num;
 extern crate slab;
 extern crate smallvec;
 
-pub use crate::pipeline::{broad_phase, events, narrow_phase, world};
+macro_rules! try_ret {
+    ($val: expr) => {
+        try_ret!($val, ())
+    };
+    ($val: expr, $ret: expr) => {
+        if let Some(val) = $val {
+            val
+        } else {
+            return $ret;
+        }
+    }
+}
+
+pub use crate::pipeline::{broad_phase, events, narrow_phase, world, world2};
 
 pub mod bounding_volume;
 pub mod partitioning;

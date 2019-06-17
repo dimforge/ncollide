@@ -4,7 +4,8 @@ use crate::pipeline::broad_phase::BroadPhaseProxyHandle;
 use crate::pipeline::narrow_phase::CollisionObjectGraphIndex2;
 use crate::pipeline::world::{CollisionGroups, GeometricQueryType};
 use crate::query::ContactPrediction;
-use crate::shape::ShapeHandle;
+use crate::shape::Shape;
+use crate::bounding_volume::{self, BoundingVolume, AABB};
 
 use slab::{Iter, Slab};
 use std::ops::{Index, IndexMut};
@@ -40,7 +41,7 @@ impl CollisionObjectUpdateFlags {
 }
 
 pub trait CollisionObjectSet<'a, N: RealField> {
-    type CollisionObject: CollisionObjectRef<'a, N>;
+    type CollisionObject: CollisionObjectRef<'a, N, Handle = Self::Handle>;
     type CollisionObjects: Iterator<Item = (Self::Handle, Self::CollisionObject)>;
     type Handle: Copy;
 
@@ -50,13 +51,34 @@ pub trait CollisionObjectSet<'a, N: RealField> {
 }
 
 pub trait CollisionObjectRef<'a, N: RealField>: Copy {
+    type Handle: Copy;
+
+    fn handle(self) -> Self::Handle;
+    fn is_same_as(self, other: Self) -> bool;
     fn graph_index(self) -> CollisionObjectGraphIndex2;
     fn proxy_handle(self) -> BroadPhaseProxyHandle;
     fn position(self) -> &'a Isometry<N>;
-    fn shape(self) -> &'a ShapeHandle<N>;
+    fn shape(self) -> &'a Shape<N>;
     fn collision_groups(self) -> &'a CollisionGroups;
     fn query_type(self) -> GeometricQueryType<N>;
     fn update_flags(self) -> CollisionObjectUpdateFlags;
+
+    fn compute_aabb(self) -> AABB<N> {
+        let mut aabb = bounding_volume::aabb(self.shape(), self.position());
+        aabb.loosen(self.query_type().query_limit());
+        aabb
+    }
+
+    fn compute_swept_aabb(self, predicted_pos: &Isometry<N>) -> AABB<N> {
+        let shape = self.shape();
+        let mut aabb1 = bounding_volume::aabb(shape, self.position());
+        let mut aabb2 = bounding_volume::aabb(shape, predicted_pos);
+        let margin = self.query_type().query_limit();
+        aabb1.loosen(margin);
+        aabb2.loosen(margin);
+        aabb1.merge(&aabb2);
+        aabb1
+    }
 }
 
 use crate::world::{CollisionObjectSlab, CollisionObject, CollisionObjectHandle};
@@ -96,6 +118,16 @@ impl<'a, N: RealField, T: 'a> CollisionObjectSet<'a, N> for CollisionObjectSlab<
 }
 
 impl<'a, N: RealField, T> CollisionObjectRef<'a, N> for &'a CollisionObject<N, T> {
+    type Handle = CollisionObjectHandle;
+
+    fn handle(self) -> Self::Handle {
+        self.handle()
+    }
+
+    fn is_same_as(self, other: Self) -> bool {
+        self.handle() == other.handle()
+    }
+
     fn graph_index(self) -> CollisionObjectGraphIndex2 {
         self.graph_index()
     }
@@ -108,8 +140,8 @@ impl<'a, N: RealField, T> CollisionObjectRef<'a, N> for &'a CollisionObject<N, T
         self.position()
     }
 
-    fn shape(self) -> &'a ShapeHandle<N> {
-        self.shape()
+    fn shape(self) -> &'a Shape<N> {
+        self.shape().as_ref()
     }
 
     fn collision_groups(self) -> &'a CollisionGroups {

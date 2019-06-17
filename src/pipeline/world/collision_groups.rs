@@ -1,6 +1,8 @@
 use na::RealField;
 use crate::pipeline::broad_phase::BroadPhasePairFilter;
+use crate::pipeline::broad_phase::BroadPhasePairFilter2;
 use crate::pipeline::world::CollisionObject;
+use crate::pipeline::world2::CollisionObjectRef;
 
 const SELF_COLLISION: u32 = 1 << 31;
 const ALL_GROUPS: u32 = (1 << 30) - 1;
@@ -255,6 +257,13 @@ impl CollisionGroups {
     }
 }
 
+impl Default for CollisionGroups {
+    #[inline]
+    fn default() -> Self {
+        CollisionGroups::new()
+    }
+}
+
 /// A collision filter based collision groups.
 pub struct CollisionGroupsPairFilter;
 
@@ -277,9 +286,26 @@ impl<N: RealField, T> BroadPhasePairFilter<N, T> for CollisionGroupsPairFilter {
     }
 }
 
-impl Default for CollisionGroups {
+
+
+/// A collision filter based collision groups.
+pub struct CollisionGroupsPairFilter2;
+
+impl CollisionGroupsPairFilter2 {
+    /// Creates a new collision filter based collision groups.
     #[inline]
-    fn default() -> Self {
-        CollisionGroups::new()
+    pub fn new() -> CollisionGroupsPairFilter2 {
+        CollisionGroupsPairFilter2
+    }
+}
+
+impl<'a, N: RealField, Object: CollisionObjectRef<'a, N>> BroadPhasePairFilter2<'a, N, Object> for CollisionGroupsPairFilter2 {
+    fn is_pair_valid(&self, co1: Object, co2: Object) -> bool {
+        if co1.is_same_as(co2) {
+            co1.collision_groups().can_interact_with_self()
+        } else {
+            co1.collision_groups()
+                .can_interact_with_groups(co2.collision_groups())
+        }
     }
 }

@@ -72,7 +72,7 @@ impl<N: RealField, Handle: Copy> InteractionGraph<N, Handle> {
     ///    map.insert(other_handle, id) ;
     /// }
     /// ```
-    #[must_use = "The graph index returned of the collision object returned by this method has been changed to `id`."]
+    #[must_use = "The graph index of the collision object returned by this method has been changed to `id`."]
     pub fn remove_node(&mut self, id: CollisionObjectGraphIndex) -> Option<Handle> {
         let _ = self.0.remove_node(id);
         self.0.node_weight(id).cloned()
