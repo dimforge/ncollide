@@ -10,7 +10,7 @@ use crate::query::{PointQuery, Ray, RayCast};
 use slab::Slab;
 use std::any::Any;
 use std::collections::hash_map::Entry;
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 use std::mem;
 use crate::utils::{DeterministicState, SortedPair};
 
@@ -32,7 +32,7 @@ struct DBVTBroadPhaseProxy<T> {
 impl<T> DBVTBroadPhaseProxy<T> {
     fn new(data: T) -> DBVTBroadPhaseProxy<T> {
         DBVTBroadPhaseProxy {
-            data: data,
+            data,
             status: ProxyStatus::Detached(None),
             updated: true,
         }
@@ -67,7 +67,7 @@ pub struct DBVTBroadPhase<N: RealField, BV, T> {
     // Just to avoid dynamic allocations.
     collector: Vec<BroadPhaseProxyHandle>,
     leaves_to_update: Vec<DBVTLeaf<N, BroadPhaseProxyHandle, BV>>,
-    proxies_to_update: Vec<(BroadPhaseProxyHandle, BV)>,
+    proxies_to_update: VecDeque<(BroadPhaseProxyHandle, BV)>,
 }
 
 impl<N, BV, T> DBVTBroadPhase<N, BV, T>
@@ -85,8 +85,8 @@ impl<N, BV, T> DBVTBroadPhase<N, BV, T>
             purge_all: false,
             collector: Vec::new(),
             leaves_to_update: Vec::new(),
-            proxies_to_update: Vec::new(),
-            margin: margin,
+            proxies_to_update: VecDeque::new(),
+            margin,
         }
     }
 
@@ -271,7 +271,7 @@ impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
     fn create_proxy(&mut self, bv: BV, data: T) -> BroadPhaseProxyHandle {
         let proxy = DBVTBroadPhaseProxy::new(data);
         let handle = BroadPhaseProxyHandle(self.proxies.insert(proxy));
-        self.proxies_to_update.push((handle, bv));
+        self.proxies_to_update.push_back((handle, bv));
         handle
     }
 
@@ -335,7 +335,7 @@ impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
 
             if needs_update {
                 let new_bv = bounding_volume.loosened(self.margin);
-                self.proxies_to_update.push((handle, new_bv));
+                self.proxies_to_update.push_back((handle, new_bv));
             }
         } else {
             panic!("Attempting to set the bounding volume of an object that does not exist.");
@@ -353,13 +353,11 @@ impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
                 }
             };
 
-            self.proxies_to_update.push((handle, bv));
+            self.proxies_to_update.push_front((handle, bv));
         }
     }
 
     fn deferred_recompute_all_proximities(&mut self) {
-        let mut user_updates = mem::replace(&mut self.proxies_to_update, Vec::new());
-
         for (handle, proxy) in self.proxies.iter() {
             let bv;
             match proxy.status {
@@ -375,10 +373,9 @@ impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
                 }
             }
 
-            self.proxies_to_update.push((BroadPhaseProxyHandle(handle), bv));
+            self.proxies_to_update.push_front((BroadPhaseProxyHandle(handle), bv));
         }
 
-        self.proxies_to_update.append(&mut user_updates);
         self.purge_all = true;
     }
 

@@ -76,11 +76,12 @@ macro_rules! try_ret {
     }
 }
 
-pub use crate::pipeline::{broad_phase, events, narrow_phase, world, world2};
+#[deprecated = "Use the `pipeline` module instead."]
+pub use crate::pipeline::{broad_phase, narrow_phase, world};
 
 pub mod bounding_volume;
 pub mod partitioning;
-mod pipeline;
+pub mod pipeline;
 pub mod procedural;
 pub mod query;
 pub mod shape;
@@ -96,7 +97,7 @@ pub mod math {
     /// The dimension of the space.
     pub const DIM: usize = 3;
 
-    /// The dimension of the ambiant space.
+    /// The dimension of the ambient space.
     pub type Dim = U3;
 
     /// The dimension of a spatial vector.

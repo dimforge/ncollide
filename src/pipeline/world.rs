@@ -1,24 +1,23 @@
-use crate::bounding_volume::{self, BoundingVolume, AABB};
-use crate::math::{Isometry, Point};
+//! High level API to detect collisions in large, complex scenes.
+
+use std::collections::HashMap;
 use na::RealField;
-use crate::pipeline::broad_phase::{
-    BroadPhase, BroadPhasePairFilter, BroadPhasePairFilters, DBVTBroadPhase, BroadPhaseProxyHandle,
-    BroadPhaseInterferenceHandler
-};
-use crate::pipeline::events::{ContactEvent, ContactEvents, ProximityEvents};
+
+use crate::math::{Isometry, Point};
+use crate::shape::{Shape, ShapeHandle};
+use crate::bounding_volume::{AABB, BoundingVolume};
+use crate::query::{ContactManifold, Ray};
+use crate::pipeline::object::{
+    GeometricQueryType, CollisionObjectSet, CollisionObjects, CollisionGroupsPairFilter, CollisionObjectRef,
+    CollisionObject, CollisionObjectSlab, CollisionObjectHandle, CollisionGroups};
+use crate::pipeline::broad_phase::{BroadPhase, DBVTBroadPhase, BroadPhaseProxyHandle, BroadPhasePairFilter, BroadPhaseInterferenceHandler};
 use crate::pipeline::narrow_phase::{
-    DefaultContactDispatcher, NarrowPhase, DefaultProximityDispatcher,
+    NarrowPhase, DefaultContactDispatcher, DefaultProximityDispatcher, InteractionGraph,
     CollisionObjectGraphIndex, Interaction, ContactAlgorithm, ProximityAlgorithm,
-    TemporaryInteractionIndex,
+    TemporaryInteractionIndex, ContactEvents, ProximityEvents,
 };
-use crate::pipeline::world::{
-    CollisionGroups, CollisionGroupsPairFilter, CollisionObject, CollisionObjectHandle,
-    CollisionObjectSlab, CollisionObjects, GeometricQueryType,
-};
-use crate::pipeline::narrow_phase::InteractionGraph;
-use crate::query::{PointQuery, Ray, RayCast, RayIntersection, ContactManifold};
-use crate::shape::ShapeHandle;
-use std::vec::IntoIter;
+use crate::pipeline::glue::{self, InterferencesWithRay, InterferencesWithPoint, InterferencesWithAABB};
+
 
 /// Type of the broad phase trait-object used by the collision world.
 pub type BroadPhaseObject<N> = Box<BroadPhase<N, AABB<N>, CollisionObjectHandle>>;
@@ -31,43 +30,13 @@ pub struct CollisionWorld<N: RealField, T> {
     /// The broad phase used by this collision world.
     pub broad_phase: BroadPhaseObject<N>,
     /// The narrow-phase used by this collision world.
-    pub narrow_phase: NarrowPhase<N>,
+    pub narrow_phase: NarrowPhase<N, CollisionObjectHandle>,
     /// The graph of interactions detected so far.
-    pub interactions: InteractionGraph<N>,
-    pair_filters: BroadPhasePairFilters<N, T>,
-    timestamp: usize, // FIXME: allow modification of the other properties too.
+    pub interactions: InteractionGraph<N, CollisionObjectHandle>,
+    /// A user-defined broad-phase pair filter.
+    pub pair_filters: Option<Box<for <'a> BroadPhasePairFilter<N, &'a CollisionObject<N, T>>>>,
 }
 
-struct CollisionWorldInterferenceHandler<'a, N: RealField, T: 'a> {
-    narrow_phase: &'a mut NarrowPhase<N>,
-    interactions: &'a mut InteractionGraph<N>,
-    objects: &'a CollisionObjectSlab<N, T>,
-    pair_filters: &'a BroadPhasePairFilters<N, T>,
-}
-
-impl <'a, N: RealField, T> BroadPhaseInterferenceHandler<CollisionObjectHandle> for CollisionWorldInterferenceHandler<'a, N, T> {
-    fn is_interference_allowed(&mut self, b1: &CollisionObjectHandle, b2: &CollisionObjectHandle) -> bool {
-        CollisionWorld::filter_collision(&self.pair_filters, &self.objects, *b1, *b2)
-    }
-
-    fn interference_started(&mut self, b1: &CollisionObjectHandle, b2: &CollisionObjectHandle) {
-        self.narrow_phase.handle_interaction(
-            self.interactions,
-            &self.objects,
-            *b1, *b2,
-            true
-        )
-    }
-
-    fn interference_stopped(&mut self, b1: &CollisionObjectHandle, b2: &CollisionObjectHandle) {
-        self.narrow_phase.handle_interaction(
-            &mut self.interactions,
-            &self.objects,
-            *b1, *b2,
-            false
-        )
-    }
-}
 
 impl<N: RealField, T> CollisionWorld<N, T> {
     /// Creates a new collision world.
@@ -86,8 +55,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
             objects,
             broad_phase,
             narrow_phase,
-            pair_filters: BroadPhasePairFilters::new(),
-            timestamp: 0,
+            pair_filters: None,
         }
     }
 
@@ -101,30 +69,30 @@ impl<N: RealField, T> CollisionWorld<N, T> {
         data: T,
     ) -> &mut CollisionObject<N, T>
     {
+        let entry = self.objects.objects.vacant_entry();
+        let handle = CollisionObjectHandle(entry.key());
+        let (proxy_handle, graph_index) = glue::create_proxies(
+            handle,
+            &mut *self.broad_phase,
+            &mut self.interactions,
+            &position,
+            shape.as_ref(),
+            &query_type,
+        );
+
+
         let mut co = CollisionObject::new(
-            CollisionObjectHandle::invalid(),
-            BroadPhaseProxyHandle::invalid(),
-            CollisionObjectGraphIndex::new(0),
+            handle,
+            proxy_handle,
+            graph_index,
             position,
             shape,
             collision_groups,
             query_type,
             data,
         );
-        co.timestamp = self.timestamp;
-        let handle = self.objects.insert(co);
 
-        // Add objects.
-        let co = &mut self.objects[handle];
-        let mut aabb = bounding_volume::aabb(co.shape().as_ref(), co.position());
-        aabb.loosen(co.query_type().query_limit());
-        let proxy_handle = self.broad_phase.create_proxy(aabb, handle);
-        let graph_index = self.narrow_phase.handle_collision_object_added(&mut self.interactions, handle);
-
-        co.set_handle(handle);
-        co.set_proxy_handle(proxy_handle);
-        co.set_graph_index(graph_index);
-        co
+        entry.insert(co)
     }
 
     /// Updates the collision world.
@@ -134,9 +102,13 @@ impl<N: RealField, T> CollisionWorld<N, T> {
     /// 2. Executes the broad phase first.
     /// 3. Executes the narrow phase.
     pub fn update(&mut self) {
-        self.clear_events();
-        self.perform_broad_phase();
-        self.perform_narrow_phase();
+        glue::perform_all_pipeline(
+            &self.objects,
+            &mut *self.broad_phase,
+            &mut self.narrow_phase,
+            &mut self.interactions,
+            self.pair_filters.as_ref().map(|f| &**f)
+        );
     }
 
     /// Empty the contact and proximity event pools.
@@ -148,47 +120,26 @@ impl<N: RealField, T> CollisionWorld<N, T> {
     ///
     /// Panics of any handle is invalid, or if the list contains duplicates.
     pub fn remove(&mut self, handles: &[CollisionObjectHandle]) {
-        {
-            let mut proxy_handles = Vec::new();
-
-            for handle in handles {
-                let co = self
-                    .objects
-                    .get(*handle)
-                    .expect("Removal: collision object not found.");
-                let graph_index = co.graph_index();
-                proxy_handles.push(co.proxy_handle());
-
-                if let Some(handle2) = self.narrow_phase.handle_collision_object_removed(&mut self.interactions, co) {
-                    // Properly transfer the graph index.
-                    self.objects[handle2].set_graph_index(graph_index)
-                }
-            }
-
-            // NOTE: no need to notify the narrow phase in the callback because
-            // the nodes have already been removed in the loop above.
-            self.broad_phase.remove(&proxy_handles, &mut |_, _| {});
-        }
-
         for handle in handles {
-            let _ = self.objects.remove(*handle);
+            let co = self.objects.remove(*handle);
+            let graph_index = co.graph_index();
+            let proxy_handle = co.proxy_handle();
+
+            if let Some((new_handle, new_index)) = glue::remove_proxies(&mut *self.broad_phase, &mut self.interactions, proxy_handle, graph_index) {
+                self.objects[new_handle].set_graph_index(new_index)
+            }
         }
     }
 
     /// Sets the position of the collision object attached to the specified object.
+    #[deprecated = "Call directly the method `.set_position` on the collision object."]
     pub fn set_position(&mut self, handle: CollisionObjectHandle, pos: Isometry<N>) {
-        let co = self
-            .objects
-            .get_mut(handle)
-            .expect("Set position: collision object not found.");
-        co.set_position(pos.clone());
-        co.timestamp = self.timestamp;
-        let mut aabb = bounding_volume::aabb(co.shape().as_ref(), &pos);
-        aabb.loosen(co.query_type().query_limit());
-        self.broad_phase
-            .deferred_set_bounding_volume(co.proxy_handle(), aabb);
+        if let Some(co) = self.objects.get_mut(handle) {
+            co.set_position(pos);
+        }
     }
 
+/*
     /// Sets the position of the collision object attached to the specified object and update its bounding volume
     /// by taking into account its predicted next position.
     pub fn set_position_with_prediction(&mut self, handle: CollisionObjectHandle, pos: Isometry<N>, predicted_pos: &Isometry<N>) {
@@ -206,87 +157,68 @@ impl<N: RealField, T> CollisionWorld<N, T> {
         self.broad_phase
             .deferred_set_bounding_volume(co.proxy_handle(), aabb1);
 
-    }
+    }*/
 
     /// Sets the `GeometricQueryType` of the collision object.
     #[inline]
+    #[deprecated = "Call directly the method `.set_query_type` on the collision object."]
     pub fn set_query_type(&mut self, handle: CollisionObjectHandle, query_type: GeometricQueryType<N>) {
-        let co = self
-            .objects
-            .get_mut(handle)
-            .expect("Set query type: collision object not found.");
-        co.set_query_type(query_type);
-        self.broad_phase.deferred_recompute_all_proximities_with(co.proxy_handle());
+        if let Some(co) = self.objects.get_mut(handle) {
+            co.set_query_type(query_type);
+        }
     }
 
     /// Sets the shape of the given collision object.
     #[inline]
+    #[deprecated = "Call directly the method `.set_shape` on the collision object."]
     pub fn set_shape(&mut self, handle: CollisionObjectHandle, shape: ShapeHandle<N>) {
         if let Some(co) = self.objects.get_mut(handle) {
             co.set_shape(shape);
-
-            let mut aabb = bounding_volume::aabb(co.shape().as_ref(), co.position());
-
-            aabb.loosen(co.query_type().query_limit());
-
-            self.broad_phase.deferred_set_bounding_volume(co.proxy_handle(), aabb);
-            self.broad_phase.deferred_recompute_all_proximities_with(co.proxy_handle());
         }
     }
 
     /// Apply the given deformations to the specified object.
+    #[deprecated = "Call directly the method `.set_deformations` on the collision object."]
     pub fn set_deformations(
         &mut self,
         handle: CollisionObjectHandle,
         coords: &[N],
     )
     {
-        let co = self
-            .objects
-            .get_mut(handle)
-            .expect("Set deformations: collision object not found.");
-        co.set_deformations(coords);
-        co.timestamp = self.timestamp;
-        let mut aabb = bounding_volume::aabb(co.shape().as_ref(), co.position());
-        aabb.loosen(co.query_type().query_limit());
-        self.broad_phase
-            .deferred_set_bounding_volume(co.proxy_handle(), aabb);
+        if let Some(co) = self.objects.get_mut(handle) {
+            co.set_deformations(coords);
+        }
     }
 
-    /// Adds a filter that tells if a potential collision pair should be ignored or not.
+    /// Sets the user-defined filter that tells if a potential collision pair should be ignored or not.
     ///
     /// The proximity filter returns `false` for a given pair of collision objects if they should
     /// be ignored by the narrow phase. Keep in mind that modifying the proximity filter will have
     /// a non-trivial overhead during the next update as it will force re-detection of all
     /// collision pairs.
-    pub fn register_broad_phase_pair_filter<F>(&mut self, name: &str, filter: F)
-    where F: BroadPhasePairFilter<N, T> {
-        self.pair_filters
-            .register_collision_filter(name, Box::new(filter));
+    pub fn set_broad_phase_pair_filter<F>(&mut self, filter: Option<F>)
+    where F: for <'a> BroadPhasePairFilter<N, &'a CollisionObject<N, T>> {
+        self.pair_filters = filter.map(
+            |f| Box::new(f) as Box<for <'a> BroadPhasePairFilter<N, &'a CollisionObject<N, T>>>
+        );
         self.broad_phase.deferred_recompute_all_proximities();
     }
 
-    /// Removes the pair filter named `name`.
-    pub fn unregister_broad_phase_pair_filter(&mut self, name: &str) {
-        if self.pair_filters.unregister_collision_filter(name) {
-            self.broad_phase.deferred_recompute_all_proximities();
-        }
-    }
 
     /// Executes the broad phase of the collision detection pipeline.
     pub fn perform_broad_phase(&mut self) {
-        self.broad_phase.update(&mut CollisionWorldInterferenceHandler {
-            interactions: &mut self.interactions,
-            narrow_phase: &mut self.narrow_phase,
-            pair_filters: &self.pair_filters,
-            objects: &self.objects,
-        });
+        glue::perform_broad_phase(
+            &self.objects,
+            &mut *self.broad_phase,
+            &mut self.narrow_phase,
+            &mut self.interactions,
+            self.pair_filters.as_ref().map(|f| &**f)
+        )
     }
 
     /// Executes the narrow phase of the collision detection pipeline.
     pub fn perform_narrow_phase(&mut self) {
-        self.narrow_phase.update(&mut self.interactions, &self.objects, self.timestamp);
-        self.timestamp = self.timestamp + 1;
+        glue::perform_narrow_phase(&self.objects, &mut self.narrow_phase, &mut self.interactions)
     }
 
     /// The broad-phase aabb for the given collision object.
@@ -336,11 +268,10 @@ impl<N: RealField, T> CollisionWorld<N, T> {
 
     /// Sets the collision groups of the given collision object.
     #[inline]
+    #[deprecated = "Call directly the method `.set_collision_groups` on the collision object."]
     pub fn set_collision_groups(&mut self, handle: CollisionObjectHandle, groups: CollisionGroups) {
         if let Some(co) = self.objects.get_mut(handle) {
             co.set_collision_groups(groups);
-            self.broad_phase
-                .deferred_recompute_all_proximities_with(co.proxy_handle());
         }
     }
 
@@ -350,18 +281,9 @@ impl<N: RealField, T> CollisionWorld<N, T> {
         &'a self,
         ray: &'b Ray<N>,
         groups: &'b CollisionGroups,
-    ) -> InterferencesWithRay<'a, 'b, N, T>
+    ) -> InterferencesWithRay<'a, 'b, N, CollisionObjectSlab<N, T>>
     {
-        // FIXME: avoid allocation.
-        let mut handles = Vec::new();
-        self.broad_phase.interferences_with_ray(ray, &mut handles);
-
-        InterferencesWithRay {
-            ray,
-            groups,
-            objects: &self.objects,
-            handles: handles.into_iter(),
-        }
+        glue::interferences_with_ray(&self.objects, &*self.broad_phase, ray, groups)
     }
 
     /// Computes the interferences between every rigid bodies of a given broad phase, and a point.
@@ -370,19 +292,9 @@ impl<N: RealField, T> CollisionWorld<N, T> {
         &'a self,
         point: &'b Point<N>,
         groups: &'b CollisionGroups,
-    ) -> InterferencesWithPoint<'a, 'b, N, T>
+    ) -> InterferencesWithPoint<'a, 'b, N, CollisionObjectSlab<N, T>>
     {
-        // FIXME: avoid allocation.
-        let mut handles = Vec::new();
-        self.broad_phase
-            .interferences_with_point(point, &mut handles);
-
-        InterferencesWithPoint {
-            point: point,
-            groups: groups,
-            objects: &self.objects,
-            handles: handles.into_iter(),
-        }
+        glue::interferences_with_point(&self.objects, &*self.broad_phase, point, groups)
     }
 
     /// Computes the interferences between every rigid bodies of a given broad phase, and a aabb.
@@ -391,25 +303,17 @@ impl<N: RealField, T> CollisionWorld<N, T> {
         &'a self,
         aabb: &'b AABB<N>,
         groups: &'b CollisionGroups,
-    ) -> InterferencesWithAABB<'a, 'b, N, T>
+    ) -> InterferencesWithAABB<'a, 'b, N, CollisionObjectSlab<N, T>>
     {
-        // FIXME: avoid allocation.
-        let mut handles = Vec::new();
-        self.broad_phase
-            .interferences_with_bounding_volume(aabb, &mut handles);
-
-        InterferencesWithAABB {
-            groups: groups,
-            objects: &self.objects,
-            handles: handles.into_iter(),
-        }
+        glue::interferences_with_aabb(&self.objects, &*self.broad_phase, aabb, groups)
     }
 
     /// Customize the selection of narrowphase collision detection algorithms
-    pub fn set_narrow_phase(&mut self, narrow_phase: NarrowPhase<N>) {
+    pub fn set_narrow_phase(&mut self, narrow_phase: NarrowPhase<N, CollisionObjectHandle>) {
         self.narrow_phase = narrow_phase;
         self.broad_phase.deferred_recompute_all_proximities();
     }
+
 
     /*
      *
@@ -510,7 +414,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
     /// This also returns a mutable reference to the narrow-phase which is necessary for updating the interaction if needed.
     /// For interactions between a collision object and itself, only one mutable reference to the collision object is returned.
     pub fn interactions_with_mut(&mut self, handle: CollisionObjectHandle)
-        -> Option<(&mut NarrowPhase<N>, impl Iterator<Item = (CollisionObjectHandle, CollisionObjectHandle, TemporaryInteractionIndex, &mut Interaction<N>)>)> {
+        -> Option<(&mut NarrowPhase<N, CollisionObjectHandle>, impl Iterator<Item = (CollisionObjectHandle, CollisionObjectHandle, TemporaryInteractionIndex, &mut Interaction<N>)>)> {
         let co = self.objects.get(handle)?;
         let id = co.graph_index();
         Some((&mut self.narrow_phase, self.interactions.interactions_with_mut(id)))
@@ -581,110 +485,12 @@ impl<N: RealField, T> CollisionWorld<N, T> {
      *
      */
     /// The contact events pool.
-    pub fn contact_events(&self) -> &ContactEvents {
+    pub fn contact_events(&self) -> &ContactEvents<CollisionObjectHandle> {
         self.narrow_phase.contact_events()
     }
 
     /// The proximity events pool.
-    pub fn proximity_events(&self) -> &ProximityEvents {
+    pub fn proximity_events(&self) -> &ProximityEvents<CollisionObjectHandle> {
         self.narrow_phase.proximity_events()
-    }
-
-    // Filters by group and by the user-provided callback.
-    #[inline]
-    fn filter_collision(
-        filters: &BroadPhasePairFilters<N, T>,
-        objects: &CollisionObjectSlab<N, T>,
-        handle1: CollisionObjectHandle,
-        handle2: CollisionObjectHandle,
-    ) -> bool
-    {
-        let o1 = &objects[handle1];
-        let o2 = &objects[handle2];
-        let filter_by_groups = CollisionGroupsPairFilter;
-
-        filter_by_groups.is_pair_valid(o1, o2) && filters.is_pair_valid(o1, o2)
-    }
-}
-
-/// Iterator through all the objects on the world that intersect a specific ray.
-pub struct InterferencesWithRay<'a, 'b, N: 'a + RealField, T: 'a> {
-    ray: &'b Ray<N>,
-    objects: &'a CollisionObjectSlab<N, T>,
-    groups: &'b CollisionGroups,
-    handles: IntoIter<&'a CollisionObjectHandle>,
-}
-
-impl<'a, 'b, N: RealField, T> Iterator for InterferencesWithRay<'a, 'b, N, T> {
-    type Item = (&'a CollisionObject<N, T>, RayIntersection<N>);
-
-    #[inline]
-    fn next(&mut self) -> Option<Self::Item> {
-        while let Some(handle) = self.handles.next() {
-            let co = &self.objects[*handle];
-
-            if co.collision_groups().can_interact_with_groups(self.groups) {
-                let inter = co
-                    .shape()
-                    .toi_and_normal_with_ray(&co.position(), self.ray, true);
-
-                if let Some(inter) = inter {
-                    return Some((co, inter));
-                }
-            }
-        }
-
-        None
-    }
-}
-
-/// Iterator through all the objects on the world that intersect a specific point.
-pub struct InterferencesWithPoint<'a, 'b, N: 'a + RealField, T: 'a> {
-    point: &'b Point<N>,
-    objects: &'a CollisionObjectSlab<N, T>,
-    groups: &'b CollisionGroups,
-    handles: IntoIter<&'a CollisionObjectHandle>,
-}
-
-impl<'a, 'b, N: RealField, T> Iterator for InterferencesWithPoint<'a, 'b, N, T> {
-    type Item = &'a CollisionObject<N, T>;
-
-    #[inline]
-    fn next(&mut self) -> Option<Self::Item> {
-        while let Some(handle) = self.handles.next() {
-            let co = &self.objects[*handle];
-
-            if co.collision_groups().can_interact_with_groups(self.groups)
-                && co.shape().contains_point(&co.position(), self.point)
-            {
-                return Some(co);
-            }
-        }
-
-        None
-    }
-}
-
-/// Iterator through all the objects on the world which bounding volume intersects a specific AABB.
-pub struct InterferencesWithAABB<'a, 'b, N: 'a + RealField, T: 'a> {
-    objects: &'a CollisionObjectSlab<N, T>,
-    groups: &'b CollisionGroups,
-    handles: IntoIter<&'a CollisionObjectHandle>,
-}
-
-impl<'a, 'b, N: RealField, T> Iterator for InterferencesWithAABB<'a, 'b, N, T> {
-    type Item = &'a CollisionObject<N, T>;
-
-    #[inline]
-    fn next(&mut self) -> Option<Self::Item> {
-        while let Some(handle) = self.handles.next() {
-            let co = &self.objects[*handle];
-
-            if co.collision_groups().can_interact_with_groups(self.groups) {
-                return Some(co);
-            }
-        }
-
-        None
     }
 }

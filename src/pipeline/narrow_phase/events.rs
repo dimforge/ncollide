@@ -1,6 +1,5 @@
 //! Structures for describing and storing collision-related events.
 
-use crate::pipeline::world::CollisionObjectHandle;
 use crate::query::Proximity;
 use std::iter::IntoIterator;
 use std::slice::Iter;
@@ -13,13 +12,9 @@ pub struct EventPool<E> {
 }
 
 /// A set of contact events.
-pub type ContactEvents = EventPool<ContactEvent>;
+pub type ContactEvents<Handle> = EventPool<ContactEvent<Handle>>;
 /// A set of proximity events.
-pub type ProximityEvents = EventPool<ProximityEvent>;
-/// A set of contact events.
-pub type ContactEvents2<Handle> = EventPool<ContactEvent2<Handle>>;
-/// A set of proximity events.
-pub type ProximityEvents2<Handle> = EventPool<ProximityEvent2<Handle>>;
+pub type ProximityEvents<Handle> = EventPool<ProximityEvent<Handle>>;
 
 impl<E> EventPool<E> {
     /// Creates a new empty set of events.
@@ -66,55 +61,7 @@ impl<'a, E> IntoIterator for &'a EventPool<E> {
 
 #[derive(Copy, Clone, Hash, Debug)]
 /// Events occuring when two collision objects start or stop being in contact (or penetration).
-pub enum ContactEvent {
-    /// Event occuring when two collision objects start being in contact.
-    ///
-    /// This event is generated whenever the narrow-phase finds a contact between two collision objects that did not have any contact at the last update.
-    Started(CollisionObjectHandle, CollisionObjectHandle),
-    /// Event occuring when two collision objects stop being in contact.    
-    /// 
-    /// This event is generated whenever the narrow-phase fails to find any contact between two collision objects that did have at least one contact at the last update.
-    Stopped(CollisionObjectHandle, CollisionObjectHandle),
-}
-
-#[derive(Copy, Clone, Debug)]
-/// Events occuring when two collision objects start or stop being in close proximity, contact, or disjoint.
-pub struct ProximityEvent {
-    /// The first collider to which the proximity event applies.
-    pub collider1: CollisionObjectHandle,
-    /// The second collider to which the proximity event applies.
-    pub collider2: CollisionObjectHandle,
-    /// The previous state of proximity between the two collision objects.
-    pub prev_status: Proximity,
-    /// The new state of proximity between the two collision objects.
-    pub new_status: Proximity,
-}
-
-impl ProximityEvent {
-    /// Instaciates a new proximity event.
-    ///
-    /// Panics if `prev_status` is equal to `new_status`.
-    pub fn new(
-        collider1: CollisionObjectHandle,
-        collider2: CollisionObjectHandle,
-        prev_status: Proximity,
-        new_status: Proximity,
-    ) -> ProximityEvent
-    {
-        assert!(prev_status != new_status);
-        ProximityEvent {
-            collider1,
-            collider2,
-            prev_status,
-            new_status,
-        }
-    }
-}
-
-
-#[derive(Copy, Clone, Hash, Debug)]
-/// Events occuring when two collision objects start or stop being in contact (or penetration).
-pub enum ContactEvent2<Handle> {
+pub enum ContactEvent<Handle> {
     /// Event occuring when two collision objects start being in contact.
     ///
     /// This event is generated whenever the narrow-phase finds a contact between two collision objects that did not have any contact at the last update.
@@ -127,7 +74,7 @@ pub enum ContactEvent2<Handle> {
 
 #[derive(Copy, Clone, Debug)]
 /// Events occuring when two collision objects start or stop being in close proximity, contact, or disjoint.
-pub struct ProximityEvent2<Handle> {
+pub struct ProximityEvent<Handle> {
     /// The first collider to which the proximity event applies.
     pub collider1: Handle,
     /// The second collider to which the proximity event applies.
@@ -138,7 +85,7 @@ pub struct ProximityEvent2<Handle> {
     pub new_status: Proximity,
 }
 
-impl<Handle> ProximityEvent2<Handle> {
+impl<Handle> ProximityEvent<Handle> {
     /// Instantiates a new proximity event.
     ///
     /// Panics if `prev_status` is equal to `new_status`.
