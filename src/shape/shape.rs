@@ -171,7 +171,7 @@ impl<N: RealField> ShapeHandle<N> {
     }
 
     /// Creates a sharable shape handle from a shape trait object.
-    pub fn new_from_box(shape: Box<Shape<N>>) -> ShapeHandle<N> {
+    pub fn from_box(shape: Box<Shape<N>>) -> ShapeHandle<N> {
         ShapeHandle(Arc::new(shape))
     }
 
