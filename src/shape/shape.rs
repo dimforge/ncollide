@@ -166,7 +166,7 @@ pub struct ShapeHandle<N: RealField>(Arc<Box<Shape<N>>>);
 impl<N: RealField> ShapeHandle<N> {
     /// Creates a sharable shape handle from a shape.
     #[inline]
-    pub fn new<S: Shape<N> + Clone>(shape: S) -> ShapeHandle<N> {
+    pub fn new<S: Shape<N>>(shape: S) -> ShapeHandle<N> {
         ShapeHandle(Arc::new(Box::new(shape)))
     }
 
