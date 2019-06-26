@@ -170,6 +170,11 @@ impl<N: RealField> ShapeHandle<N> {
         ShapeHandle(Arc::new(Box::new(shape)))
     }
 
+    /// Creates a sharable shape handle from a shape trait object.
+    pub fn new_from_box(shape: Box<Shape<N>>) -> ShapeHandle<N> {
+        ShapeHandle(Arc::new(shape))
+    }
+
     pub(crate) fn make_mut(&mut self) -> &mut Shape<N> {
         &mut **Arc::make_mut(&mut self.0)
     }
