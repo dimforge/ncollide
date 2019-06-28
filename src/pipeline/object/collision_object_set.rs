@@ -14,17 +14,17 @@ use crate::pipeline::object::{CollisionObject, CollisionObjectHandle, CollisionO
 
 pub trait CollisionObjectSet<'a, N: RealField> {
     type CollisionObject: CollisionObjectRef<'a, N, Handle = Self::Handle>;
-    type CollisionObjects: Iterator<Item = (Self::Handle, Self::CollisionObject)>;
+    type Iter: Iterator<Item = (Self::Handle, Self::CollisionObject)>;
     type Handle: Copy;
 
     fn get(&'a self, handle: Self::Handle) -> Option<Self::CollisionObject>;
     fn contains(&self, handle: Self::Handle) -> bool;
-    fn iter(&'a self) -> Self::CollisionObjects;
+    fn iter(&'a self) -> Self::Iter;
 }
 
 impl<'a, N: RealField, T: 'a> CollisionObjectSet<'a, N> for CollisionObjectSlab<N, T> {
     type CollisionObject = &'a CollisionObject<N, T>;
-    type CollisionObjects = CollisionObjects<'a, N, T>;
+    type Iter = CollisionObjects<'a, N, T>;
     type Handle = CollisionObjectHandle;
 
     fn get(&'a self, handle: Self::Handle) -> Option<Self::CollisionObject> {
@@ -35,7 +35,7 @@ impl<'a, N: RealField, T: 'a> CollisionObjectSet<'a, N> for CollisionObjectSlab<
         self.contains(handle)
     }
 
-    fn iter(&'a self) -> Self::CollisionObjects {
+    fn iter(&'a self) -> Self::Iter {
         CollisionObjects {
             iter: self.objects.iter()
         }
