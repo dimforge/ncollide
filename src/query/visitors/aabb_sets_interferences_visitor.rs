@@ -2,9 +2,10 @@ use crate::bounding_volume::{BoundingVolume, AABB};
 use crate::math::{Isometry, Matrix, Vector};
 use na::RealField;
 use crate::partitioning::{SimultaneousVisitor, VisitStatus};
+use std::marker::PhantomData;
 
 /// Spatial partitioning data structure visitor collecting interferences with a given bounding volume.
-pub struct AABBSetsInterferencesCollector<'a, N: 'a + RealField, T: 'a> {
+pub struct AABBSetsInterferencesVisitor<'a, N: RealField, T, Visitor: FnMut(&T, &T) -> VisitStatus> {
     /// The transform from the local-space of the second bounding volumes to the local space of the first.
     pub ls_m2: &'a Isometry<N>,
     /// The absolute value of the rotation matrix representing `ls_m2.rotation`.
@@ -16,30 +17,32 @@ pub struct AABBSetsInterferencesCollector<'a, N: 'a + RealField, T: 'a> {
     /// AABB pairs closer than `tolerance` will be reported as intersecting.
     pub tolerence: N,
     /// The data contained by the nodes with bounding volumes intersecting `self.bv`.
-    pub collector: &'a mut Vec<(T, T)>,
+    pub visitor: Visitor,
+    _data: PhantomData<&'a T>,
 }
 
-impl<'a, N: RealField, T> AABBSetsInterferencesCollector<'a, N, T> {
-    /// Creates a new `AABBSetsInterferencesCollector`.
+impl<'a, N: RealField, T, Visitor: FnMut(&T, &T) -> VisitStatus> AABBSetsInterferencesVisitor<'a, N, T, Visitor> {
+    /// Creates a new `AABBSetsInterferencesVisitor`.
     #[inline]
     pub fn new(
         tolerence: N,
         ls_m2: &'a Isometry<N>,
         ls_m2_abs_rot: &'a Matrix<N>,
-        collector: &'a mut Vec<(T, T)>,
-    ) -> AABBSetsInterferencesCollector<'a, N, T>
+        visitor: Visitor,
+    ) -> Self
     {
-        AABBSetsInterferencesCollector {
+        Self {
             tolerence,
             ls_m2,
             ls_m2_abs_rot,
-            collector,
+            visitor,
+            _data: PhantomData
         }
     }
 }
 
-impl<'a, N: RealField, T: Clone> SimultaneousVisitor<T, AABB<N>>
-    for AABBSetsInterferencesCollector<'a, N, T>
+impl<'a, N: RealField, T, Visitor: FnMut(&T, &T) -> VisitStatus> SimultaneousVisitor<T, AABB<N>>
+    for AABBSetsInterferencesVisitor<'a, N, T, Visitor>
 {
     #[inline]
     fn visit(
@@ -57,10 +60,10 @@ impl<'a, N: RealField, T: Clone> SimultaneousVisitor<T, AABB<N>>
 
         if left_bv.intersects(&ls_right_bv) {
             if let (Some(a), Some(b)) = (left_data, right_data) {
-                self.collector.push((a.clone(), b.clone()))
+                (self.visitor)(a, b)
+            } else {
+                VisitStatus::Continue
             }
-
-            VisitStatus::Continue
         } else {
             VisitStatus::Stop
         }

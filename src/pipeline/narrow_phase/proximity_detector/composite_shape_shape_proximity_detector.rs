@@ -1,8 +1,9 @@
 use crate::bounding_volume::{self, BoundingVolume};
 use crate::math::Isometry;
 use na::{self, RealField};
+use crate::partitioning::VisitStatus;
 use crate::pipeline::narrow_phase::{ProximityAlgorithm, ProximityDetector, ProximityDispatcher};
-use crate::query::{visitors::BoundingVolumeInterferencesCollector, Proximity};
+use crate::query::{visitors::BoundingVolumeInterferencesVisitor, Proximity};
 use crate::shape::{CompositeShape, Shape};
 use std::collections::{hash_map::Entry, HashMap};
 use crate::utils::DeterministicState;
@@ -12,7 +13,6 @@ pub struct CompositeShapeShapeProximityDetector<N> {
     proximity: Proximity,
     sub_detectors: HashMap<usize, ProximityAlgorithm<N>, DeterministicState>,
     to_delete: Vec<usize>,
-    interferences: Vec<usize>,
     intersecting_key: usize,
     flip: bool,
 }
@@ -24,7 +24,6 @@ impl<N> CompositeShapeShapeProximityDetector<N> {
             proximity: Proximity::Disjoint,
             sub_detectors: HashMap::with_hasher(DeterministicState),
             to_delete: Vec::new(),
-            interferences: Vec::new(),
             intersecting_key: usize::max_value(),
             flip,
         }
@@ -49,7 +48,6 @@ impl<N: RealField> CompositeShapeShapeProximityDetector<N> {
         }
 
         self.to_delete.clear();
-        self.interferences.clear();
 
         // First, test if the previously intersecting shapes are still intersecting.
         if self.proximity == Proximity::Intersecting {
@@ -106,13 +104,7 @@ impl<N: RealField> CompositeShapeShapeProximityDetector<N> {
         }
 
         // Find new proximities.
-        {
-            let mut visitor =
-                BoundingVolumeInterferencesCollector::new(&ls_aabb2, &mut self.interferences);
-            g1.bvh().visit(&mut visitor);
-        }
-
-        for key in &self.interferences {
+        let mut visitor = BoundingVolumeInterferencesVisitor::new(&ls_aabb2, |key| {
             let entry = self.sub_detectors.entry(*key);
             let detector = match entry {
                 Entry::Occupied(entry) => Some(entry.into_mut()),
@@ -148,13 +140,16 @@ impl<N: RealField> CompositeShapeShapeProximityDetector<N> {
                     Proximity::Intersecting => {
                         self.proximity = Proximity::Intersecting;
                         self.intersecting_key = *key;
-                        return; // No need to search further.
+                        return VisitStatus::ExitEarly; // No need to search further.
                     }
                     Proximity::WithinMargin => self.proximity = Proximity::WithinMargin,
                     Proximity::Disjoint => {}
                 }
             }
-        }
+
+            VisitStatus::Continue
+        });
+        g1.bvh().visit(&mut visitor);
 
         // Totally disjoints.
         self.intersecting_key = usize::max_value()

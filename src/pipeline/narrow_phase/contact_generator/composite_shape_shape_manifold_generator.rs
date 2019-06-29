@@ -1,8 +1,9 @@
 use crate::bounding_volume::{self, BoundingVolume};
 use crate::math::Isometry;
 use na::{self, RealField};
+use crate::partitioning::VisitStatus;
 use crate::pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
-use crate::query::{visitors::BoundingVolumeInterferencesCollector, ContactManifold, ContactPrediction,
+use crate::query::{visitors::BoundingVolumeInterferencesVisitor, ContactManifold, ContactPrediction,
                    ContactPreprocessor, ContactTrackingMode};
 use crate::shape::{CompositeShape, Shape};
 use std::collections::{hash_map::Entry, HashMap};
@@ -12,7 +13,6 @@ use crate::utils::IdAllocator;
 /// Collision detector between a concave shape and another shape.
 pub struct CompositeShapeShapeManifoldGenerator<N: RealField> {
     sub_detectors: HashMap<usize, (ContactAlgorithm<N>, usize), DeterministicState>,
-    interferences: Vec<usize>,
     flip: bool,
     timestamp: usize
 }
@@ -22,7 +22,6 @@ impl<N: RealField> CompositeShapeShapeManifoldGenerator<N> {
     pub fn new(flip: bool) -> CompositeShapeShapeManifoldGenerator<N> {
         CompositeShapeShapeManifoldGenerator {
             sub_detectors: HashMap::with_hasher(DeterministicState),
-            interferences: Vec::new(),
             flip,
             timestamp: 0
         }
@@ -48,36 +47,32 @@ impl<N: RealField> CompositeShapeShapeManifoldGenerator<N> {
         // Find new collisions
         let ls_m2 = m1.inverse() * m2.clone();
         let ls_aabb2 = bounding_volume::aabb(g2, &ls_m2).loosened(prediction.linear());
-        
-        {
-            let mut visitor =
-                BoundingVolumeInterferencesCollector::new(&ls_aabb2, &mut self.interferences);
-            g1.bvh().visit(&mut visitor);
-        }
-        
-        for i in self.interferences.drain(..) {
-            match self.sub_detectors.entry(i) {
+        let mut visitor = BoundingVolumeInterferencesVisitor::new(&ls_aabb2, |i| {
+            match self.sub_detectors.entry(*i) {
                 Entry::Occupied(mut entry) => {
                     entry.get_mut().1 = self.timestamp
                 }
                 Entry::Vacant(entry) => {
                     let mut new_detector = None;
-        
-                    g1.map_part_at(i, &Isometry::identity(), &mut |_, g1| {
+
+                    g1.map_part_at(*i, &Isometry::identity(), &mut |_, g1| {
                         if flip {
                             new_detector = dispatcher.get_contact_algorithm(g2, g1)
                         } else {
                             new_detector = dispatcher.get_contact_algorithm(g1, g2)
                         }
                     });
-        
+
                     if let Some(new_detector) = new_detector {
                         let _ = entry.insert((new_detector, self.timestamp));
                     }
                 }
             }
-        }
-        
+
+            VisitStatus::Continue
+        });
+        g1.bvh().visit(&mut visitor);
+
         // Update all collisions
         let timestamp = self.timestamp;
 

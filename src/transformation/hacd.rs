@@ -2,11 +2,11 @@ use crate::bounding_volume::{self, BoundingVolume, AABB};
 use crate::math::Isometry;
 use na::{self, Id, Point3, RealField, Translation3, Vector2, Vector3};
 use crate::num::{Bounded, Zero};
-use crate::partitioning::{BVH, BVT};
+use crate::partitioning::{BVH, BVT, VisitStatus};
 use crate::procedural::{IndexBuffer, TriMesh};
 use crate::query::algorithms::VoronoiSimplex;
 use crate::query::{
-    ray_internal, visitors::BoundingVolumeInterferencesCollector, Ray, RayCast, RayIntersection,
+    ray_internal, visitors::BoundingVolumeInterferencesVisitor, Ray, RayCast, RayIntersection,
 };
 use crate::shape::SupportMap;
 use std::cmp::Ordering;
@@ -535,48 +535,41 @@ impl<N: RealField> DualGraphEdge<N> {
         // FIXME: (optimization) find a way to stop the cast if we exceed the max concavity.
         if !self.iray_cast && self.iv1 == a1.len() && self.iv2 == a2.len() {
             self.iray_cast = true;
-            let mut internal_rays = Vec::new();
-
-            {
-                let aabb = v1.aabb.merged(&v2.aabb);
-                let mut visitor =
-                    BoundingVolumeInterferencesCollector::new(&aabb, &mut internal_rays);
-
-                bvt.visit(&mut visitor);
-            }
-
             let uancestors_v1 = v1.uancestors.as_ref().unwrap();
             let uancestors_v2 = v2.uancestors.as_ref().unwrap();
 
-            for ray_id in internal_rays.iter() {
-                let ray = &rays[*ray_id];
+            let aabb = v1.aabb.merged(&v2.aabb);
+            let mut visitor = {
+                BoundingVolumeInterferencesVisitor::new(&aabb, |ray_id| {
+                    let ray = &rays[*ray_id];
 
-                if !uancestors_v1.contains(ray_id) && !uancestors_v2.contains(ray_id) {
-                    // XXX: we could just remove the zero-dir rays from the ancestors list!
-                    if ray.dir.is_zero() {
-                        // The ray was set to zero if it was invalid.
-                        continue;
+                    if uancestors_v1.contains(ray_id) || uancestors_v2.contains(ray_id) &&
+                       // XXX: we could just remove the zero-dir rays from the ancestors list!
+                       // The ray was set to zero if it was invalid.
+                       ray.dir.is_zero() {
+                        return VisitStatus::Continue;
                     }
 
                     // We determine if the point is inside of the convex hull or not.
                     // XXX: use a point-in-implicit test instead of a ray-cast!
-                    match chull.toi_with_ray(&Isometry::identity(), ray, true) {
-                        None => continue,
-                        Some(inter) => {
-                            if inter.is_zero() {
-                                // ok, the point is inside, performe the real ray-cast.
-                                cast_ray(
-                                    &chull,
-                                    ray,
-                                    *ray_id,
-                                    &mut self.concavity,
-                                    &mut self.ancestors,
-                                );
-                            }
+                    if let Some(inter) = chull.toi_with_ray(&Isometry::identity(), ray, true) {
+                        if inter.is_zero() {
+                            // ok, the point is inside, perform the real ray-cast.
+                            cast_ray(
+                                &chull,
+                                ray,
+                                *ray_id,
+                                &mut self.concavity,
+                                &mut self.ancestors,
+                            );
                         }
                     }
-                }
-            }
+
+                    VisitStatus::Continue
+                })
+            };
+
+            bvt.visit(&mut visitor);
         }
 
         self.mcost = -(self.concavity + max_concavity * self.shape);
