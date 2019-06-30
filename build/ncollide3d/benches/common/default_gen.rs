@@ -53,7 +53,7 @@ impl_rand_default_gen!(bool);
 impl<N: RealField> DefaultGen for Ball<N>
     where Standard: Distribution<N> {
     fn generate<R: Rng>(rng: &mut R) -> Ball<N> {
-        Ball::new(na::abs(&rng.gen::<N>()))
+        Ball::new(rng.gen::<N>().abs())
     }
 }
 
@@ -67,21 +67,21 @@ impl<N: RealField> DefaultGen for Cuboid<N>
 impl<N: RealField> DefaultGen for Capsule<N>
     where Standard: Distribution<N> {
     fn generate<R: Rng>(rng: &mut R) -> Capsule<N> {
-        Capsule::new(na::abs(&rng.gen::<N>()), na::abs(&rng.gen::<N>()))
+        Capsule::new(rng.gen::<N>().abs(), rng.gen::<N>().abs())
     }
 }
 
 impl<N: RealField> DefaultGen for Cone<N>
     where Standard: Distribution<N> {
     fn generate<R: Rng>(rng: &mut R) -> Cone<N> {
-        Cone::new(na::abs(&rng.gen::<N>()), na::abs(&rng.gen::<N>()))
+        Cone::new(rng.gen::<N>().abs(), rng.gen::<N>().abs())
     }
 }
 
 impl<N: RealField> DefaultGen for Cylinder<N>
     where Standard: Distribution<N> {
     fn generate<R: Rng>(rng: &mut R) -> Cylinder<N> {
-        Cylinder::new(na::abs(&rng.gen::<N>()), na::abs(&rng.gen::<N>()))
+        Cylinder::new(rng.gen::<N>().abs(), rng.gen::<N>().abs())
     }
 }
 
@@ -137,6 +137,6 @@ impl<N: RealField> DefaultGen for BoundingSphere<N>
     where Standard: Distribution<N> {
     fn generate<R: Rng>(rng: &mut R) -> BoundingSphere<N> {
         // a bounding sphere centered at the origin.
-        BoundingSphere::new(na::origin(), na::abs(&rng.gen::<N>()))
+        BoundingSphere::new(Point3::origin(), rng.gen::<N>().abs())
     }
 }
