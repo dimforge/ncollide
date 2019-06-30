@@ -9,4 +9,9 @@ impl<N: RealField> HasBoundingVolume<N, BoundingSphere<N>> for Polyline<N> {
     fn bounding_volume(&self, m: &Isometry<N>) -> BoundingSphere<N> {
         self.aabb().bounding_sphere().transform_by(m)
     }
+
+    #[inline]
+    fn local_bounding_volume(&self) -> BoundingSphere<N> {
+        self.aabb().bounding_sphere()
+    }
 }

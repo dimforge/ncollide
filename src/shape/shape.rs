@@ -24,15 +24,28 @@ impl<N: RealField, T: 'static + Shape<N> + Clone> ShapeClone<N> for T {
 ///
 /// This allows dynamic inspection of the shape capabilities.
 pub trait Shape<N: RealField>: Send + Sync + Downcast + ShapeClone<N> {
-    /// The AABB of `self`.
+    /// The AABB of `self` transformed by `m`.
     #[inline]
     fn aabb(&self, m: &Isometry<N>) -> AABB<N>;
 
-    /// The bounding sphere of `self`.
+    /// The AABB of `self`.
+    #[inline]
+    fn local_aabb(&self) -> AABB<N> {
+        self.aabb(&Isometry::identity())
+    }
+
+    /// The bounding sphere of `self` transformed by `m`.
     #[inline]
     fn bounding_sphere(&self, m: &Isometry<N>) -> BoundingSphere<N> {
         let aabb = self.aabb(m);
-        BoundingSphere::new(aabb.center(), aabb.half_extents().norm_squared())
+        BoundingSphere::new(aabb.center(), aabb.half_extents().norm())
+    }
+
+    /// The bounding sphere of `self`.
+    #[inline]
+    fn local_bounding_sphere(&self) -> BoundingSphere<N> {
+        let aabb = self.local_aabb();
+        BoundingSphere::new(aabb.center(), aabb.half_extents().norm())
     }
 
     /// Check if if the feature `_feature` of the `i-th` subshape of `self` transformed by `m` has a tangent
@@ -153,8 +166,13 @@ pub struct ShapeHandle<N: RealField>(Arc<Box<Shape<N>>>);
 impl<N: RealField> ShapeHandle<N> {
     /// Creates a sharable shape handle from a shape.
     #[inline]
-    pub fn new<S: Shape<N> + Clone>(shape: S) -> ShapeHandle<N> {
+    pub fn new<S: Shape<N>>(shape: S) -> ShapeHandle<N> {
         ShapeHandle(Arc::new(Box::new(shape)))
+    }
+
+    /// Creates a sharable shape handle from a shape trait object.
+    pub fn from_box(shape: Box<Shape<N>>) -> ShapeHandle<N> {
+        ShapeHandle(Arc::new(shape))
     }
 
     pub(crate) fn make_mut(&mut self) -> &mut Shape<N> {

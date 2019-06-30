@@ -86,6 +86,11 @@ macro_rules! impl_shape_common (
         }
 
         #[inline]
+        fn local_aabb(&self) -> AABB<N> {
+            bounding_volume::local_aabb(self)
+        }
+
+        #[inline]
         fn bounding_sphere(&self, m: &Isometry<N>) -> BoundingSphere<N> {
             bounding_volume::bounding_sphere(self, m)
         }
@@ -99,7 +104,6 @@ macro_rules! impl_shape_common (
         fn as_point_query(&self) -> Option<&PointQuery<N>> {
             Some(self)
         }
-
     }
 );
 

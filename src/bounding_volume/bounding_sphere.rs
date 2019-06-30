@@ -16,6 +16,18 @@ where
     g.bounding_volume(m)
 }
 
+// Seems useful to help type inference. See issue #84.
+/// Computes the bounding sphere of a shape `g`.
+///
+/// Same as `g.local_bounding_sphere(m)`.
+pub fn local_bounding_sphere<N, G: ?Sized>(g: &G) -> BoundingSphere<N>
+where
+    N: RealField,
+    G: HasBoundingVolume<N, BoundingSphere<N>>,
+{
+    g.local_bounding_volume()
+}
+
 /// A Bounding Sphere.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, PartialEq, Clone)]

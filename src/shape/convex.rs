@@ -383,6 +383,36 @@ impl<N: RealField> ConvexHull<N> {
             FeatureId::Unknown => false,
         }
     }
+
+
+    fn support_feature_id_toward_eps(&self, local_dir: &Unit<Vector<N>>, eps: N) -> FeatureId {
+        let (seps, ceps) = eps.sin_cos();
+        let support_pt_id = utils::point_cloud_support_point_id(local_dir.as_ref(), &self.points);
+        let vertex = &self.vertices[support_pt_id];
+
+        // Check faces.
+        for i in 0..vertex.num_adj_faces_or_edge {
+            let face_id = self.faces_adj_to_vertex[vertex.first_adj_face_or_edge + i];
+            let face = &self.faces[face_id];
+
+            if face.normal.dot(local_dir.as_ref()) >= ceps {
+                return FeatureId::Face(face_id);
+            }
+        }
+
+        // Check edges.
+        for i in 0..vertex.num_adj_faces_or_edge {
+            let edge_id = self.edges_adj_to_vertex[vertex.first_adj_face_or_edge + i];
+            let edge = &self.edges[edge_id];
+
+            if edge.dir.dot(local_dir.as_ref()).abs() <= seps {
+                return FeatureId::Edge(edge_id);
+            }
+        }
+
+        // The vertex is the support feature.
+        FeatureId::Vertex(support_pt_id)
+    }
 }
 
 impl<N: RealField> SupportMap<N> for ConvexHull<N> {
@@ -484,42 +514,36 @@ impl<N: RealField> ConvexPolyhedron<N> for ConvexHull<N> {
         &self,
         transform: &Isometry<N>,
         dir: &Unit<Vector<N>>,
-        _angle: N,
+        angle: N,
         out: &mut ConvexPolygonalFeature<N>,
     )
     {
         out.clear();
-        // FIXME: actualy find the support feature.
-        self.support_face_toward(transform, dir, out)
+        let local_dir = transform.inverse_transform_unit_vector(dir);
+        let fid = self.support_feature_id_toward_eps(&local_dir, angle);
+
+        match fid {
+            FeatureId::Vertex(_) => {
+                let v = self.vertex(fid);
+                out.push(v, fid);
+                out.set_feature_id(fid);
+            }
+            FeatureId::Edge(_) => {
+                let edge = self.edge(fid);
+                out.push(edge.0, edge.2);
+                out.push(edge.1, edge.3);
+                out.set_feature_id(fid);
+                out.push_edge_feature_id(fid);
+            }
+            FeatureId::Face(_) => self.face(fid, out),
+            FeatureId::Unknown => unreachable!()
+        }
+
+        out.transform_by(transform);
     }
 
     fn support_feature_id_toward(&self, local_dir: &Unit<Vector<N>>) -> FeatureId {
         let eps: N = na::convert(f64::consts::PI / 180.0);
-        let (seps, ceps) = eps.sin_cos();
-        let support_pt_id = utils::point_cloud_support_point_id(local_dir.as_ref(), &self.points);
-        let vertex = &self.vertices[support_pt_id];
-
-        // Check faces.
-        for i in 0..vertex.num_adj_faces_or_edge {
-            let face_id = self.faces_adj_to_vertex[vertex.first_adj_face_or_edge + i];
-            let face = &self.faces[face_id];
-
-            if face.normal.dot(local_dir.as_ref()) >= ceps {
-                return FeatureId::Face(face_id);
-            }
-        }
-
-        // Check edges.
-        for i in 0..vertex.num_adj_faces_or_edge {
-            let edge_id = self.edges_adj_to_vertex[vertex.first_adj_face_or_edge + i];
-            let edge = &self.edges[edge_id];
-
-            if edge.dir.dot(local_dir.as_ref()).abs() <= seps {
-                return FeatureId::Edge(edge_id);
-            }
-        }
-
-        // The vertex is the support feature.
-        FeatureId::Vertex(support_pt_id)
+        self.support_feature_id_toward_eps(local_dir, eps)
     }
 }
