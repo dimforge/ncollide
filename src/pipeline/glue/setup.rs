@@ -3,11 +3,11 @@ use na::RealField;
 use crate::math::Isometry;
 use crate::shape::Shape;
 use crate::bounding_volume::{AABB, BoundingVolume};
-use crate::pipeline::object::GeometricQueryType;
+use crate::pipeline::object::{CollisionObjectHandle, GeometricQueryType};
 use crate::pipeline::broad_phase::{BroadPhase, DBVTBroadPhase, BroadPhaseProxyHandle};
 use crate::pipeline::narrow_phase::{NarrowPhase, DefaultContactDispatcher, DefaultProximityDispatcher, InteractionGraph, CollisionObjectGraphIndex};
 
-pub fn create_proxies<'a, N: RealField, Handle: Copy>(handle: Handle,
+pub fn create_proxies<'a, N: RealField, Handle: CollisionObjectHandle>(handle: Handle,
                                                       broad_phase: &mut (impl BroadPhase<N,AABB<N>, Handle> + ?Sized),
                                                       interactions: &mut InteractionGraph<N, Handle>,
                                                       position: &Isometry<N>,
@@ -25,7 +25,7 @@ pub fn create_proxies<'a, N: RealField, Handle: Copy>(handle: Handle,
 
 
 #[must_use = "The graph index of the collision object returned by this method has been changed to the returned graph index."]
-pub fn remove_proxies<'a, N: RealField, Handle: Copy>(
+pub fn remove_proxies<'a, N: RealField, Handle: CollisionObjectHandle>(
     broad_phase: &mut (impl BroadPhase<N,AABB<N>, Handle> + ?Sized),
     interactions: &mut InteractionGraph<N, Handle>,
     proxy_handle: BroadPhaseProxyHandle,
@@ -37,17 +37,17 @@ pub fn remove_proxies<'a, N: RealField, Handle: Copy>(
     interactions.remove_node(graph_index).map(|h| (h, graph_index))
 }
 
-pub fn default_narrow_phase<N: RealField, Handle: Copy>() -> NarrowPhase<N, Handle> {
+pub fn default_narrow_phase<N: RealField, Handle: CollisionObjectHandle>() -> NarrowPhase<N, Handle> {
     let coll_dispatcher = Box::new(DefaultContactDispatcher::new());
     let prox_dispatcher = Box::new(DefaultProximityDispatcher::new());
     NarrowPhase::new(coll_dispatcher, prox_dispatcher)
 }
 
-pub fn default_broad_phase<N: RealField, Handle: Copy>() -> DBVTBroadPhase<N, AABB<N>, Handle> {
+pub fn default_broad_phase<N: RealField, Handle: CollisionObjectHandle>() -> DBVTBroadPhase<N, AABB<N>, Handle> {
     let default_margin = 0.01f64;
     DBVTBroadPhase::new(na::convert(default_margin))
 }
 
-pub fn default_interaction_graph<N: RealField, Handle: Copy>() -> InteractionGraph<N, Handle> {
+pub fn default_interaction_graph<N: RealField, Handle: CollisionObjectHandle>() -> InteractionGraph<N, Handle> {
     InteractionGraph::new()
 }

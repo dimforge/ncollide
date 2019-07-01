@@ -4,7 +4,7 @@ use kiss3d::window::Window;
 use na::{self, Isometry3, Point3};
 use ncollide3d::shape::{Ball, Compound, ConvexHull, Cuboid, Plane, Shape, TriMesh};
 use ncollide3d::transformation;
-use ncollide3d::world::{CollisionObject, CollisionObjectHandle, CollisionWorld};
+use ncollide3d::world::{CollisionObject, CollisionObjectSlabHandle, CollisionWorld};
 use objects::{self, Box, Mesh, Node};
 use rand::{Rng, SeedableRng, XorShiftRng};
 use std::cell::RefCell;
@@ -16,9 +16,9 @@ pub type GraphicsManagerHandle = Rc<RefCell<GraphicsManager>>;
 pub struct GraphicsManager {
     rand: XorShiftRng,
     // FIXME: merge thote three hashaps into a single one.
-    handle2sn: HashMap<CollisionObjectHandle, Vec<Node>>,
-    handle2visible: HashMap<CollisionObjectHandle, bool>,
-    handle2color: HashMap<CollisionObjectHandle, Point3<f32>>,
+    handle2sn: HashMap<CollisionObjectSlabHandle, Vec<Node>>,
+    handle2visible: HashMap<CollisionObjectSlabHandle, bool>,
+    handle2color: HashMap<CollisionObjectSlabHandle, Point3<f32>>,
     arc_ball: ArcBall,
     first_person: FirstPerson,
     curr_is_arc_ball: bool,
@@ -65,7 +65,7 @@ impl GraphicsManager {
         self.aabbs.clear();
     }
 
-    pub fn remove(&mut self, window: &mut Window, handle: CollisionObjectHandle) {
+    pub fn remove(&mut self, window: &mut Window, handle: CollisionObjectSlabHandle) {
         match self.handle2sn.get(&handle) {
             Some(sns) => for sn in sns.iter() {
                 window.remove(&mut sn.scene_node().clone());
@@ -76,7 +76,7 @@ impl GraphicsManager {
         self.handle2sn.remove(&handle);
     }
 
-    pub fn set_color(&mut self, handle: CollisionObjectHandle, color: Point3<f32>) {
+    pub fn set_color(&mut self, handle: CollisionObjectSlabHandle, color: Point3<f32>) {
         self.handle2color.insert(handle, color);
 
         if let Some(ns) = self.handle2sn.get_mut(&handle) {
@@ -86,7 +86,7 @@ impl GraphicsManager {
         }
     }
 
-    pub fn set_visible(&mut self, handle: CollisionObjectHandle, visible: bool) {
+    pub fn set_visible(&mut self, handle: CollisionObjectSlabHandle, visible: bool) {
         if let Some(ns) = self.handle2sn.get_mut(&handle) {
             for n in ns.iter_mut() {
                 n.set_visible(visible)
@@ -372,11 +372,11 @@ impl GraphicsManager {
         self.first_person.look_at(eye, at);
     }
 
-    pub fn scene_nodes(&self, handle: CollisionObjectHandle) -> Option<&Vec<Node>> {
+    pub fn scene_nodes(&self, handle: CollisionObjectSlabHandle) -> Option<&Vec<Node>> {
         self.handle2sn.get(&handle)
     }
 
-    pub fn scene_nodes_mut(&mut self, handle: CollisionObjectHandle) -> Option<&mut Vec<Node>> {
+    pub fn scene_nodes_mut(&mut self, handle: CollisionObjectSlabHandle) -> Option<&mut Vec<Node>> {
         self.handle2sn.get_mut(&handle)
     }
 }

@@ -6,7 +6,7 @@ use kiss3d::text::Font;
 use kiss3d::window::Window;
 use na::{self, Isometry3, Point2, Point3, Vector3};
 use ncollide3d::query::{ray_internal, Ray};
-use ncollide3d::world::{CollisionGroups, CollisionObjectHandle, CollisionWorld};
+use ncollide3d::world::{CollisionGroups, CollisionObjectSlabHandle, CollisionWorld};
 use num::Bounded;
 use std::cell::RefCell;
 use std::path::Path;
@@ -28,7 +28,7 @@ pub struct Testbed {
     graphics: GraphicsManagerHandle,
     running: RunMode,
     font: Rc<Font>,
-    grabbed_object: Option<CollisionObjectHandle>,
+    grabbed_object: Option<CollisionObjectSlabHandle>,
     grabbed_object_plane: (Point3<f32>, Vector3<f32>),
     cursor_pos: Point2<f32>,
     draw_colls: bool,
@@ -66,7 +66,7 @@ impl Testbed {
         self.graphics.borrow_mut().look_at(eye, at);
     }
 
-    pub fn set_color(&mut self, handle: CollisionObjectHandle, color: Point3<f32>) {
+    pub fn set_color(&mut self, handle: CollisionObjectSlabHandle, color: Point3<f32>) {
         self.graphics.borrow_mut().set_color(handle, color);
     }
 
@@ -103,7 +103,7 @@ impl Testbed {
         res
     }
 
-    pub fn set_visible(&mut self, handle: CollisionObjectHandle, visible: bool) {
+    pub fn set_visible(&mut self, handle: CollisionObjectSlabHandle, visible: bool) {
         self.graphics.borrow_mut().set_visible(handle, visible);
     }
 

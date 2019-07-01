@@ -1,8 +1,8 @@
 pub use self::collision_groups::{CollisionGroups, CollisionGroupsPairFilter};
 pub use self::collision_object::{
-    CollisionObjectRef, CollisionObject, CollisionObjectHandle,
+    CollisionObjectRef, CollisionObject, CollisionObjectSlabHandle, CollisionObjectUpdateFlags,
 };
-pub use self::collision_object_set::{CollisionObjectSet, CollisionObjectSlab, CollisionObjects};
+pub use self::collision_object_set::{CollisionObjectSet, CollisionObjectSlab, CollisionObjects, CollisionObjectHandle};
 pub use self::query_type::GeometricQueryType;
 
 

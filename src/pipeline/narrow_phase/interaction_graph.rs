@@ -4,6 +4,7 @@ use na::RealField;
 
 use crate::query::{ContactManifold, Proximity};
 use crate::pipeline::narrow_phase::{ContactAlgorithm, ProximityAlgorithm};
+use crate::pipeline::object::CollisionObjectHandle;
 use petgraph::prelude::EdgeIndex;
 use petgraph::Direction;
 
@@ -45,9 +46,9 @@ impl<N: RealField> Interaction<N> {
 }
 
 /// A graph where nodes are collision objects and edges are contact or proximity algorithms.
-pub struct InteractionGraph<N: RealField, Handle: Copy>(pub(crate) UnGraph<Handle, Interaction<N>, usize>);
+pub struct InteractionGraph<N: RealField, Handle: CollisionObjectHandle>(pub(crate) UnGraph<Handle, Interaction<N>, usize>);
 
-impl<N: RealField, Handle: Copy> InteractionGraph<N, Handle> {
+impl<N: RealField, Handle: CollisionObjectHandle> InteractionGraph<N, Handle> {
     /// Creates a new empty collection of collision objects.
     pub fn new() -> Self {
         InteractionGraph(UnGraph::with_capacity(10, 10))
@@ -62,7 +63,7 @@ impl<N: RealField, Handle: Copy> InteractionGraph<N, Handle> {
     ///
     /// When a node is removed, another node of the graph takes it place. This means that the `CollisionObjectGraphIndex`
     /// of the collision object returned by this method will be equal to `id`. Thus if you maintain
-    /// a map between `CollisionObjectHandle` and `CollisionObjectGraphIndex`, then you should update this
+    /// a map between `CollisionObjectSlabHandle` and `CollisionObjectGraphIndex`, then you should update this
     /// map to associate `id` to the handle returned by this method. For example:
     ///
     /// ```
@@ -332,13 +333,13 @@ impl<N: RealField, Handle: Copy> InteractionGraph<N, Handle> {
 }
 
 
-pub struct InteractionsWithMut<'a, N: RealField, Handle: Copy> {
+pub struct InteractionsWithMut<'a, N: RealField, Handle: CollisionObjectHandle> {
     graph: &'a mut InteractionGraph<N, Handle>,
     incoming_edge: Option<EdgeIndex<usize>>,
     outgoing_edge: Option<EdgeIndex<usize>>,
 }
 
-impl<'a, N: RealField, Handle: Copy> Iterator for InteractionsWithMut<'a, N, Handle> {
+impl<'a, N: RealField, Handle: CollisionObjectHandle> Iterator for InteractionsWithMut<'a, N, Handle> {
     type Item = (Handle, Handle, TemporaryInteractionIndex, &'a mut Interaction<N>);
 
     #[inline]

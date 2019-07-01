@@ -9,13 +9,18 @@ use crate::bounding_volume::{self, BoundingVolume, AABB};
 
 use slab::{Iter, Slab};
 use std::ops::{Index, IndexMut};
-use crate::pipeline::object::{CollisionObject, CollisionObjectHandle, CollisionObjectRef};
+use std::hash::Hash;
+use crate::pipeline::object::{CollisionObject, CollisionObjectSlabHandle, CollisionObjectRef};
 
+pub trait CollisionObjectHandle: Copy + Hash + PartialEq + Eq + 'static + Send + Sync {
+}
+
+impl<T: Copy + Hash + PartialEq + Eq + 'static + Send + Sync> CollisionObjectHandle for T {}
 
 pub trait CollisionObjectSet<'a, N: RealField> {
-    type CollisionObject: CollisionObjectRef<'a, N, Handle = Self::Handle>;
+    type CollisionObject: CollisionObjectRef<'a, N>;
     type Iter: Iterator<Item = (Self::Handle, Self::CollisionObject)>;
-    type Handle: Copy;
+    type Handle: CollisionObjectHandle;
 
     fn get(&'a self, handle: Self::Handle) -> Option<Self::CollisionObject>;
     fn contains(&self, handle: Self::Handle) -> bool;
@@ -25,7 +30,7 @@ pub trait CollisionObjectSet<'a, N: RealField> {
 impl<'a, N: RealField, T: 'a> CollisionObjectSet<'a, N> for CollisionObjectSlab<N, T> {
     type CollisionObject = &'a CollisionObject<N, T>;
     type Iter = CollisionObjects<'a, N, T>;
-    type Handle = CollisionObjectHandle;
+    type Handle = CollisionObjectSlabHandle;
 
     fn get(&'a self, handle: Self::Handle) -> Option<Self::CollisionObject> {
         self.get(handle)
@@ -57,27 +62,27 @@ impl<N: RealField, T> CollisionObjectSlab<N, T> {
 
     /// Inserts a new collision object into this collection and returns the corresponding handle.
     #[inline]
-    pub fn insert(&mut self, co: CollisionObject<N, T>) -> CollisionObjectHandle {
-        CollisionObjectHandle(self.objects.insert(co))
+    pub fn insert(&mut self, co: CollisionObject<N, T>) -> CollisionObjectSlabHandle {
+        CollisionObjectSlabHandle(self.objects.insert(co))
     }
 
     /// Removes from this collection the collision object identified by the given handle.
     ///
     /// The removed collision object structure is returned.
     #[inline]
-    pub fn remove(&mut self, handle: CollisionObjectHandle) -> CollisionObject<N, T> {
+    pub fn remove(&mut self, handle: CollisionObjectSlabHandle) -> CollisionObject<N, T> {
         self.objects.remove(handle.0)
     }
 
     /// If it exists, retrieves a reference to the collision object identified by the given handle.
     #[inline]
-    pub fn get(&self, handle: CollisionObjectHandle) -> Option<&CollisionObject<N, T>> {
+    pub fn get(&self, handle: CollisionObjectSlabHandle) -> Option<&CollisionObject<N, T>> {
         self.objects.get(handle.0)
     }
 
     /// If it exists, retrieves a mutable reference to the collision object identified by the given handle.
     #[inline]
-    pub fn get_mut(&mut self, handle: CollisionObjectHandle) -> Option<&mut CollisionObject<N, T>> {
+    pub fn get_mut(&mut self, handle: CollisionObjectSlabHandle) -> Option<&mut CollisionObject<N, T>> {
         self.objects.get_mut(handle.0)
     }
 
@@ -86,8 +91,8 @@ impl<N: RealField, T> CollisionObjectSlab<N, T> {
     /// Panics if both handles are equal.
     #[inline]
     pub fn get_pair_mut(&mut self,
-                        handle1: CollisionObjectHandle,
-                        handle2: CollisionObjectHandle)
+                        handle1: CollisionObjectSlabHandle,
+                        handle2: CollisionObjectSlabHandle)
                         -> (Option<&mut CollisionObject<N, T>>, Option<&mut CollisionObject<N, T>>) {
         assert_ne!(handle1, handle2, "The two handles must not be the same.");
         let a = self.objects.get_mut(handle1.0).map(|o| o as *mut _);
@@ -96,7 +101,7 @@ impl<N: RealField, T> CollisionObjectSlab<N, T> {
 
     /// Returns `true` if the specified handle identifies a collision object stored in this collection.
     #[inline]
-    pub fn contains(&self, handle: CollisionObjectHandle) -> bool {
+    pub fn contains(&self, handle: CollisionObjectSlabHandle) -> bool {
         self.objects.contains(handle.0)
     }
 
@@ -115,18 +120,18 @@ impl<N: RealField, T> CollisionObjectSlab<N, T> {
     }
 }
 
-impl<N: RealField, T> Index<CollisionObjectHandle> for CollisionObjectSlab<N, T> {
+impl<N: RealField, T> Index<CollisionObjectSlabHandle> for CollisionObjectSlab<N, T> {
     type Output = CollisionObject<N, T>;
 
     #[inline]
-    fn index(&self, handle: CollisionObjectHandle) -> &Self::Output {
+    fn index(&self, handle: CollisionObjectSlabHandle) -> &Self::Output {
         &self.objects[handle.0]
     }
 }
 
-impl<N: RealField, T> IndexMut<CollisionObjectHandle> for CollisionObjectSlab<N, T> {
+impl<N: RealField, T> IndexMut<CollisionObjectSlabHandle> for CollisionObjectSlab<N, T> {
     #[inline]
-    fn index_mut(&mut self, handle: CollisionObjectHandle) -> &mut Self::Output {
+    fn index_mut(&mut self, handle: CollisionObjectSlabHandle) -> &mut Self::Output {
         &mut self.objects[handle.0]
     }
 }
@@ -137,10 +142,10 @@ pub struct CollisionObjects<'a, N: 'a + RealField, T: 'a> {
 }
 
 impl<'a, N: 'a + RealField, T: 'a> Iterator for CollisionObjects<'a, N, T> {
-    type Item = (CollisionObjectHandle, &'a CollisionObject<N, T>);
+    type Item = (CollisionObjectSlabHandle, &'a CollisionObject<N, T>);
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
-        self.iter.next().map(|obj| ((CollisionObjectHandle(obj.0), obj.1)))
+        self.iter.next().map(|obj| ((CollisionObjectSlabHandle(obj.0), obj.1)))
     }
 }

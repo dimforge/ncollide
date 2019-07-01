@@ -11,7 +11,7 @@ use crate::pipeline::narrow_phase::{NarrowPhase, DefaultContactDispatcher, Defau
 struct CollisionWorldInterferenceHandler<'a, 'b, N, Objects, Filter>
     where N: RealField,
           Objects: CollisionObjectSet<'a, N>,
-          Filter: BroadPhasePairFilter<N, Objects::CollisionObject> + ?Sized {
+          Filter: BroadPhasePairFilter<N, Objects::CollisionObject, Objects::Handle> + ?Sized {
     narrow_phase: &'b mut NarrowPhase<N, Objects::Handle>,
     interactions: &'b mut InteractionGraph<N, Objects::Handle>,
     objects: &'a Objects,
@@ -20,14 +20,14 @@ struct CollisionWorldInterferenceHandler<'a, 'b, N, Objects, Filter>
 
 impl <'a, 'b, N: RealField, Objects, Filter> BroadPhaseInterferenceHandler<Objects::Handle> for CollisionWorldInterferenceHandler<'a, 'b, N, Objects, Filter>
     where Objects: CollisionObjectSet<'a, N>,
-          Filter: BroadPhasePairFilter<N, Objects::CollisionObject> + ?Sized {
+          Filter: BroadPhasePairFilter<N, Objects::CollisionObject, Objects::Handle> + ?Sized {
     fn is_interference_allowed(&mut self, b1: &Objects::Handle, b2: &Objects::Handle) -> bool {
         let o1 = try_ret!(self.objects.get(*b1), false);
         let o2 = try_ret!(self.objects.get(*b2), false);
         let filter_by_groups = CollisionGroupsPairFilter;
 
-        filter_by_groups.is_pair_valid(o1, o2) &&
-            self.pair_filters.map(|f| f.is_pair_valid(o1, o2)).unwrap_or(true)
+        filter_by_groups.is_pair_valid(o1, o2, *b1, *b2) &&
+            self.pair_filters.map(|f| f.is_pair_valid(o1, o2, *b1, *b2)).unwrap_or(true)
     }
 
     fn interference_started(&mut self, b1: &Objects::Handle, b2: &Objects::Handle) {
@@ -53,7 +53,7 @@ pub fn perform_broad_phase<'a, N: RealField, Objects>(objects: &'a Objects,
                                                       broad_phase: &mut (impl BroadPhase<N, AABB<N>, Objects::Handle> + ?Sized),
                                                       narrow_phase: &mut NarrowPhase<N, Objects::Handle>,
                                                       interactions: &mut InteractionGraph<N, Objects::Handle>,
-                                                      pair_filters: Option<&'a (impl BroadPhasePairFilter<N, Objects::CollisionObject> + ?Sized)>)
+                                                      pair_filters: Option<&'a (impl BroadPhasePairFilter<N, Objects::CollisionObject, Objects::Handle> + ?Sized)>)
     where Objects: CollisionObjectSet<'a, N> {
 
     // Take changes into account.
@@ -92,7 +92,7 @@ pub fn perform_all_pipeline<'a, N, Objects>(objects: &'a Objects,
                                           broad_phase: &mut (impl BroadPhase<N, AABB<N>, Objects::Handle> + ?Sized),
                                           narrow_phase: &mut NarrowPhase<N, Objects::Handle>,
                                           interactions: &mut InteractionGraph<N, Objects::Handle>,
-                                          pair_filters: Option<&'a (impl BroadPhasePairFilter<N, Objects::CollisionObject> + ?Sized)>)
+                                          pair_filters: Option<&'a (impl BroadPhasePairFilter<N, Objects::CollisionObject, Objects::Handle> + ?Sized)>)
     where N: RealField,
           Objects: CollisionObjectSet<'a, N> {
     perform_broad_phase(objects, broad_phase, narrow_phase, interactions, pair_filters);
@@ -103,7 +103,7 @@ pub fn perform_all_pipeline<'a, N, Objects>(objects: &'a Objects,
 
 /*
     /// The broad-phase aabb for the given collision object.
-    pub fn broad_phase_aabb(&self, handle: CollisionObjectHandle) -> Option<&AABB<N>> {
+    pub fn broad_phase_aabb(&self, handle: CollisionObjectSlabHandle) -> Option<&AABB<N>> {
         let co = self.objects.get(handle)?;
         self.broad_phase.proxy(co.proxy_handle()).map(|p| p.0)
     }

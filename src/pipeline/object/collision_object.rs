@@ -40,10 +40,6 @@ impl CollisionObjectUpdateFlags {
 }
 
 pub trait CollisionObjectRef<'a, N: RealField>: Copy {
-    type Handle: Copy;
-
-    fn handle(self) -> Self::Handle;
-    fn is_same_as(self, other: Self) -> bool;
     fn graph_index(self) -> CollisionObjectGraphIndex;
     fn proxy_handle(self) -> BroadPhaseProxyHandle;
     fn position(self) -> &'a Isometry<N>;
@@ -73,12 +69,12 @@ pub trait CollisionObjectRef<'a, N: RealField>: Copy {
 /// The unique identifier of a collision object.
 #[derive(Copy, Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub struct CollisionObjectHandle(pub usize);
+pub struct CollisionObjectSlabHandle(pub usize);
 
-impl CollisionObjectHandle {
+impl CollisionObjectSlabHandle {
     #[inline]
     pub(crate) fn invalid() -> Self {
-        CollisionObjectHandle(usize::max_value())
+        CollisionObjectSlabHandle(usize::max_value())
     }
 
     /// The unique identifier corresponding to this handle.
@@ -90,7 +86,6 @@ impl CollisionObjectHandle {
 
 /// A stand-alone object that has a position and a shape.
 pub struct CollisionObject<N: RealField, T> {
-    handle: CollisionObjectHandle,
     proxy_handle: BroadPhaseProxyHandle,
     graph_index: CollisionObjectGraphIndex,
     position: Isometry<N>,
@@ -104,7 +99,6 @@ pub struct CollisionObject<N: RealField, T> {
 impl<N: RealField, T> CollisionObject<N, T> {
     /// Creates a new collision object.
     pub fn new(
-        handle: CollisionObjectHandle,
         proxy_handle: BroadPhaseProxyHandle,
         graph_index: CollisionObjectGraphIndex,
         position: Isometry<N>,
@@ -115,7 +109,6 @@ impl<N: RealField, T> CollisionObject<N, T> {
     ) -> CollisionObject<N, T>
     {
         CollisionObject {
-            handle,
             proxy_handle,
             graph_index,
             position,
@@ -125,12 +118,6 @@ impl<N: RealField, T> CollisionObject<N, T> {
             query_type,
             update_flags: CollisionObjectUpdateFlags::all(),
         }
-    }
-
-    /// The collision object unique handle.
-    #[inline]
-    pub fn handle(&self) -> CollisionObjectHandle {
-        self.handle
     }
 
     /// The collision object non-stable graph index.
@@ -143,8 +130,16 @@ impl<N: RealField, T> CollisionObject<N, T> {
 
     /// Sets the collision object unique but non-stable graph index.
     #[inline]
-    pub(crate) fn set_graph_index(&mut self, index: CollisionObjectGraphIndex) {
+    pub fn set_graph_index(&mut self, index: CollisionObjectGraphIndex) {
         self.graph_index = index
+    }
+
+    pub fn update_flags_mut(&mut self) -> &mut CollisionObjectUpdateFlags {
+        &mut self.update_flags
+    }
+
+    pub fn clear_update_flags(&mut self) {
+        self.update_flags = CollisionObjectUpdateFlags::empty()
     }
 
     /// The collision object's broad phase proxy unique identifier.
@@ -233,16 +228,6 @@ impl<N: RealField, T> CollisionObject<N, T> {
 
 
 impl<'a, N: RealField, T> CollisionObjectRef<'a, N> for &'a CollisionObject<N, T> {
-    type Handle = CollisionObjectHandle;
-
-    fn handle(self) -> Self::Handle {
-        self.handle()
-    }
-
-    fn is_same_as(self, other: Self) -> bool {
-        self.handle() == other.handle()
-    }
-
     fn graph_index(self) -> CollisionObjectGraphIndex {
         self.graph_index()
     }

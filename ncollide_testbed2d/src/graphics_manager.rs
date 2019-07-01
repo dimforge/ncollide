@@ -11,15 +11,15 @@ use na;
 use na::{Isometry2, Point3};
 use ncollide2d::shape::{Ball, Compound, ConvexPolygon, Cuboid, Plane, Polyline, Segment, Shape};
 use ncollide2d::transformation;
-use ncollide2d::world::{CollisionObject, CollisionObjectHandle, CollisionWorld};
+use ncollide2d::world::{CollisionObject, CollisionObjectSlabHandle, CollisionWorld};
 use objects::{self, Box, Lines, SceneNode};
 
 pub type GraphicsManagerHandle<N> = Rc<RefCell<GraphicsManager<'static, N>>>;
 
 pub struct GraphicsManager<'a, N: RealField> {
     rand: XorShiftRng,
-    handle2sn: HashMap<CollisionObjectHandle, Vec<SceneNode<'a, N>>>,
-    handle2color: HashMap<CollisionObjectHandle, Point3<u8>>,
+    handle2sn: HashMap<CollisionObjectSlabHandle, Vec<SceneNode<'a, N>>>,
+    handle2color: HashMap<CollisionObjectSlabHandle, Point3<u8>>,
 }
 
 impl<'a, N: RealField + ToPrimitive> GraphicsManager<'a, N> {
@@ -213,7 +213,7 @@ impl<'a, N: RealField + ToPrimitive> GraphicsManager<'a, N> {
         c.activate_ui(rw);
     }
 
-    pub fn set_color(&mut self, handle: CollisionObjectHandle, color: Point3<f32>) {
+    pub fn set_color(&mut self, handle: CollisionObjectSlabHandle, color: Point3<f32>) {
         let color = Point3::new(
             (color.x * 255.0) as u8,
             (color.y * 255.0) as u8,
@@ -229,7 +229,7 @@ impl<'a, N: RealField + ToPrimitive> GraphicsManager<'a, N> {
         }
     }
 
-    pub fn color_for_object(&mut self, handle: CollisionObjectHandle) -> Point3<u8> {
+    pub fn color_for_object(&mut self, handle: CollisionObjectSlabHandle) -> Point3<u8> {
         match self.handle2color.get(&handle) {
             Some(color) => return *color,
             None => {}
@@ -248,7 +248,7 @@ impl<'a, N: RealField + ToPrimitive> GraphicsManager<'a, N> {
 
     pub fn scene_node(
         &mut self,
-        handle: CollisionObjectHandle,
+        handle: CollisionObjectSlabHandle,
     ) -> Option<&mut Vec<SceneNode<'a, N>>> {
         self.handle2sn.get_mut(&handle)
     }
