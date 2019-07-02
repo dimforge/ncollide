@@ -1,6 +1,5 @@
 use crate::bounding_volume::{self, BoundingVolume, AABB};
-use crate::math::{Isometry, Point};
-use na::RealField;
+use crate::math::{Isometry, Point, Rotation, Translation, Vector};
 use crate::pipeline::broad_phase::{
     BroadPhase, BroadPhasePairFilter, BroadPhasePairFilters, DBVTBroadPhase, ProxyHandle,
     BroadPhaseInterferenceHandler
@@ -14,8 +13,11 @@ use crate::pipeline::world::{
     CollisionGroups, CollisionGroupsPairFilter, CollisionObject, CollisionObjectHandle,
     CollisionObjectSlab, CollisionObjects, GeometricQueryType,
 };
-use crate::query::{PointQuery, Ray, RayCast, RayIntersection, ContactManifold};
-use crate::shape::ShapeHandle;
+use crate::query::{
+    time_of_impact_and_normal, ContactManifold, PointQuery, Ray, RayCast, RayIntersection,
+};
+use crate::shape::{Shape, ShapeHandle};
+use na::{RealField, Unit};
 use std::vec::IntoIter;
 
 /// Type of the broad phase trait-object used by the collision world.
@@ -64,6 +66,22 @@ impl <'a, N: RealField, T> BroadPhaseInterferenceHandler<CollisionObjectHandle> 
             false
         )
     }
+}
+
+/// Structure containing the result of a successful sweep test.
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct SweepTestIntersection<N: RealField> {
+    /// The time of impact of the shape with the object. The exact contact point
+    /// can be computed with `origin + dir * toi` where `origin` is the origin
+    /// of the sweep test; `dir` is its direction and `toi` is the value of this
+    /// field.
+    pub toi: N,
+
+    /// The normal at the intersection point, pointing from the intersection
+    /// point towards the shape used for the sweep test.
+    ///
+    /// If the `toi` is exactly zero, the normal might not be reliable.
+    pub normal: Unit<Vector<N>>,
 }
 
 impl<N: RealField, T> CollisionWorld<N, T> {
@@ -379,6 +397,50 @@ impl<N: RealField, T> CollisionWorld<N, T> {
             objects: &self.objects,
             handles: handles.into_iter(),
         }
+    }
+
+    /// Returns all objects in the collision world that intersect with the shape
+    /// transformed by `isometry` along `direction` until `maximum_distance` is
+    /// reached. The objects are not returned in any particular order. You may
+    /// use the `toi` returned for each object to determine the closest object.
+    #[inline]
+    pub fn sweep_test<'a>(
+        &'a self,
+        shape: &'a Shape<N>,
+        isometry: &'a Isometry<N>,
+        direction: &'a Unit<Vector<N>>,
+        maximum_distance: N,
+        groups: &'a CollisionGroups,
+    ) -> impl Iterator<Item = (CollisionObjectHandle, SweepTestIntersection<N>)> + 'a {
+        let a = shape.aabb(&isometry);
+        let b = shape.aabb(&Isometry::from_parts(
+            Translation::from(isometry.translation.vector + direction.as_ref() * maximum_distance),
+            Rotation::identity(),
+        ));
+        let aabb = a.merged(&b);
+
+        // FIXME: avoid allocation.
+        let interferences: Vec<_> = self.interferences_with_aabb(&aabb, groups).collect();
+
+        interferences.into_iter().filter_map(move |x| {
+            time_of_impact_and_normal(
+                &isometry,
+                &direction,
+                shape,
+                x.position(),
+                &Vector::zeros(),
+                x.shape().as_ref(),
+            )
+            .map(|(toi, normal)| {
+                (
+                    x.handle(),
+                    SweepTestIntersection {
+                        toi,
+                        normal: Unit::new_unchecked(normal),
+                    },
+                )
+            })
+        })
     }
 
     /// Customize the selection of narrowphase collision detection algorithms
