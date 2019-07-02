@@ -8,6 +8,7 @@ pub use self::collision_object::{
 pub use self::collision_world::{
     BroadPhaseObject, CollisionWorld, InterferencesWithAABB, InterferencesWithPoint,
     InterferencesWithRay,
+    SweepTestIntersection,
 };
 
 mod collision_groups;
