@@ -55,10 +55,10 @@ impl<N: RealField, Handle: CollisionObjectHandle> NarrowPhase<N, Handle> {
     }
 
     /// Update the specified contact manifold between two collision objects.
-    pub fn update_contact<'a>(
+    pub fn update_contact(
         &mut self,
-        co1: impl CollisionObjectRef<'a, N>,
-        co2: impl CollisionObjectRef<'a, N>,
+        co1: &impl CollisionObjectRef<N>,
+        co2: &impl CollisionObjectRef<N>,
         handle1: Handle,
         handle2: Handle,
         detector: &mut ContactManifoldGenerator<N>,
@@ -103,10 +103,10 @@ impl<N: RealField, Handle: CollisionObjectHandle> NarrowPhase<N, Handle> {
     }
 
     /// Update the specified proximity between two collision objects.
-    pub fn update_proximity<'a>(
+    pub fn update_proximity(
         &mut self,
-        co1: impl CollisionObjectRef<'a, N>,
-        co2: impl CollisionObjectRef<'a, N>,
+        co1: &impl CollisionObjectRef<N>,
+        co2: &impl CollisionObjectRef<N>,
         handle1: Handle,
         handle2: Handle,
         detector: &mut ProximityDetector<N>) {
@@ -134,10 +134,10 @@ impl<N: RealField, Handle: CollisionObjectHandle> NarrowPhase<N, Handle> {
     }
 
     /// Update the specified interaction between two collision objects.
-    pub fn update_interaction<'a>(
+    pub fn update_interaction(
         &mut self,
-        co1: impl CollisionObjectRef<'a, N>,
-        co2: impl CollisionObjectRef<'a, N>,
+        co1: &impl CollisionObjectRef<N>,
+        co2: &impl CollisionObjectRef<N>,
         handle1: Handle,
         handle2: Handle,
         interaction: &mut Interaction<N>) {
@@ -155,18 +155,18 @@ impl<N: RealField, Handle: CollisionObjectHandle> NarrowPhase<N, Handle> {
     /// interactions pairs reported by the broad-phase.
     ///
     /// This will push relevant events to `contact_events` and `proximity_events`.
-    pub fn update<'a, Objects>(
+    pub fn update<Objects>(
         &mut self,
-        interactions: &mut InteractionGraph<N, Objects::Handle>,
-        objects: &'a Objects)
-        where Objects: CollisionObjectSet<'a, N, Handle = Handle>
+        interactions: &mut InteractionGraph<N, Objects::CollisionObjectHandle>,
+        objects: &Objects)
+        where Objects: CollisionObjectSet<N, CollisionObjectHandle = Handle>
     {
         for eid in interactions.0.edge_indices() {
             let (id1, id2) = interactions.0.edge_endpoints(eid).unwrap();
             let handle1 = interactions.0[id1];
             let handle2 = interactions.0[id2];
-            let co1 = objects.get(handle1).unwrap();
-            let co2 = objects.get(handle2).unwrap();
+            let co1 = objects.collision_object(handle1).unwrap();
+            let co2 = objects.collision_object(handle2).unwrap();
             let flags1 = co1.update_flags();
             let flags2 = co2.update_flags();
 
@@ -180,20 +180,20 @@ impl<N: RealField, Handle: CollisionObjectHandle> NarrowPhase<N, Handle> {
     }
 
     /// Handles a pair of collision objects detected as either started or stopped interacting.
-    pub fn handle_interaction<'a, Objects>(
+    pub fn handle_interaction<Objects>(
         &mut self,
-        interactions: &mut InteractionGraph<N, Objects::Handle>,
-        objects: &'a Objects,
-        mut handle1: Objects::Handle,
-        mut handle2: Objects::Handle,
+        interactions: &mut InteractionGraph<N, Objects::CollisionObjectHandle>,
+        objects: &Objects,
+        mut handle1: Objects::CollisionObjectHandle,
+        mut handle2: Objects::CollisionObjectHandle,
         started: bool,
     )
-        where Objects: CollisionObjectSet<'a, N, Handle = Handle>
+        where Objects: CollisionObjectSet<N, CollisionObjectHandle = Handle>
     {
-        let mut co1 = objects.get(handle1).unwrap();
-        let mut co2 = objects.get(handle2).unwrap();
-        let mut id1 = co1.graph_index();
-        let mut id2 = co2.graph_index();
+        let mut co1 = objects.collision_object(handle1).unwrap();
+        let mut co2 = objects.collision_object(handle2).unwrap();
+        let mut id1 = co1.graph_index().expect(crate::NOT_REGISTERED_ERROR);
+        let mut id2 = co2.graph_index().expect(crate::NOT_REGISTERED_ERROR);
 
         if id1 > id2 {
             std::mem::swap(&mut co1, &mut co2);

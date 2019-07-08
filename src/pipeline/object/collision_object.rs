@@ -39,22 +39,22 @@ impl CollisionObjectUpdateFlags {
     }
 }
 
-pub trait CollisionObjectRef<'a, N: RealField>: Copy {
-    fn graph_index(self) -> CollisionObjectGraphIndex;
-    fn proxy_handle(self) -> BroadPhaseProxyHandle;
-    fn position(self) -> &'a Isometry<N>;
-    fn shape(self) -> &'a Shape<N>;
-    fn collision_groups(self) -> &'a CollisionGroups;
-    fn query_type(self) -> GeometricQueryType<N>;
-    fn update_flags(self) -> CollisionObjectUpdateFlags;
+pub trait CollisionObjectRef<N: RealField> {
+    fn graph_index(&self) -> Option<CollisionObjectGraphIndex>;
+    fn proxy_handle(&self) -> Option<BroadPhaseProxyHandle>;
+    fn position(&self) -> &Isometry<N>;
+    fn shape(&self) -> &Shape<N>;
+    fn collision_groups(&self) -> &CollisionGroups;
+    fn query_type(&self) -> GeometricQueryType<N>;
+    fn update_flags(&self) -> CollisionObjectUpdateFlags;
 
-    fn compute_aabb(self) -> AABB<N> {
+    fn compute_aabb(&self) -> AABB<N> {
         let mut aabb = bounding_volume::aabb(self.shape(), self.position());
         aabb.loosen(self.query_type().query_limit());
         aabb
     }
 
-    fn compute_swept_aabb(self, predicted_pos: &Isometry<N>) -> AABB<N> {
+    fn compute_swept_aabb(&self, predicted_pos: &Isometry<N>) -> AABB<N> {
         let shape = self.shape();
         let mut aabb1 = bounding_volume::aabb(shape, self.position());
         let mut aabb2 = bounding_volume::aabb(shape, predicted_pos);
@@ -86,8 +86,8 @@ impl CollisionObjectSlabHandle {
 
 /// A stand-alone object that has a position and a shape.
 pub struct CollisionObject<N: RealField, T> {
-    proxy_handle: BroadPhaseProxyHandle,
-    graph_index: CollisionObjectGraphIndex,
+    proxy_handle: Option<BroadPhaseProxyHandle>,
+    graph_index: Option<CollisionObjectGraphIndex>,
     position: Isometry<N>,
     shape: ShapeHandle<N>,
     collision_groups: CollisionGroups,
@@ -99,8 +99,8 @@ pub struct CollisionObject<N: RealField, T> {
 impl<N: RealField, T> CollisionObject<N, T> {
     /// Creates a new collision object.
     pub fn new(
-        proxy_handle: BroadPhaseProxyHandle,
-        graph_index: CollisionObjectGraphIndex,
+        proxy_handle: Option<BroadPhaseProxyHandle>,
+        graph_index: Option<CollisionObjectGraphIndex>,
         position: Isometry<N>,
         shape: ShapeHandle<N>,
         groups: CollisionGroups,
@@ -109,8 +109,8 @@ impl<N: RealField, T> CollisionObject<N, T> {
     ) -> CollisionObject<N, T>
     {
         CollisionObject {
-            proxy_handle,
-            graph_index,
+            proxy_handle: None,
+            graph_index: None,
             position,
             shape,
             collision_groups: groups,
@@ -124,13 +124,13 @@ impl<N: RealField, T> CollisionObject<N, T> {
     ///
     /// This index may change whenever a collision object is removed from the world.
     #[inline]
-    pub fn graph_index(&self) -> CollisionObjectGraphIndex {
+    pub fn graph_index(&self) -> Option<CollisionObjectGraphIndex> {
         self.graph_index
     }
 
     /// Sets the collision object unique but non-stable graph index.
     #[inline]
-    pub fn set_graph_index(&mut self, index: CollisionObjectGraphIndex) {
+    pub fn set_graph_index(&mut self, index: Option<CollisionObjectGraphIndex>) {
         self.graph_index = index
     }
 
@@ -144,8 +144,14 @@ impl<N: RealField, T> CollisionObject<N, T> {
 
     /// The collision object's broad phase proxy unique identifier.
     #[inline]
-    pub fn proxy_handle(&self) -> BroadPhaseProxyHandle {
+    pub fn proxy_handle(&self) -> Option<BroadPhaseProxyHandle> {
         self.proxy_handle
+    }
+
+    /// Set collision object's broad phase proxy unique identifier.
+    #[inline]
+    pub fn set_proxy_handle(&mut self, handle: Option<BroadPhaseProxyHandle>) {
+        self.proxy_handle = handle
     }
 
     /// The collision object position.
@@ -227,32 +233,32 @@ impl<N: RealField, T> CollisionObject<N, T> {
 }
 
 
-impl<'a, N: RealField, T> CollisionObjectRef<'a, N> for &'a CollisionObject<N, T> {
-    fn graph_index(self) -> CollisionObjectGraphIndex {
+impl<N: RealField, T> CollisionObjectRef<N> for CollisionObject<N, T> {
+    fn graph_index(&self) -> Option<CollisionObjectGraphIndex> {
         self.graph_index()
     }
 
-    fn proxy_handle(self) -> BroadPhaseProxyHandle {
+    fn proxy_handle(&self) -> Option<BroadPhaseProxyHandle> {
         self.proxy_handle()
     }
 
-    fn position(self) -> &'a Isometry<N> {
+    fn position(&self) -> &Isometry<N> {
         self.position()
     }
 
-    fn shape(self) -> &'a Shape<N> {
+    fn shape(&self) -> &Shape<N> {
         self.shape().as_ref()
     }
 
-    fn collision_groups(self) -> &'a CollisionGroups {
+    fn collision_groups(&self) -> &CollisionGroups {
         self.collision_groups()
     }
 
-    fn query_type(self) -> GeometricQueryType<N> {
+    fn query_type(&self) -> GeometricQueryType<N> {
         self.query_type()
     }
 
-    fn update_flags(self) -> CollisionObjectUpdateFlags {
+    fn update_flags(&self) -> CollisionObjectUpdateFlags {
         self.update_flags
     }
 }

@@ -17,32 +17,25 @@ pub trait CollisionObjectHandle: Copy + Hash + PartialEq + Eq + 'static + Send +
 
 impl<T: Copy + Hash + PartialEq + Eq + 'static + Send + Sync> CollisionObjectHandle for T {}
 
-pub trait CollisionObjectSet<'a, N: RealField> {
-    type CollisionObject: CollisionObjectRef<'a, N>;
-    type Iter: Iterator<Item = (Self::Handle, Self::CollisionObject)>;
-    type Handle: CollisionObjectHandle;
+pub trait CollisionObjectSet<N: RealField> {
+    type CollisionObject: CollisionObjectRef<N>;
+    type CollisionObjectHandle: CollisionObjectHandle;
 
-    fn get(&'a self, handle: Self::Handle) -> Option<Self::CollisionObject>;
-    fn contains(&self, handle: Self::Handle) -> bool;
-    fn iter(&'a self) -> Self::Iter;
+    fn collision_object(&self, handle: Self::CollisionObjectHandle) -> Option<&Self::CollisionObject>;
+    fn foreach(&self, f: impl FnMut(Self::CollisionObjectHandle, &Self::CollisionObject));
 }
 
-impl<'a, N: RealField, T: 'a> CollisionObjectSet<'a, N> for CollisionObjectSlab<N, T> {
-    type CollisionObject = &'a CollisionObject<N, T>;
-    type Iter = CollisionObjects<'a, N, T>;
-    type Handle = CollisionObjectSlabHandle;
+impl<N: RealField, T> CollisionObjectSet<N> for CollisionObjectSlab<N, T> {
+    type CollisionObject = CollisionObject<N, T>;
+    type CollisionObjectHandle = CollisionObjectSlabHandle;
 
-    fn get(&'a self, handle: Self::Handle) -> Option<Self::CollisionObject> {
+    fn collision_object(&self, handle: Self::CollisionObjectHandle) -> Option<&Self::CollisionObject> {
         self.get(handle)
     }
 
-    fn contains(&self, handle: Self::Handle) -> bool {
-        self.contains(handle)
-    }
-
-    fn iter(&'a self) -> Self::Iter {
-        CollisionObjects {
-            iter: self.objects.iter()
+    fn foreach(&self, mut f: impl FnMut(Self::CollisionObjectHandle, &Self::CollisionObject)) {
+        for co in self.objects.iter() {
+            f(CollisionObjectSlabHandle(co.0), co.1)
         }
     }
 }

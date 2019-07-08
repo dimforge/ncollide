@@ -274,8 +274,8 @@ impl CollisionGroupsPairFilter {
     }
 }
 
-impl<'a, N: RealField, Object: CollisionObjectRef<'a, N>, Handle: CollisionObjectHandle> BroadPhasePairFilter<N, Object, Handle> for CollisionGroupsPairFilter {
-    fn is_pair_valid(&self, co1: Object, co2: Object, h1: Handle, h2: Handle) -> bool {
+impl<N: RealField, Object: CollisionObjectRef<N>, Handle: CollisionObjectHandle> BroadPhasePairFilter<N, Object, Handle> for CollisionGroupsPairFilter {
+    fn is_pair_valid(&self, co1: &Object, co2: &Object, h1: Handle, h2: Handle) -> bool {
         if h1 == h2 {
             co1.collision_groups().can_interact_with_self()
         } else {

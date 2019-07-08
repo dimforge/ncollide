@@ -8,12 +8,12 @@ use crate::pipeline::object::{CollisionObjectRef, CollisionObjectSet, CollisionG
 use crate::pipeline::broad_phase::BroadPhase;
 
 pub fn interferences_with_ray<'a, 'b, N, Objects>(objects: &'a Objects,
-                                                  broad_phase: &'a (impl BroadPhase<N, AABB<N>, Objects::Handle> + ?Sized),
+                                                  broad_phase: &'a (impl BroadPhase<N, AABB<N>, Objects::CollisionObjectHandle> + ?Sized),
                                                   ray: &'b Ray<N>,
                                                   groups: &'b CollisionGroups)
                                                   -> InterferencesWithRay<'a, 'b, N, Objects>
     where N: RealField,
-          Objects: CollisionObjectSet<'a, N> {
+          Objects: CollisionObjectSet<N> {
     let mut handles = Vec::new();
     broad_phase.interferences_with_ray(ray, &mut handles);
 
@@ -26,22 +26,22 @@ pub fn interferences_with_ray<'a, 'b, N, Objects>(objects: &'a Objects,
 }
 
 /// Iterator through all the objects on the world that intersect a specific ray.
-pub struct InterferencesWithRay<'a, 'b, N: RealField, Objects: CollisionObjectSet<'a, N>> {
+pub struct InterferencesWithRay<'a, 'b, N: RealField, Objects: CollisionObjectSet<N>> {
     ray: &'b Ray<N>,
     objects: &'a Objects,
     groups: &'b CollisionGroups,
-    handles: IntoIter<&'a Objects::Handle>,
+    handles: IntoIter<&'a Objects::CollisionObjectHandle>,
 }
 
 impl<'a, 'b, N: RealField, Objects> Iterator for InterferencesWithRay<'a, 'b, N, Objects>
     where N: RealField,
-          Objects: CollisionObjectSet<'a, N> {
-    type Item = (Objects::CollisionObject, RayIntersection<N>);
+          Objects: CollisionObjectSet<N> {
+    type Item = (&'a Objects::CollisionObject, RayIntersection<N>);
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         while let Some(handle) = self.handles.next() {
-            if let Some(co) = self.objects.get(*handle) {
+            if let Some(co) = self.objects.collision_object(*handle) {
                 if co.collision_groups().can_interact_with_groups(self.groups) {
                     let inter = co
                         .shape()
@@ -60,12 +60,12 @@ impl<'a, 'b, N: RealField, Objects> Iterator for InterferencesWithRay<'a, 'b, N,
 
 
 pub fn interferences_with_point<'a, 'b, N, Objects>(objects: &'a Objects,
-                                                    broad_phase: &'a (impl BroadPhase<N, AABB<N>, Objects::Handle> + ?Sized),
+                                                    broad_phase: &'a (impl BroadPhase<N, AABB<N>, Objects::CollisionObjectHandle> + ?Sized),
                                                     point: &'b Point<N>,
                                                     groups: &'b CollisionGroups)
                                                     -> InterferencesWithPoint<'a, 'b, N, Objects>
     where N: RealField,
-          Objects: CollisionObjectSet<'a, N> {
+          Objects: CollisionObjectSet<N> {
     let mut handles = Vec::new();
     broad_phase.interferences_with_point(point, &mut handles);
 
@@ -78,22 +78,22 @@ pub fn interferences_with_point<'a, 'b, N, Objects>(objects: &'a Objects,
 }
 
 /// Iterator through all the objects on the world that intersect a specific point.
-pub struct InterferencesWithPoint<'a, 'b, N: RealField, Objects: CollisionObjectSet<'a, N>> {
+pub struct InterferencesWithPoint<'a, 'b, N: RealField, Objects: CollisionObjectSet<N>> {
     point: &'b Point<N>,
     objects: &'a Objects,
     groups: &'b CollisionGroups,
-    handles: IntoIter<&'a Objects::Handle>,
+    handles: IntoIter<&'a Objects::CollisionObjectHandle>,
 }
 
 impl<'a, 'b, N: RealField, Objects> Iterator for InterferencesWithPoint<'a, 'b, N, Objects>
     where N: RealField,
-          Objects: CollisionObjectSet<'a, N> {
-    type Item = Objects::CollisionObject;
+          Objects: CollisionObjectSet<N> {
+    type Item = &'a Objects::CollisionObject;
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         while let Some(handle) = self.handles.next() {
-            if let Some(co) = self.objects.get(*handle) {
+            if let Some(co) = self.objects.collision_object(*handle) {
                 if co.collision_groups().can_interact_with_groups(self.groups)
                     && co.shape().contains_point(&co.position(), self.point)
                 {
@@ -108,12 +108,12 @@ impl<'a, 'b, N: RealField, Objects> Iterator for InterferencesWithPoint<'a, 'b, 
 
 
 pub fn interferences_with_aabb<'a, 'b, N, Objects>(objects: &'a Objects,
-                                                   broad_phase: &'a (impl BroadPhase<N, AABB<N>, Objects::Handle> + ?Sized),
+                                                   broad_phase: &'a (impl BroadPhase<N, AABB<N>, Objects::CollisionObjectHandle> + ?Sized),
                                                    aabb: &AABB<N>,
                                                    groups: &'b CollisionGroups)
                                                    -> InterferencesWithAABB<'a, 'b, N, Objects>
     where N: RealField,
-          Objects: CollisionObjectSet<'a, N> {
+          Objects: CollisionObjectSet<N> {
     let mut handles = Vec::new();
     broad_phase.interferences_with_bounding_volume(aabb, &mut handles);
 
@@ -125,19 +125,19 @@ pub fn interferences_with_aabb<'a, 'b, N, Objects>(objects: &'a Objects,
 }
 
 /// Iterator through all the objects on the world which bounding volume intersects a specific AABB.
-pub struct InterferencesWithAABB<'a, 'b, N: RealField, Objects: CollisionObjectSet<'a, N>> {
+pub struct InterferencesWithAABB<'a, 'b, N: RealField, Objects: CollisionObjectSet<N>> {
     objects: &'a Objects,
     groups: &'b CollisionGroups,
-    handles: IntoIter<&'a Objects::Handle>,
+    handles: IntoIter<&'a Objects::CollisionObjectHandle>,
 }
 
-impl<'a, 'b, N: RealField, Objects: CollisionObjectSet<'a, N>> Iterator for InterferencesWithAABB<'a, 'b, N, Objects> {
-    type Item = Objects::CollisionObject;
+impl<'a, 'b, N: RealField, Objects: CollisionObjectSet<N>> Iterator for InterferencesWithAABB<'a, 'b, N, Objects> {
+    type Item = &'a Objects::CollisionObject;
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         while let Some(handle) = self.handles.next() {
-            if let Some(co) = self.objects.get(*handle) {
+            if let Some(co) = self.objects.collision_object(*handle) {
                 if co.collision_groups().can_interact_with_groups(self.groups) {
                     return Some(co);
                 }

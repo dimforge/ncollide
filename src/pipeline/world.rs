@@ -34,7 +34,7 @@ pub struct CollisionWorld<N: RealField, T> {
     /// The graph of interactions detected so far.
     pub interactions: InteractionGraph<N, CollisionObjectSlabHandle>,
     /// A user-defined broad-phase pair filter.
-    pub pair_filters: Option<Box<for <'a> BroadPhasePairFilter<N, &'a CollisionObject<N, T>, CollisionObjectSlabHandle>>>,
+    pub pair_filters: Option<Box<BroadPhasePairFilter<N, CollisionObject<N, T>, CollisionObjectSlabHandle>>>,
 }
 
 
@@ -77,13 +77,13 @@ impl<N: RealField, T> CollisionWorld<N, T> {
             &mut self.interactions,
             &position,
             shape.as_ref(),
-            &query_type,
+            query_type,
         );
 
 
         let mut co = CollisionObject::new(
-            proxy_handle,
-            graph_index,
+            Some(proxy_handle),
+            Some(graph_index),
             position,
             shape,
             collision_groups,
@@ -121,11 +121,11 @@ impl<N: RealField, T> CollisionWorld<N, T> {
     pub fn remove(&mut self, handles: &[CollisionObjectSlabHandle]) {
         for handle in handles {
             let co = self.objects.remove(*handle);
-            let graph_index = co.graph_index();
-            let proxy_handle = co.proxy_handle();
+            let graph_index = co.graph_index().expect(crate::NOT_REGISTERED_ERROR);
+            let proxy_handle = co.proxy_handle().expect(crate::NOT_REGISTERED_ERROR);
 
             if let Some((new_handle, new_index)) = glue::remove_proxies(&mut *self.broad_phase, &mut self.interactions, proxy_handle, graph_index) {
-                self.objects[new_handle].set_graph_index(new_index)
+                self.objects[new_handle].set_graph_index(Some(new_index))
             }
         }
     }
@@ -196,9 +196,9 @@ impl<N: RealField, T> CollisionWorld<N, T> {
     /// a non-trivial overhead during the next update as it will force re-detection of all
     /// collision pairs.
     pub fn set_broad_phase_pair_filter<F>(&mut self, filter: Option<F>)
-    where F: for <'a> BroadPhasePairFilter<N, &'a CollisionObject<N, T>, CollisionObjectSlabHandle> {
+    where F: BroadPhasePairFilter<N, CollisionObject<N, T>, CollisionObjectSlabHandle> {
         self.pair_filters = filter.map(
-            |f| Box::new(f) as Box<for <'a> BroadPhasePairFilter<N, &'a CollisionObject<N, T>, CollisionObjectSlabHandle>>
+            |f| Box::new(f) as Box<BroadPhasePairFilter<N, CollisionObject<N, T>, CollisionObjectSlabHandle>>
         );
         self.broad_phase.deferred_recompute_all_proximities();
     }
@@ -222,8 +222,9 @@ impl<N: RealField, T> CollisionWorld<N, T> {
 
     /// The broad-phase aabb for the given collision object.
     pub fn broad_phase_aabb(&self, handle: CollisionObjectSlabHandle) -> Option<&AABB<N>> {
-        let co = self.objects.get(handle)?;
-        self.broad_phase.proxy(co.proxy_handle()).map(|p| p.0)
+        let co = self.objects.collision_object(handle)?;
+        let proxy_handle = co.proxy_handle().expect(crate::NOT_REGISTERED_ERROR);
+        self.broad_phase.proxy(proxy_handle).map(|p| p.0)
     }
 
     /// Iterates through all collision objects.
@@ -239,12 +240,12 @@ impl<N: RealField, T> CollisionWorld<N, T> {
         handle: CollisionObjectSlabHandle,
     ) -> Option<&CollisionObject<N, T>>
     {
-        self.objects.get(handle)
+        self.objects.collision_object(handle)
     }
 
     /// Returns a mutable reference to the collision object identified by its handle.
     #[inline]
-    pub fn collision_object_mut(
+    pub fn get_mut(
         &mut self,
         handle: CollisionObjectSlabHandle,
     ) -> Option<&mut CollisionObject<N, T>>
@@ -363,10 +364,10 @@ impl<N: RealField, T> CollisionWorld<N, T> {
     /// for details.
     pub fn interaction_pair(&self, handle1: CollisionObjectSlabHandle, handle2: CollisionObjectSlabHandle, effective_only: bool)
         -> Option<(CollisionObjectSlabHandle, CollisionObjectSlabHandle, &Interaction<N>)> {
-        let co1 = self.objects.get(handle1)?;
-        let co2 = self.objects.get(handle2)?;
-        let id1 = co1.graph_index();
-        let id2 = co2.graph_index();
+        let co1 = self.objects.collision_object(handle1)?;
+        let co2 = self.objects.collision_object(handle2)?;
+        let id1 = co1.graph_index().expect(crate::NOT_REGISTERED_ERROR);
+        let id2 = co2.graph_index().expect(crate::NOT_REGISTERED_ERROR);
         self.interactions.interaction_pair(id1, id2, effective_only)
     }
 
@@ -376,10 +377,10 @@ impl<N: RealField, T> CollisionWorld<N, T> {
     /// for details.
     pub fn contact_pair(&self, handle1: CollisionObjectSlabHandle, handle2: CollisionObjectSlabHandle, effective_only: bool)
         -> Option<(CollisionObjectSlabHandle, CollisionObjectSlabHandle, &ContactAlgorithm<N>, &ContactManifold<N>)> {
-        let co1 = self.objects.get(handle1)?;
-        let co2 = self.objects.get(handle2)?;
-        let id1 = co1.graph_index();
-        let id2 = co2.graph_index();
+        let co1 = self.objects.collision_object(handle1)?;
+        let co2 = self.objects.collision_object(handle2)?;
+        let id1 = co1.graph_index().expect(crate::NOT_REGISTERED_ERROR);
+        let id2 = co2.graph_index().expect(crate::NOT_REGISTERED_ERROR);
         self.interactions.contact_pair(id1, id2, effective_only)
     }
 
@@ -390,10 +391,10 @@ impl<N: RealField, T> CollisionWorld<N, T> {
     /// for details.
     pub fn proximity_pair(&self, handle1: CollisionObjectSlabHandle, handle2: CollisionObjectSlabHandle, effective_only: bool)
         -> Option<(CollisionObjectSlabHandle, CollisionObjectSlabHandle, &ProximityAlgorithm<N>)> {
-        let co1 = self.objects.get(handle1)?;
-        let co2 = self.objects.get(handle2)?;
-        let id1 = co1.graph_index();
-        let id2 = co2.graph_index();
+        let co1 = self.objects.collision_object(handle1)?;
+        let co2 = self.objects.collision_object(handle2)?;
+        let id1 = co1.graph_index().expect(crate::NOT_REGISTERED_ERROR);
+        let id2 = co2.graph_index().expect(crate::NOT_REGISTERED_ERROR);
         self.interactions.proximity_pair(id1, id2, effective_only)
     }
 
@@ -403,8 +404,8 @@ impl<N: RealField, T> CollisionWorld<N, T> {
     /// for details.
     pub fn interactions_with(&self, handle: CollisionObjectSlabHandle, effective_only: bool)
         -> Option<impl Iterator<Item = (CollisionObjectSlabHandle, CollisionObjectSlabHandle, &Interaction<N>)>> {
-        let co = self.objects.get(handle)?;
-        let id = co.graph_index();
+        let co = self.objects.collision_object(handle)?;
+        let id = co.graph_index().expect(crate::NOT_REGISTERED_ERROR);
         Some(self.interactions.interactions_with(id, effective_only))
     }
 
@@ -414,8 +415,8 @@ impl<N: RealField, T> CollisionWorld<N, T> {
     /// For interactions between a collision object and itself, only one mutable reference to the collision object is returned.
     pub fn interactions_with_mut(&mut self, handle: CollisionObjectSlabHandle)
         -> Option<(&mut NarrowPhase<N, CollisionObjectSlabHandle>, impl Iterator<Item = (CollisionObjectSlabHandle, CollisionObjectSlabHandle, TemporaryInteractionIndex, &mut Interaction<N>)>)> {
-        let co = self.objects.get(handle)?;
-        let id = co.graph_index();
+        let co = self.objects.collision_object(handle)?;
+        let id = co.graph_index().expect(crate::NOT_REGISTERED_ERROR);
         Some((&mut self.narrow_phase, self.interactions.interactions_with_mut(id)))
     }
 
@@ -425,8 +426,8 @@ impl<N: RealField, T> CollisionWorld<N, T> {
     /// for details.
     pub fn proximities_with(&self, handle: CollisionObjectSlabHandle, effective_only: bool)
         -> Option<impl Iterator<Item = (CollisionObjectSlabHandle, CollisionObjectSlabHandle, &ProximityAlgorithm<N>)>> {
-        let co = self.objects.get(handle)?;
-        let id = co.graph_index();
+        let co = self.objects.collision_object(handle)?;
+        let id = co.graph_index().expect(crate::NOT_REGISTERED_ERROR);
         Some(self.interactions.proximities_with(id, effective_only))
     }
 
@@ -436,8 +437,8 @@ impl<N: RealField, T> CollisionWorld<N, T> {
     /// for details.
     pub fn contacts_with(&self, handle: CollisionObjectSlabHandle, effective_only: bool)
         -> Option<impl Iterator<Item = (CollisionObjectSlabHandle, CollisionObjectSlabHandle, &ContactAlgorithm<N>, &ContactManifold<N>)>> {
-        let co = self.objects.get(handle)?;
-        let id = co.graph_index();
+        let co = self.objects.collision_object(handle)?;
+        let id = co.graph_index().expect(crate::NOT_REGISTERED_ERROR);
         Some(self.interactions.contacts_with(id, effective_only))
     }
 
@@ -447,8 +448,8 @@ impl<N: RealField, T> CollisionWorld<N, T> {
     /// for details.
     pub fn collision_objects_interacting_with<'a>(&'a self, handle: CollisionObjectSlabHandle)
         -> Option<impl Iterator<Item = CollisionObjectSlabHandle> + 'a> {
-        let co = self.objects.get(handle)?;
-        let id = co.graph_index();
+        let co = self.objects.collision_object(handle)?;
+        let id = co.graph_index().expect(crate::NOT_REGISTERED_ERROR);
         Some(self.interactions.collision_objects_interacting_with(id))
     }
 
@@ -459,8 +460,8 @@ impl<N: RealField, T> CollisionWorld<N, T> {
     /// for details.
     pub fn collision_objects_in_contact_with<'a>(&'a self, handle: CollisionObjectSlabHandle)
         -> Option<impl Iterator<Item = CollisionObjectSlabHandle> + 'a> {
-        let co = self.objects.get(handle)?;
-        let id = co.graph_index();
+        let co = self.objects.collision_object(handle)?;
+        let id = co.graph_index().expect(crate::NOT_REGISTERED_ERROR);
         Some(self.interactions.collision_objects_in_contact_with(id))
     }
 
@@ -472,8 +473,8 @@ impl<N: RealField, T> CollisionWorld<N, T> {
     /// for details.
     pub fn collision_objects_in_proximity_of<'a>(&'a self, handle: CollisionObjectSlabHandle)
         -> Option<impl Iterator<Item = CollisionObjectSlabHandle> + 'a> {
-        let co = self.objects.get(handle)?;
-        let id = co.graph_index();
+        let co = self.objects.collision_object(handle)?;
+        let id = co.graph_index().expect(crate::NOT_REGISTERED_ERROR);
         Some(self.interactions.collision_objects_in_proximity_of(id))
     }
 

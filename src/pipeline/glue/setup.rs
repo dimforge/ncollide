@@ -12,7 +12,7 @@ pub fn create_proxies<'a, N: RealField, Handle: CollisionObjectHandle>(handle: H
                                                       interactions: &mut InteractionGraph<N, Handle>,
                                                       position: &Isometry<N>,
                                                       shape: &(impl Shape<N> + ?Sized),
-                                                      query_type: &GeometricQueryType<N>)
+                                                      query_type: GeometricQueryType<N>)
                                                       -> (BroadPhaseProxyHandle, CollisionObjectGraphIndex) {
     let mut aabb = shape.aabb(position);
     aabb.loosen(query_type.query_limit());
