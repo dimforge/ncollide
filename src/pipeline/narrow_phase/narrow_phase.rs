@@ -184,22 +184,16 @@ impl<N: RealField, Handle: CollisionObjectHandle> NarrowPhase<N, Handle> {
         &mut self,
         interactions: &mut InteractionGraph<N, Objects::CollisionObjectHandle>,
         objects: &Objects,
-        mut handle1: Objects::CollisionObjectHandle,
-        mut handle2: Objects::CollisionObjectHandle,
+        handle1: Objects::CollisionObjectHandle,
+        handle2: Objects::CollisionObjectHandle,
         started: bool,
     )
         where Objects: CollisionObjectSet<N, CollisionObjectHandle = Handle>
     {
-        let mut co1 = objects.collision_object(handle1).unwrap();
-        let mut co2 = objects.collision_object(handle2).unwrap();
-        let mut id1 = co1.graph_index().expect(crate::NOT_REGISTERED_ERROR);
-        let mut id2 = co2.graph_index().expect(crate::NOT_REGISTERED_ERROR);
-
-        if id1 > id2 {
-            std::mem::swap(&mut co1, &mut co2);
-            std::mem::swap(&mut id1, &mut id2);
-            std::mem::swap(&mut handle1, &mut handle2);
-        }
+        let co1 = objects.collision_object(handle1).unwrap();
+        let co2 = objects.collision_object(handle2).unwrap();
+        let id1 = co1.graph_index().expect(crate::NOT_REGISTERED_ERROR);
+        let id2 = co2.graph_index().expect(crate::NOT_REGISTERED_ERROR);
 
         if started {
             if !interactions.0.contains_edge(id1, id2) {
@@ -227,6 +221,11 @@ impl<N: RealField, Handle: CollisionObjectHandle> NarrowPhase<N, Handle> {
             }
         } else {
             if let Some(eid) = interactions.0.find_edge(id1, id2) {
+
+                let endpoints = interactions.0.edge_endpoints(eid).unwrap();
+                let handle1 = *interactions.0.node_weight(endpoints.0).unwrap();
+                let handle2 = *interactions.0.node_weight(endpoints.1).unwrap();
+
                 if let Some(detector) = interactions.0.remove_edge(eid) {
                     match detector {
                         Interaction::Contact(_, mut manifold) => {
@@ -238,6 +237,7 @@ impl<N: RealField, Handle: CollisionObjectHandle> NarrowPhase<N, Handle> {
                             manifold.clear();
                         }
                         Interaction::Proximity(detector) => {
+
                             // Register a proximity lost signal if they were not disjoint.
                             let prev_prox = detector.proximity();
 

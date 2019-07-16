@@ -101,6 +101,8 @@ impl<N: RealField, T> CollisionWorld<N, T> {
     /// 2. Executes the broad phase first.
     /// 3. Executes the narrow phase.
     pub fn update(&mut self) {
+        self.narrow_phase.clear_events();
+
         glue::perform_all_pipeline(
             &self.objects,
             &mut *self.broad_phase,

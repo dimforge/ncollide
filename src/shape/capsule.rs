@@ -25,8 +25,8 @@ impl<N: RealField> Capsule<N> {
         assert!(half_height.is_positive() && radius.is_positive());
 
         Capsule {
-            half_height: half_height,
-            radius: radius,
+            half_height,
+            radius,
         }
     }
 
