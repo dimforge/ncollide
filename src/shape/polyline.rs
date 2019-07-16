@@ -184,8 +184,7 @@ impl<N: RealField> Polyline<N> {
         adj_edge_list
     }
 
-    /// A polyline shaped like a quad.
-    #[cfg(feature = "dim2")]
+    /// A polyline shaped like a quad, in the x-y plane.
     pub fn quad(nx: usize, ny: usize) -> Self {
         let mut vertices = Vec::new();
         let step_x = N::one() / na::convert(nx as f64);
@@ -193,16 +192,16 @@ impl<N: RealField> Polyline<N> {
         let _0_5: N = na::convert(0.5);
 
         for i in 0..=nx {
-            vertices.push(Point::new(step_x * na::convert(i as f64) - _0_5, -_0_5));
+            vertices.push(xy_point(step_x * na::convert(i as f64) - _0_5, -_0_5));
         }
         for j in 1..=ny {
-            vertices.push(Point::new(_0_5, step_y * na::convert(j as f64) - _0_5));
+            vertices.push(xy_point(_0_5, step_y * na::convert(j as f64) - _0_5));
         }
         for i in 1..=nx {
-            vertices.push(Point::new(_0_5 - step_x * na::convert(i as f64), _0_5));
+            vertices.push(xy_point(_0_5 - step_x * na::convert(i as f64), _0_5));
         }
         for j in 1..ny {
-            vertices.push(Point::new(-_0_5, _0_5 - step_y * na::convert(j as f64)));
+            vertices.push(xy_point(-_0_5, _0_5 - step_y * na::convert(j as f64)));
         }
 
         let mut indices: Vec<_> = (0..).map(|i| Point2::new(i, i + 1)).take(vertices.len() - 1).collect();
@@ -335,18 +334,32 @@ impl<N: RealField> Polyline<N> {
         true
     }
 
-    /// Applies a transformation to this polyline.
+    /// Applies in-place a transformation to this polyline.
     pub fn transform_by(&mut self, transform: &Isometry<N>) {
         for pt in &mut self.points {
             *pt = transform * *pt
         }
     }
 
-    /// Applies a non-uniform scale to this polyline.
+    /// Applies a transformation to this polyline.
+    #[inline]
+    pub fn transformed(mut self, t: &Isometry<N>) -> Self {
+        self.transform_by(t);
+        self
+    }
+
+    /// Applies in-place a non-uniform scale to this polyline.
     pub fn scale_by(&mut self, scale: &Vector<N>) {
         for pt in &mut self.points {
             pt.coords.component_mul_assign(scale)
         }
+    }
+
+    /// Applies a non-uniform scale to this polyline.
+    #[inline]
+    pub fn scaled(mut self, s: &Vector<N>) -> Self {
+        self.scale_by(s);
+        self
     }
 
     /// Returns `true` if the given feature is a FeatureId::Face and
@@ -726,4 +739,15 @@ impl<'a, N: RealField> ContactPreprocessor<N> for PolylineContactProcessor<'a, N
         }*/
         true
     }
+}
+
+
+#[cfg(feature = "dim2")]
+fn xy_point<N: RealField>(x: N, y: N) -> Point<N> {
+    Point::new(x, y)
+}
+
+#[cfg(feature = "dim3")]
+fn xy_point<N: RealField>(x: N, y: N) -> Point<N> {
+    Point::new(x, y, N::zero())
 }
