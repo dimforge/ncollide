@@ -66,7 +66,9 @@ impl<'a, N: RealField> RigidMotion<N> for ConstantLinearVelocityRigidMotion<'a, 
 
 /// A linear motion from a starting isometry traveling at constant translational velocity.
 pub struct ConstantVelocityRigidMotion<'a, N: RealField> {
-    /// The starting isometry at `t = 0`.
+    /// The time at which this parametrization begins. Can be negative.
+    pub t0: N,
+    /// The starting isometry at `t = self.start_t`.
     pub start: &'a Isometry<N>,
     /// The translational velocity of this motion.
     pub linvel: Vector<N>,
@@ -82,17 +84,17 @@ pub struct ConstantVelocityRigidMotion<'a, N: RealField> {
 impl<'a, N: RealField> ConstantVelocityRigidMotion<'a, N> {
     /// Initialize a motion from a starting isometry and linear and angular velocities.
     #[cfg(feature = "dim2")]
-    pub fn new(start: &'a Isometry<N>, linvel: Vector<N>, angvel: N) -> Self {
+    pub fn new(t0: N, start: &'a Isometry<N>, linvel: Vector<N>, angvel: N) -> Self {
         ConstantVelocityRigidMotion {
-            start, linvel, angvel
+            t0, start, linvel, angvel
         }
     }
 
     /// Initialize a motion from a starting isometry and linear and angular velocities.
     #[cfg(feature = "dim3")]
-    pub fn new(start: &'a Isometry<N>, linvel: Vector<N>, angvel: Vector<N>) -> Self {
+    pub fn new(t0: N, start: &'a Isometry<N>, linvel: Vector<N>, angvel: Vector<N>) -> Self {
         ConstantVelocityRigidMotion {
-            start, linvel, angvel
+            t0, start, linvel, angvel
         }
     }
 }
@@ -100,8 +102,8 @@ impl<'a, N: RealField> ConstantVelocityRigidMotion<'a, N> {
 impl<'a, N: RealField> RigidMotion<N> for ConstantVelocityRigidMotion<'a, N> {
     fn position_at_time(&self, t: N) -> Isometry<N> {
         Isometry::from_parts(
-            (self.start.translation.vector + self.linvel * t).into(),
-            Rotation::new(self.angvel * t) * self.start.rotation
+            (self.start.translation.vector + self.linvel * (t - self.t0)).into(),
+            Rotation::new(self.angvel * (t - self.t0)) * self.start.rotation
         )
     }
 }

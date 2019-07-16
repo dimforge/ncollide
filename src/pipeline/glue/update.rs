@@ -62,7 +62,7 @@ pub fn perform_broad_phase<N: RealField, Objects>(objects: &Objects,
         let proxy_handle = co.proxy_handle().expect(crate::NOT_REGISTERED_ERROR);
 
         if flags.needs_bounding_volume_update() {
-            broad_phase.deferred_set_bounding_volume(proxy_handle, co.compute_aabb());
+            broad_phase.deferred_set_bounding_volume(proxy_handle, co.compute_swept_aabb());
         }
 
         if flags.needs_broad_phase_redispatch() {
@@ -84,7 +84,6 @@ pub fn perform_narrow_phase<N, Objects>(objects: &Objects,
                                             interactions: &mut InteractionGraph<N, Objects::CollisionObjectHandle>)
     where N: RealField,
           Objects: CollisionObjectSet<N> {
-    narrow_phase.clear_events();
     narrow_phase.update(interactions, objects);
 }
 

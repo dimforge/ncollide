@@ -13,9 +13,10 @@ bitflags! {
     #[derive(Default)]
     pub struct CollisionObjectUpdateFlags: u8 {
         const POSITION_CHANGED = 0b00000001;
-        const SHAPE_CHANGED = 0b000010;
-        const COLLISION_GROUPS_CHANGED = 0b000100;
-        const QUERY_TYPE_CHANGED = 0b0001000;
+        const PREDICTED_POSITION_CHANGED = 0b00000010;
+        const SHAPE_CHANGED = 0b000100;
+        const COLLISION_GROUPS_CHANGED = 0b001000;
+        const QUERY_TYPE_CHANGED = 0b0010000;
     }
 }
 
@@ -25,7 +26,14 @@ impl CollisionObjectUpdateFlags {
     }
 
     pub fn needs_narrow_phase_update(&self) -> bool {
-        !self.is_empty()
+        // The only change that does not trigger an update
+        // is a change on predicted position.
+        self.intersects(
+            Self::POSITION_CHANGED |
+                Self::SHAPE_CHANGED |
+                Self::COLLISION_GROUPS_CHANGED |
+                Self::QUERY_TYPE_CHANGED
+        )
     }
 
     pub fn needs_bounding_volume_update(&self) -> bool {
@@ -43,6 +51,7 @@ pub trait CollisionObjectRef<N: RealField> {
     fn graph_index(&self) -> Option<CollisionObjectGraphIndex>;
     fn proxy_handle(&self) -> Option<BroadPhaseProxyHandle>;
     fn position(&self) -> &Isometry<N>;
+    fn predicted_position(&self) -> Option<&Isometry<N>>;
     fn shape(&self) -> &Shape<N>;
     fn collision_groups(&self) -> &CollisionGroups;
     fn query_type(&self) -> GeometricQueryType<N>;
@@ -54,15 +63,19 @@ pub trait CollisionObjectRef<N: RealField> {
         aabb
     }
 
-    fn compute_swept_aabb(&self, predicted_pos: &Isometry<N>) -> AABB<N> {
-        let shape = self.shape();
-        let mut aabb1 = bounding_volume::aabb(shape, self.position());
-        let mut aabb2 = bounding_volume::aabb(shape, predicted_pos);
-        let margin = self.query_type().query_limit();
-        aabb1.loosen(margin);
-        aabb2.loosen(margin);
-        aabb1.merge(&aabb2);
-        aabb1
+    fn compute_swept_aabb(&self) -> AABB<N> {
+        if let Some(predicted_pos) = self.predicted_position() {
+            let shape = self.shape();
+            let mut aabb1 = bounding_volume::aabb(shape, self.position());
+            let mut aabb2 = bounding_volume::aabb(shape, predicted_pos);
+            let margin = self.query_type().query_limit();
+            aabb1.loosen(margin);
+            aabb2.loosen(margin);
+            aabb1.merge(&aabb2);
+            aabb1
+        } else {
+            self.compute_aabb()
+        }
     }
 }
 
@@ -89,6 +102,7 @@ pub struct CollisionObject<N: RealField, T> {
     proxy_handle: Option<BroadPhaseProxyHandle>,
     graph_index: Option<CollisionObjectGraphIndex>,
     position: Isometry<N>,
+    predicted_position: Option<Isometry<N>>,
     shape: ShapeHandle<N>,
     collision_groups: CollisionGroups,
     query_type: GeometricQueryType<N>,
@@ -112,6 +126,7 @@ impl<N: RealField, T> CollisionObject<N, T> {
             proxy_handle: None,
             graph_index: None,
             position,
+            predicted_position: None,
             shape,
             collision_groups: groups,
             data,
@@ -160,11 +175,35 @@ impl<N: RealField, T> CollisionObject<N, T> {
         &self.position
     }
 
-    /// Sets the position of the collision object.
+    /// The predicted collision object position.
+    #[inline]
+    pub fn predicted_position(&self) -> Option<&Isometry<N>> {
+        self.predicted_position.as_ref()
+    }
+
+    /// Sets the position of the collision object and resets the predicted position to None.
     #[inline]
     pub fn set_position(&mut self, pos: Isometry<N>) {
         self.update_flags |= CollisionObjectUpdateFlags::POSITION_CHANGED;
-        self.position = pos
+        self.update_flags |= CollisionObjectUpdateFlags::PREDICTED_POSITION_CHANGED;
+        self.position = pos;
+        self.predicted_position = None;
+    }
+
+    /// Sets the position of the collision object and resets the predicted position.
+    #[inline]
+    pub fn set_position_with_prediction(&mut self, pos: Isometry<N>, prediction: Isometry<N>) {
+        self.update_flags |= CollisionObjectUpdateFlags::POSITION_CHANGED;
+        self.update_flags |= CollisionObjectUpdateFlags::PREDICTED_POSITION_CHANGED;
+        self.position = pos;
+        self.predicted_position = Some(prediction);
+    }
+
+    /// Sets the predicted position of the collision object.
+    #[inline]
+    pub fn set_predicted_position(&mut self, pos: Option<Isometry<N>>) {
+        self.update_flags |= CollisionObjectUpdateFlags::PREDICTED_POSITION_CHANGED;
+        self.predicted_position = pos;
     }
 
     /// Deforms the underlying shape if possible.
@@ -244,6 +283,10 @@ impl<N: RealField, T> CollisionObjectRef<N> for CollisionObject<N, T> {
 
     fn position(&self) -> &Isometry<N> {
         self.position()
+    }
+
+    fn predicted_position(&self) -> Option<&Isometry<N>> {
+        self.predicted_position()
     }
 
     fn shape(&self) -> &Shape<N> {
