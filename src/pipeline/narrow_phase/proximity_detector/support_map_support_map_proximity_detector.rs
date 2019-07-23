@@ -52,7 +52,11 @@ impl<N: RealField> ProximityDetector<N> for SupportMapSupportMapProximityDetecto
             self.sep_axis,
         );
 
-        self.sep_axis = Some(res.1);
+        if res.0 != Proximity::Intersecting {
+            self.sep_axis = Some(res.1);
+        } else {
+            self.sep_axis = None;
+        }
 
         Some(res.0)
     }

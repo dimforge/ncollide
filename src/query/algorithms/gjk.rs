@@ -149,7 +149,7 @@ where
 
         if min_bound > max_dist {
             return GJKResult::NoIntersection(dir);
-        } else if !exact_dist && min_bound > na::zero() {
+        } else if !exact_dist && min_bound > na::zero() && max_bound <= max_dist {
             return GJKResult::Proximity(old_dir);
         } else if max_bound - min_bound <= _eps_rel * max_bound {
             if exact_dist {
