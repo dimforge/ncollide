@@ -1,7 +1,7 @@
 use na::RealField;
 
 use crate::utils::IsometryOps;
-use crate::math::{Isometry, Vector, Rotation};
+use crate::math::{Isometry, Vector, Point, Rotation, Translation};
 
 
 /// A continuous interpolation of isometries.
@@ -9,7 +9,6 @@ pub trait RigidMotion<N: RealField> {
     /// Get a position at the time `t`.
     fn position_at_time(&self, t: N) -> Isometry<N>;
 }
-
 
 /// Interpolation between two isometries using LERP for the translation part and SLERP for the rotation.
 pub struct InterpolatedRigidMotion<N: RealField> {
@@ -46,7 +45,7 @@ pub struct ConstantLinearVelocityRigidMotion<N: RealField> {
 }
 
 impl<N: RealField> ConstantLinearVelocityRigidMotion<N> {
-    /// Initialize a linear motion frow a starting isometry and a translational velocity.
+    /// Initialize a linear motion from a starting isometry and a translational velocity.
     pub fn new(start: Isometry<N>, velocity: Vector<N>) -> Self {
         ConstantLinearVelocityRigidMotion {
             start, velocity
@@ -70,6 +69,8 @@ pub struct ConstantVelocityRigidMotion<N: RealField> {
     pub t0: N,
     /// The starting isometry at `t = self.start_t`.
     pub start: Isometry<N>,
+    /// The local-space point at which the rotational part of this motion is applied.
+    pub local_center: Point<N>,
     /// The translational velocity of this motion.
     pub linvel: Vector<N>,
     /// The angular velocity of this motion.
@@ -84,26 +85,85 @@ pub struct ConstantVelocityRigidMotion<N: RealField> {
 impl<N: RealField> ConstantVelocityRigidMotion<N> {
     /// Initialize a motion from a starting isometry and linear and angular velocities.
     #[cfg(feature = "dim2")]
-    pub fn new(t0: N, start: Isometry<N>, linvel: Vector<N>, angvel: N) -> Self {
+    pub fn new(t0: N, start: Isometry<N>, local_center: Point<N>, linvel: Vector<N>, angvel: N) -> Self {
         ConstantVelocityRigidMotion {
-            t0, start, linvel, angvel
+            t0, start, local_center, linvel, angvel
         }
     }
 
     /// Initialize a motion from a starting isometry and linear and angular velocities.
     #[cfg(feature = "dim3")]
-    pub fn new(t0: N, start: Isometry<N>, linvel: Vector<N>, angvel: Vector<N>) -> Self {
+    pub fn new(t0: N, start: Isometry<N>, local_center: Point<N>, linvel: Vector<N>, angvel: Vector<N>) -> Self {
         ConstantVelocityRigidMotion {
-            t0, start, linvel, angvel
+            t0, start, local_center, linvel, angvel
         }
     }
 }
 
 impl<N: RealField> RigidMotion<N> for ConstantVelocityRigidMotion<N> {
     fn position_at_time(&self, t: N) -> Isometry<N> {
-        Isometry::from_parts(
-            (self.start.translation.vector + self.linvel * (t - self.t0)).into(),
-            Rotation::new(self.angvel * (t - self.t0)) * self.start.rotation
-        )
+        let scaled_linvel = self.linvel * (t - self.t0);
+        let scaled_angvel = self.angvel * (t - self.t0);
+
+//        let lhs = self.start.translation * Translation::from(self.start.rotation * self.local_center.coords);
+//        let rhs = self.start.rotation * Translation::from(-self.local_center.coords);
+//        lhs * Isometry::new(scaled_linvel, scaled_angvel) * rhs
+
+        let center = self.start.rotation * self.local_center.coords;
+        let lhs = self.start.translation * Translation::from(center);
+        let rhs = Translation::from(-center) * self.start.rotation;
+
+        lhs * Isometry::new(scaled_linvel, scaled_angvel) * rhs
+    }
+}
+
+
+/*
+ * For composition.
+ */
+
+// This is a tr
+pub trait RigidMotionComposition<N: RealField>: RigidMotion<N> {
+    fn prepend_translation(&self, translation: Vector<N>) -> PrependTranslation<N, Self> {
+        PrependTranslation {
+            motion: self,
+            translation
+        }
+    }
+
+    fn prepend_transformation(&self, transformation: Isometry<N>) -> PrependTransformation<N, Self> {
+        PrependTransformation {
+            motion: self,
+            transformation
+        }
+    }
+}
+
+impl<N: RealField, M: ?Sized + RigidMotion<N>> RigidMotionComposition<N> for M {}
+
+pub struct PrependTranslation<'a, N: RealField, M: ?Sized> {
+    motion: &'a M,
+    translation: Vector<N>
+}
+
+
+impl<'a, N: RealField, M: ?Sized + RigidMotion<N>> RigidMotion<N> for PrependTranslation<'a, N, M> {
+    fn position_at_time(&self, t: N) -> Isometry<N> {
+        let m = self.motion.position_at_time(t);
+        m * Translation::from(self.translation)
+    }
+}
+
+
+
+pub struct PrependTransformation<'a, N: RealField, M: ?Sized> {
+    motion: &'a M,
+    transformation: Isometry<N>
+}
+
+impl<'a, N: RealField, M: ?Sized + RigidMotion<N>> RigidMotion<N> for PrependTransformation<'a, N, M> {
+    fn position_at_time(&self, t: N) -> Isometry<N> {
+        let m = self.motion.position_at_time(t);
+        m * self.transformation
     }
 }

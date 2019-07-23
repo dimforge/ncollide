@@ -1,4 +1,4 @@
-/// The status of the spatial partitoning structure traversal.
+/// The status of the spatial partitioning structure traversal.
 pub enum VisitStatus {
     /// The traversal should continue on the children of the currently visited nodes.
     Continue,
@@ -51,13 +51,13 @@ pub enum BestFirstDataVisitStatus<N, Res> {
     Continue,
     /// The traversal aborts, returning the given result.
     ExitEarlyWithResult(Res),
-    /// The traversal aborts, returnin the last best result found.
+    /// The traversal aborts, returning the last best result found.
     ExitEarly,
 }
 
 /// Trait implemented by cost functions used by the best-first search on a `BVT`.
 pub trait BestFirstVisitor<N, T, BV> {
-    /// The result of a best-fist traversal.
+    /// The result of a best-first traversal.
     type Result;
 
     /// Compute the next action to be taken by the best-first-search after visiting a node containing the given bounding volume.

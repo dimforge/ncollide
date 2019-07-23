@@ -7,27 +7,45 @@ use crate::shape::SupportMap;
 use crate::interpolation::RigidMotion;
 
 
-//struct SeparationFunction<N: RealField> {
-//    dir: Unit<Vector<N>>
-//}
-//
-//impl<N: RealField> SeparationFunction<N> {
-//
-//}
-
 /// Time of impacts between two support-mapped shapes under a rigid motion.
 pub fn nonlinear_time_of_impact_support_map_support_map<N, G1: ?Sized, G2: ?Sized>(
-    motion1: &impl RigidMotion<N>,
+    motion1: &(impl RigidMotion<N> + ?Sized),
     g1: &G1,
-    motion2: &impl RigidMotion<N>,
+    motion2: &(impl RigidMotion<N> + ?Sized),
     g2: &G2,
     max_toi: N,
     target_distance: N,
 ) -> Option<NonlinearTOI<N>>
-where
-    N: RealField,
-    G1: SupportMap<N>,
-    G2: SupportMap<N>,
+    where
+        N: RealField,
+        G1: SupportMap<N>,
+        G2: SupportMap<N>,
+{
+    nonlinear_time_of_impact_support_map_support_map_with_closest_points_function(
+        motion1, g1, motion2,
+        g2, max_toi, target_distance,
+        query::closest_points_support_map_support_map
+    )
+}
+
+
+/// Time of impacts between two support-mapped shapes under a rigid motion.
+///
+/// You probably want to use `query::nonlinear_time_of_impact_support_map_support_map` instead of this one.
+/// The distance function between the two shapes must be given.
+pub fn nonlinear_time_of_impact_support_map_support_map_with_closest_points_function<N, G1: ?Sized, G2: ?Sized>(
+    motion1: &(impl RigidMotion<N> + ?Sized),
+    g1: &G1,
+    motion2: &(impl RigidMotion<N> + ?Sized),
+    g2: &G2,
+    max_toi: N,
+    target_distance: N,
+    closest_points: impl Fn(&Isometry<N>, &G1, &Isometry<N>, &G2, N) -> ClosestPoints<N>
+) -> Option<NonlinearTOI<N>>
+    where
+        N: RealField,
+        G1: SupportMap<N>,
+        G2: SupportMap<N>,
 {
     let _0_5 = na::convert(0.5);
     let mut min_t = N::zero();
@@ -48,7 +66,7 @@ where
         let pos2 = motion2.position_at_time(result.toi);
 
         // FIXME: use the _with_params version of the closest points query.
-        match query::closest_points_support_map_support_map(&pos1, g1, &pos2, g2, N::max_value()) {
+        match closest_points(&pos1, g1, &pos2, g2, N::max_value()) {
             ClosestPoints::Intersecting => {
                 if result.toi == N::zero() {
                     result.status = NonlinearTOIStatus::Penetrating

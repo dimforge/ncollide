@@ -9,35 +9,31 @@ use crate::shape::{Ball, Plane, Shape};
 ///
 /// Returns `0.0` if the objects are touching or penetrating.
 pub fn nonlinear_time_of_impact<N: RealField>(
-    motion1: &impl RigidMotion<N>,
+    motion1: &(impl RigidMotion<N> + ?Sized),
     g1: &Shape<N>,
-    motion2: &impl RigidMotion<N>,
+    motion2: &(impl RigidMotion<N> + ?Sized),
     g2: &Shape<N>,
     max_toi: N,
     target_distance: N,
 ) -> Option<NonlinearTOI<N>>
 {
     if let (Some(b1), Some(b2)) = (g1.as_shape::<Ball<N>>(), g2.as_shape::<Ball<N>>()) {
-//        let p1 = Point::from(m1.translation.vector);
-//        let p2 = Point::from(m2.translation.vector);
-//        query::nonlinear_time_of_impact_ball_ball(&p1, vel1, b1, &p2, vel2, b2)
-        unimplemented!()
-    } else if let (Some(p1), Some(s2)) = (g1.as_shape::<Plane<N>>(), g2.as_support_map()) {
+        query::nonlinear_time_of_impact_ball_ball(motion1, b1, motion2, b2, max_toi, target_distance)
+    } else if let (Some(s1), Some(s2)) = (g1.as_support_map(), g2.as_support_map()) {
+        query::nonlinear_time_of_impact_support_map_support_map(motion1, s1, motion2, s2, max_toi, target_distance)
+    } else if let Some(c1) = g1.as_composite_shape() {
+        query::nonlinear_time_of_impact_composite_shape_shape(motion1, c1, motion2, g2, max_toi, target_distance)
+    } else if let Some(c2) = g2.as_composite_shape() {
+        query::nonlinear_time_of_impact_shape_composite_shape(motion1, g1, motion2, c2, max_toi, target_distance)
+    /* } else if let (Some(p1), Some(s2)) = (g1.as_shape::<Plane<N>>(), g2.as_support_map()) {
 //        query::nonlinear_time_of_impact_plane_support_map(m1, vel1, p1, m2, vel2, s2)
         unimplemented!()
     } else if let (Some(s1), Some(p2)) = (g1.as_support_map(), g2.as_shape::<Plane<N>>()) {
 //        query::nonlinear_time_of_impact_support_map_plane(m1, vel1, s1, m2, vel2, p2)
-        unimplemented!()
-    } else if let (Some(s1), Some(s2)) = (g1.as_support_map(), g2.as_support_map()) {
-        query::nonlinear_time_of_impact_support_map_support_map(motion1, s1, motion2, s2, max_toi, target_distance)
-    } else if let Some(c1) = g1.as_composite_shape() {
-        unimplemented!()
-//        query::nonlinear_time_of_impact_composite_shape_shape(m1, vel1, c1, m2, vel2, g2)
-    } else if let Some(c2) = g2.as_composite_shape() {
-        unimplemented!()
-//        query::nonlinear_time_of_impact_shape_composite_shape(m1, vel1, g1, m2, vel2, c2)
+        unimplemented!() */
     } else {
-        panic!("No algorithm known to compute a contact point between the given pair of shapes.")
+        eprintln!("No algorithm known to compute a contact point between the given pair of shapes.");
+        None
     }
 }
 

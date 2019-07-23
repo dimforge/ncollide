@@ -1,126 +1,124 @@
-use crate::bounding_volume::AABB;
+use crate::bounding_volume::{AABB, BoundingSphere};
 use crate::math::{Isometry, Point, Vector};
 use na::{self, RealField};
 use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
-use crate::query::{self, Ray, RayCast};
-use crate::shape::{CompositeShape, Shape};
+use crate::query::{self, Ray, RayCast, NonlinearTOI};
+use crate::shape::{CompositeShape, Shape, Ball};
+use crate::interpolation::{RigidMotion, RigidMotionComposition};
 
 /// Time Of Impact of a composite shape with any other shape, under a rigid motion (translation + rotation).
-pub fn nonlinear_time_of_impact_composite_shape_shape<N, G1: ?Sized>(
-    m1: &Isometry<N>,
-    vel1: &Vector<N>,
+pub fn nonlinear_time_of_impact_composite_shape_shape<N, G1>(
+    motion1: &(impl RigidMotion<N> + ?Sized),
     g1: &G1,
-    m2: &Isometry<N>,
-    vel2: &Vector<N>,
+    motion2: &(impl RigidMotion<N> + ?Sized),
     g2: &Shape<N>,
-) -> Option<N>
+    max_toi: N,
+    target_distance: N,
+) -> Option<NonlinearTOI<N>>
 where
     N: RealField,
-    G1: CompositeShape<N>,
+    G1: ?Sized + CompositeShape<N>,
 {
-    let mut visitor = CompositeShapeAgainstAnyTOIVisitor::new(m1, vel1, g1, m2, vel2, g2);
+    let mut visitor = CompositeShapeAgainstAnyNonlinearTOIVisitor::new(motion1, g1, motion2, g2, max_toi, target_distance);
 
     g1.bvh().best_first_search(&mut visitor)
 }
 
 /// Time Of Impact of any shape with a composite shape, under a rigid motion (translation + rotation).
-pub fn nonlinear_time_of_impact_shape_composite_shape<N, G2: ?Sized>(
-    m1: &Isometry<N>,
-    vel1: &Vector<N>,
+pub fn nonlinear_time_of_impact_shape_composite_shape<N, G2>(
+    motion1: &(impl RigidMotion<N> + ?Sized),
     g1: &Shape<N>,
-    m2: &Isometry<N>,
-    vel2: &Vector<N>,
+    motion2: &(impl RigidMotion<N> + ?Sized),
     g2: &G2,
-) -> Option<N>
+    max_toi: N,
+    target_distance: N,
+) -> Option<NonlinearTOI<N>>
 where
     N: RealField,
-    G2: CompositeShape<N>,
+    G2: ?Sized + CompositeShape<N>,
 {
-    nonlinear_time_of_impact_composite_shape_shape(m2, vel2, g2, m1, vel1, g1)
+    nonlinear_time_of_impact_composite_shape_shape(motion2, g2, motion1, g1, max_toi, target_distance)
 }
 
-struct CompositeShapeAgainstAnyTOIVisitor<'a, N: 'a + RealField, G1: ?Sized + 'a> {
-    msum_shift: Vector<N>,
-    msum_margin: Vector<N>,
-    ray: Ray<N>,
+struct CompositeShapeAgainstAnyNonlinearTOIVisitor<'a, N: 'a + RealField, G1: ?Sized + 'a, M1: ?Sized, M2: ?Sized> {
+    sphere2: BoundingSphere<N>,
+    max_toi: N,
+    target_distance: N,
 
-    m1: &'a Isometry<N>,
-    vel1: &'a Vector<N>,
+    motion1: &'a M1,
     g1: &'a G1,
-    m2: &'a Isometry<N>,
-    vel2: &'a Vector<N>,
+    motion2: &'a M2,
     g2: &'a Shape<N>,
 }
 
-impl<'a, N, G1: ?Sized> CompositeShapeAgainstAnyTOIVisitor<'a, N, G1>
+impl<'a, N, G1, M1, M2> CompositeShapeAgainstAnyNonlinearTOIVisitor<'a, N, G1, M1, M2>
 where
     N: RealField,
-    G1: CompositeShape<N>,
+    G1: ?Sized + CompositeShape<N>,
+    M1: ?Sized + RigidMotion<N>,
+    M2: ?Sized + RigidMotion<N>,
 {
     pub fn new(
-        m1: &'a Isometry<N>,
-        vel1: &'a Vector<N>,
+        motion1: &'a M1,
         g1: &'a G1,
-        m2: &'a Isometry<N>,
-        vel2: &'a Vector<N>,
+        motion2: &'a M2,
         g2: &'a Shape<N>,
-    ) -> CompositeShapeAgainstAnyTOIVisitor<'a, N, G1>
+        max_toi: N,
+        target_distance: N,
+    ) -> CompositeShapeAgainstAnyNonlinearTOIVisitor<'a, N, G1, M1, M2>
     {
-        let ls_m2 = m1.inverse() * m2.clone();
-        let ls_aabb2 = g2.aabb(&ls_m2);
-
-        CompositeShapeAgainstAnyTOIVisitor {
-            msum_shift: -ls_aabb2.center().coords,
-            msum_margin: ls_aabb2.half_extents(),
-            ray: Ray::new(
-                Point::origin(),
-                m1.inverse_transform_vector(&(*vel2 - *vel1)),
-            ),
-            m1: m1,
-            vel1: vel1,
-            g1: g1,
-            m2: m2,
-            vel2: vel2,
-            g2: g2,
+        CompositeShapeAgainstAnyNonlinearTOIVisitor {
+            sphere2: g2.bounding_sphere(&Isometry::identity()),
+            max_toi,
+            target_distance,
+            motion1,
+            g1,
+            motion2,
+            g2,
         }
     }
 }
 
-impl<'a, N, G1: ?Sized> BestFirstVisitor<N, usize, AABB<N>>
-    for CompositeShapeAgainstAnyTOIVisitor<'a, N, G1>
+impl<'a, N, G1, M1, M2> BestFirstVisitor<N, usize, AABB<N>>
+    for CompositeShapeAgainstAnyNonlinearTOIVisitor<'a, N, G1, M1, M2>
 where
     N: RealField,
-    G1: CompositeShape<N>,
+    G1: ?Sized + CompositeShape<N>,
+    M1: ?Sized + RigidMotion<N>,
+    M2: ?Sized + RigidMotion<N>,
 {
-    type Result = N;
+    type Result = NonlinearTOI<N>;
 
     #[inline]
     fn visit_bv(&mut self, bv: &AABB<N>) -> BestFirstBVVisitStatus<N> {
-        // Compute the minkowski sum of the two AABBs.
-        let msum = AABB::new(
-            *bv.mins() + self.msum_shift + (-self.msum_margin),
-            *bv.maxs() + self.msum_shift + self.msum_margin,
-        );
+        let sphere1 = bv.bounding_sphere();
+        let ball1 = Ball::new(sphere1.radius());
+        let ball2 = Ball::new(self.sphere2.radius());
+        let motion1 = self.motion1.prepend_translation(sphere1.center().coords);
+        let motion2 = self.motion2.prepend_translation(self.sphere2.center().coords);
 
-        // Compute the TOI.
-        match msum.toi_with_ray(&Isometry::identity(), &self.ray, true) {
-            Some(toi) => BestFirstBVVisitStatus::ContinueWithCost(toi),
-            None => BestFirstBVVisitStatus::Stop,
+        if let Some(toi) = query::nonlinear_time_of_impact_ball_ball(
+            &motion1, &ball1, &motion2, &ball2, self.max_toi, self.target_distance) {
+            BestFirstBVVisitStatus::ContinueWithCost(toi.toi)
+        } else {
+            BestFirstBVVisitStatus::Stop
         }
     }
 
     #[inline]
-    fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, N> {
+    fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, NonlinearTOI<N>> {
         let mut res = BestFirstDataVisitStatus::Continue;
 
-        self.g1
-            .map_part_at(*b, self.m1, &mut |m1, g1| {
-                if let Some(toi) = query::nonlinear_time_of_impact(
-                    m1, self.vel1, g1, self.m2, self.vel2, self.g2,
-                ) {
-                    res = BestFirstDataVisitStatus::ContinueWithResult(toi, toi)
-                }
-            });
+        self.g1.map_part_at(*b, &Isometry::identity(), &mut |m1, g1| {
+            let motion1 = self.motion1.prepend_transformation(*m1);
+
+            // NOTE: we have to use a trait-object for `&motion1 as &RigidMotion<N>` to avoid infinite
+            // compiler recursion when it monomorphizes query::nonlinear_time_of_impact.
+            if let Some(toi) =
+                query::nonlinear_time_of_impact(&motion1 as &RigidMotion<N>, g1, self.motion2, self.g2, self.max_toi, self.target_distance) {
+                res = BestFirstDataVisitStatus::ContinueWithResult(toi.toi, toi)
+            }
+        });
 
         res
     }
