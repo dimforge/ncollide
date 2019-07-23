@@ -7,7 +7,6 @@ use crate::shape::{Plane, Shape};
 /// Proximity detector between a plane and a shape implementing the `SupportMap` trait.
 #[derive(Clone)]
 pub struct PlaneSupportMapProximityDetector {
-    proximity: Proximity,
 }
 
 impl PlaneSupportMapProximityDetector {
@@ -16,7 +15,6 @@ impl PlaneSupportMapProximityDetector {
     #[inline]
     pub fn new() -> PlaneSupportMapProximityDetector {
         PlaneSupportMapProximityDetector {
-            proximity: Proximity::Disjoint,
         }
     }
 }
@@ -48,20 +46,11 @@ impl<N: RealField> ProximityDetector<N> for PlaneSupportMapProximityDetector {
         mb: &Isometry<N>,
         b: &Shape<N>,
         margin: N,
-    ) -> bool
+    ) -> Option<Proximity>
     {
-        if let (Some(p), Some(sm)) = (plane.as_shape::<Plane<N>>(), b.as_support_map()) {
-            self.proximity = query::proximity_plane_support_map(ma, p, mb, sm, margin);
-
-            true
-        } else {
-            false
-        }
-    }
-
-    #[inline]
-    fn proximity(&self) -> Proximity {
-        self.proximity
+        let p = plane.as_shape::<Plane<N>>()?;
+        let sm = b.as_support_map()?;
+        Some(query::proximity_plane_support_map(ma, p, mb, sm, margin))
     }
 }
 
@@ -75,13 +64,8 @@ impl<N: RealField> ProximityDetector<N> for SupportMapPlaneProximityDetector {
         mb: &Isometry<N>,
         b: &Shape<N>,
         margin: N,
-    ) -> bool
+    ) -> Option<Proximity>
     {
         self.subdetector.update(disp, mb, b, ma, a, margin)
-    }
-
-    #[inline]
-    fn proximity(&self) -> Proximity {
-        ProximityDetector::<N>::proximity(&self.subdetector)
     }
 }

@@ -11,8 +11,7 @@ use crate::shape::Shape;
 #[derive(Clone)]
 pub struct SupportMapSupportMapProximityDetector<N: RealField> {
     simplex: VoronoiSimplex<N>,
-    proximity: Proximity,
-    sep_axis: Unit<Vector<N>>,
+    sep_axis: Option<Unit<Vector<N>>>,
 }
 
 impl<N: RealField> SupportMapSupportMapProximityDetector<N> {
@@ -23,8 +22,7 @@ impl<N: RealField> SupportMapSupportMapProximityDetector<N> {
     pub fn new() -> SupportMapSupportMapProximityDetector<N> {
         SupportMapSupportMapProximityDetector {
             simplex: VoronoiSimplex::new(),
-            proximity: Proximity::Disjoint,
-            sep_axis: Vector::x_axis(),
+            sep_axis: None,
         }
     }
 }
@@ -39,37 +37,23 @@ impl<N: RealField> ProximityDetector<N> for SupportMapSupportMapProximityDetecto
         mb: &Isometry<N>,
         b: &Shape<N>,
         margin: N,
-    ) -> bool
+    ) -> Option<Proximity>
     {
-        if let (Some(sma), Some(smb)) = (a.as_support_map(), b.as_support_map()) {
-            let initial_direction;
-            if self.proximity == Proximity::Disjoint {
-                initial_direction = None
-            } else {
-                initial_direction = Some(self.sep_axis)
-            }
+        let sma = a.as_support_map()?;
+        let smb = b.as_support_map()?;
 
-            let res = query::proximity_support_map_support_map_with_params(
-                ma,
-                sma,
-                mb,
-                smb,
-                margin,
-                &mut self.simplex,
-                initial_direction,
-            );
+        let res = query::proximity_support_map_support_map_with_params(
+            ma,
+            sma,
+            mb,
+            smb,
+            margin,
+            &mut self.simplex,
+            self.sep_axis,
+        );
 
-            self.proximity = res.0;
-            self.sep_axis = res.1;
+        self.sep_axis = Some(res.1);
 
-            true
-        } else {
-            false
-        }
-    }
-
-    #[inline]
-    fn proximity(&self) -> Proximity {
-        self.proximity
+        Some(res.0)
     }
 }

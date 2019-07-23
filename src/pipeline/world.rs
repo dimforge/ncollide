@@ -6,14 +6,14 @@ use na::RealField;
 use crate::math::{Isometry, Point};
 use crate::shape::{Shape, ShapeHandle};
 use crate::bounding_volume::{AABB, BoundingVolume};
-use crate::query::{ContactManifold, Ray};
+use crate::query::{ContactManifold, Ray, Proximity};
 use crate::pipeline::object::{
     GeometricQueryType, CollisionObjectSet, CollisionObjects, CollisionGroupsPairFilter, CollisionObjectRef,
     CollisionObject, CollisionObjectSlab, CollisionObjectSlabHandle, CollisionGroups};
 use crate::pipeline::broad_phase::{BroadPhase, DBVTBroadPhase, BroadPhaseProxyHandle, BroadPhasePairFilter, BroadPhaseInterferenceHandler};
 use crate::pipeline::narrow_phase::{
     NarrowPhase, DefaultContactDispatcher, DefaultProximityDispatcher, InteractionGraph,
-    CollisionObjectGraphIndex, Interaction, ContactAlgorithm, ProximityAlgorithm,
+    CollisionObjectGraphIndex, Interaction, ContactAlgorithm, ProximityDetector,
     TemporaryInteractionIndex, ContactEvents, ProximityEvents,
 };
 use crate::pipeline::glue::{self, InterferencesWithRay, InterferencesWithPoint, InterferencesWithAABB};
@@ -355,7 +355,8 @@ impl<N: RealField, T> CollisionWorld<N, T> {
     pub fn proximity_pairs(&self, effective_only: bool) -> impl Iterator<Item = (
         CollisionObjectSlabHandle,
         CollisionObjectSlabHandle,
-        &ProximityAlgorithm<N>,
+        &ProximityDetector<N>,
+        Proximity,
     )> {
         self.interactions.proximity_pairs(effective_only)
     }
@@ -392,7 +393,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
     /// Refer to the official [user guide](https://nphysics.org/interaction_handling_and_sensors/#interaction-iterators)
     /// for details.
     pub fn proximity_pair(&self, handle1: CollisionObjectSlabHandle, handle2: CollisionObjectSlabHandle, effective_only: bool)
-        -> Option<(CollisionObjectSlabHandle, CollisionObjectSlabHandle, &ProximityAlgorithm<N>)> {
+                          -> Option<(CollisionObjectSlabHandle, CollisionObjectSlabHandle, &ProximityDetector<N>, Proximity)> {
         let co1 = self.objects.collision_object(handle1)?;
         let co2 = self.objects.collision_object(handle2)?;
         let id1 = co1.graph_index().expect(crate::NOT_REGISTERED_ERROR);
@@ -427,7 +428,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
     /// Refer to the official [user guide](https://nphysics.org/interaction_handling_and_sensors/#interaction-iterators)
     /// for details.
     pub fn proximities_with(&self, handle: CollisionObjectSlabHandle, effective_only: bool)
-        -> Option<impl Iterator<Item = (CollisionObjectSlabHandle, CollisionObjectSlabHandle, &ProximityAlgorithm<N>)>> {
+        -> Option<impl Iterator<Item = (CollisionObjectSlabHandle, CollisionObjectSlabHandle, &ProximityDetector<N>, Proximity)>> {
         let co = self.objects.collision_object(handle)?;
         let id = co.graph_index().expect(crate::NOT_REGISTERED_ERROR);
         Some(self.interactions.proximities_with(id, effective_only))

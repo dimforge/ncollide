@@ -45,7 +45,7 @@ impl<N: RealField, Handle: CollisionObjectHandle> NarrowPhase<N, Handle> {
                         }
                     }
                 },
-                Interaction::Proximity(_) => {}
+                Interaction::Proximity(..) => {}
             }
         }
 
@@ -102,6 +102,20 @@ impl<N: RealField, Handle: CollisionObjectHandle> NarrowPhase<N, Handle> {
         }
     }
 
+    // FIXME: the fact this is public is only useful for nphysics.
+    // Perhaps the event pools should not be owned by the NarrowPhase struct?
+    #[doc(hidden)]
+    pub fn emit_proximity_event(&mut self, handle1: Handle, handle2: Handle, prev_prox: Proximity, new_prox: Proximity) {
+        if prev_prox != new_prox {
+            self.proximity_events.push(ProximityEvent::new(
+                handle1,
+                handle2,
+                prev_prox,
+                new_prox,
+            ));
+        }
+    }
+
     /// Update the specified proximity between two collision objects.
     pub fn update_proximity(
         &mut self,
@@ -109,27 +123,19 @@ impl<N: RealField, Handle: CollisionObjectHandle> NarrowPhase<N, Handle> {
         co2: &impl CollisionObjectRef<N>,
         handle1: Handle,
         handle2: Handle,
-        detector: &mut ProximityDetector<N>) {
-        let prev_prox = detector.proximity();
+        detector: &mut ProximityDetector<N>,
+        curr_proximity: &mut Proximity) {
 
-        let _ = detector.update(
+        if let Some(new_proximity) = detector.update(
             &*self.proximity_dispatcher,
             &co1.position(),
             co1.shape(),
             &co2.position(),
             co2.shape(),
             co1.query_type().query_limit() + co2.query_type().query_limit(),
-        );
-
-        let new_prox = detector.proximity();
-
-        if new_prox != prev_prox {
-            self.proximity_events.push(ProximityEvent::new(
-                handle1,
-                handle2,
-                prev_prox,
-                new_prox,
-            ));
+        ) {
+            self.emit_proximity_event(handle1, handle2, *curr_proximity, new_proximity);
+            *curr_proximity = new_proximity;
         }
     }
 
@@ -145,8 +151,8 @@ impl<N: RealField, Handle: CollisionObjectHandle> NarrowPhase<N, Handle> {
             Interaction::Contact(detector, manifold) => {
                 self.update_contact(co1, co2, handle1, handle2, &mut **detector, manifold)
             }
-            Interaction::Proximity(detector) => {
-                self.update_proximity(co1, co2, handle1, handle2, &mut **detector)
+            Interaction::Proximity(detector, prox) => {
+                self.update_proximity(co1, co2, handle1, handle2, &mut **detector, prox)
             }
         }
     }
@@ -214,14 +220,13 @@ impl<N: RealField, Handle: CollisionObjectHandle> NarrowPhase<N, Handle> {
                         if let Some(detector) = dispatcher
                             .get_proximity_algorithm(co1.shape(), co2.shape())
                             {
-                                let _ = interactions.0.add_edge(id1, id2, Interaction::Proximity(detector));
+                                let _ = interactions.0.add_edge(id1, id2, Interaction::Proximity(detector, Proximity::Disjoint));
                             }
                     }
                 }
             }
         } else {
             if let Some(eid) = interactions.0.find_edge(id1, id2) {
-
                 let endpoints = interactions.0.edge_endpoints(eid).unwrap();
                 let handle1 = *interactions.0.node_weight(endpoints.0).unwrap();
                 let handle2 = *interactions.0.node_weight(endpoints.1).unwrap();
@@ -236,20 +241,9 @@ impl<N: RealField, Handle: CollisionObjectHandle> NarrowPhase<N, Handle> {
 
                             manifold.clear();
                         }
-                        Interaction::Proximity(detector) => {
-
+                        Interaction::Proximity(detector, prev_prox) => {
                             // Register a proximity lost signal if they were not disjoint.
-                            let prev_prox = detector.proximity();
-
-                            if prev_prox != Proximity::Disjoint {
-                                let event = ProximityEvent::new(
-                                    handle1,
-                                    handle2,
-                                    prev_prox,
-                                    Proximity::Disjoint,
-                                );
-                                self.proximity_events.push(event);
-                            }
+                            self.emit_proximity_event(handle1, handle2, prev_prox, Proximity::Disjoint);
                         }
                     }
                 }
