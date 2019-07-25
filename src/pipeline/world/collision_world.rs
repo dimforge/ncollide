@@ -431,6 +431,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
                 &Vector::zeros(),
                 x.shape().as_ref(),
             )
+            .filter(|(toi, _)| toi <= &maximum_distance)
             .map(|(toi, normal)| {
                 (
                     x.handle(),
