@@ -1,6 +1,6 @@
 use crate::math::Isometry;
 use na::{self, RealField};
-use crate::pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
+use crate::pipeline::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
 use crate::query::{ContactManifold, ContactPrediction, ContactPreprocessor};
 use crate::shape::{Capsule, Shape};
 

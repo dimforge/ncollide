@@ -1,7 +1,7 @@
 use crate::bounding_volume::{self, BoundingVolume};
 use crate::math::Isometry;
 use na::{self, RealField};
-use crate::pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
+use crate::pipeline::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
 use crate::query::{ContactManifold, ContactPrediction, ContactPreprocessor};
 use crate::shape::{Shape, HeightField};
 use std::collections::{hash_map::Entry, HashMap};

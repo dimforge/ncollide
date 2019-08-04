@@ -3,16 +3,17 @@
 //! # General cases
 //! The most general methods provided by this module are:
 //!
-//! * [`closest_points`](query::closest_points()) to compute the closest points between two shapes.
-//! * [`distance`](query::distance()) to compute the distance between two shapes.
-//! * [`contact`](query::contact()) to compute one pair of contact points between two shapes, including penetrating contact.
-//! * [`proximity`](query::proximity()) to determine if two shapes are intersecting or not.
-//! * [`time_of_impact`](query::time_of_impact()) to determine when two shapes undergoing translational motions hit for the first time.
+//! * [`query::closest_points()`] to compute the closest points between two shapes.
+//! * [`query::distance()`] to compute the distance between two shapes.
+//! * [`query::contact()`] to compute one pair of contact points between two shapes, including penetrating contact.
+//! * [`query::proximity()`] to determine if two shapes are intersecting or not.
+//! * [`query::time_of_impact()`] to determine when two shapes undergoing translational motions hit for the first time.
+//! * [`query::nonlinear_time_of_impact()`] to determine when two shapes undergoing continuous rigid motions hit for the first time.
 //!
 //! Ray-casting and point-projection can be achieved by importing traits:
 //!
-//! * [`RayCast`](query::RayCast) for ray-casting.
-//! * [`PointQuery`](query::PointQuery) for point projection.
+//! * [`query::RayCast`] for ray-casting.
+//! * [`query::PointQuery`] for point projection.
 //!
 //! # Specific cases
 //! All the other functions exported by this module are more specific versions of the ones described above.
@@ -21,8 +22,8 @@
 //! Generally, the specific functions have the form `[operation]_[shape1]_[shape2]()` where:
 //!
 //! * `[operation]` can be `closest_points`, `distance`, `contact`, `proximity` or `time_of_impact`.
-//! * `[shape1]` is the type of the first shape passed to the function, e.g., `ball`, or `plane`.
-//! * `[shape2]` is the type of the second shape passed to the function, e.g., `ball`, or `plane`.
+//! * `[shape1]` is the type of the first shape passed to the function, e.g., `ball`, or `plane`. Can also identify a trait implemented by supported shapes, e.g., `support_map`.
+//! * `[shape2]` is the type of the second shape passed to the function, e.g., `ball`, or `plane`. Can also identify a trait implemented by supported shapes, e.g., `support_map`.
 
 pub use self::closest_points::*;
 pub use self::contact::*;

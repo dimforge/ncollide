@@ -1,5 +1,5 @@
 use na::RealField;
-use crate::pipeline::narrow_phase::{
+use crate::pipeline::{
     BallBallManifoldGenerator, BallConvexPolyhedronManifoldGenerator,
     CompositeShapeCompositeShapeManifoldGenerator, CompositeShapeShapeManifoldGenerator,
     ContactAlgorithm, ContactDispatcher, ConvexPolyhedronConvexPolyhedronManifoldGenerator,
