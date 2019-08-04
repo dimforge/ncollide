@@ -10,20 +10,28 @@ use crate::pipeline::object::GeometricQueryType;
 
 bitflags! {
     #[derive(Default)]
+    /// Flags indicating what changed in a collision object since the last collision world update.
     pub struct CollisionObjectUpdateFlags: u8 {
+        /// Indicate that the collision object's position changed.
         const POSITION_CHANGED = 0b00000001;
+        /// Indicate that the collision object's predicted position changed.
         const PREDICTED_POSITION_CHANGED = 0b00000010;
+        /// Indicate that the collision object's shape changed.
         const SHAPE_CHANGED = 0b000100;
+        /// Indicate that the collision object's collision group changed.
         const COLLISION_GROUPS_CHANGED = 0b001000;
+        /// Indicate that the collision object's geometric query type changed.
         const QUERY_TYPE_CHANGED = 0b0010000;
     }
 }
 
 impl CollisionObjectUpdateFlags {
+    /// Checks if the collision object has been changed in a way that justify a broad-phase update.
     pub fn needs_broad_phase_update(&self) -> bool {
         !self.is_empty()
     }
 
+    /// Checks if the collision object has been changed in a way that justify a narrow-phase update.
     pub fn needs_narrow_phase_update(&self) -> bool {
         // The only change that does not trigger an update
         // is a change on predicted position.
@@ -35,33 +43,59 @@ impl CollisionObjectUpdateFlags {
         )
     }
 
+    /// Checks if the collision object has been changed in a way that justify an update of its bounding volume.
     pub fn needs_bounding_volume_update(&self) -> bool {
         // NOTE: the QUERY_TYPE_CHANGED is included here because the
         // prediction margin may have changed.
         self.intersects(Self::POSITION_CHANGED | Self::SHAPE_CHANGED | Self::QUERY_TYPE_CHANGED)
     }
 
+    /// Checks if the collision object has been changed in a way that justify that the broad-phase
+    /// recompute all potential proximity pairs for this collision objects.
     pub fn needs_broad_phase_redispatch(&self) -> bool {
         self.intersects(Self::SHAPE_CHANGED | Self::COLLISION_GROUPS_CHANGED | Self::QUERY_TYPE_CHANGED)
     }
 }
 
+/// Trait implemented by collision objects.
 pub trait CollisionObjectRef<N: RealField> {
+    /// The interaction graph index of this collision object, if it has been registered into an interaction graph.
+    ///
+    /// Se the `glue::create_proxies` for more details.
     fn graph_index(&self) -> Option<CollisionObjectGraphIndex>;
+    /// The broad-phase proxy handle of this collision object, if it has been registered into a broad-phase.
+    ///
+    /// Se the `glue::create_proxies` for more details.
     fn proxy_handle(&self) -> Option<BroadPhaseProxyHandle>;
+    /// The position of this collision object.
     fn position(&self) -> &Isometry<N>;
+    /// The expected position of this collision object in the next updates.
+    ///
+    /// This is used to enlarge the collision object bounding volume such that at yields more potential interaction pairs.
+    /// This is typically needed for CCD (continuous collision detection) to be sure the broad-phase does not miss pential
+    /// interactions in-between two discontinuous positions of the collision object.
     fn predicted_position(&self) -> Option<&Isometry<N>>;
+    /// The shape of this collision object.
     fn shape(&self) -> &Shape<N>;
+    /// The collision groups of this collision object.
     fn collision_groups(&self) -> &CollisionGroups;
+    /// The type of geometric queries this collision object is subjected to.
     fn query_type(&self) -> GeometricQueryType<N>;
+    /// Flags indicating what changed in this collision object.
     fn update_flags(&self) -> CollisionObjectUpdateFlags;
 
+    /// Computes the AABB of this collision object, ignoring `self.predicted_position()`.
     fn compute_aabb(&self) -> AABB<N> {
         let mut aabb = bounding_volume::aabb(self.shape(), self.position());
         aabb.loosen(self.query_type().query_limit());
         aabb
     }
 
+    /// Computes the swept AABB of this collision object, taking `self.predict_position()` into account.
+    ///
+    /// Given the AABB of this collision object at the position `self.position()’, and the AABB of
+    /// this collision object at the position `self.predicted_position()`, this returns an AABB that
+    /// bounds both.
     fn compute_swept_aabb(&self) -> AABB<N> {
         if let Some(predicted_pos) = self.predicted_position() {
             let shape = self.shape();
@@ -78,7 +112,7 @@ pub trait CollisionObjectRef<N: RealField> {
     }
 }
 
-/// The unique identifier of a collision object.
+/// The unique identifier of a collision object stored in a `CollisionObjectSlab` structure.
 #[derive(Copy, Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct CollisionObjectSlabHandle(pub usize);
@@ -143,10 +177,12 @@ impl<N: RealField, T> CollisionObject<N, T> {
         self.graph_index = index
     }
 
+    /// Mutable reference to this collision object's update flags.
     pub fn update_flags_mut(&mut self) -> &mut CollisionObjectUpdateFlags {
         &mut self.update_flags
     }
 
+    /// Clears the update flags of this collision object.
     pub fn clear_update_flags(&mut self) {
         self.update_flags = CollisionObjectUpdateFlags::empty()
     }
@@ -232,6 +268,7 @@ impl<N: RealField, T> CollisionObject<N, T> {
         &self.collision_groups
     }
 
+    /// Sets the collision groups of this collision object.
     #[inline]
     pub fn set_collision_groups(&mut self, groups: CollisionGroups) {
         self.update_flags |= CollisionObjectUpdateFlags::COLLISION_GROUPS_CHANGED;

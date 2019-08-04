@@ -47,11 +47,15 @@ impl <'a, 'b, N: RealField, Objects, Filter> BroadPhaseInterferenceHandler<Objec
     }
 }
 
+/// Performs the broad-phase.
+///
+/// This will update the broad-phase internal structure, and create potential interaction pairs in the interaction graph.
+/// A `pair_filters` can be provided to filter out pairs of object that should not be considered.
 pub fn perform_broad_phase<N: RealField, Objects>(objects: &Objects,
-                                                      broad_phase: &mut (impl BroadPhase<N, AABB<N>, Objects::CollisionObjectHandle> + ?Sized),
-                                                      narrow_phase: &mut NarrowPhase<N, Objects::CollisionObjectHandle>,
-                                                      interactions: &mut InteractionGraph<N, Objects::CollisionObjectHandle>,
-                                                      pair_filters: Option<&(impl BroadPhasePairFilter<N, Objects::CollisionObject, Objects::CollisionObjectHandle> + ?Sized)>)
+                                                  broad_phase: &mut (impl BroadPhase<N, AABB<N>, Objects::CollisionObjectHandle> + ?Sized),
+                                                  narrow_phase: &mut NarrowPhase<N, Objects::CollisionObjectHandle>,
+                                                  interactions: &mut InteractionGraph<N, Objects::CollisionObjectHandle>,
+                                                  pair_filters: Option<&(impl BroadPhasePairFilter<N, Objects::CollisionObject, Objects::CollisionObjectHandle> + ?Sized)>)
     where Objects: CollisionObjectSet<N> {
 
     // Take changes into account.
@@ -77,15 +81,23 @@ pub fn perform_broad_phase<N: RealField, Objects>(objects: &Objects,
     });
 }
 
+/// Performs the narrow-phase.
+///
+/// This will update all interactions in the interaction graph by computing new contacts,
+/// and proximities.
 pub fn perform_narrow_phase<N, Objects>(objects: &Objects,
-                                            narrow_phase: &mut NarrowPhase<N, Objects::CollisionObjectHandle>,
-                                            interactions: &mut InteractionGraph<N, Objects::CollisionObjectHandle>)
+                                        narrow_phase: &mut NarrowPhase<N, Objects::CollisionObjectHandle>,
+                                        interactions: &mut InteractionGraph<N, Objects::CollisionObjectHandle>)
     where N: RealField,
           Objects: CollisionObjectSet<N> {
     narrow_phase.update(interactions, objects);
 }
 
 
+/// Performs the broad-phase and the narrow-phase.
+///
+/// This execute a complete collision detection pipeline by performing the broad-phase first and then
+/// the narrow-phase.
 pub fn perform_all_pipeline<'a, N, Objects>(objects: &Objects,
                                           broad_phase: &mut (impl BroadPhase<N, AABB<N>, Objects::CollisionObjectHandle> + ?Sized),
                                           narrow_phase: &mut NarrowPhase<N, Objects::CollisionObjectHandle>,
@@ -96,13 +108,3 @@ pub fn perform_all_pipeline<'a, N, Objects>(objects: &Objects,
     perform_broad_phase(objects, broad_phase, narrow_phase, interactions, pair_filters);
     perform_narrow_phase(objects, narrow_phase, interactions);
 }
-
-
-
-/*
-    /// The broad-phase aabb for the given collision object.
-    pub fn broad_phase_aabb(&self, handle: CollisionObjectSlabHandle) -> Option<&AABB<N>> {
-        let co = self.objects.collision_object(handle)?;
-        self.broad_phase.proxy(co.proxy_handle()).map(|p| p.0)
-    }
-*/

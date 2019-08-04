@@ -5,16 +5,25 @@ use std::ops::{Index, IndexMut};
 use std::hash::Hash;
 use crate::pipeline::object::{CollisionObject, CollisionObjectSlabHandle, CollisionObjectRef};
 
+/// Trait implemented by a handle indentifying a collision object.
 pub trait CollisionObjectHandle: Copy + Hash + PartialEq + Eq + 'static + Send + Sync {
 }
 
 impl<T: Copy + Hash + PartialEq + Eq + 'static + Send + Sync> CollisionObjectHandle for T {}
 
+/// Trait implemented by sets of collision objects.
+///
+/// A set of collision object map a handle of type `Self::CollisionObjectHandle` with a collision
+/// object of type `Self::CollisionObject`.
 pub trait CollisionObjectSet<N: RealField> {
+    /// Type of the collision object stored into this set.
     type CollisionObject: CollisionObjectRef<N>;
+    /// Type of the handles identifying collision objects.
     type CollisionObjectHandle: CollisionObjectHandle;
 
+    /// Gets the collision object identified by the given `handle`.
     fn collision_object(&self, handle: Self::CollisionObjectHandle) -> Option<&Self::CollisionObject>;
+    /// Applies a closure to every collision object (and their handle) stored into this set.
     fn foreach(&self, f: impl FnMut(Self::CollisionObjectHandle, &Self::CollisionObject));
 }
 

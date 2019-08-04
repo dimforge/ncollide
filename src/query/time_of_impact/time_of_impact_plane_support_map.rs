@@ -1,7 +1,7 @@
 use na::RealField;
 
 use crate::math::{Isometry, Vector};
-use crate::query::{Ray, RayCast};
+use crate::query::{Ray, RayCast, TOI, TOIStatus};
 use crate::shape::Plane;
 use crate::shape::SupportMap;
 
@@ -14,16 +14,42 @@ pub fn time_of_impact_plane_support_map<N, G: ?Sized>(
     vel_other: &Vector<N>,
     other: &G,
     distance: N,
-) -> Option<N>
+) -> Option<TOI<N>>
 where
     N: RealField,
     G: SupportMap<N>,
 {
     let vel = *vel_other - *vel_plane;
     let plane_normal = mplane * plane.normal();
-    let closest_point = other.support_point(mother, &-plane_normal) - *plane_normal * distance;
+    // FIXME: add method to get only the local support point.
+    // This would avoid the `inverse_transform_point` later.
+    let support_point = other.support_point(mother, &-plane_normal);
+    let closest_point = support_point - *plane_normal * distance;
+    let ray = Ray::new(closest_point, vel);
 
-    plane.toi_with_ray(mplane, &Ray::new(closest_point, vel), true)
+    if let Some(toi) = plane.toi_with_ray(mplane, &ray, true) {
+        let status;
+        let witness1 = mother.inverse_transform_point(&support_point);
+        let mut witness2 = mplane.inverse_transform_point(&ray.point_at(toi));
+
+        if (support_point.coords - mplane.translation.vector).dot(&plane_normal) < N::zero() {
+            status = TOIStatus::Penetrating
+        } else {
+            // Project the witness point to the plane.
+            // Note that witness2 is already in the plane's local-space.
+            witness2 = witness2 - **plane.normal() * witness2.coords.dot(plane.normal());
+            status = TOIStatus::Converged
+        }
+
+        Some(TOI {
+            toi,
+            witness1,
+            witness2,
+            status,
+        })
+    } else {
+        None
+    }
 }
 
 /// Time Of Impact of a plane with a support-mapped shape under translational movement.
@@ -35,10 +61,11 @@ pub fn time_of_impact_support_map_plane<N, G: ?Sized>(
     vel_plane: &Vector<N>,
     plane: &Plane<N>,
     distance: N,
-) -> Option<N>
+) -> Option<TOI<N>>
 where
     N: RealField,
     G: SupportMap<N>,
 {
     time_of_impact_plane_support_map(mplane, vel_plane, plane, mother, vel_other, other, distance)
+        .map(|toi| toi.swapped())
 }

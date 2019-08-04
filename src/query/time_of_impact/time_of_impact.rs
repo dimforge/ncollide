@@ -4,6 +4,55 @@ use crate::math::{Isometry, Point, Vector};
 use crate::query;
 use crate::shape::{Ball, Plane, Shape};
 
+
+/// The status of the time-of-impact computation algorithm.
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum TOIStatus {
+    /// The TOI algorithm ran out of iterations before achieving convergence.
+    ///
+    /// If this happens, the content of the `NonlinearTOI` will still be a conservative approximation
+    /// of the actual result so it is often fine to interpret this case as a success.
+    OutOfIterations,
+    /// The TOI algorithm converged successfully.
+    Converged,
+    /// Something went wrong during the TOI computation, likely due to numerical instabilities.
+    ///
+    /// If this happens, the content of the `NonlinearTOI` will still be a conservative approximation
+    /// of the actual result so it is often fine to interpret this case as a success.
+    Failed,
+    /// The two shape already overlap at the time 0.
+    ///
+    /// If this happens, the witness points provided by the `NonlinearTOI` will be invalid.
+    Penetrating,
+}
+
+/// The result of a time-of-impact (TOI) computation.
+#[derive(Clone, Debug)]
+pub struct TOI<N: RealField> {
+    /// The time at which the objects touch.
+    pub toi: N,
+    /// The local-space closest point on the first shape at the time of impact.
+    pub witness1: Point<N>,
+    /// The local-space closest point on the second shape at the time of impact.
+    pub witness2: Point<N>,
+    /// The way the time-of-impact computation algorithm terminated.
+    pub status: TOIStatus
+}
+
+impl<N: RealField> TOI<N> {
+    /// Swaps every data of this TOI result such that the role of both shapes are inverted.
+    ///
+    /// In practice, this makes it so that `self.witness1` becomes `self.witness2` and vice-versa.
+    pub fn swapped(self) -> Self {
+        Self {
+            toi: self.toi,
+            witness1: self.witness2,
+            witness2: self.witness1,
+            status: self.status
+        }
+    }
+}
+
 /// Computes the smallest time at with two shapes under translational movement are separated by a
 /// distance smaller or equal to `distance`.
 ///
@@ -16,7 +65,7 @@ pub fn time_of_impact<N: RealField>(
     vel2: &Vector<N>,
     g2: &Shape<N>,
     distance: N,
-) -> Option<N>
+) -> Option<TOI<N>>
 {
     if let (Some(b1), Some(b2)) = (g1.as_shape::<Ball<N>>(), g2.as_shape::<Ball<N>>()) {
         let p1 = Point::from(m1.translation.vector);

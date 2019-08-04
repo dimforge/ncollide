@@ -7,6 +7,9 @@ use crate::bounding_volume::AABB;
 use crate::pipeline::object::{CollisionObjectRef, CollisionObjectSet, CollisionGroups};
 use crate::pipeline::broad_phase::BroadPhase;
 
+/// Returns an iterator yielding all the collision objects intersecting with the given ray.
+///
+/// The result will only include collision objects in a group that can interact with the given `groups`.
 pub fn interferences_with_ray<'a, 'b, N, Objects>(objects: &'a Objects,
                                                   broad_phase: &'a (impl BroadPhase<N, AABB<N>, Objects::CollisionObjectHandle> + ?Sized),
                                                   ray: &'b Ray<N>,
@@ -59,6 +62,10 @@ impl<'a, 'b, N: RealField, Objects> Iterator for InterferencesWithRay<'a, 'b, N,
 }
 
 
+
+/// Returns an iterator yielding all the collision objects containing the given point.
+///
+/// The result will only include collision objects in a group that can interact with the given `groups`.
 pub fn interferences_with_point<'a, 'b, N, Objects>(objects: &'a Objects,
                                                     broad_phase: &'a (impl BroadPhase<N, AABB<N>, Objects::CollisionObjectHandle> + ?Sized),
                                                     point: &'b Point<N>,
@@ -107,6 +114,9 @@ impl<'a, 'b, N: RealField, Objects> Iterator for InterferencesWithPoint<'a, 'b, 
 }
 
 
+/// Returns an iterator yielding all the collision objects with an AABB intersecting with the given AABB.
+///
+/// The result will only include collision objects in a group that can interact with the given `groups`.
 pub fn interferences_with_aabb<'a, 'b, N, Objects>(objects: &'a Objects,
                                                    broad_phase: &'a (impl BroadPhase<N, AABB<N>, Objects::CollisionObjectHandle> + ?Sized),
                                                    aabb: &AABB<N>,

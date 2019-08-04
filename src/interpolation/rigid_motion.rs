@@ -4,7 +4,11 @@ use crate::utils::IsometryOps;
 use crate::math::{Isometry, Vector, Point, Translation};
 
 
-/// A continuous interpolation of isometries.
+/// A continuous rigid motion.
+///
+/// This is a function, assumed to be continuous, that, given a parameter `t` returns a direct isometry.
+/// Mathematically speaking this is a one-parameter curve on the space of direct isometries. This curve
+/// should have a continuity of at least `C0`.
 pub trait RigidMotion<N: RealField> {
     /// Get a position at the time `t`.
     fn position_at_time(&self, t: N) -> Isometry<N>;
@@ -127,8 +131,9 @@ impl<N: RealField> RigidMotion<N> for ConstantVelocityRigidMotion<N> {
  * For composition.
  */
 
-// This is a tr
+/// Trait for composing some rigid motions.
 pub trait RigidMotionComposition<N: RealField>: RigidMotion<N> {
+    /// Prepend a translation to the rigid motion `self`.
     fn prepend_translation(&self, translation: Vector<N>) -> PrependTranslation<N, Self> {
         PrependTranslation {
             motion: self,
@@ -136,6 +141,7 @@ pub trait RigidMotionComposition<N: RealField>: RigidMotion<N> {
         }
     }
 
+    /// Prepend a transformation to the rigid motion `self`.
     fn prepend_transformation(&self, transformation: Isometry<N>) -> PrependTransformation<N, Self> {
         PrependTransformation {
             motion: self,
@@ -146,6 +152,7 @@ pub trait RigidMotionComposition<N: RealField>: RigidMotion<N> {
 
 impl<N: RealField, M: ?Sized + RigidMotion<N>> RigidMotionComposition<N> for M {}
 
+/// The result of prepending a translation to a rigid motion.
 pub struct PrependTranslation<'a, N: RealField, M: ?Sized> {
     motion: &'a M,
     translation: Vector<N>
@@ -160,7 +167,7 @@ impl<'a, N: RealField, M: ?Sized + RigidMotion<N>> RigidMotion<N> for PrependTra
 }
 
 
-
+/// The result of prepending an isometric transformation to a rigid motion.
 pub struct PrependTransformation<'a, N: RealField, M: ?Sized> {
     motion: &'a M,
     transformation: Isometry<N>

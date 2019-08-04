@@ -98,6 +98,7 @@ impl<N: RealField> Polyline<N> {
         }
     }
 
+    /// Apply a transformation to every vertex and normal of this polyline and returns it.
     #[inline]
     pub fn transformed(mut self, t: &Isometry<N>) -> Self {
         self.transform_by(t);
@@ -123,6 +124,7 @@ impl<N: RealField> Polyline<N> {
         // FIXME: do something for the normals?
     }
 
+    /// Apply a scaling to every vertex and normal of this polyline and returns it.
     #[inline]
     pub fn scaled(mut self, s: &Vector<N>) -> Self {
         self.scale_by(s);

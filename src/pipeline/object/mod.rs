@@ -1,3 +1,5 @@
+//! Definition of collision objects and some of their properties.
+
 pub use self::collision_groups::{CollisionGroups, CollisionGroupsPairFilter};
 pub use self::collision_object::{
     CollisionObjectRef, CollisionObject, CollisionObjectSlabHandle, CollisionObjectUpdateFlags,

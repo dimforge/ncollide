@@ -2,7 +2,7 @@ use crate::bounding_volume::AABB;
 use crate::math::{Isometry, Point, Vector};
 use na::{self, RealField};
 use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
-use crate::query::{self, Ray, RayCast};
+use crate::query::{self, Ray, RayCast, TOI};
 use crate::shape::{CompositeShape, Shape};
 use crate::bounding_volume::bounding_volume::BoundingVolume;
 
@@ -15,13 +15,12 @@ pub fn time_of_impact_composite_shape_shape<N, G1: ?Sized>(
     vel2: &Vector<N>,
     g2: &Shape<N>,
     distance: N,
-) -> Option<N>
+) -> Option<TOI<N>>
 where
     N: RealField,
     G1: CompositeShape<N>,
 {
     let mut visitor = CompositeShapeAgainstAnyTOIVisitor::new(m1, vel1, g1, m2, vel2, g2, distance);
-
     g1.bvh().best_first_search(&mut visitor)
 }
 
@@ -34,12 +33,12 @@ pub fn time_of_impact_shape_composite_shape<N, G2: ?Sized>(
     vel2: &Vector<N>,
     g2: &G2,
     distance: N,
-) -> Option<N>
+) -> Option<TOI<N>>
 where
     N: RealField,
     G2: CompositeShape<N>,
 {
-    time_of_impact_composite_shape_shape(m2, vel2, g2, m1, vel1, g1, distance)
+    time_of_impact_composite_shape_shape(m2, vel2, g2, m1, vel1, g1, distance).map(|toi| toi.swapped())
 }
 
 struct CompositeShapeAgainstAnyTOIVisitor<'a, N: 'a + RealField, G1: ?Sized + 'a> {
@@ -98,7 +97,7 @@ where
     N: RealField,
     G1: CompositeShape<N>,
 {
-    type Result = N;
+    type Result = TOI<N>;
 
     #[inline]
     fn visit_bv(&mut self, bv: &AABB<N>) -> BestFirstBVVisitStatus<N> {
@@ -116,7 +115,7 @@ where
     }
 
     #[inline]
-    fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, N> {
+    fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, TOI<N>> {
         let mut res = BestFirstDataVisitStatus::Continue;
 
         self.g1
@@ -124,7 +123,7 @@ where
                 if let Some(toi) = query::time_of_impact(
                     m1, self.vel1, g1, self.m2, self.vel2, self.g2, self.distance,
                 ) {
-                    res = BestFirstDataVisitStatus::ContinueWithResult(toi, toi)
+                    res = BestFirstDataVisitStatus::ContinueWithResult(toi.toi, toi)
                 }
             });
 
