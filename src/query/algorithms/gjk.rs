@@ -242,104 +242,6 @@ where
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
-    /*
-    let mut ltoi: N = na::zero();
-    let mut old_max_bound = N::max_value();
-    let _eps_tol = eps_tol::<N>();
-
-    if relative_eq!(ray.dir.norm_squared(), N::zero()) {
-        return None;
-    }
-
-    let mut curr_ray = *ray;
-    let mut dir = -ray.dir;
-    let mut ldir = dir;
-    let mut simplex_init = false;
-
-    loop {
-        let mut ray_advanced = false;
-
-        if dir.normalize_mut().is_zero() {
-            return Some((ltoi, ldir));
-        }
-
-        let support_point = CSOPoint::from_shapes(m1, g1, m2, g2, &dir);
-        // Clip the ray on the support plane (None <=> t < 0)
-        // The configurations are:
-        //   dir.dot(curr_ray.dir)  |   t   |               Action
-        // −−−−−−−−−−−−−−−−−−−−-----+−−−−−−−+−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−
-        //          < 0             |  < 0  | Continue.
-        //          < 0             |  > 0  | New lower bound, move the origin.
-        //          > 0             |  < 0  | Miss. No intersection.
-        //          > 0             |  > 0  | New higher bound.
-        println!("Cast on plane: {:?}, {:?}, {:?}", support_point.point, dir, curr_ray);
-        match query::ray_toi_with_plane(&support_point.point, &dir, &curr_ray) {
-            Some(t) => {
-                println!("Fount t: {}", t);
-                if dir.dot(&curr_ray.dir) < na::zero() && t > N::zero() {
-                    println!("Ray advances by t: {}", t);
-                    // new lower bound
-                    ldir = dir;
-                    ltoi += t;
-                    let shift = curr_ray.dir * t;
-                    curr_ray.origin += shift;
-                    simplex.modify_pnts(&|pt| pt.translate1_mut(&-shift));
-//                    simplex_init = false;
-                    ray_advanced = true;
-                }
-            }
-            None => {
-                if dir.dot(&curr_ray.dir) > N::default_epsilon() {
-                    println!("Exit 1");
-                    // miss
-                    return None;
-                }
-            }
-        }
-
-        if !simplex_init {
-            simplex.reset(support_point.translate1(&-curr_ray.origin.coords));
-            simplex_init = true;
-        } else {
-            let _ = simplex.add_point(support_point.translate1(&-curr_ray.origin.coords));
-        }
-
-        println!("simplex: {:?}", simplex);
-
-        let proj = simplex.project_origin_and_reduce().coords;
-        let max_bound = proj.norm_squared();
-        println!("proj: {}", proj);
-        println!("max_bound: {}", max_bound);
-        println!("eps: {}", _eps_tol * simplex.max_sq_len());
-        println!("eps_tol: {}", _eps_tol);
-        println!("Curr ray origin: {}", curr_ray.origin);
-        println!("Curr ray dir: {}, dir: {}", curr_ray.dir, dir);
-
-        if simplex.dimension() == DIM {
-            println!("Exit 3");
-            return Some((ltoi, ldir));
-        } else if max_bound <= _eps_tol * simplex.max_sq_len() {
-            println!("Exit 4: {} {}", max_bound, _eps_tol);
-            // Return ldir: the last projection plane is tangent to the intersected surface.
-            if true { // ltoi > N::zero() {
-                return Some((ltoi, ldir));
-            } else {
-                return None;
-            }
-        } /*else if max_bound >= old_max_bound {
-            println!("Exit 5");
-            if max_bound <= old_max_bound + _eps_tol {
-                return Some((ltoi, ldir))
-            } else {
-                return None;
-            }
-        }*/
-
-        old_max_bound = max_bound;
-        dir = -proj;
-    }
-    */
-
     let _eps = N::default_epsilon();
     let _eps_tol: N = eps_tol();
     let _eps_rel: N = _eps_tol.sqrt();
@@ -352,7 +254,7 @@ where
 
     let mut ltoi = N::zero();
     let mut curr_ray = Ray::new(ray.origin, ray.dir / ray_length);
-    let mut dir = -curr_ray.dir;
+    let dir = -curr_ray.dir;
     let mut ldir = dir;
 
 
@@ -364,7 +266,6 @@ where
     // FIXME: reset the simplex if it is empty?
 
     let mut proj = simplex.project_origin_and_reduce();
-    let mut old_dir = -Unit::new_normalize(proj.coords);
     let mut max_bound = N::max_value();
     let mut dir;
     let mut niter = 0;
@@ -458,7 +359,6 @@ where
             // return Some((ltoi, ldir));
         }
 
-        old_dir = dir;
         proj = simplex.project_origin_and_reduce();
 
         if simplex.dimension() == DIM {
@@ -473,7 +373,7 @@ where
 
         niter += 1;
         if niter == 10000 {
-            println!("Error: GJK did not converge.");
+            eprintln!("Error: GJK did not converge.");
             return None;
         }
     }

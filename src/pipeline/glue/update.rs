@@ -1,11 +1,9 @@
 use na::RealField;
 
-use crate::math::Isometry;
-use crate::shape::Shape;
-use crate::bounding_volume::{AABB, BoundingVolume};
-use crate::pipeline::object::{GeometricQueryType, CollisionObjectSet, CollisionGroupsPairFilter, CollisionObjectRef};
-use crate::pipeline::broad_phase::{BroadPhase, DBVTBroadPhase, BroadPhaseProxyHandle, BroadPhasePairFilter, BroadPhaseInterferenceHandler};
-use crate::pipeline::narrow_phase::{NarrowPhase, DefaultContactDispatcher, DefaultProximityDispatcher, InteractionGraph, CollisionObjectGraphIndex};
+use crate::bounding_volume::AABB;
+use crate::pipeline::object::{CollisionObjectSet, CollisionGroupsPairFilter, CollisionObjectRef};
+use crate::pipeline::broad_phase::{BroadPhase, BroadPhasePairFilter, BroadPhaseInterferenceHandler};
+use crate::pipeline::narrow_phase::{NarrowPhase, InteractionGraph};
 
 
 struct CollisionWorldInterferenceHandler<'a, 'b, N, Objects, Filter>
@@ -57,7 +55,7 @@ pub fn perform_broad_phase<N: RealField, Objects>(objects: &Objects,
     where Objects: CollisionObjectSet<N> {
 
     // Take changes into account.
-    objects.foreach(|handle, co| {
+    objects.foreach(|_, co| {
         let flags = co.update_flags();
         let proxy_handle = co.proxy_handle().expect(crate::NOT_REGISTERED_ERROR);
 

@@ -1,8 +1,8 @@
 use na::RealField;
 
-use crate::math::{Point, Vector, Isometry};
+use crate::math::Isometry;
 use crate::interpolation::RigidMotion;
-use crate::query::{self, Ray, NonlinearTOI, ClosestPoints};
+use crate::query::{self, TOI, ClosestPoints};
 use crate::shape::Ball;
 
 /// Non-linear Time Of Impact of two balls under a rigid motion (translation + rotation).
@@ -14,7 +14,7 @@ pub fn nonlinear_time_of_impact_ball_ball<N: RealField>(
     b2: &Ball<N>,
     max_toi: N,
     target_distance: N,
-) -> Option<NonlinearTOI<N>>
+) -> Option<TOI<N>>
 {
     fn closest_points<N: RealField>(m1: &Isometry<N>, g1: &Ball<N>, m2: &Isometry<N>, g2: &Ball<N>, prediction: N) -> ClosestPoints<N> {
         query::closest_points_ball_ball(

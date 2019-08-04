@@ -1,11 +1,4 @@
 use alga::general::RealField;
-use crate::math::Isometry;
-use crate::pipeline::broad_phase::BroadPhaseProxyHandle;
-use crate::pipeline::narrow_phase::CollisionObjectGraphIndex;
-use crate::pipeline::object::{CollisionGroups, GeometricQueryType};
-use crate::query::ContactPrediction;
-use crate::shape::Shape;
-use crate::bounding_volume::{self, BoundingVolume, AABB};
 
 use slab::{Iter, Slab};
 use std::ops::{Index, IndexMut};

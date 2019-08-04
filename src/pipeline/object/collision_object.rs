@@ -3,7 +3,6 @@ use crate::math::Isometry;
 use crate::pipeline::broad_phase::BroadPhaseProxyHandle;
 use crate::pipeline::narrow_phase::CollisionObjectGraphIndex;
 use crate::pipeline::object::CollisionGroups;
-use crate::query::ContactPrediction;
 use crate::shape::{Shape, ShapeHandle};
 use crate::bounding_volume::{self, BoundingVolume, AABB};
 use crate::pipeline::object::GeometricQueryType;
@@ -85,11 +84,6 @@ pub trait CollisionObjectRef<N: RealField> {
 pub struct CollisionObjectSlabHandle(pub usize);
 
 impl CollisionObjectSlabHandle {
-    #[inline]
-    pub(crate) fn invalid() -> Self {
-        CollisionObjectSlabHandle(usize::max_value())
-    }
-
     /// The unique identifier corresponding to this handle.
     #[inline]
     pub fn uid(&self) -> usize {
@@ -123,8 +117,8 @@ impl<N: RealField, T> CollisionObject<N, T> {
     ) -> CollisionObject<N, T>
     {
         CollisionObject {
-            proxy_handle: None,
-            graph_index: None,
+            proxy_handle,
+            graph_index,
             position,
             predicted_position: None,
             shape,

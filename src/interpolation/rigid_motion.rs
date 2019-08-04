@@ -1,13 +1,19 @@
 use na::RealField;
 
 use crate::utils::IsometryOps;
-use crate::math::{Isometry, Vector, Point, Rotation, Translation};
+use crate::math::{Isometry, Vector, Point, Translation};
 
 
 /// A continuous interpolation of isometries.
 pub trait RigidMotion<N: RealField> {
     /// Get a position at the time `t`.
     fn position_at_time(&self, t: N) -> Isometry<N>;
+}
+
+impl<N: RealField> RigidMotion<N> for Isometry<N> {
+    fn position_at_time(&self, _: N) -> Isometry<N> {
+        *self
+    }
 }
 
 /// Interpolation between two isometries using LERP for the translation part and SLERP for the rotation.
@@ -38,7 +44,9 @@ impl<N: RealField> RigidMotion<N> for InterpolatedRigidMotion<N> {
 
 /// A linear motion from a starting isometry traveling at constant translational velocity.
 pub struct ConstantLinearVelocityRigidMotion<N: RealField> {
-    /// The starting isometry at `t = 0`.
+    /// The time at which this parametrization begins. Can be negative.
+    pub t0: N,
+    /// The starting isometry at `t = self.t0`.
     pub start: Isometry<N>,
     /// The translational velocity of this motion.
     pub velocity: Vector<N>,
@@ -46,9 +54,9 @@ pub struct ConstantLinearVelocityRigidMotion<N: RealField> {
 
 impl<N: RealField> ConstantLinearVelocityRigidMotion<N> {
     /// Initialize a linear motion from a starting isometry and a translational velocity.
-    pub fn new(start: Isometry<N>, velocity: Vector<N>) -> Self {
+    pub fn new(t0: N, start: Isometry<N>, velocity: Vector<N>) -> Self {
         ConstantLinearVelocityRigidMotion {
-            start, velocity
+            t0, start, velocity
         }
     }
 }
@@ -56,7 +64,7 @@ impl<N: RealField> ConstantLinearVelocityRigidMotion<N> {
 impl<N: RealField> RigidMotion<N> for ConstantLinearVelocityRigidMotion<N> {
     fn position_at_time(&self, t: N) -> Isometry<N> {
         Isometry::from_parts(
-            (self.start.translation.vector + self.velocity * t).into(),
+            (self.start.translation.vector + self.velocity * (t - self.t0)).into(),
             self.start.rotation
         )
     }
@@ -64,10 +72,11 @@ impl<N: RealField> RigidMotion<N> for ConstantLinearVelocityRigidMotion<N> {
 
 
 /// A linear motion from a starting isometry traveling at constant translational velocity.
+#[derive(Debug)]
 pub struct ConstantVelocityRigidMotion<N: RealField> {
     /// The time at which this parametrization begins. Can be negative.
     pub t0: N,
-    /// The starting isometry at `t = self.start_t`.
+    /// The starting isometry at `t = self.t0`.
     pub start: Isometry<N>,
     /// The local-space point at which the rotational part of this motion is applied.
     pub local_center: Point<N>,
@@ -104,10 +113,6 @@ impl<N: RealField> RigidMotion<N> for ConstantVelocityRigidMotion<N> {
     fn position_at_time(&self, t: N) -> Isometry<N> {
         let scaled_linvel = self.linvel * (t - self.t0);
         let scaled_angvel = self.angvel * (t - self.t0);
-
-//        let lhs = self.start.translation * Translation::from(self.start.rotation * self.local_center.coords);
-//        let rhs = self.start.rotation * Translation::from(-self.local_center.coords);
-//        lhs * Isometry::new(scaled_linvel, scaled_angvel) * rhs
 
         let center = self.start.rotation * self.local_center.coords;
         let lhs = self.start.translation * Translation::from(center);

@@ -3,7 +3,7 @@ use slotmap::{Key, SlotMap};
 
 use crate::pipeline::narrow_phase::{
     ContactEvent, ContactEvents, ProximityEvent, ProximityEvents,
-    ContactDispatcher, ProximityDispatcher, InteractionGraph, Interaction, CollisionObjectGraphIndex,
+    ContactDispatcher, ProximityDispatcher, InteractionGraph, Interaction,
     ContactManifoldGenerator, ProximityDetector,
 };
 use crate::query::{Proximity, ContactManifold, ContactId};
@@ -241,7 +241,7 @@ impl<N: RealField, Handle: CollisionObjectHandle> NarrowPhase<N, Handle> {
 
                             manifold.clear();
                         }
-                        Interaction::Proximity(detector, prev_prox) => {
+                        Interaction::Proximity(_, prev_prox) => {
                             // Register a proximity lost signal if they were not disjoint.
                             self.emit_proximity_event(handle1, handle2, prev_prox, Proximity::Disjoint);
                         }

@@ -1,8 +1,7 @@
 use na::{RealField, Unit};
 
-use crate::utils::IsometryOps;
-use crate::math::{Isometry, Vector, Point};
-use crate::query::{self, ClosestPoints, NonlinearTOIStatus, NonlinearTOI};
+use crate::math::{Isometry, Point};
+use crate::query::{self, ClosestPoints, TOIStatus, TOI};
 use crate::shape::SupportMap;
 use crate::interpolation::RigidMotion;
 
@@ -15,7 +14,7 @@ pub fn nonlinear_time_of_impact_support_map_support_map<N, G1: ?Sized, G2: ?Size
     g2: &G2,
     max_toi: N,
     target_distance: N,
-) -> Option<NonlinearTOI<N>>
+) -> Option<TOI<N>>
     where
         N: RealField,
         G1: SupportMap<N>,
@@ -41,7 +40,7 @@ pub fn nonlinear_time_of_impact_support_map_support_map_with_closest_points_func
     max_toi: N,
     target_distance: N,
     closest_points: impl Fn(&Isometry<N>, &G1, &Isometry<N>, &G2, N) -> ClosestPoints<N>
-) -> Option<NonlinearTOI<N>>
+) -> Option<TOI<N>>
     where
         N: RealField,
         G1: SupportMap<N>,
@@ -50,15 +49,13 @@ pub fn nonlinear_time_of_impact_support_map_support_map_with_closest_points_func
     let _0_5 = na::convert(0.5);
     let mut min_t = N::zero();
     let mut prev_min_t = min_t;
-    let mut ngjk = 0;
-    let mut total_niter = 0;
     let abs_tol: N = query::algorithms::gjk::eps_tol();
     let rel_tol = abs_tol.sqrt();
-    let mut result = NonlinearTOI {
+    let mut result = TOI {
         toi: N::zero(),
         witness1: Point::origin(),
         witness2: Point::origin(),
-        status: NonlinearTOIStatus::Penetrating,
+        status: TOIStatus::Penetrating,
     };
 
     loop {
@@ -69,9 +66,9 @@ pub fn nonlinear_time_of_impact_support_map_support_map_with_closest_points_func
         match closest_points(&pos1, g1, &pos2, g2, N::max_value()) {
             ClosestPoints::Intersecting => {
                 if result.toi == N::zero() {
-                    result.status = NonlinearTOIStatus::Penetrating
+                    result.status = TOIStatus::Penetrating
                 } else {
-                    result.status = NonlinearTOIStatus::Failed;
+                    result.status = TOIStatus::Failed;
                 }
                 break;
             },
@@ -81,7 +78,6 @@ pub fn nonlinear_time_of_impact_support_map_support_map_with_closest_points_func
                 result.witness1 = pos1.inverse_transform_point(&p1);
                 result.witness2 = pos2.inverse_transform_point(&p2);
 
-                ngjk += 1;
                 if let Some((dir, mut dist)) = Unit::try_new_and_get(p2 - p1, N::default_epsilon()) {
                     let mut niter = 0;
                     min_t = result.toi;
@@ -118,7 +114,6 @@ pub fn nonlinear_time_of_impact_support_map_support_map_with_closest_points_func
                         dist = (pt2 - pt1).dot(&dir);
 
                         niter += 1;
-                        total_niter += 1;
                     }
 
                     if min_t - prev_min_t < abs_tol {
@@ -137,18 +132,18 @@ pub fn nonlinear_time_of_impact_support_map_support_map_with_closest_points_func
                             }
                         }
 
-                        result.status = NonlinearTOIStatus::Converged;
+                        result.status = TOIStatus::Converged;
                         break;
                     }
 
                     prev_min_t = min_t;
 
                     if niter == 0 {
-                        result.status = NonlinearTOIStatus::Converged;
+                        result.status = TOIStatus::Converged;
                         break;
                     }
                 } else {
-                    result.status = NonlinearTOIStatus::Failed;
+                    result.status = TOIStatus::Failed;
                     break;
                 }
             }

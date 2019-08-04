@@ -11,7 +11,6 @@ use slab::Slab;
 use std::any::Any;
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, VecDeque};
-use std::mem;
 use crate::utils::{DeterministicState, SortedPair};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]

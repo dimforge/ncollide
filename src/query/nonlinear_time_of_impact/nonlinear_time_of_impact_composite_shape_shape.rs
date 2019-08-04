@@ -1,8 +1,8 @@
 use crate::bounding_volume::{AABB, BoundingSphere};
-use crate::math::{Isometry, Point, Vector};
+use crate::math::Isometry;
 use na::{self, RealField};
 use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
-use crate::query::{self, Ray, RayCast, NonlinearTOI};
+use crate::query::{self, TOI};
 use crate::shape::{CompositeShape, Shape, Ball};
 use crate::interpolation::{RigidMotion, RigidMotionComposition};
 
@@ -14,7 +14,7 @@ pub fn nonlinear_time_of_impact_composite_shape_shape<N, G1>(
     g2: &Shape<N>,
     max_toi: N,
     target_distance: N,
-) -> Option<NonlinearTOI<N>>
+) -> Option<TOI<N>>
 where
     N: RealField,
     G1: ?Sized + CompositeShape<N>,
@@ -32,7 +32,7 @@ pub fn nonlinear_time_of_impact_shape_composite_shape<N, G2>(
     g2: &G2,
     max_toi: N,
     target_distance: N,
-) -> Option<NonlinearTOI<N>>
+) -> Option<TOI<N>>
 where
     N: RealField,
     G2: ?Sized + CompositeShape<N>,
@@ -87,7 +87,7 @@ where
     M1: ?Sized + RigidMotion<N>,
     M2: ?Sized + RigidMotion<N>,
 {
-    type Result = NonlinearTOI<N>;
+    type Result = TOI<N>;
 
     #[inline]
     fn visit_bv(&mut self, bv: &AABB<N>) -> BestFirstBVVisitStatus<N> {
@@ -106,7 +106,7 @@ where
     }
 
     #[inline]
-    fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, NonlinearTOI<N>> {
+    fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, TOI<N>> {
         let mut res = BestFirstDataVisitStatus::Continue;
 
         self.g1.map_part_at(*b, &Isometry::identity(), &mut |m1, g1| {

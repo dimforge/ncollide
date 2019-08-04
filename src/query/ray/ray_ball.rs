@@ -75,6 +75,8 @@ impl<N: RealField> RayCast<N> for Ball<N> {
 }
 
 /// Computes the time of impact of a ray on a ball.
+///
+/// The first result element is `true` if the ray started inside of the ball.
 #[inline]
 pub fn ray_toi_with_ball<N: RealField>(
     center: &Point<N>,

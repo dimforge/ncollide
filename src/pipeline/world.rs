@@ -1,19 +1,18 @@
 //! High level API to detect collisions in large, complex scenes.
 
-use std::collections::HashMap;
 use na::RealField;
 
 use crate::math::{Isometry, Point};
-use crate::shape::{Shape, ShapeHandle};
-use crate::bounding_volume::{AABB, BoundingVolume};
+use crate::shape::ShapeHandle;
+use crate::bounding_volume::AABB;
 use crate::query::{ContactManifold, Ray, Proximity};
 use crate::pipeline::object::{
-    GeometricQueryType, CollisionObjectSet, CollisionObjects, CollisionGroupsPairFilter, CollisionObjectRef,
-    CollisionObject, CollisionObjectSlab, CollisionObjectSlabHandle, CollisionGroups};
-use crate::pipeline::broad_phase::{BroadPhase, DBVTBroadPhase, BroadPhaseProxyHandle, BroadPhasePairFilter, BroadPhaseInterferenceHandler};
+    GeometricQueryType, CollisionObjectSet, CollisionObjects, CollisionObject, CollisionObjectSlab,
+    CollisionObjectSlabHandle, CollisionGroups};
+use crate::pipeline::broad_phase::{BroadPhase, DBVTBroadPhase, BroadPhasePairFilter};
 use crate::pipeline::narrow_phase::{
     NarrowPhase, DefaultContactDispatcher, DefaultProximityDispatcher, InteractionGraph,
-    CollisionObjectGraphIndex, Interaction, ContactAlgorithm, ProximityDetector,
+    Interaction, ContactAlgorithm, ProximityDetector,
     TemporaryInteractionIndex, ContactEvents, ProximityEvents,
 };
 use crate::pipeline::glue::{self, InterferencesWithRay, InterferencesWithPoint, InterferencesWithAABB};
@@ -81,7 +80,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
         );
 
 
-        let mut co = CollisionObject::new(
+        let co = CollisionObject::new(
             Some(proxy_handle),
             Some(graph_index),
             position,

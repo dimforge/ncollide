@@ -326,7 +326,7 @@ impl<N: RealField, Handle: CollisionObjectHandle> InteractionGraph<N, Handle> {
     /// for details.
     pub fn collision_objects_in_proximity_of<'a>(&'a self, id: CollisionObjectGraphIndex) -> impl Iterator<Item = Handle> + 'a {
         self.0.edges(id).filter_map(move |e| {
-            if let Interaction::Proximity(alg, prox) = e.weight() {
+            if let Interaction::Proximity(_, prox) = e.weight() {
                 if *prox == Proximity::Intersecting {
                     if e.source() == id {
                         return Some(self.0[e.target()]);
