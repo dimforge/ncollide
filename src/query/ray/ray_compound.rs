@@ -1,7 +1,7 @@
 use crate::bounding_volume::AABB;
 use crate::math::Isometry;
 use na::RealField;
-use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor, BVH};
+use crate::partitioning::{BestFirstVisitStatus, BestFirstVisitor, BVH};
 use crate::query::{Ray, RayCast, RayIntersection};
 use crate::shape::Compound;
 
@@ -16,7 +16,7 @@ impl<N: RealField> RayCast<N> for Compound<N> {
             solid: solid,
         };
 
-        self.bvt().best_first_search(&mut visitor)
+        self.bvt().best_first_search(&mut visitor).map(|res| res.1)
     }
 
     fn toi_and_normal_with_ray(
@@ -34,7 +34,7 @@ impl<N: RealField> RayCast<N> for Compound<N> {
             solid: solid,
         };
 
-        self.bvt().best_first_search(&mut visitor).map(|mut res| {
+        self.bvt().best_first_search(&mut visitor).map(|(_, mut res)| {
             res.normal = m * res.normal;
             res
         })
@@ -57,19 +57,23 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for CompoundRayToiVis
     type Result = N;
 
     #[inline]
-    fn visit_bv(&mut self, aabb: &AABB<N>) -> BestFirstBVVisitStatus<N> {
-        match aabb.toi_with_ray(&Isometry::identity(), self.ray, self.solid) {
-            Some(toi) => BestFirstBVVisitStatus::ContinueWithCost(toi),
-            None => BestFirstBVVisitStatus::Stop,
-        }
-    }
+    fn visit(&mut self, best: N, aabb: &AABB<N>, data: Option<&usize>) -> BestFirstVisitStatus<N, Self::Result> {
+        if let Some(toi) = aabb.toi_with_ray(&Isometry::identity(), self.ray, true) {
+            let mut res = BestFirstVisitStatus::Continue { cost: toi, result: None };
 
-    #[inline]
-    fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, N> {
-        let elt = &self.compound.shapes()[*b];
-        match elt.1.toi_with_ray(&elt.0, self.ray, self.solid) {
-            Some(toi) => BestFirstDataVisitStatus::ContinueWithResult(toi, toi),
-            None => BestFirstDataVisitStatus::Continue,
+            if let Some(b) = data {
+                if toi < best {
+                    let elt = &self.compound.shapes()[*b];
+                    match elt.1.toi_with_ray(&elt.0, self.ray, self.solid) {
+                        Some(toi) => res = BestFirstVisitStatus::Continue { cost: toi, result: Some(toi) },
+                        None => {},
+                    }
+                }
+            }
+
+            res
+        } else {
+            BestFirstVisitStatus::Stop
         }
     }
 }
@@ -84,19 +88,23 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for CompoundRayToiAnd
     type Result = RayIntersection<N>;
 
     #[inline]
-    fn visit_bv(&mut self, aabb: &AABB<N>) -> BestFirstBVVisitStatus<N> {
-        match aabb.toi_with_ray(&Isometry::identity(), self.ray, self.solid) {
-            Some(toi) => BestFirstBVVisitStatus::ContinueWithCost(toi),
-            None => BestFirstBVVisitStatus::Stop,
-        }
-    }
+    fn visit(&mut self, best: N, aabb: &AABB<N>, data: Option<&usize>) -> BestFirstVisitStatus<N, Self::Result> {
+        if let Some(toi) = aabb.toi_with_ray(&Isometry::identity(), self.ray, true) {
+            let mut res = BestFirstVisitStatus::Continue { cost: toi, result: None };
 
-    #[inline]
-    fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, RayIntersection<N>> {
-        let elt = &self.compound.shapes()[*b];
-        match elt.1.toi_and_normal_with_ray(&elt.0, self.ray, self.solid) {
-            Some(inter) => BestFirstDataVisitStatus::ContinueWithResult(inter.toi, inter),
-            None => BestFirstDataVisitStatus::Continue,
+            if let Some(b) = data {
+                if toi < best {
+                    let elt = &self.compound.shapes()[*b];
+                    match elt.1.toi_and_normal_with_ray(&elt.0, self.ray, self.solid) {
+                        Some(toi) => res = BestFirstVisitStatus::Continue { cost: toi.toi, result: Some(toi) },
+                        None => {},
+                    }
+                }
+            }
+
+            res
+        } else {
+            BestFirstVisitStatus::Stop
         }
     }
 }

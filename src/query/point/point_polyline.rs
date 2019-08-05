@@ -1,7 +1,7 @@
 use crate::bounding_volume::AABB;
 use crate::math::{Isometry, Point};
 use na::{self, RealField};
-use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor, BVH};
+use crate::partitioning::{BestFirstVisitStatus, BestFirstVisitor, BVH};
 use crate::query::{
     visitors::CompositePointContainmentTest, PointProjection, PointQuery, PointQueryWithLocation,
 };
@@ -58,7 +58,7 @@ impl<N: RealField> PointQueryWithLocation<N> for Polyline<N> {
             point: &ls_pt,
         };
 
-        let (mut proj, extra_info) = self.bvt().best_first_search(&mut visitor).unwrap();
+        let (mut proj, extra_info) = self.bvt().best_first_search(&mut visitor).unwrap().1;
         proj.point = m * proj.point;
 
         (proj, extra_info)
@@ -77,26 +77,31 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for PolylinePointProj
     type Result = (PointProjection<N>, (usize, SegmentPointLocation<N>));
 
     #[inline]
-    fn visit_bv(&mut self, aabb: &AABB<N>) -> BestFirstBVVisitStatus<N> {
-        BestFirstBVVisitStatus::ContinueWithCost(aabb.distance_to_point(
-            &Isometry::identity(),
-            self.point,
-            true,
-        ))
-    }
-
-    #[inline]
-    fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, Self::Result> {
-        let (proj, extra_info) = self.polyline.segment_at(*b).project_point_with_location(
+    fn visit(&mut self, best: N, aabb: &AABB<N>, data: Option<&usize>) -> BestFirstVisitStatus<N, Self::Result> {
+        let dist = aabb.distance_to_point(
             &Isometry::identity(),
             self.point,
             true,
         );
 
-        let extra_info = (*b, extra_info);
-        BestFirstDataVisitStatus::ContinueWithResult(
-            na::distance(self.point, &proj.point),
-            (proj, extra_info),
-        )
+        let mut res = BestFirstVisitStatus::Continue { cost: dist, result: None };
+
+        if let Some(b) = data {
+            if dist < best {
+                let (proj, extra_info) = self.polyline.segment_at(*b).project_point_with_location(
+                    &Isometry::identity(),
+                    self.point,
+                    true,
+                );
+
+                let extra_info = (*b, extra_info);
+                res = BestFirstVisitStatus::Continue {
+                    cost: na::distance(self.point, &proj.point),
+                    result: Some((proj, extra_info)),
+                };
+            }
+        }
+
+        res
     }
 }

@@ -1,7 +1,7 @@
 use crate::bounding_volume::AABB;
 use crate::math::{Isometry, Point, Vector};
 use na::{self, RealField};
-use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
+use crate::partitioning::{BestFirstVisitStatus, BestFirstVisitor};
 use crate::query::{self, ClosestPoints, PointQuery};
 use crate::shape::{CompositeShape, Shape};
 
@@ -22,6 +22,7 @@ where
     g1.bvh()
         .best_first_search(&mut visitor)
         .expect("The composite shape must not be empty.")
+        .1
 }
 
 /// Closest points between a shape and a composite shape.
@@ -88,37 +89,38 @@ where
 {
     type Result = ClosestPoints<N>;
 
-    fn visit_bv(&mut self, bv: &AABB<N>) -> BestFirstBVVisitStatus<N> {
+    fn visit(&mut self, best: N, bv: &AABB<N>, data: Option<&usize>) -> BestFirstVisitStatus<N, Self::Result> {
         // Compute the minkowski sum of the two AABBs.
         let msum = AABB::new(
             *bv.mins() + self.msum_shift + (-self.msum_margin),
             *bv.maxs() + self.msum_shift + self.msum_margin,
         );
 
-        // Compute the distance to the origin.
-        BestFirstBVVisitStatus::ContinueWithCost(msum.distance_to_point(
+        let dist = msum.distance_to_point(
             &Isometry::identity(),
             &Point::origin(),
             true,
-        ))
-    }
+        );
 
-    fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, ClosestPoints<N>> {
-        let mut res = BestFirstDataVisitStatus::Continue;
+        let mut res = BestFirstVisitStatus::Continue { cost: dist, result: None };
 
-        self.g1
-            .map_part_at(*b, self.m1, &mut |m1, g1| {
-                let pts = query::closest_points(m1, g1, self.m2, self.g2, self.margin);
-                res = match pts {
-                    ClosestPoints::WithinMargin(ref p1, ref p2) => {
-                        BestFirstDataVisitStatus::ContinueWithResult(na::distance(p1, p2), pts)
-                    }
-                    ClosestPoints::Intersecting => {
-                        BestFirstDataVisitStatus::ExitEarlyWithResult(pts)
-                    }
-                    ClosestPoints::Disjoint => BestFirstDataVisitStatus::Continue,
-                };
-            });
+        if let Some(b) = data {
+            if dist < best {
+                self.g1
+                    .map_part_at(*b, self.m1, &mut |m1, g1| {
+                        let pts = query::closest_points(m1, g1, self.m2, self.g2, self.margin);
+                        match pts {
+                            ClosestPoints::WithinMargin(ref p1, ref p2) => {
+                                res = BestFirstVisitStatus::Continue { cost: na::distance(p1, p2), result: Some(pts) }
+                            }
+                            ClosestPoints::Intersecting => {
+                                res = BestFirstVisitStatus::ExitEarly(Some(pts))
+                            }
+                            ClosestPoints::Disjoint => {},
+                        };
+                    });
+            }
+        }
 
         res
     }

@@ -1,7 +1,7 @@
 use crate::bounding_volume::{AABB, BoundingSphere};
 use crate::math::Isometry;
 use na::{self, RealField};
-use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
+use crate::partitioning::{BestFirstVisitStatus, BestFirstVisitor};
 use crate::query::{self, TOI};
 use crate::shape::{CompositeShape, Shape, Ball};
 use crate::interpolation::{RigidMotion, RigidMotionComposition};
@@ -21,7 +21,7 @@ where
 {
     let mut visitor = CompositeShapeAgainstAnyNonlinearTOIVisitor::new(motion1, g1, motion2, g2, max_toi, target_distance);
 
-    g1.bvh().best_first_search(&mut visitor)
+    g1.bvh().best_first_search(&mut visitor).map(|res| res.1)
 }
 
 /// Time Of Impact of any shape with a composite shape, under a rigid motion (translation + rotation).
@@ -90,7 +90,7 @@ where
     type Result = TOI<N>;
 
     #[inline]
-    fn visit_bv(&mut self, bv: &AABB<N>) -> BestFirstBVVisitStatus<N> {
+    fn visit(&mut self, best: N, bv: &AABB<N>, data: Option<&usize>) -> BestFirstVisitStatus<N, Self::Result> {
         let sphere1 = bv.bounding_sphere();
         let ball1 = Ball::new(sphere1.radius());
         let ball2 = Ball::new(self.sphere2.radius());
@@ -99,27 +99,27 @@ where
 
         if let Some(toi) = query::nonlinear_time_of_impact_ball_ball(
             &motion1, &ball1, &motion2, &ball2, self.max_toi, self.target_distance) {
-            BestFirstBVVisitStatus::ContinueWithCost(toi.toi)
-        } else {
-            BestFirstBVVisitStatus::Stop
-        }
-    }
+            let mut res = BestFirstVisitStatus::Continue { cost: toi.toi, result: None };
 
-    #[inline]
-    fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, TOI<N>> {
-        let mut res = BestFirstDataVisitStatus::Continue;
 
-        self.g1.map_part_at(*b, &Isometry::identity(), &mut |m1, g1| {
-            let motion1 = self.motion1.prepend_transformation(*m1);
+            if let Some(b) = data {
+                if toi.toi < best {
+                    self.g1.map_part_at(*b, &Isometry::identity(), &mut |m1, g1| {
+                        let motion1 = self.motion1.prepend_transformation(*m1);
 
-            // NOTE: we have to use a trait-object for `&motion1 as &RigidMotion<N>` to avoid infinite
-            // compiler recursion when it monomorphizes query::nonlinear_time_of_impact.
-            if let Some(toi) =
-                query::nonlinear_time_of_impact(&motion1 as &RigidMotion<N>, g1, self.motion2, self.g2, self.max_toi, self.target_distance) {
-                res = BestFirstDataVisitStatus::ContinueWithResult(toi.toi, toi)
+                        // NOTE: we have to use a trait-object for `&motion1 as &RigidMotion<N>` to avoid infinite
+                        // compiler recursion when it monomorphizes query::nonlinear_time_of_impact.
+                        if let Some(toi) =
+                        query::nonlinear_time_of_impact(&motion1 as &RigidMotion<N>, g1, self.motion2, self.g2, self.max_toi, self.target_distance) {
+                            res = BestFirstVisitStatus::Continue { cost: toi.toi, result: Some(toi) }
+                        }
+                    });
+                }
             }
-        });
 
-        res
+            res
+        } else {
+            BestFirstVisitStatus::Stop
+        }
     }
 }

@@ -1,7 +1,7 @@
 use crate::bounding_volume::AABB;
 use crate::math::Isometry;
 use na::{Point2, RealField, Vector3};
-use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
+use crate::partitioning::{BestFirstVisitStatus, BestFirstVisitor};
 use crate::query::{self, Ray, RayCast, RayIntersection};
 use crate::shape::{CompositeShape, TriMesh, FeatureId};
 
@@ -15,7 +15,7 @@ impl<N: RealField> RayCast<N> for TriMesh<N> {
             ray: &ls_ray,
         };
 
-        self.bvh().best_first_search(&mut visitor)
+        self.bvh().best_first_search(&mut visitor).map(|res| res.1)
     }
 
     #[inline]
@@ -33,7 +33,7 @@ impl<N: RealField> RayCast<N> for TriMesh<N> {
             ray: &ls_ray,
         };
 
-        self.bvh().best_first_search(&mut visitor).map(|(best, mut res)| {
+        self.bvh().best_first_search(&mut visitor).map(|(_, (best, mut res))| {
             if let FeatureId::Face(1) = res.feature {
                 res.feature = FeatureId::Face(best + self.faces().len());
             } else {
@@ -66,7 +66,7 @@ impl<N: RealField> RayCast<N> for TriMesh<N> {
 
         match cast {
             None => None,
-            Some((best, inter, uv)) => {
+            Some((_, (best, inter, uv))) => {
                 let toi = inter.toi;
                 let n = inter.normal;
 
@@ -109,22 +109,24 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for TriMeshRayToiVisi
     type Result = N;
 
     #[inline]
-    fn visit_bv(&mut self, aabb: &AABB<N>) -> BestFirstBVVisitStatus<N> {
-        match aabb.toi_with_ray(&Isometry::identity(), self.ray, true) {
-            Some(toi) => BestFirstBVVisitStatus::ContinueWithCost(toi),
-            None => BestFirstBVVisitStatus::Stop,
-        }
-    }
+    fn visit(&mut self, best: N, aabb: &AABB<N>, data: Option<&usize>) -> BestFirstVisitStatus<N, Self::Result> {
+        if let Some(toi) = aabb.toi_with_ray(&Isometry::identity(), self.ray, true) {
+            let mut res = BestFirstVisitStatus::Continue { cost: toi, result: None };
 
-    #[inline]
-    fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, N> {
-        match self
-            .mesh
-            .triangle_at(*b)
-            .toi_with_ray(&Isometry::identity(), self.ray, true)
-        {
-            Some(toi) => BestFirstDataVisitStatus::ContinueWithResult(toi, toi),
-            None => BestFirstDataVisitStatus::Continue,
+            if let Some(b) = data {
+                if toi < best {
+                    // FIXME: optimize this by not using Isometry identity.
+                    let triangle = self.mesh.triangle_at(*b);
+                    match triangle.toi_with_ray(&Isometry::identity(), self.ray, true) {
+                        Some(toi) => res = BestFirstVisitStatus::Continue { cost: toi, result: Some(toi) },
+                        None => {}
+                    }
+                }
+            }
+
+            res
+        } else {
+            BestFirstVisitStatus::Stop
         }
     }
 }
@@ -138,22 +140,24 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for TriMeshRayToiAndN
     type Result = (usize, RayIntersection<N>);
 
     #[inline]
-    fn visit_bv(&mut self, aabb: &AABB<N>) -> BestFirstBVVisitStatus<N> {
-        match aabb.toi_with_ray(&Isometry::identity(), self.ray, true) {
-            Some(toi) => BestFirstBVVisitStatus::ContinueWithCost(toi),
-            None => BestFirstBVVisitStatus::Stop,
-        }
-    }
+    fn visit(&mut self, best: N, aabb: &AABB<N>, data: Option<&usize>) -> BestFirstVisitStatus<N, Self::Result> {
+        if let Some(toi) = aabb.toi_with_ray(&Isometry::identity(), self.ray, true) {
+            let mut res = BestFirstVisitStatus::Continue { cost: toi, result: None };
 
-    #[inline]
-    fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, (usize, RayIntersection<N>)> {
-        match self.mesh.triangle_at(*b).toi_and_normal_with_ray(
-            &Isometry::identity(),
-            self.ray,
-            true,
-        ) {
-            Some(inter) => BestFirstDataVisitStatus::ContinueWithResult(inter.toi, (*b, inter)),
-            None => BestFirstDataVisitStatus::Continue,
+            if let Some(b) = data {
+                if toi < best {
+                    // FIXME: optimize this by not using Isometry identity.
+                    let triangle = self.mesh.triangle_at(*b);
+                    match triangle.toi_and_normal_with_ray(&Isometry::identity(), self.ray, true) {
+                        Some(toi) => res = BestFirstVisitStatus::Continue { cost: toi.toi, result: Some((*b, toi)) },
+                        None => {}
+                    }
+                }
+            }
+
+            res
+        } else {
+            BestFirstVisitStatus::Stop
         }
     }
 }
@@ -169,31 +173,31 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>>
     type Result = (usize, RayIntersection<N>, Vector3<N>);
 
     #[inline]
-    fn visit_bv(&mut self, aabb: &AABB<N>) -> BestFirstBVVisitStatus<N> {
-        match aabb.toi_with_ray(&Isometry::identity(), self.ray, true) {
-            Some(toi) => BestFirstBVVisitStatus::ContinueWithCost(toi),
-            None => BestFirstBVVisitStatus::Stop,
-        }
-    }
+    fn visit(&mut self, best: N, aabb: &AABB<N>, data: Option<&usize>) -> BestFirstVisitStatus<N, Self::Result> {
+        if let Some(toi) = aabb.toi_with_ray(&Isometry::identity(), self.ray, true) {
+            let mut res = BestFirstVisitStatus::Continue { cost: toi, result: None };
 
-    #[inline]
-    fn visit_data(
-        &mut self,
-        i: &usize,
-    ) -> BestFirstDataVisitStatus<N, (usize, RayIntersection<N>, Vector3<N>)>
-    {
-        let vs = self.mesh.points();
-        let idx = self.mesh.faces()[*i].indices;
+            if let Some(i) = data {
+                if toi < best {
+                    let vs = self.mesh.points();
+                    let idx = self.mesh.faces()[*i].indices;
 
-        let a = &vs[idx[0]];
-        let b = &vs[idx[1]];
-        let c = &vs[idx[2]];
+                    let a = &vs[idx[0]];
+                    let b = &vs[idx[1]];
+                    let c = &vs[idx[2]];
 
-        match query::ray_intersection_with_triangle(a, b, c, self.ray) {
-            Some(inter) => {
-                BestFirstDataVisitStatus::ContinueWithResult(inter.0.toi, (*i, inter.0, inter.1))
+                    match query::ray_intersection_with_triangle(a, b, c, self.ray) {
+                        Some(inter) => {
+                            res = BestFirstVisitStatus::Continue { cost: inter.0.toi, result: Some((*i, inter.0, inter.1)) }
+                        }
+                        None => {},
+                    }
+                }
             }
-            None => BestFirstDataVisitStatus::Continue,
+
+            res
+        } else {
+            BestFirstVisitStatus::Stop
         }
     }
 }

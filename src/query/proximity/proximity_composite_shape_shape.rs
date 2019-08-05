@@ -1,7 +1,7 @@
 use crate::bounding_volume::AABB;
 use crate::math::{Isometry, Point, Vector};
 use na::{self, RealField};
-use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
+use crate::partitioning::{BestFirstVisitStatus, BestFirstVisitor};
 use crate::query::{self, PointQuery, Proximity};
 use crate::shape::{CompositeShape, Shape};
 
@@ -25,7 +25,7 @@ where
 
     match g1.bvh().best_first_search(&mut visitor) {
         None => Proximity::Disjoint,
-        Some(prox) => prox,
+        Some(prox) => prox.1,
     }
 }
 
@@ -86,7 +86,7 @@ where G1: CompositeShape<N>
 {
     type Result = Proximity;
 
-    fn visit_bv(&mut self, bv: &AABB<N>) -> BestFirstBVVisitStatus<N> {
+    fn visit(&mut self, best: N, bv: &AABB<N>, data: Option<&usize>) -> BestFirstVisitStatus<N, Self::Result> {
         // Compute the minkowski sum of the two AABBs.
         let msum = AABB::new(
             *bv.mins() + self.msum_shift + (-self.msum_margin),
@@ -94,32 +94,28 @@ where G1: CompositeShape<N>
         );
 
         // Compute the distance to the origin.
-        let distance = msum.distance_to_point(&Isometry::identity(), &Point::origin(), true);
-        BestFirstBVVisitStatus::ContinueWithCost(distance)
-    }
+        let dist = msum.distance_to_point(&Isometry::identity(), &Point::origin(), true);
+        let mut res = BestFirstVisitStatus::Continue { cost: dist, result: None };
 
-    fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, Proximity> {
-        let mut res = BestFirstDataVisitStatus::Continue;
-
-        self.g1
-            .map_part_at(*b, self.m1, &mut |m1, g1| {
-                res = match query::proximity(
-                    m1,
-                    g1,
-                    self.m2,
-                    self.g2,
-                    self.margin,
-                ) {
-                    Proximity::Disjoint => BestFirstDataVisitStatus::Continue,
-                    Proximity::WithinMargin => BestFirstDataVisitStatus::ContinueWithResult(
-                        self.margin,
-                        Proximity::WithinMargin,
-                    ),
-                    Proximity::Intersecting => {
-                        BestFirstDataVisitStatus::ExitEarlyWithResult(Proximity::Intersecting)
-                    }
-                }
-            });
+        if let Some(b) = data {
+            if dist < best {
+                self.g1
+                    .map_part_at(*b, self.m1, &mut |m1, g1| {
+                        match query::proximity(m1, g1, self.m2, self.g2, self.margin) {
+                            Proximity::WithinMargin => {
+                                res = BestFirstVisitStatus::Continue {
+                                    cost: self.margin,
+                                    result: Some(Proximity::WithinMargin),
+                                }
+                            },
+                            Proximity::Intersecting => {
+                                res = BestFirstVisitStatus::ExitEarly(Some(Proximity::Intersecting))
+                            }
+                            Proximity::Disjoint => {},
+                        }
+                    });
+            }
+        }
 
         res
     }

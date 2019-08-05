@@ -1,7 +1,7 @@
 use crate::bounding_volume::AABB;
 use crate::math::{Isometry, Point, Vector};
 use na::{self, RealField};
-use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
+use crate::partitioning::{BestFirstVisitStatus, BestFirstVisitor};
 use crate::query::{self, PointQuery};
 use crate::shape::{CompositeShape, Shape};
 
@@ -31,6 +31,7 @@ where
     g1.bvh()
         .best_first_search(&mut visitor)
         .expect("The composite shape must not be empty.")
+        .1
 }
 
 /// Smallest distance between a shape and a composite shape.
@@ -65,29 +66,30 @@ where
 {
     type Result = N;
 
-    fn visit_bv(&mut self, bv: &AABB<N>) -> BestFirstBVVisitStatus<N> {
+    fn visit(&mut self, best: N, bv: &AABB<N>, data: Option<&usize>) -> BestFirstVisitStatus<N, Self::Result> {
         // Compute the minkowski sum of the two AABBs.
         let msum = AABB::new(
             *bv.mins() + self.msum_shift + (-self.msum_margin),
             *bv.maxs() + self.msum_shift + self.msum_margin,
         );
 
-        // Compute the distance to the origin.
-        BestFirstBVVisitStatus::ContinueWithCost(msum.distance_to_point(
+        let dist = msum.distance_to_point(
             &Isometry::identity(),
             &Point::origin(),
             true,
-        ))
-    }
+        );
 
-    fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, N> {
-        let mut res = BestFirstDataVisitStatus::Continue;
+        let mut res = BestFirstVisitStatus::Continue { cost: dist, result: None };
 
-        self.g1
-            .map_part_at(*b, self.m1, &mut |m1, g1| {
-                let distance = query::distance(m1, g1, self.m2, self.g2);
-                res = BestFirstDataVisitStatus::ContinueWithResult(distance, distance)
-            });
+        if let Some(b) = data {
+            if dist < best {
+                self.g1
+                    .map_part_at(*b, self.m1, &mut |m1, g1| {
+                        let distance = query::distance(m1, g1, self.m2, self.g2);
+                        res = BestFirstVisitStatus::Continue { cost: distance, result: Some(distance) }
+                    });
+            }
+        }
 
         res
     }

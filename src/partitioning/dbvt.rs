@@ -40,7 +40,9 @@ enum DBVTInternalId {
 /// The identifier of a node of the DBVT.
 #[derive(Copy, Clone, Debug, Hash)]
 pub enum DBVTNodeId {
+    /// Id of a leaf.
     Leaf(usize),
+    /// Id of an internal node.
     Internal(usize),
 }
 

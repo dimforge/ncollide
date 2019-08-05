@@ -1,7 +1,7 @@
 use crate::bounding_volume::AABB;
 use crate::math::{Isometry, Point, Vector};
 use na::{self, RealField};
-use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
+use crate::partitioning::{BestFirstVisitStatus, BestFirstVisitor};
 use crate::query::{self, Ray, RayCast, TOI};
 use crate::shape::{CompositeShape, Shape};
 use crate::bounding_volume::bounding_volume::BoundingVolume;
@@ -21,7 +21,7 @@ where
     G1: CompositeShape<N>,
 {
     let mut visitor = CompositeShapeAgainstAnyTOIVisitor::new(m1, vel1, g1, m2, vel2, g2, distance);
-    g1.bvh().best_first_search(&mut visitor)
+    g1.bvh().best_first_search(&mut visitor).map(|res| res.1)
 }
 
 /// Time Of Impact of any shape with a composite shape, under translational movement.
@@ -91,8 +91,7 @@ where
     }
 }
 
-impl<'a, N, G1: ?Sized> BestFirstVisitor<N, usize, AABB<N>>
-    for CompositeShapeAgainstAnyTOIVisitor<'a, N, G1>
+impl<'a, N, G1: ?Sized> BestFirstVisitor<N, usize, AABB<N>> for CompositeShapeAgainstAnyTOIVisitor<'a, N, G1>
 where
     N: RealField,
     G1: CompositeShape<N>,
@@ -100,7 +99,7 @@ where
     type Result = TOI<N>;
 
     #[inline]
-    fn visit_bv(&mut self, bv: &AABB<N>) -> BestFirstBVVisitStatus<N> {
+    fn visit(&mut self, best: N, bv: &AABB<N>, data: Option<&usize>) -> BestFirstVisitStatus<N, Self::Result> {
         // Compute the minkowski sum of the two AABBs.
         let msum = AABB::new(
             *bv.mins() + self.msum_shift + (-self.msum_margin),
@@ -108,25 +107,24 @@ where
         );
 
         // Compute the TOI.
-        match msum.toi_with_ray(&Isometry::identity(), &self.ray, true) {
-            Some(toi) => BestFirstBVVisitStatus::ContinueWithCost(toi),
-            None => BestFirstBVVisitStatus::Stop,
-        }
-    }
+        if let Some(toi) = msum.toi_with_ray(&Isometry::identity(), &self.ray, true) {
+            let mut res = BestFirstVisitStatus::Continue { cost: toi, result: None };
 
-    #[inline]
-    fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, TOI<N>> {
-        let mut res = BestFirstDataVisitStatus::Continue;
-
-        self.g1
-            .map_part_at(*b, self.m1, &mut |m1, g1| {
-                if let Some(toi) = query::time_of_impact(
-                    m1, self.vel1, g1, self.m2, self.vel2, self.g2, self.distance,
-                ) {
-                    res = BestFirstDataVisitStatus::ContinueWithResult(toi.toi, toi)
+            if let Some(b) = data {
+                if toi < best {
+                    self.g1.map_part_at(*b, self.m1, &mut |m1, g1| {
+                        if let Some(toi) = query::time_of_impact(
+                            m1, self.vel1, g1, self.m2, self.vel2, self.g2, self.distance,
+                        ) {
+                            res = BestFirstVisitStatus::Continue { cost: toi.toi, result: Some(toi) }
+                        }
+                    });
                 }
-            });
+            }
 
-        res
+            res
+        } else {
+            BestFirstVisitStatus::Stop
+        }
     }
 }
