@@ -13,6 +13,7 @@ use std::mem;
 
 /// A triangle shape.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[repr(C)]
 #[derive(PartialEq, Debug, Clone)]
 pub struct Triangle<N: RealField> {
     a: Point<N>,

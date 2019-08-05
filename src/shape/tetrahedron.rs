@@ -7,6 +7,7 @@ use std::mem;
 
 /// A tetrahedron with 4 vertices.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[repr(C)]
 #[derive(Copy, Clone, Debug)]
 pub struct Tetrahedron<N: RealField> {
     a: Point<N>,
