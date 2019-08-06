@@ -4,7 +4,7 @@ use na::{Isometry3, Point3, Translation3, UnitQuaternion, Vector3};
 use ncollide3d::{
     query::{Ray, RayCast},
     shape::{Ball, ShapeHandle},
-    world::{CollisionGroups, CollisionWorld, GeometricQueryType},
+    pipeline::{CollisionGroups, CollisionWorld, GeometricQueryType},
 };
 
 #[test]

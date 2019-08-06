@@ -66,7 +66,7 @@ impl<N: RealField, Handle: CollisionObjectHandle> InteractionGraph<N, Handle> {
     /// a map between `CollisionObjectSlabHandle` and `CollisionObjectGraphIndex`, then you should update this
     /// map to associate `id` to the handle returned by this method. For example:
     ///
-    /// ```
+    /// ```.ignore
     /// // Let `id` be the graph index of the collision object we want to remove.
     /// if let Some(other_handle) = graph.remove_node(id) {
     ///    // The graph index of `other_handle` changed to `id` due to the removal.

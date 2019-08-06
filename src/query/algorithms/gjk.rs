@@ -209,27 +209,9 @@ where
     minkowski_ray_cast(m, shape, &m2, &g2, ray, simplex)
 }
 
-/// Compute the distance that `g1` can travel along the direction `dir` so that
-/// `g1` and `g2` just touch.
-pub fn directional_distance<N, G1: ?Sized, G2: ?Sized>(
-    m1: &Isometry<N>,
-    g1: &G1,
-    m2: &Isometry<N>,
-    g2: &G2,
-    dir: &Vector<N>,
-    simplex: &mut VoronoiSimplex<N>,
-) -> Option<N>
-where
-    N: RealField,
-    G1: SupportMap<N>,
-    G2: SupportMap<N>,
-{
-    directional_distance_and_normal(m1, g1, m2, g2, dir, simplex).map(|res| res.0)
-}
-
 /// Compute the normal and the distance that can travel `g1` along the direction
 /// `dir` so that `g1` and `g2` just touch.
-pub fn directional_distance_and_normal<N, G1: ?Sized, G2: ?Sized>(
+pub fn directional_distance<N, G1: ?Sized, G2: ?Sized>(
     m1: &Isometry<N>,
     g1: &G1,
     m2: &Isometry<N>,
@@ -296,14 +278,12 @@ where
             dir = new_dir;
             max_bound = dist;
         } else {
-//            println!("Exit 5: {}", ltoi);
             // The origin is inside the simplex.
             return Some((ltoi / ray_length, ldir));
         }
 
         let support_point = if max_bound >= old_max_bound {
             // Upper bounds inconsistencies. Consider the projection as a valid support point.
-//            println!("Exit 6: {}, {}, {}, proj: {}", ltoi, max_bound, old_max_bound, proj);
             last_chance = true;
             CSOPoint::single_point(proj + curr_ray.origin.coords)
         } else {
@@ -325,12 +305,9 @@ where
         //          < 0             |  > 0  | New lower bound, move the origin.
         //          > 0             |  < 0  | Miss. No intersection.
         //          > 0             |  > 0  | New higher bound.
-//        println!("Cast on plane: {:?}, {:?}, {:?}", support_point.point, dir, curr_ray);
         match query::ray_toi_with_plane(&support_point.point, &dir, &curr_ray) {
             Some(t) => {
-//                println!("Fount t: {}", t);
                 if dir.dot(&curr_ray.dir) < na::zero() && t > N::zero() {
-//                    println!("Ray advances by t: {}", t);
                     // new lower bound
                     ldir = *dir;
                     ltoi += t;
@@ -338,18 +315,11 @@ where
                     curr_ray.origin += shift;
                     max_bound = N::max_value();
                     simplex.modify_pnts(&|pt| pt.translate1_mut(&-shift));
-
-//                    if last_chance {
-//                        return Some((ltoi / ray_length, ldir));
-//                    }
                     last_chance = false;
-//                    simplex.reset(support_point.translate1(&-curr_ray.origin.coords));
-//                    continue;
                 }
             }
             None => {
                 if dir.dot(&curr_ray.dir) > N::default_epsilon() {
-//                    println!("Exit 1");
                     // miss
                     return None;
                 }
@@ -358,7 +328,6 @@ where
 
 
         if last_chance {
-//            println!("Last chance failed: {}", ltoi);
             return None;
         }
 
@@ -368,22 +337,15 @@ where
         assert!(min_bound == min_bound);
 
         if max_bound - min_bound <= _eps_rel * max_bound {
-//            println!("Exit 2: {}, {}", min_bound, max_bound);
-            return None; // Some((ltoi, ldir)); // the distance found has a good enough precision
+            return None;
         }
 
-        if !simplex.add_point(support_point.translate1(&-curr_ray.origin.coords)) {
-//            println!("Exit 3");
-            // return Some((ltoi, ldir));
-        }
-
+        let _ = simplex.add_point(support_point.translate1(&-curr_ray.origin.coords));
         proj = simplex.project_origin_and_reduce();
 
         if simplex.dimension() == DIM {
-//            println!("Exit 4");
-
             if min_bound >= _eps_tol {
-                return None; // Some((ltoi, ldir));
+                return None;
             } else {
                 return Some((ltoi / ray_length, ldir)); // Point inside of the cso.
             }

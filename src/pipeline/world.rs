@@ -66,7 +66,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
         collision_groups: CollisionGroups,
         query_type: GeometricQueryType<N>,
         data: T,
-    ) -> &mut CollisionObject<N, T>
+    ) -> (CollisionObjectSlabHandle, &mut CollisionObject<N, T>)
     {
         let entry = self.objects.objects.vacant_entry();
         let handle = CollisionObjectSlabHandle(entry.key());
@@ -90,7 +90,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
             data,
         );
 
-        entry.insert(co)
+        (handle, entry.insert(co))
     }
 
     /// Updates the collision world.

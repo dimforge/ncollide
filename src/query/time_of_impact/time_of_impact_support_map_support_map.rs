@@ -1,6 +1,6 @@
 use na::RealField;
 
-use crate::math::{Isometry, Vector};
+use crate::math::{Isometry, Vector, Point};
 use crate::query::{TOI, TOIStatus};
 use crate::query::algorithms::{gjk, VoronoiSimplex, special_support_maps::DilatedShape};
 use crate::shape::SupportMap;
@@ -21,16 +21,31 @@ where
     G2: SupportMap<N>,
 {
     let dvel = vel2 - vel1;
-    unimplemented!()
 
-//    if distance.is_zero() {
-//        gjk::directional_distance(m1, g1, m2, g2, &dvel, &mut VoronoiSimplex::new())
-//    } else {
-//        let dilated1 = DilatedShape {
-//            shape: g1,
-//            radius: distance
-//        };
-//
-//        gjk::directional_distance(m1, &dilated1, m2, g2, &dvel, &mut VoronoiSimplex::new())
-//    }
+    if distance.is_zero() {
+        gjk::directional_distance(m1, g1, m2, g2, &dvel, &mut VoronoiSimplex::new())
+            .map(|(toi, _)|
+                TOI {
+                    toi,
+                    witness1: Point::origin(), // XXX
+                    witness2: Point::origin(), // XXX
+                    status: TOIStatus::Converged, // XXX
+                }
+            )
+    } else {
+        let dilated1 = DilatedShape {
+            shape: g1,
+            radius: distance
+        };
+
+        gjk::directional_distance(m1, &dilated1, m2, g2, &dvel, &mut VoronoiSimplex::new())
+            .map(|(toi, _)|
+                TOI {
+                    toi,
+                    witness1: Point::origin(), // XXX
+                    witness2: Point::origin(), // XXX
+                    status: TOIStatus::Converged, // XXX
+                }
+            )
+    }
 }

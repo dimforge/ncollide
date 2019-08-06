@@ -5,8 +5,6 @@ use crate::query::{self, TOI};
 use crate::shape::{Ball, Shape};
 
 /// Computes the smallest time of impact of two shapes under translational movement.
-///
-/// Returns `0.0` if the objects are touching or penetrating.
 pub fn nonlinear_time_of_impact<N: RealField>(
     motion1: &(impl RigidMotion<N> + ?Sized),
     g1: &Shape<N>,
