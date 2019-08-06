@@ -3,7 +3,7 @@ use na::RealField;
 use crate::query::{PointProjection, PointQuery};
 use crate::shape::{FeatureId, Shape};
 
-impl<N: RealField> PointQuery<N> for Shape<N> {
+impl<N: RealField> PointQuery<N> for dyn Shape<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> PointProjection<N> {
         self.as_point_query()

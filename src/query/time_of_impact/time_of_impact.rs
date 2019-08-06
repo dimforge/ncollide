@@ -67,10 +67,10 @@ impl<N: RealField> TOI<N> {
 pub fn time_of_impact<N: RealField>(
     m1: &Isometry<N>,
     vel1: &Vector<N>,
-    g1: &Shape<N>,
+    g1: &dyn Shape<N>,
     m2: &Isometry<N>,
     vel2: &Vector<N>,
-    g2: &Shape<N>,
+    g2: &dyn Shape<N>,
     max_toi: N,
     target_distance: N,
 ) -> Option<TOI<N>>

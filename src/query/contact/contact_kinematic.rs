@@ -220,10 +220,10 @@ impl<N: RealField> ContactKinematic<N> {
     pub fn contact(
         &self,
         m1: &Isometry<N>,
-        s1: &Shape<N>,
+        s1: &dyn Shape<N>,
         deformations1: Option<&[N]>,
         m2: &Isometry<N>,
-        s2: &Shape<N>,
+        s2: &dyn Shape<N>,
         deformations2: Option<&[N]>,
         default_normal1: &Unit<Vector<N>>,
     ) -> Option<Contact<N>>

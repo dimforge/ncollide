@@ -46,7 +46,7 @@ pub trait BroadPhase<N: RealField, BV, T>: Any + Sync + Send {
     fn proxy(&self, handle: BroadPhaseProxyHandle) -> Option<(&BV, &T)>;
 
     /// Tells the broad phase to remove the given set of handles.
-    fn remove(&mut self, handles: &[BroadPhaseProxyHandle], removal_handler: &mut FnMut(&T, &T));
+    fn remove(&mut self, handles: &[BroadPhaseProxyHandle], removal_handler: &mut dyn FnMut(&T, &T));
 
     /// Sets the next bounding volume to be used during the update of this broad phase.
     fn deferred_set_bounding_volume(&mut self, handle: BroadPhaseProxyHandle, bv: BV);
@@ -58,7 +58,7 @@ pub trait BroadPhase<N: RealField, BV, T>: Any + Sync + Send {
     fn deferred_recompute_all_proximities(&mut self);
 
     /// Updates the object additions, removals, and interferences detection.
-    fn update(&mut self, handler: &mut BroadPhaseInterferenceHandler<T>);
+    fn update(&mut self, handler: &mut dyn BroadPhaseInterferenceHandler<T>);
 
     /*
      * FIXME: the following are not flexible enough.

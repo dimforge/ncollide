@@ -95,7 +95,7 @@ impl<N, BV, T> DBVTBroadPhase<N, BV, T>
         self.pairs.len()
     }
 
-    fn purge_some_contact_pairs(&mut self, handler: &mut BroadPhaseInterferenceHandler<T>) {
+    fn purge_some_contact_pairs(&mut self, handler: &mut dyn BroadPhaseInterferenceHandler<T>) {
         let purge_all = self.purge_all;
         let proxies = &self.proxies;
         let stree = &self.stree;
@@ -165,7 +165,7 @@ impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
         BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
         T: Any + Send + Sync,
 {
-    fn update(&mut self, handler: &mut BroadPhaseInterferenceHandler<T>) {
+    fn update(&mut self, handler: &mut dyn BroadPhaseInterferenceHandler<T>) {
         /*
          * Remove from the trees all nodes that have been deleted or modified.
          */
@@ -274,7 +274,7 @@ impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
         handle
     }
 
-    fn remove(&mut self, handles: &[BroadPhaseProxyHandle], handler: &mut FnMut(&T, &T)) {
+    fn remove(&mut self, handles: &[BroadPhaseProxyHandle], handler: &mut dyn FnMut(&T, &T)) {
         for handle in handles {
             if let Some(proxy) = self.proxies.get_mut(handle.uid()) {
                 match proxy.status {

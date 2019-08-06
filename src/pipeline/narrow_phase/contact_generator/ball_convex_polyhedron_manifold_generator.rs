@@ -26,11 +26,11 @@ impl<N: RealField> BallConvexPolyhedronManifoldGenerator<N> {
     fn do_generate(
         &mut self,
         m1: &Isometry<N>,
-        a: &Shape<N>,
-        proc1: Option<&ContactPreprocessor<N>>,
+        a: &dyn Shape<N>,
+        proc1: Option<&dyn ContactPreprocessor<N>>,
         m2: &Isometry<N>,
-        b: &Shape<N>,
-        proc2: Option<&ContactPreprocessor<N>>,
+        b: &dyn Shape<N>,
+        proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         manifold: &mut ContactManifold<N>,
     ) -> bool
@@ -131,13 +131,13 @@ impl<N: RealField> BallConvexPolyhedronManifoldGenerator<N> {
 impl<N: RealField> ContactManifoldGenerator<N> for BallConvexPolyhedronManifoldGenerator<N> {
     fn generate_contacts(
         &mut self,
-        _: &ContactDispatcher<N>,
+        _: &dyn ContactDispatcher<N>,
         m1: &Isometry<N>,
-        a: &Shape<N>,
-        proc1: Option<&ContactPreprocessor<N>>,
+        a: &dyn Shape<N>,
+        proc1: Option<&dyn ContactPreprocessor<N>>,
         m2: &Isometry<N>,
-        b: &Shape<N>,
-        proc2: Option<&ContactPreprocessor<N>>,
+        b: &dyn Shape<N>,
+        proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         manifold: &mut ContactManifold<N>,
     ) -> bool

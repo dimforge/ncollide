@@ -9,9 +9,9 @@ use crate::shape::{Ball, Plane, Segment, Shape};
 /// Returns `None` if the objects are separated by a distance greater than `max_dist`.
 pub fn closest_points<N: RealField>(
     m1: &Isometry<N>,
-    g1: &Shape<N>,
+    g1: &dyn Shape<N>,
     m2: &Isometry<N>,
-    g2: &Shape<N>,
+    g2: &dyn Shape<N>,
     max_dist: N,
 ) -> ClosestPoints<N>
 {

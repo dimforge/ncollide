@@ -9,13 +9,13 @@ use std::sync::Arc;
 use downcast_rs::Downcast;
 
 pub trait ShapeClone<N: RealField> {
-    fn clone_box(&self) -> Box<Shape<N>> {
+    fn clone_box(&self) -> Box<dyn Shape<N>> {
         unimplemented!()
     }
 }
 
 impl<N: RealField, T: 'static + Shape<N> + Clone> ShapeClone<N> for T {
-    fn clone_box(&self) -> Box<Shape<N>> {
+    fn clone_box(&self) -> Box<dyn Shape<N>> {
         Box::new(self.clone())
     }
 }
@@ -69,43 +69,43 @@ pub trait Shape<N: RealField>: Send + Sync + Downcast + ShapeClone<N> {
 
     /// The `RayCast` implementation of `self`.
     #[inline]
-    fn as_ray_cast(&self) -> Option<&RayCast<N>> {
+    fn as_ray_cast(&self) -> Option<&dyn RayCast<N>> {
         None
     }
 
     /// The `PointQuery` implementation of `self`.
     #[inline]
-    fn as_point_query(&self) -> Option<&PointQuery<N>> {
+    fn as_point_query(&self) -> Option<&dyn PointQuery<N>> {
         None
     }
 
     /// The convex polyhedron representation of `self` if applicable.
     #[inline]
-    fn as_convex_polyhedron(&self) -> Option<&ConvexPolyhedron<N>> {
+    fn as_convex_polyhedron(&self) -> Option<&dyn ConvexPolyhedron<N>> {
         None
     }
 
     /// The support mapping of `self` if applicable.
     #[inline]
-    fn as_support_map(&self) -> Option<&SupportMap<N>> {
+    fn as_support_map(&self) -> Option<&dyn SupportMap<N>> {
         None
     }
 
     /// The composite shape representation of `self` if applicable.
     #[inline]
-    fn as_composite_shape(&self) -> Option<&CompositeShape<N>> {
+    fn as_composite_shape(&self) -> Option<&dyn CompositeShape<N>> {
         None
     }
 
     /// The deformable shape representation of `self` if applicable.
     #[inline]
-    fn as_deformable_shape(&self) -> Option<&DeformableShape<N>> {
+    fn as_deformable_shape(&self) -> Option<&dyn DeformableShape<N>> {
         None
     }
 
     /// The mutable deformable shape representation of `self` if applicable.
     #[inline]
-    fn as_deformable_shape_mut(&mut self) -> Option<&mut DeformableShape<N>> {
+    fn as_deformable_shape_mut(&mut self) -> Option<&mut dyn DeformableShape<N>> {
         None
     }
 
@@ -137,7 +137,7 @@ pub trait Shape<N: RealField>: Send + Sync + Downcast + ShapeClone<N> {
 impl_downcast!(Shape<N> where N: RealField);
 
 /// Trait for casting shapes to its exact represetation.
-impl<N: RealField> Shape<N> {
+impl<N: RealField> dyn Shape<N> {
     /// Tests if this shape has a specific type `T`.
     #[inline]
     pub fn is_shape<T: Shape<N>>(&self) -> bool {
@@ -151,8 +151,8 @@ impl<N: RealField> Shape<N> {
     }
 }
 
-impl<N: RealField> Clone for Box<Shape<N>> {
-    fn clone(&self) -> Box<Shape<N>> {
+impl<N: RealField> Clone for Box<dyn Shape<N>> {
+    fn clone(&self) -> Box<dyn Shape<N>> {
         self.clone_box()
     }
 }
@@ -161,7 +161,7 @@ impl<N: RealField> Clone for Box<Shape<N>> {
 ///
 /// This can be mutated using COW.
 #[derive(Clone)]
-pub struct ShapeHandle<N: RealField>(Arc<Box<Shape<N>>>);
+pub struct ShapeHandle<N: RealField>(Arc<Box<dyn Shape<N>>>);
 
 impl<N: RealField> ShapeHandle<N> {
     /// Creates a sharable shape handle from a shape.
@@ -171,27 +171,27 @@ impl<N: RealField> ShapeHandle<N> {
     }
 
     /// Creates a sharable shape handle from a shape trait object.
-    pub fn from_box(shape: Box<Shape<N>>) -> ShapeHandle<N> {
+    pub fn from_box(shape: Box<dyn Shape<N>>) -> ShapeHandle<N> {
         ShapeHandle(Arc::new(shape))
     }
 
-    pub(crate) fn make_mut(&mut self) -> &mut Shape<N> {
+    pub(crate) fn make_mut(&mut self) -> &mut dyn Shape<N> {
         &mut **Arc::make_mut(&mut self.0)
     }
 }
 
-impl<N: RealField> AsRef<Shape<N>> for ShapeHandle<N> {
+impl<N: RealField> AsRef<dyn Shape<N>> for ShapeHandle<N> {
     #[inline]
-    fn as_ref(&self) -> &Shape<N> {
+    fn as_ref(&self) -> &dyn Shape<N> {
         &*self.deref()
     }
 }
 
 impl<N: RealField> Deref for ShapeHandle<N> {
-    type Target = Shape<N>;
+    type Target = dyn Shape<N>;
 
     #[inline]
-    fn deref(&self) -> &Shape<N> {
+    fn deref(&self) -> &dyn Shape<N> {
         &**self.0.deref()
     }
 }

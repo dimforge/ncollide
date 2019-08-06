@@ -13,7 +13,7 @@ pub fn time_of_impact_composite_shape_shape<N, G1: ?Sized>(
     g1: &G1,
     m2: &Isometry<N>,
     vel2: &Vector<N>,
-    g2: &Shape<N>,
+    g2: &dyn Shape<N>,
     max_toi: N,
     target_distance: N,
 ) -> Option<TOI<N>>
@@ -29,7 +29,7 @@ where
 pub fn time_of_impact_shape_composite_shape<N, G2: ?Sized>(
     m1: &Isometry<N>,
     vel1: &Vector<N>,
-    g1: &Shape<N>,
+    g1: &dyn Shape<N>,
     m2: &Isometry<N>,
     vel2: &Vector<N>,
     g2: &G2,
@@ -54,7 +54,7 @@ struct CompositeShapeAgainstAnyTOIVisitor<'a, N: 'a + RealField, G1: ?Sized + 'a
     g1: &'a G1,
     m2: &'a Isometry<N>,
     vel2: &'a Vector<N>,
-    g2: &'a Shape<N>,
+    g2: &'a dyn Shape<N>,
     max_toi: N,
     target_distance: N,
 }
@@ -70,7 +70,7 @@ where
         g1: &'a G1,
         m2: &'a Isometry<N>,
         vel2: &'a Vector<N>,
-        g2: &'a Shape<N>,
+        g2: &'a dyn Shape<N>,
         max_toi: N,
         target_distance: N,
     ) -> CompositeShapeAgainstAnyTOIVisitor<'a, N, G1>

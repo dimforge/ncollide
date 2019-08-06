@@ -7,9 +7,9 @@ use crate::shape::{Ball, Plane, Shape};
 /// Tests whether two shapes are in intersecting or separated by a distance smaller than `margin`.
 pub fn proximity<N: RealField>(
     m1: &Isometry<N>,
-    g1: &Shape<N>,
+    g1: &dyn Shape<N>,
     m2: &Isometry<N>,
-    g2: &Shape<N>,
+    g2: &dyn Shape<N>,
     margin: N,
 ) -> Proximity
 {

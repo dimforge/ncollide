@@ -109,7 +109,7 @@ impl<N: RealField> CompositeShape<N> for Compound<N> {
         &self,
         i: usize,
         m: &Isometry<N>,
-        f: &mut FnMut(&Isometry<N>, &Shape<N>),
+        f: &mut dyn FnMut(&Isometry<N>, &dyn Shape<N>),
     )
     {
         let elt = &self.shapes()[i];
@@ -123,7 +123,7 @@ impl<N: RealField> CompositeShape<N> for Compound<N> {
         i: usize,
         m: &Isometry<N>,
         _prediction: &ContactPrediction<N>,
-        f: &mut FnMut(&Isometry<N>, &Shape<N>, &ContactPreprocessor<N>),
+        f: &mut dyn FnMut(&Isometry<N>, &dyn Shape<N>, &dyn ContactPreprocessor<N>),
     ) {
         let elt = &self.shapes()[i];
         let pos = m * elt.0;

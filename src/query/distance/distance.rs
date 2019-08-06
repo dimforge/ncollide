@@ -8,9 +8,9 @@ use crate::shape::{Ball, Plane, Shape};
 /// Returns `0.0` if the objects are touching or penetrating.
 pub fn distance<N: RealField>(
     m1: &Isometry<N>,
-    g1: &Shape<N>,
+    g1: &dyn Shape<N>,
     m2: &Isometry<N>,
-    g2: &Shape<N>,
+    g2: &dyn Shape<N>,
 ) -> N
 {
     if let (Some(b1), Some(b2)) = (g1.as_shape::<Ball<N>>(), g2.as_shape::<Ball<N>>()) {

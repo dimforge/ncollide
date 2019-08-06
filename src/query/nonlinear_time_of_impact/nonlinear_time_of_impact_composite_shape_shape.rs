@@ -11,7 +11,7 @@ pub fn nonlinear_time_of_impact_composite_shape_shape<N, G1>(
     motion1: &(impl RigidMotion<N> + ?Sized),
     g1: &G1,
     motion2: &(impl RigidMotion<N> + ?Sized),
-    g2: &Shape<N>,
+    g2: &dyn Shape<N>,
     max_toi: N,
     target_distance: N,
 ) -> Option<TOI<N>>
@@ -27,7 +27,7 @@ where
 /// Time Of Impact of any shape with a composite shape, under a rigid motion (translation + rotation).
 pub fn nonlinear_time_of_impact_shape_composite_shape<N, G2>(
     motion1: &(impl RigidMotion<N> + ?Sized),
-    g1: &Shape<N>,
+    g1: &dyn Shape<N>,
     motion2: &(impl RigidMotion<N> + ?Sized),
     g2: &G2,
     max_toi: N,
@@ -48,7 +48,7 @@ struct CompositeShapeAgainstAnyNonlinearTOIVisitor<'a, N: 'a + RealField, G1: ?S
     motion1: &'a M1,
     g1: &'a G1,
     motion2: &'a M2,
-    g2: &'a Shape<N>,
+    g2: &'a dyn Shape<N>,
 }
 
 impl<'a, N, G1, M1, M2> CompositeShapeAgainstAnyNonlinearTOIVisitor<'a, N, G1, M1, M2>
@@ -62,7 +62,7 @@ where
         motion1: &'a M1,
         g1: &'a G1,
         motion2: &'a M2,
-        g2: &'a Shape<N>,
+        g2: &'a dyn Shape<N>,
         max_toi: N,
         target_distance: N,
     ) -> CompositeShapeAgainstAnyNonlinearTOIVisitor<'a, N, G1, M1, M2>
@@ -110,7 +110,7 @@ where
                         // NOTE: we have to use a trait-object for `&motion1 as &RigidMotion<N>` to avoid infinite
                         // compiler recursion when it monomorphizes query::nonlinear_time_of_impact.
                         if let Some(toi) =
-                        query::nonlinear_time_of_impact(&motion1 as &RigidMotion<N>, g1, self.motion2, self.g2, self.max_toi, self.target_distance) {
+                        query::nonlinear_time_of_impact(&motion1 as &dyn RigidMotion<N>, g1, self.motion2, self.g2, self.max_toi, self.target_distance) {
                             res = BestFirstVisitStatus::Continue { cost: toi.toi, result: Some(toi) }
                         }
                     });

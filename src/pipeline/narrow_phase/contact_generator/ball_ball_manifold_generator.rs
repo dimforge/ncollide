@@ -24,13 +24,13 @@ impl<N: RealField> BallBallManifoldGenerator<N> {
 impl<N: RealField> ContactManifoldGenerator<N> for BallBallManifoldGenerator<N> {
     fn generate_contacts(
         &mut self,
-        _: &ContactDispatcher<N>,
+        _: &dyn ContactDispatcher<N>,
         ma: &Isometry<N>,
-        a: &Shape<N>,
-        proc1: Option<&ContactPreprocessor<N>>,
+        a: &dyn Shape<N>,
+        proc1: Option<&dyn ContactPreprocessor<N>>,
         mb: &Isometry<N>,
-        b: &Shape<N>,
-        proc2: Option<&ContactPreprocessor<N>>,
+        b: &dyn Shape<N>,
+        proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         manifold: &mut ContactManifold<N>,
     ) -> bool

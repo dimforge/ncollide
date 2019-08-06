@@ -12,8 +12,8 @@ use crate::pipeline::object::{CollisionObjectRef, CollisionObjectSet, GeometricQ
 
 /// Collision detector dispatcher for collision objects.
 pub struct NarrowPhase<N: RealField, Handle: CollisionObjectHandle> {
-    contact_dispatcher: Box<ContactDispatcher<N>>,
-    proximity_dispatcher: Box<ProximityDispatcher<N>>,
+    contact_dispatcher: Box<dyn ContactDispatcher<N>>,
+    proximity_dispatcher: Box<dyn ProximityDispatcher<N>>,
     contact_events: ContactEvents<Handle>,
     proximity_events: ProximityEvents<Handle>,
     id_allocator: SlotMap<ContactId, bool>,
@@ -22,8 +22,8 @@ pub struct NarrowPhase<N: RealField, Handle: CollisionObjectHandle> {
 impl<N: RealField, Handle: CollisionObjectHandle> NarrowPhase<N, Handle> {
     /// Creates a new `NarrowPhase`.
     pub fn new(
-        contact_dispatcher: Box<ContactDispatcher<N>>,
-        proximity_dispatcher: Box<ProximityDispatcher<N>>,
+        contact_dispatcher: Box<dyn ContactDispatcher<N>>,
+        proximity_dispatcher: Box<dyn ProximityDispatcher<N>>,
     ) -> NarrowPhase<N, Handle>
     {
         NarrowPhase {
@@ -61,7 +61,7 @@ impl<N: RealField, Handle: CollisionObjectHandle> NarrowPhase<N, Handle> {
         co2: &impl CollisionObjectRef<N>,
         handle1: Handle,
         handle2: Handle,
-        detector: &mut ContactManifoldGenerator<N>,
+        detector: &mut dyn ContactManifoldGenerator<N>,
         manifold: &mut ContactManifold<N>) {
         let had_contacts = manifold.len() != 0;
 
@@ -123,7 +123,7 @@ impl<N: RealField, Handle: CollisionObjectHandle> NarrowPhase<N, Handle> {
         co2: &impl CollisionObjectRef<N>,
         handle1: Handle,
         handle2: Handle,
-        detector: &mut ProximityDetector<N>,
+        detector: &mut dyn ProximityDetector<N>,
         curr_proximity: &mut Proximity) {
 
         if let Some(new_proximity) = detector.update(

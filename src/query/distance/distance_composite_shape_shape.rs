@@ -10,7 +10,7 @@ pub fn distance_composite_shape_shape<N, G1: ?Sized>(
     m1: &Isometry<N>,
     g1: &G1,
     m2: &Isometry<N>,
-    g2: &Shape<N>,
+    g2: &dyn Shape<N>,
 ) -> N
 where
     N: RealField,
@@ -37,7 +37,7 @@ where
 /// Smallest distance between a shape and a composite shape.
 pub fn distance_shape_composite_shape<N, G2: ?Sized>(
     m1: &Isometry<N>,
-    g1: &Shape<N>,
+    g1: &dyn Shape<N>,
     m2: &Isometry<N>,
     g2: &G2,
 ) -> N
@@ -55,7 +55,7 @@ struct CompositeShapeAgainstAnyDistanceVisitor<'a, N: 'a + RealField, G1: ?Sized
     m1: &'a Isometry<N>,
     g1: &'a G1,
     m2: &'a Isometry<N>,
-    g2: &'a Shape<N>,
+    g2: &'a dyn Shape<N>,
 }
 
 impl<'a, N, G1: ?Sized> BestFirstVisitor<N, usize, AABB<N>>

@@ -31,11 +31,11 @@ impl<N: RealField> ProximityDetector<N> for SupportMapSupportMapProximityDetecto
     #[inline]
     fn update(
         &mut self,
-        _: &ProximityDispatcher<N>,
+        _: &dyn ProximityDispatcher<N>,
         ma: &Isometry<N>,
-        a: &Shape<N>,
+        a: &dyn Shape<N>,
         mb: &Isometry<N>,
-        b: &Shape<N>,
+        b: &dyn Shape<N>,
         margin: N,
     ) -> Option<Proximity>
     {

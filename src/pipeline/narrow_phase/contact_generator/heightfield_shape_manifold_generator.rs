@@ -26,13 +26,13 @@ impl<N: RealField> HeightFieldShapeManifoldGenerator<N> {
 
     fn do_update(
         &mut self,
-        dispatcher: &ContactDispatcher<N>,
+        dispatcher: &dyn ContactDispatcher<N>,
         m1: &Isometry<N>,
         g1: &HeightField<N>,
-        proc1: Option<&ContactPreprocessor<N>>,
+        proc1: Option<&dyn ContactPreprocessor<N>>,
         m2: &Isometry<N>,
-        g2: &Shape<N>,
-        proc2: Option<&ContactPreprocessor<N>>,
+        g2: &dyn Shape<N>,
+        proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         manifold: &mut ContactManifold<N>,
         flip: bool,
@@ -128,13 +128,13 @@ impl<N: RealField> HeightFieldShapeManifoldGenerator<N> {
 impl<N: RealField> ContactManifoldGenerator<N> for HeightFieldShapeManifoldGenerator<N> {
     fn generate_contacts(
         &mut self,
-        d: &ContactDispatcher<N>,
+        d: &dyn ContactDispatcher<N>,
         ma: &Isometry<N>,
-        a: &Shape<N>,
-        proc1: Option<&ContactPreprocessor<N>>,
+        a: &dyn Shape<N>,
+        proc1: Option<&dyn ContactPreprocessor<N>>,
         mb: &Isometry<N>,
-        b: &Shape<N>,
-        proc2: Option<&ContactPreprocessor<N>>,
+        b: &dyn Shape<N>,
+        proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         manifold: &mut ContactManifold<N>,
     ) -> bool

@@ -21,10 +21,10 @@ fn main() {
     let cube2 = Cuboid::new(Vector2::new(1.0, 0.5));
 
     let shapes = [
-        &ball1 as &Shape,
-        &ball2 as &Shape,
-        &cube1 as &Shape,
-        &cube2 as &Shape,
+        &ball1 as &dyn Shape,
+        &ball2 as &dyn Shape,
+        &cube1 as &dyn Shape,
+        &cube2 as &dyn Shape,
     ];
 
     let poss = [

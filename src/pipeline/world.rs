@@ -19,7 +19,7 @@ use crate::pipeline::glue::{self, InterferencesWithRay, InterferencesWithPoint, 
 
 
 /// Type of the broad phase trait-object used by the collision world.
-pub type BroadPhaseObject<N> = Box<BroadPhase<N, AABB<N>, CollisionObjectSlabHandle>>;
+pub type BroadPhaseObject<N> = Box<dyn BroadPhase<N, AABB<N>, CollisionObjectSlabHandle>>;
 
 
 /// A world that handles collision objects.
@@ -33,7 +33,7 @@ pub struct CollisionWorld<N: RealField, T> {
     /// The graph of interactions detected so far.
     pub interactions: InteractionGraph<N, CollisionObjectSlabHandle>,
     /// A user-defined broad-phase pair filter.
-    pub pair_filters: Option<Box<BroadPhasePairFilter<N, CollisionObject<N, T>, CollisionObjectSlabHandle>>>,
+    pub pair_filters: Option<Box<dyn BroadPhasePairFilter<N, CollisionObject<N, T>, CollisionObjectSlabHandle>>>,
 }
 
 
@@ -199,7 +199,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
     pub fn set_broad_phase_pair_filter<F>(&mut self, filter: Option<F>)
     where F: BroadPhasePairFilter<N, CollisionObject<N, T>, CollisionObjectSlabHandle> {
         self.pair_filters = filter.map(
-            |f| Box::new(f) as Box<BroadPhasePairFilter<N, CollisionObject<N, T>, CollisionObjectSlabHandle>>
+            |f| Box::new(f) as Box<dyn BroadPhasePairFilter<N, CollisionObject<N, T>, CollisionObjectSlabHandle>>
         );
         self.broad_phase.deferred_recompute_all_proximities();
     }
@@ -354,7 +354,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
     pub fn proximity_pairs(&self, effective_only: bool) -> impl Iterator<Item = (
         CollisionObjectSlabHandle,
         CollisionObjectSlabHandle,
-        &ProximityDetector<N>,
+        &dyn ProximityDetector<N>,
         Proximity,
     )> {
         self.interactions.proximity_pairs(effective_only)
@@ -392,7 +392,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
     /// Refer to the official [user guide](https://nphysics.org/interaction_handling_and_sensors/#interaction-iterators)
     /// for details.
     pub fn proximity_pair(&self, handle1: CollisionObjectSlabHandle, handle2: CollisionObjectSlabHandle, effective_only: bool)
-                          -> Option<(CollisionObjectSlabHandle, CollisionObjectSlabHandle, &ProximityDetector<N>, Proximity)> {
+                          -> Option<(CollisionObjectSlabHandle, CollisionObjectSlabHandle, &dyn ProximityDetector<N>, Proximity)> {
         let co1 = self.objects.collision_object(handle1)?;
         let co2 = self.objects.collision_object(handle2)?;
         let id1 = co1.graph_index().expect(crate::NOT_REGISTERED_ERROR);
@@ -427,7 +427,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
     /// Refer to the official [user guide](https://nphysics.org/interaction_handling_and_sensors/#interaction-iterators)
     /// for details.
     pub fn proximities_with(&self, handle: CollisionObjectSlabHandle, effective_only: bool)
-        -> Option<impl Iterator<Item = (CollisionObjectSlabHandle, CollisionObjectSlabHandle, &ProximityDetector<N>, Proximity)>> {
+        -> Option<impl Iterator<Item = (CollisionObjectSlabHandle, CollisionObjectSlabHandle, &dyn ProximityDetector<N>, Proximity)>> {
         let co = self.objects.collision_object(handle)?;
         let id = co.graph_index().expect(crate::NOT_REGISTERED_ERROR);
         Some(self.interactions.proximities_with(id, effective_only))

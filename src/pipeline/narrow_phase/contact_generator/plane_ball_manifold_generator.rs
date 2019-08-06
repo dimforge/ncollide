@@ -27,11 +27,11 @@ impl<N: RealField> PlaneBallManifoldGenerator<N> {
     #[inline]
     fn do_update_to(
         m1: &Isometry<N>,
-        g1: &Shape<N>,
-        proc1: Option<&ContactPreprocessor<N>>,
+        g1: &dyn Shape<N>,
+        proc1: Option<&dyn ContactPreprocessor<N>>,
         m2: &Isometry<N>,
-        g2: &Shape<N>,
-        proc2: Option<&ContactPreprocessor<N>>,
+        g2: &dyn Shape<N>,
+        proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         manifold: &mut ContactManifold<N>,
         flip: bool,
@@ -86,13 +86,13 @@ impl<N: RealField> ContactManifoldGenerator<N> for PlaneBallManifoldGenerator<N>
     #[inline]
     fn generate_contacts(
         &mut self,
-        _: &ContactDispatcher<N>,
+        _: &dyn ContactDispatcher<N>,
         m1: &Isometry<N>,
-        g1: &Shape<N>,
-        proc1: Option<&ContactPreprocessor<N>>,
+        g1: &dyn Shape<N>,
+        proc1: Option<&dyn ContactPreprocessor<N>>,
         m2: &Isometry<N>,
-        g2: &Shape<N>,
-        proc2: Option<&ContactPreprocessor<N>>,
+        g2: &dyn Shape<N>,
+        proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         manifold: &mut ContactManifold<N>,
     ) -> bool

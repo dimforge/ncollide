@@ -19,7 +19,7 @@ pub trait CompositeShape<N: RealField> {
         &self,
         _: usize,
         m: &Isometry<N>,
-        _: &mut FnMut(&Isometry<N>, &Shape<N>),
+        _: &mut dyn FnMut(&Isometry<N>, &dyn Shape<N>),
     );
 
     /// Applies a transformation matrix and a function to each sub-shape of this concave
@@ -29,7 +29,7 @@ pub trait CompositeShape<N: RealField> {
         _: usize,
         m: &Isometry<N>,
         prediction: &ContactPrediction<N>,
-        _: &mut FnMut(&Isometry<N>, &Shape<N>, &ContactPreprocessor<N>),
+        _: &mut dyn FnMut(&Isometry<N>, &dyn Shape<N>, &dyn ContactPreprocessor<N>),
     );
 
 

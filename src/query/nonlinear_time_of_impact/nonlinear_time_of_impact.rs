@@ -7,9 +7,9 @@ use crate::shape::{Ball, Shape};
 /// Computes the smallest time of impact of two shapes under translational movement.
 pub fn nonlinear_time_of_impact<N: RealField>(
     motion1: &(impl RigidMotion<N> + ?Sized),
-    g1: &Shape<N>,
+    g1: &dyn Shape<N>,
     motion2: &(impl RigidMotion<N> + ?Sized),
-    g2: &Shape<N>,
+    g2: &dyn Shape<N>,
     max_toi: N,
     target_distance: N,
 ) -> Option<TOI<N>>

@@ -40,11 +40,11 @@ impl<N: RealField> ProximityDetector<N> for PlaneSupportMapProximityDetector {
     #[inline]
     fn update(
         &mut self,
-        _: &ProximityDispatcher<N>,
+        _: &dyn ProximityDispatcher<N>,
         ma: &Isometry<N>,
-        plane: &Shape<N>,
+        plane: &dyn Shape<N>,
         mb: &Isometry<N>,
-        b: &Shape<N>,
+        b: &dyn Shape<N>,
         margin: N,
     ) -> Option<Proximity>
     {
@@ -58,11 +58,11 @@ impl<N: RealField> ProximityDetector<N> for SupportMapPlaneProximityDetector {
     #[inline]
     fn update(
         &mut self,
-        disp: &ProximityDispatcher<N>,
+        disp: &dyn ProximityDispatcher<N>,
         ma: &Isometry<N>,
-        a: &Shape<N>,
+        a: &dyn Shape<N>,
         mb: &Isometry<N>,
-        b: &Shape<N>,
+        b: &dyn Shape<N>,
         margin: N,
     ) -> Option<Proximity>
     {

@@ -167,8 +167,8 @@ impl<N: RealField> ContactManifold<N> {
         mut contact: Contact<N>,
         mut kinematic: ContactKinematic<N>,
         tracking_pt: Point<N>,
-        preprocessor1: Option<&ContactPreprocessor<N>>,
-        preprocessor2: Option<&ContactPreprocessor<N>>,
+        preprocessor1: Option<&dyn ContactPreprocessor<N>>,
+        preprocessor2: Option<&dyn ContactPreprocessor<N>>,
     ) -> bool
     {
         if let Some(pp) = preprocessor1 {

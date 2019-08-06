@@ -10,18 +10,18 @@ pub trait ProximityDetector<N: RealField>: Any + Send + Sync {
     /// (the same instance) is always used with the same pair of object.
     fn update(
         &mut self,
-        dispatcher: &ProximityDispatcher<N>,
+        dispatcher: &dyn ProximityDispatcher<N>,
         ma: &Isometry<N>,
-        a: &Shape<N>,
+        a: &dyn Shape<N>,
         mb: &Isometry<N>,
-        b: &Shape<N>,
+        b: &dyn Shape<N>,
         margin: N,
     ) -> Option<Proximity>;
 }
 
-pub type ProximityAlgorithm<N> = Box<ProximityDetector<N>>;
+pub type ProximityAlgorithm<N> = Box<dyn ProximityDetector<N>>;
 
 pub trait ProximityDispatcher<N>: Any + Send + Sync {
     /// Allocate a collision algorithm corresponding to the given pair of shapes.
-    fn get_proximity_algorithm(&self, a: &Shape<N>, b: &Shape<N>) -> Option<ProximityAlgorithm<N>>;
+    fn get_proximity_algorithm(&self, a: &dyn Shape<N>, b: &dyn Shape<N>) -> Option<ProximityAlgorithm<N>>;
 }

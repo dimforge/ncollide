@@ -76,7 +76,7 @@ pub trait CollisionObjectRef<N: RealField> {
     /// interactions in-between two discontinuous positions of the collision object.
     fn predicted_position(&self) -> Option<&Isometry<N>>;
     /// The shape of this collision object.
-    fn shape(&self) -> &Shape<N>;
+    fn shape(&self) -> &dyn Shape<N>;
     /// The collision groups of this collision object.
     fn collision_groups(&self) -> &CollisionGroups;
     /// The type of geometric queries this collision object is subjected to.
@@ -320,7 +320,7 @@ impl<N: RealField, T> CollisionObjectRef<N> for CollisionObject<N, T> {
         self.predicted_position()
     }
 
-    fn shape(&self) -> &Shape<N> {
+    fn shape(&self) -> &dyn Shape<N> {
         self.shape().as_ref()
     }
 

@@ -20,13 +20,13 @@ impl<N: RealField> CapsuleCapsuleManifoldGenerator<N> {
 
     fn do_update(
         &mut self,
-        dispatcher: &ContactDispatcher<N>,
+        dispatcher: &dyn ContactDispatcher<N>,
         m1: &Isometry<N>,
         g1: &Capsule<N>,
-        proc1: Option<&ContactPreprocessor<N>>,
+        proc1: Option<&dyn ContactPreprocessor<N>>,
         m2: &Isometry<N>,
         g2: &Capsule<N>,
-        proc2: Option<&ContactPreprocessor<N>>,
+        proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         manifold: &mut ContactManifold<N>
     ) -> bool
@@ -56,13 +56,13 @@ impl<N: RealField> CapsuleCapsuleManifoldGenerator<N> {
 impl<N: RealField> ContactManifoldGenerator<N> for CapsuleCapsuleManifoldGenerator<N> {
     fn generate_contacts(
         &mut self,
-        d: &ContactDispatcher<N>,
+        d: &dyn ContactDispatcher<N>,
         ma: &Isometry<N>,
-        a: &Shape<N>,
-        proc1: Option<&ContactPreprocessor<N>>,
+        a: &dyn Shape<N>,
+        proc1: Option<&dyn ContactPreprocessor<N>>,
         mb: &Isometry<N>,
-        b: &Shape<N>,
-        proc2: Option<&ContactPreprocessor<N>>,
+        b: &dyn Shape<N>,
+        proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         manifold: &mut ContactManifold<N>,
     ) -> bool

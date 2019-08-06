@@ -1,11 +1,11 @@
 use na::{RealField, Unit};
 
-use crate::math::{Isometry, Vector, Point};
+use crate::math::{Isometry, Vector};
 use crate::query::{self, TOI, TOIStatus};
 use crate::query::algorithms::{VoronoiSimplex, special_support_maps::DilatedShape};
 use crate::query::algorithms::gjk::{self, GJKResult};
 use crate::shape::SupportMap;
-use crate::utils::IsometryOps;
+
 
 /// Time of impacts between two support-mapped shapes under translational movement.
 pub fn time_of_impact_support_map_support_map<N, G1: ?Sized, G2: ?Sized>(

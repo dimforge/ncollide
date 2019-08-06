@@ -32,11 +32,11 @@ impl<N> CompositeShapeShapeProximityDetector<N> {
 impl<N: RealField> CompositeShapeShapeProximityDetector<N> {
     fn do_update(
         &mut self,
-        dispatcher: &ProximityDispatcher<N>,
+        dispatcher: &dyn ProximityDispatcher<N>,
         m1: &Isometry<N>,
-        g1: &CompositeShape<N>,
+        g1: &dyn CompositeShape<N>,
         m2: &Isometry<N>,
-        g2: &Shape<N>,
+        g2: &dyn Shape<N>,
         margin: N,
         flip: bool)
         -> Option<Proximity>
@@ -160,11 +160,11 @@ impl<N: RealField> CompositeShapeShapeProximityDetector<N> {
 impl<N: RealField> ProximityDetector<N> for CompositeShapeShapeProximityDetector<N> {
     fn update(
         &mut self,
-        dispatcher: &ProximityDispatcher<N>,
+        dispatcher: &dyn ProximityDispatcher<N>,
         m1: &Isometry<N>,
-        g1: &Shape<N>,
+        g1: &dyn Shape<N>,
         m2: &Isometry<N>,
-        g2: &Shape<N>,
+        g2: &dyn Shape<N>,
         margin: N,
     ) -> Option<Proximity> {
         if !self.flip {

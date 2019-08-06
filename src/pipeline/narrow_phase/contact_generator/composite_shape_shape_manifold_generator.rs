@@ -29,13 +29,13 @@ impl<N: RealField> CompositeShapeShapeManifoldGenerator<N> {
 
     fn do_update(
         &mut self,
-        dispatcher: &ContactDispatcher<N>,
+        dispatcher: &dyn ContactDispatcher<N>,
         m1: &Isometry<N>,
-        g1: &CompositeShape<N>,
-        proc1: Option<&ContactPreprocessor<N>>,
+        g1: &dyn CompositeShape<N>,
+        proc1: Option<&dyn ContactPreprocessor<N>>,
         m2: &Isometry<N>,
-        g2: &Shape<N>,
-        proc2: Option<&ContactPreprocessor<N>>,
+        g2: &dyn Shape<N>,
+        proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         manifold: &mut ContactManifold<N>,
         flip: bool,
@@ -122,13 +122,13 @@ impl<N: RealField> CompositeShapeShapeManifoldGenerator<N> {
 impl<N: RealField> ContactManifoldGenerator<N> for CompositeShapeShapeManifoldGenerator<N> {
     fn generate_contacts(
         &mut self,
-        d: &ContactDispatcher<N>,
+        d: &dyn ContactDispatcher<N>,
         ma: &Isometry<N>,
-        a: &Shape<N>,
-        proc1: Option<&ContactPreprocessor<N>>,
+        a: &dyn Shape<N>,
+        proc1: Option<&dyn ContactPreprocessor<N>>,
         mb: &Isometry<N>,
-        b: &Shape<N>,
-        proc2: Option<&ContactPreprocessor<N>>,
+        b: &dyn Shape<N>,
+        proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         manifold: &mut ContactManifold<N>,
     ) -> bool
