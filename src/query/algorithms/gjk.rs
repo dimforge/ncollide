@@ -224,8 +224,26 @@ where
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
+    directional_distance_and_normal(m1, g1, m2, g2, dir, simplex).map(|res| res.0)
+}
+
+/// Compute the normal and the distance that can travel `g1` along the direction
+/// `dir` so that `g1` and `g2` just touch.
+pub fn directional_distance_and_normal<N, G1: ?Sized, G2: ?Sized>(
+    m1: &Isometry<N>,
+    g1: &G1,
+    m2: &Isometry<N>,
+    g2: &G2,
+    dir: &Vector<N>,
+    simplex: &mut VoronoiSimplex<N>,
+) -> Option<(N, Vector<N>)>
+where
+    N: RealField,
+    G1: SupportMap<N>,
+    G2: SupportMap<N>,
+{
     let ray = Ray::new(Point::origin(), *dir);
-    minkowski_ray_cast(m1, g1, m2, g2, &ray, simplex).map(|res| res.0)
+    minkowski_ray_cast(m1, g1, m2, g2, &ray, simplex)
 }
 
 // Ray-cast on the Minkowski Difference `m1 * g1 - m2 * g2`.

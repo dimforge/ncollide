@@ -21,7 +21,7 @@ pub struct Cuboid<N: RealField> {
 //                      If `id` is greater than 1 (or 2 in 3D), then the negative axis (-x, -y, -z) is given by `id - 2` (or `id - 3` in 3D).
 impl<N: RealField> Cuboid<N> {
     /// Creates a new box from its half-extents. Half-extents are the box half-width along each
-    /// axis. Each half-extent must be greater than 0.04.
+    /// axis. Each half-extent must be positive.
     #[inline]
     pub fn new(half_extents: Vector<N>) -> Cuboid<N> {
         for i in 0..DIM {

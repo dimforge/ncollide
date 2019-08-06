@@ -41,15 +41,13 @@ impl<N: RealField> RayCast<N> for Ball<N> {
         solid: bool,
     ) -> Option<RayIntersection<N>>
     {
-        let center = Point::from(m.translation.vector);
-        let (inside, inter) = ray_toi_with_ball(&center, self.radius(), ray, solid);
-
-        inter.map(|n| {
-            let pos = ray.origin + ray.dir * n - center;
-            let normal = pos.normalize();
-
-            RayIntersection::new(n, if inside { -normal } else { normal }, FeatureId::Face(0))
-        })
+        ray_toi_and_normal_with_ball(
+            &Point::from(m.translation.vector),
+            self.radius(),
+            ray,
+            solid,
+        )
+        .1
     }
 
     #[cfg(feature = "dim3")]
@@ -114,4 +112,27 @@ pub fn ray_toi_with_ball<N: RealField>(
             }
         }
     }
+}
+
+
+/// Computes the time of impact and contact normal of a ray on a ball.
+#[inline]
+pub fn ray_toi_and_normal_with_ball<N: RealField>(
+    center: &Point<N>,
+    radius: N,
+    ray: &Ray<N>,
+    solid: bool,
+) -> (bool, Option<RayIntersection<N>>)
+{
+    let (inside, inter) = ray_toi_with_ball(&center, radius, ray, solid);
+
+    (
+        inside,
+        inter.map(|n| {
+            let pos = ray.origin + ray.dir * n - center;
+            let normal = pos.normalize();
+
+            RayIntersection::new(n, if inside { -normal } else { normal }, FeatureId::Face(0))
+        }),
+    )
 }

@@ -5,6 +5,10 @@ use na::RealField;
 pub trait HasBoundingVolume<N: RealField, BV> {
     /// The bounding volume of `self` transformed by `m`.
     fn bounding_volume(&self, m: &Isometry<N>) -> BV;
+    /// The bounding volume of `self`.
+    fn local_bounding_volume(&self) -> BV {
+        self.bounding_volume(&Isometry::identity())
+    }
 }
 
 /// Trait of bounding volumes.

@@ -7,7 +7,7 @@ use ncollide3d::shape::Cuboid;
 
 fn main() {
     let cuboid = Cuboid::new(Vector3::new(1.0, 2.0, 2.0));
-    let pt_inside = na::origin::<Point3<f32>>();
+    let pt_inside = Point3::origin();
     let pt_outside = Point3::new(2.0, 2.0, 2.0);
 
     // Solid projection.

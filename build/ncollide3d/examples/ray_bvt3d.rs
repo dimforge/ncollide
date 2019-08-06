@@ -1,7 +1,7 @@
 extern crate nalgebra as na;
 extern crate ncollide3d;
 
-use na::{Isometry3, Vector3};
+use na::{Isometry3, Vector3, Point3};
 use ncollide3d::bounding_volume::{self, BoundingSphere, HasBoundingVolume};
 use ncollide3d::partitioning::{BVT, BVH};
 use ncollide3d::query::{Ray, RayCast, visitors::RayInterferencesCollector};
@@ -54,8 +54,8 @@ fn main() {
     ];
 
     let bvt = BVT::new_balanced(idx_and_bounding_spheres);
-    let ray_hit = Ray::new(na::origin(), Vector3::z());
-    let ray_miss = Ray::new(na::origin(), -Vector3::z());
+    let ray_hit = Ray::new(Point3::origin(), Vector3::z());
+    let ray_miss = Ray::new(Point3::origin(), -Vector3::z());
 
     /*
      * Ray cast using a visitor.

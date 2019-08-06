@@ -1,11 +1,11 @@
-use common::{generate, generate_trimesh_around_origin, unref};
+use crate::common::{generate, generate_trimesh_around_origin, unref};
 use na::Isometry3;
 use ncollide3d::bounding_volume::{AABB, BoundingSphere};
 use ncollide3d::query::{Ray, RayCast};
 use ncollide3d::shape::{Ball, Capsule, Cone, ConvexHull, Cuboid, Cylinder, Segment, Triangle,
                         TriMesh};
-use rand::IsaacRng;
-use test;
+use rand::SeedableRng;
+use rand_isaac::IsaacRng;
 use test::Bencher;
 
 #[path = "../common/macros.rs"]

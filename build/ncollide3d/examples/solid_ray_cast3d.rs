@@ -7,7 +7,7 @@ use ncollide3d::shape::Cuboid;
 
 fn main() {
     let cuboid = Cuboid::new(Vector3::new(1.0, 2.0, 1.0));
-    let ray_inside = Ray::new(na::origin::<Point3<f32>>(), Vector3::y());
+    let ray_inside = Ray::new(Point3::origin(), Vector3::y());
     let ray_miss = Ray::new(Point3::new(2.0, 2.0, 2.0), Vector3::new(1.0, 1.0, 1.0));
 
     // Solid cast.

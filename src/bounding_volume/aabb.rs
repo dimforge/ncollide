@@ -9,12 +9,26 @@ use na::{self, RealField};
 /// Computes the axis-aligned bounding box of a shape `g` transformed by `m`.
 ///
 /// Same as `g.aabb(m)`.
+#[inline]
 pub fn aabb<N, G: ?Sized>(g: &G, m: &Isometry<N>) -> AABB<N>
 where
     N: RealField,
     G: HasBoundingVolume<N, AABB<N>>,
 {
     g.bounding_volume(m)
+}
+
+// Seems useful to help type inference. See issue #84.
+/// Computes the axis-aligned bounding box of a shape `g`.
+///
+/// Same as `g.local_aabb(m)`.
+#[inline]
+pub fn local_aabb<N, G: ?Sized>(g: &G) -> AABB<N>
+where
+    N: RealField,
+    G: HasBoundingVolume<N, AABB<N>>,
+{
+    g.local_bounding_volume()
 }
 
 /// An Axis Aligned Bounding Box.

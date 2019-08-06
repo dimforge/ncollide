@@ -55,8 +55,8 @@ impl Testbed {
             recorder: None,
             font: Font::default(),
             grabbed_object: None,
-            grabbed_object_plane: (na::origin(), na::zero()),
-            cursor_pos: na::origin(),
+            grabbed_object_plane: (Point3::origin(), Point3::zero()),
+            cursor_pos: Point2::origin(),
             draw_colls: false,
             update_time: 0.0,
         }
@@ -161,7 +161,7 @@ impl Testbed {
 
         let time_str = format!("Update time: {:.*}sec.", 4, self.update_time);
         self.window
-            .draw_text(&time_str[..], &na::origin(), 30.0, &self.font, &color);
+            .draw_text(&time_str[..], &Point2::origin(), 30.0, &self.font, &color);
         if self
             .window
             .render_with_camera(self.graphics.borrow_mut().camera_mut())
