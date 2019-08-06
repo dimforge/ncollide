@@ -1,11 +1,11 @@
 //! High level API to detect collisions in large, complex scenes.
 
-use na::RealField;
+use na::{RealField, Unit};
 
-use crate::math::{Isometry, Point};
-use crate::shape::ShapeHandle;
-use crate::bounding_volume::AABB;
-use crate::query::{ContactManifold, Ray, Proximity};
+use crate::math::{Isometry, Point, Vector, Rotation, Translation};
+use crate::shape::{Shape, ShapeHandle};
+use crate::bounding_volume::{AABB, BoundingVolume};
+use crate::query::{self, ContactManifold, Ray, Proximity, TOI};
 use crate::pipeline::object::{
     GeometricQueryType, CollisionObjectSet, CollisionObjects, CollisionObject, CollisionObjectSlab,
     CollisionObjectSlabHandle, CollisionGroups};
@@ -274,6 +274,47 @@ impl<N: RealField, T> CollisionWorld<N, T> {
         if let Some(co) = self.objects.get_mut(handle) {
             co.set_collision_groups(groups);
         }
+    }
+
+
+    /// Returns all objects in the collision world that intersect with the shape
+    /// transformed by `isometry` along `direction` until `maximum_distance` is
+    /// reached. The objects are not returned in any particular order. You may
+    /// use the `toi` returned for each object to determine the closest object.
+    #[inline]
+    pub fn sweep_test<'a>(
+        &'a self,
+        shape: &'a dyn Shape<N>,
+        isometry: &'a Isometry<N>,
+        direction: &'a Unit<Vector<N>>,
+        maximum_distance: N,
+        groups: &'a CollisionGroups,
+    ) -> impl Iterator<Item = (CollisionObjectSlabHandle, TOI<N>)> + 'a {
+        let a = shape.aabb(&isometry);
+        let b = shape.aabb(&Isometry::from_parts(
+            Translation::from(isometry.translation.vector + direction.as_ref() * maximum_distance),
+            Rotation::identity(),
+        ));
+        let aabb = a.merged(&b);
+
+        // FIXME: avoid allocation.
+        let interferences: Vec<_> = self.interferences_with_aabb(&aabb, groups).collect();
+
+        interferences.into_iter().filter_map(move |(handle, x)| {
+            query::time_of_impact(
+                &isometry,
+                &direction,
+                shape,
+                x.position(),
+                &Vector::zeros(),
+                x.shape().as_ref(),
+                N::max_value(),
+                N::zero(),
+            )
+                .map(|toi| {
+                    (handle, toi)
+                })
+        })
     }
 
     /// Computes the interferences between every rigid bodies on this world and a ray.

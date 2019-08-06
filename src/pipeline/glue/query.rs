@@ -39,7 +39,7 @@ pub struct InterferencesWithRay<'a, 'b, N: RealField, Objects: CollisionObjectSe
 impl<'a, 'b, N: RealField, Objects> Iterator for InterferencesWithRay<'a, 'b, N, Objects>
     where N: RealField,
           Objects: CollisionObjectSet<N> {
-    type Item = (&'a Objects::CollisionObject, RayIntersection<N>);
+    type Item = (Objects::CollisionObjectHandle, &'a Objects::CollisionObject, RayIntersection<N>);
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
@@ -51,7 +51,7 @@ impl<'a, 'b, N: RealField, Objects> Iterator for InterferencesWithRay<'a, 'b, N,
                         .toi_and_normal_with_ray(&co.position(), self.ray, true);
 
                     if let Some(inter) = inter {
-                        return Some((co, inter));
+                        return Some((*handle, co, inter));
                     }
                 }
             }
@@ -95,7 +95,7 @@ pub struct InterferencesWithPoint<'a, 'b, N: RealField, Objects: CollisionObject
 impl<'a, 'b, N: RealField, Objects> Iterator for InterferencesWithPoint<'a, 'b, N, Objects>
     where N: RealField,
           Objects: CollisionObjectSet<N> {
-    type Item = &'a Objects::CollisionObject;
+    type Item = (Objects::CollisionObjectHandle, &'a Objects::CollisionObject);
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
@@ -104,7 +104,7 @@ impl<'a, 'b, N: RealField, Objects> Iterator for InterferencesWithPoint<'a, 'b, 
                 if co.collision_groups().can_interact_with_groups(self.groups)
                     && co.shape().contains_point(&co.position(), self.point)
                 {
-                    return Some(co);
+                    return Some((*handle, co));
                 }
             }
         }
@@ -142,14 +142,14 @@ pub struct InterferencesWithAABB<'a, 'b, N: RealField, Objects: CollisionObjectS
 }
 
 impl<'a, 'b, N: RealField, Objects: CollisionObjectSet<N>> Iterator for InterferencesWithAABB<'a, 'b, N, Objects> {
-    type Item = &'a Objects::CollisionObject;
+    type Item = (Objects::CollisionObjectHandle, &'a Objects::CollisionObject);
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         while let Some(handle) = self.handles.next() {
             if let Some(co) = self.objects.collision_object(*handle) {
                 if co.collision_groups().can_interact_with_groups(self.groups) {
-                    return Some(co);
+                    return Some((*handle, co));
                 }
             }
         }
