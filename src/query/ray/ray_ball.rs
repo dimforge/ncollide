@@ -89,6 +89,15 @@ pub fn ray_toi_with_ball<N: RealField>(
     let b = dcenter.dot(&ray.dir);
     let c = dcenter.norm_squared() - radius * radius;
 
+    // Special case for when the dir is zero.
+    if a.is_zero() {
+        if c > na::zero() {
+            return (false, None);
+        } else {
+            return (true, Some(na::zero()));
+        }
+    }
+
     if c > na::zero() && b > na::zero() {
         (false, None)
     } else {
