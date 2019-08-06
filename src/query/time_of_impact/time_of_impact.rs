@@ -3,6 +3,7 @@ use na::{RealField, Unit};
 use crate::math::{Isometry, Point, Vector};
 use crate::query;
 use crate::shape::{Ball, Plane, Shape};
+use crate::utils::IsometryOps;
 
 
 /// The status of the time-of-impact computation algorithm.
@@ -79,6 +80,18 @@ pub fn time_of_impact<N: RealField>(
         let p2 = Point::from(m2.translation.vector);
 
         query::time_of_impact_ball_ball(&p1, vel1, b1, &p2, vel2, b2, max_toi, target_distance)
+            .map(|toi| {
+                // We have to transform back the points and vectors in the sphere's local space since
+                // the time_of_impact_ball_ball did not take rotation into account.
+                TOI {
+                    toi: toi.toi,
+                    witness1: m1.rotation.inverse_transform_point(&toi.witness1),
+                    witness2: m2.rotation.inverse_transform_point(&toi.witness2),
+                    normal1: m1.inverse_transform_unit_vector(&toi.normal1),
+                    normal2: m2.inverse_transform_unit_vector(&toi.normal2),
+                    status: toi.status,
+                }
+            })
     } else if let (Some(p1), Some(s2)) = (g1.as_shape::<Plane<N>>(), g2.as_support_map()) {
         query::time_of_impact_plane_support_map(m1, vel1, p1, m2, vel2, s2, max_toi, target_distance)
     } else if let (Some(s1), Some(p2)) = (g1.as_support_map(), g2.as_shape::<Plane<N>>()) {
