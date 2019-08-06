@@ -23,8 +23,8 @@ impl<N: RealField> Polyline<N> {
         }
 
         Polyline {
-            coords: coords,
-            normals: normals,
+            coords,
+            normals,
         }
     }
 }
@@ -98,6 +98,13 @@ impl<N: RealField> Polyline<N> {
         }
     }
 
+    /// Apply a transformation to every vertex and normal of this polyline and returns it.
+    #[inline]
+    pub fn transformed(mut self, t: &Isometry<N>) -> Self {
+        self.transform_by(t);
+        self
+    }
+
     /// Scales each vertex of this polyline.
     pub fn scale_by_scalar(&mut self, s: &N) {
         for c in self.coords.iter_mut() {
@@ -105,9 +112,7 @@ impl<N: RealField> Polyline<N> {
         }
         // FIXME: do something for the normals?
     }
-}
 
-impl<N: RealField> Polyline<N> {
     /// Scales each vertex of this mesh.
     #[inline]
     pub fn scale_by(&mut self, s: &Vector<N>) {
@@ -117,5 +122,12 @@ impl<N: RealField> Polyline<N> {
             }
         }
         // FIXME: do something for the normals?
+    }
+
+    /// Apply a scaling to every vertex and normal of this polyline and returns it.
+    #[inline]
+    pub fn scaled(mut self, s: &Vector<N>) -> Self {
+        self.scale_by(s);
+        self
     }
 }

@@ -8,7 +8,6 @@ pub use self::center::center;
 pub use self::cleanup::remove_unused_points;
 pub use self::deterministic_state::DeterministicState;
 pub use self::hashable_partial_eq::HashablePartialEq;
-pub use self::id_allocator::{GenerationalId, IdAllocator};
 pub use self::isometry_ops::IsometryOps;
 pub use self::median::median;
 pub use self::point_cloud_support_point::{
@@ -34,7 +33,6 @@ mod center;
 mod cleanup;
 mod deterministic_state;
 mod hashable_partial_eq;
-mod id_allocator;
 mod isometry_ops;
 mod median;
 mod point_cloud_support_point;

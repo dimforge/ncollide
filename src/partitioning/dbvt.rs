@@ -40,7 +40,9 @@ enum DBVTInternalId {
 /// The identifier of a node of the DBVT.
 #[derive(Copy, Clone, Debug, Hash)]
 pub enum DBVTNodeId {
+    /// Id of a leaf.
     Leaf(usize),
+    /// Id of an internal node.
     Internal(usize),
 }
 
@@ -324,6 +326,12 @@ impl<N: RealField, T, BV: BoundingVolume<N>> DBVT<N, T, BV> {
         }
 
         leaf
+    }
+
+    /// Gets the given leaf if it exists.
+    #[inline]
+    pub fn get(&self, DBVTLeafId(id): DBVTLeafId) -> Option<&DBVTLeaf<N, T, BV>> {
+        self.leaves.get(id)
     }
 }
 

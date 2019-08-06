@@ -4,7 +4,6 @@ use crate::query::{ContactManifold, ContactPrediction};
 use crate::shape::Shape;
 use crate::query::ContactPreprocessor;
 use std::any::Any;
-use crate::utils::IdAllocator;
 
 /// An algorithm to compute contact points, normals and penetration depths between two specific
 /// objects.
@@ -19,15 +18,14 @@ pub trait ContactManifoldGenerator<N: RealField>: Any + Send + Sync {
     /// regardless.
     fn generate_contacts(
         &mut self,
-        dispatcher: &ContactDispatcher<N>,
+        dispatcher: &dyn ContactDispatcher<N>,
         ma: &Isometry<N>,
-        a: &Shape<N>,
-        proc1: Option<&ContactPreprocessor<N>>,
+        a: &dyn Shape<N>,
+        proc1: Option<&dyn ContactPreprocessor<N>>,
         mb: &Isometry<N>,
-        b: &Shape<N>,
-        proc2: Option<&ContactPreprocessor<N>>,
+        b: &dyn Shape<N>,
+        proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
     ) -> bool;
 
@@ -37,9 +35,9 @@ pub trait ContactManifoldGenerator<N: RealField>: Any + Send + Sync {
     }
 }
 
-pub type ContactAlgorithm<N> = Box<ContactManifoldGenerator<N>>;
+pub type ContactAlgorithm<N> = Box<dyn ContactManifoldGenerator<N>>;
 
 pub trait ContactDispatcher<N>: Any + Send + Sync {
     /// Allocate a collision algorithm corresponding to a pair of objects with the given shapes.
-    fn get_contact_algorithm(&self, a: &Shape<N>, b: &Shape<N>) -> Option<ContactAlgorithm<N>>;
+    fn get_contact_algorithm(&self, a: &dyn Shape<N>, b: &dyn Shape<N>) -> Option<ContactAlgorithm<N>>;
 }

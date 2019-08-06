@@ -5,12 +5,12 @@ use crate::math::Point;
 use crate::query::Ray;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct ProxyHandle(pub usize);
+pub struct BroadPhaseProxyHandle(pub usize);
 
-impl ProxyHandle {
+impl BroadPhaseProxyHandle {
     #[inline]
     pub fn invalid() -> Self {
-        ProxyHandle(usize::max_value())
+        BroadPhaseProxyHandle(usize::max_value())
     }
 
     #[inline]
@@ -40,22 +40,25 @@ pub trait BroadPhaseInterferenceHandler<T> {
 /// Trait all broad phase must implement.
 pub trait BroadPhase<N: RealField, BV, T>: Any + Sync + Send {
     /// Tells the broad phase to add a bounding-volume at the next update.
-    fn create_proxy(&mut self, bv: BV, data: T) -> ProxyHandle;
+    fn create_proxy(&mut self, bv: BV, data: T) -> BroadPhaseProxyHandle;
+
+    /// Retrieves the bounding volume and data associated to the given proxy.
+    fn proxy(&self, handle: BroadPhaseProxyHandle) -> Option<(&BV, &T)>;
 
     /// Tells the broad phase to remove the given set of handles.
-    fn remove(&mut self, handles: &[ProxyHandle], removal_handler: &mut FnMut(&T, &T));
+    fn remove(&mut self, handles: &[BroadPhaseProxyHandle], removal_handler: &mut dyn FnMut(&T, &T));
 
     /// Sets the next bounding volume to be used during the update of this broad phase.
-    fn deferred_set_bounding_volume(&mut self, handle: ProxyHandle, bv: BV);
+    fn deferred_set_bounding_volume(&mut self, handle: BroadPhaseProxyHandle, bv: BV);
 
     /// Forces the broad-phase to recompute and re-report all the proximities with the given object.
-    fn deferred_recompute_all_proximities_with(&mut self, handle: ProxyHandle);
+    fn deferred_recompute_all_proximities_with(&mut self, handle: BroadPhaseProxyHandle);
 
     /// Forces the broad-phase to recompute and re-report all the proximities.
     fn deferred_recompute_all_proximities(&mut self);
 
     /// Updates the object additions, removals, and interferences detection.
-    fn update(&mut self, handler: &mut BroadPhaseInterferenceHandler<T>);
+    fn update(&mut self, handler: &mut dyn BroadPhaseInterferenceHandler<T>);
 
     /*
      * FIXME: the following are not flexible enough.

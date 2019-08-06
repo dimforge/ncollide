@@ -1,5 +1,5 @@
 use na::RealField;
-use crate::pipeline::narrow_phase::{
+use crate::pipeline::{
     BallBallManifoldGenerator, BallConvexPolyhedronManifoldGenerator,
     CompositeShapeCompositeShapeManifoldGenerator, CompositeShapeShapeManifoldGenerator,
     ContactAlgorithm, ContactDispatcher, ConvexPolyhedronConvexPolyhedronManifoldGenerator,
@@ -23,7 +23,7 @@ impl DefaultContactDispatcher {
 }
 
 impl<N: RealField> ContactDispatcher<N> for DefaultContactDispatcher {
-    fn get_contact_algorithm(&self, a: &Shape<N>, b: &Shape<N>) -> Option<ContactAlgorithm<N>> {
+    fn get_contact_algorithm(&self, a: &dyn Shape<N>, b: &dyn Shape<N>) -> Option<ContactAlgorithm<N>> {
         let a_is_ball = a.is_shape::<Ball<N>>();
         let b_is_ball = b.is_shape::<Ball<N>>();
         let a_is_plane = a.is_shape::<Plane<N>>();
@@ -42,11 +42,6 @@ impl<N: RealField> ContactDispatcher<N> for DefaultContactDispatcher {
                 return Some(Box::new(TriMeshTriMeshManifoldGenerator::<N>::new()));
             }
         }
-
-        {
-        }
-
-
 
         if a_is_heightfield || b_is_heightfield {
             return Some(Box::new(HeightFieldShapeManifoldGenerator::<N>::new(b_is_heightfield)));

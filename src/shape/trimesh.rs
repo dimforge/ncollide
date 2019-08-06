@@ -352,18 +352,30 @@ impl<N: RealField> TriMesh<N> {
         &self.vertices
     }
 
-    /// Applies a transformation to this triangle mesh.
+    /// Applies in-place a transformation to this triangle mesh.
     pub fn transform_by(&mut self, transform: &Isometry<N>) {
         for pt in &mut self.points {
             *pt = transform * *pt
         }
     }
 
-    /// Applies a non-uniform scale to this triangle mesh.
+    /// Applies a transformation to this triangle mesh.
+    pub fn transformed(mut self, transform: &Isometry<N>) -> Self {
+        self.transform_by(transform);
+        self
+    }
+
+    /// Applies in-place a non-uniform scale to this triangle mesh.
     pub fn scale_by(&mut self, scale: &Vector<N>) {
         for pt in &mut self.points {
             pt.coords.component_mul_assign(scale)
         }
+    }
+
+    /// Applies a non-uniform scale to this triangle mesh.
+    pub fn scaled(mut self, scale: &Vector<N>) -> Self {
+        self.scale_by(scale);
+        self
     }
 
     /// Whether this trimesh is considered is oriented or not.
@@ -695,7 +707,7 @@ impl<N: RealField> CompositeShape<N> for TriMesh<N> {
         &self,
         i: usize,
         m: &Isometry<N>,
-        f: &mut FnMut(&Isometry<N>, &Shape<N>),
+        f: &mut dyn FnMut(&Isometry<N>, &dyn Shape<N>),
     )
     {
         let element = self.triangle_at(i);
@@ -707,7 +719,7 @@ impl<N: RealField> CompositeShape<N> for TriMesh<N> {
         i: usize,
         m: &Isometry<N>,
         prediction: &ContactPrediction<N>,
-        f: &mut FnMut(&Isometry<N>, &Shape<N>, &ContactPreprocessor<N>),
+        f: &mut dyn FnMut(&Isometry<N>, &dyn Shape<N>, &dyn ContactPreprocessor<N>),
     ) {
         let element = self.triangle_at(i);
         let preprocessor = TriMeshContactProcessor::new(self, m, i, prediction);

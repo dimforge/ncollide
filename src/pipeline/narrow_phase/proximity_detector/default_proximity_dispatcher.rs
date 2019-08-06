@@ -17,7 +17,7 @@ impl DefaultProximityDispatcher {
 }
 
 impl<N: RealField> ProximityDispatcher<N> for DefaultProximityDispatcher {
-    fn get_proximity_algorithm(&self, a: &Shape<N>, b: &Shape<N>) -> Option<ProximityAlgorithm<N>> {
+    fn get_proximity_algorithm(&self, a: &dyn Shape<N>, b: &dyn Shape<N>) -> Option<ProximityAlgorithm<N>> {
         let a_is_ball = a.is_shape::<Ball<N>>();
         let b_is_ball = b.is_shape::<Ball<N>>();
 

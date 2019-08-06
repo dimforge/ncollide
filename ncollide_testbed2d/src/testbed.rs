@@ -14,7 +14,7 @@ use alga::linear::ProjectiveTransformation;
 use camera::Camera;
 use na::{self, Point2, Point3, Translation2};
 use ncollide2d::shape::Plane;
-use ncollide2d::world::{CollisionGroups, CollisionObjectHandle, CollisionWorld};
+use ncollide2d::world::{CollisionGroups, CollisionObjectSlabHandle, CollisionWorld};
 // use fps::Fps;
 use draw_helper;
 use graphics_manager::{GraphicsManager, GraphicsManagerHandle};
@@ -41,7 +41,7 @@ pub struct Testbed<N: RealField> {
     camera: Camera,
     // font:           Font,
     // fps:            Fps<'static>,
-    grabbed_object: Option<CollisionObjectHandle>,
+    grabbed_object: Option<CollisionObjectSlabHandle>,
     grab_anchor: Point2<N>,
 
     #[cfg(feature = "recording")]
@@ -88,7 +88,7 @@ impl<N: RealField + ToPrimitive> Testbed<N> {
         self.graphics.clone()
     }
 
-    pub fn set_color(&mut self, handle: CollisionObjectHandle, color: Point3<f32>) {
+    pub fn set_color(&mut self, handle: CollisionObjectSlabHandle, color: Point3<f32>) {
         self.graphics.borrow_mut().set_color(handle, color);
     }
 

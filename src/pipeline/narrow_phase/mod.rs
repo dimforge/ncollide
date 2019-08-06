@@ -18,7 +18,9 @@ pub use self::proximity_detector::{
     PlaneSupportMapProximityDetector, ProximityAlgorithm, ProximityDetector, ProximityDispatcher,
     SupportMapPlaneProximityDetector, SupportMapSupportMapProximityDetector,
 };
-pub use self::interaction_graph::{InteractionGraph, InteractionGraphIndex, Interaction};
+pub use self::interaction_graph::{InteractionGraph, CollisionObjectGraphIndex,
+                                  TemporaryInteractionIndex, Interaction};
+pub use self::events::{ProximityEvents, ContactEvents, ProximityEvent, ContactEvent, EventPool};
 
 #[doc(hidden)]
 pub mod contact_generator;
@@ -26,3 +28,4 @@ mod narrow_phase;
 #[doc(hidden)]
 pub mod proximity_detector;
 mod interaction_graph;
+mod events;

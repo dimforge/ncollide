@@ -1,14 +1,14 @@
 use na::RealField;
 use crate::partitioning::{
-    BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor, SimultaneousVisitor,
-    VisitStatus, Visitor, BVT, DBVT,
+    BestFirstVisitStatus, BestFirstVisitor, SimultaneousVisitor,
+    VisitStatus, Visitor, BVT, DBVT, BVTNodeId, DBVTNodeId,
 };
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 
 /// Trait implemented by Bounding Volume Hierarchy.
 pub trait BVH<T, BV> {
-    /// Type of a node of this BVH.
+    /// Type of a node identifiers on this BVH.
     type Node: Copy;
 
     /// The root of the BVH.
@@ -98,35 +98,29 @@ pub trait BVH<T, BV> {
     ///
     /// Returns the content of the leaf with the smallest associated cost, and a result of
     /// user-defined type.
-    fn best_first_search<N, BFS>(&self, visitor: &mut BFS) -> Option<BFS::Result>
+    fn best_first_search<N, BFS>(&self, visitor: &mut BFS) -> Option<(Self::Node, BFS::Result)>
     where
         N: RealField,
         BFS: BestFirstVisitor<N, T, BV>,
     {
         let mut queue: BinaryHeap<WeightedValue<N, Self::Node>> = BinaryHeap::new();
         let mut best_cost = N::max_value();
-        let mut result = None;
+        let mut best_result = None;
 
         if let Some(root) = self.root() {
-            let root_content = self.content(root);
+            let (root_bv, root_data) = self.content(root);
 
-            match visitor.visit_bv(root_content.0) {
-                BestFirstBVVisitStatus::ContinueWithCost(cost) => {
-                    if let Some(data) = root_content.1 {
-                        match visitor.visit_data(data) {
-                            BestFirstDataVisitStatus::ContinueWithResult(res_cost, res) => {
-                                best_cost = res_cost;
-                                result = Some(res);
-                            }
-                            BestFirstDataVisitStatus::ExitEarlyWithResult(res) => return Some(res),
-                            BestFirstDataVisitStatus::Continue => {}
-                            BestFirstDataVisitStatus::ExitEarly => return None,
-                        }
+            match visitor.visit(best_cost, root_bv, root_data) {
+                BestFirstVisitStatus::Continue { cost, result } => {
+                    if let Some(res) = result {
+                        best_cost = cost;
+                        best_result = Some((root, res));
                     }
 
                     queue.push(WeightedValue::new(root, -cost))
                 }
-                BestFirstBVVisitStatus::Stop | BestFirstBVVisitStatus::ExitEarly => return None,
+                BestFirstVisitStatus::Stop => return None,
+                BestFirstVisitStatus::ExitEarly(result) => return result.map(|res| (root, res)),
             }
 
             while let Some(entry) = queue.pop() {
@@ -136,41 +130,27 @@ pub trait BVH<T, BV> {
 
                 for i in 0..self.num_children(entry.value) {
                     let child = self.child(i, entry.value);
-                    let content = self.content(child);
+                    let (child_bv, child_data) = self.content(child);
 
-                    match visitor.visit_bv(content.0) {
-                        BestFirstBVVisitStatus::ContinueWithCost(cost) => {
+                    match visitor.visit(best_cost, child_bv, child_data) {
+                        BestFirstVisitStatus::Continue { cost, result } => {
                             if cost < best_cost {
-                                if let Some(data) = content.1 {
-                                    match visitor.visit_data(data) {
-                                        BestFirstDataVisitStatus::ContinueWithResult(
-                                            res_cost,
-                                            res,
-                                        ) => {
-                                            if res_cost < best_cost {
-                                                best_cost = res_cost;
-                                                result = Some(res)
-                                            }
-                                        }
-                                        BestFirstDataVisitStatus::Continue => {}
-                                        BestFirstDataVisitStatus::ExitEarly => return result,
-                                        BestFirstDataVisitStatus::ExitEarlyWithResult(res) => {
-                                            return Some(res)
-                                        }
-                                    }
+                                if result.is_some() {
+                                    best_cost = cost;
+                                    best_result = result.map(|res| (child, res));
                                 }
 
                                 queue.push(WeightedValue::new(child, -cost))
                             }
                         }
-                        BestFirstBVVisitStatus::ExitEarly => return result,
-                        BestFirstBVVisitStatus::Stop => {}
+                        BestFirstVisitStatus::ExitEarly(result) => return result.map(|res| (child, res)).or(best_result),
+                        BestFirstVisitStatus::Stop => {}
                     }
                 }
             }
         }
 
-        result
+        best_result
     }
 }
 
@@ -181,6 +161,14 @@ pub enum BVHImpl<'a, N: 'a + RealField, T: 'a, BV: 'a> {
     BVT(&'a BVT<T, BV>),
     /// A dynamic binary bounding volume tree.
     DBVT(&'a DBVT<N, T, BV>),
+}
+
+/// The Id of a node of a BVH.
+pub enum BVHNodeId {
+    // The Id of a BVT.
+    BVTNodeId(BVTNodeId),
+    // The Id of a DBVT.
+    DBVTNodeId(DBVTNodeId)
 }
 
 impl<'a, N: RealField, T, BV> BVHImpl<'a, N, T, BV> {
@@ -241,11 +229,11 @@ impl<'a, N: RealField, T, BV> BVHImpl<'a, N, T, BV> {
     ///
     /// Returns the content of the leaf with the smallest associated cost, and a result of
     /// user-defined type.
-    pub fn best_first_search<BFS>(self, visitor: &mut BFS) -> Option<BFS::Result>
+    pub fn best_first_search<BFS>(self, visitor: &mut BFS) -> Option<(BVHNodeId, BFS::Result)>
     where BFS: BestFirstVisitor<N, T, BV> {
         match self {
-            BVHImpl::BVT(bvt) => bvt.best_first_search(visitor),
-            BVHImpl::DBVT(dbvt) => dbvt.best_first_search(visitor),
+            BVHImpl::BVT(bvt) => bvt.best_first_search(visitor).map(|res| (BVHNodeId::BVTNodeId(res.0), res.1)),
+            BVHImpl::DBVT(dbvt) => dbvt.best_first_search(visitor).map(|res| (BVHNodeId::DBVTNodeId(res.0), res.1)),
         }
     }
 }

@@ -27,6 +27,8 @@ fn main() {
         &cuboid_pos,
         &box_vel1,
         &cuboid,
+       std::f64::MAX,
+        0.0,
     );
     let toi_will_touch = query::time_of_impact(
         &ball_pos_will_touch,
@@ -35,6 +37,8 @@ fn main() {
         &cuboid_pos,
         &box_vel2,
         &cuboid,
+       std::f64::MAX,
+        0.0,
     );
     let toi_wont_touch = query::time_of_impact(
         &ball_pos_wont_touch,
@@ -43,10 +47,12 @@ fn main() {
         &cuboid_pos,
         &box_vel1,
         &cuboid,
+       std::f64::MAX,
+        0.0,
     );
 
-    assert_eq!(toi_intersecting, Some(0.0));
+    assert_eq!(toi_intersecting.map(|toi| toi.toi), Some(0.0));
     println!("Toi: {:?}", toi_will_touch);
-    assert!(toi_will_touch.is_some() && toi_will_touch.unwrap() > 0.0);
-    assert_eq!(toi_wont_touch, None);
+    assert!(toi_will_touch.is_some() && toi_will_touch.unwrap().toi > 0.0);
+    assert_eq!(toi_wont_touch.map(|toi| toi.toi), None);
 }

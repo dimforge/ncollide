@@ -1,12 +1,11 @@
 use crate::bounding_volume::{self, BoundingVolume};
 use crate::math::Isometry;
 use na::{self, RealField};
-use crate::pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
+use crate::pipeline::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
 use crate::query::{ContactManifold, ContactPrediction, ContactPreprocessor};
 use crate::shape::{Shape, HeightField};
 use std::collections::{hash_map::Entry, HashMap};
 use crate::utils::DeterministicState;
-use crate::utils::IdAllocator;
 
 /// Collision detector between an heightfield and another shape.
 pub struct HeightFieldShapeManifoldGenerator<N: RealField> {
@@ -27,15 +26,14 @@ impl<N: RealField> HeightFieldShapeManifoldGenerator<N> {
 
     fn do_update(
         &mut self,
-        dispatcher: &ContactDispatcher<N>,
+        dispatcher: &dyn ContactDispatcher<N>,
         m1: &Isometry<N>,
         g1: &HeightField<N>,
-        proc1: Option<&ContactPreprocessor<N>>,
+        proc1: Option<&dyn ContactPreprocessor<N>>,
         m2: &Isometry<N>,
-        g2: &Shape<N>,
-        proc2: Option<&ContactPreprocessor<N>>,
+        g2: &dyn Shape<N>,
+        proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
         flip: bool,
     )
@@ -59,7 +57,6 @@ impl<N: RealField> HeightFieldShapeManifoldGenerator<N> {
                             elt1,
                             Some(&(proc1, part_proc1)),
                             prediction,
-                            id_alloc,
                             manifold
                         )
                     } else {
@@ -72,7 +69,6 @@ impl<N: RealField> HeightFieldShapeManifoldGenerator<N> {
                             g2,
                             proc2,
                             prediction,
-                            id_alloc,
                             manifold
                         )
                     };
@@ -99,7 +95,6 @@ impl<N: RealField> HeightFieldShapeManifoldGenerator<N> {
                                 elt1,
                                 Some(&(proc1, part_proc1)),
                                 prediction,
-                                id_alloc,
                                 manifold
                             );
                         } else {
@@ -112,7 +107,6 @@ impl<N: RealField> HeightFieldShapeManifoldGenerator<N> {
                                 g2,
                                 proc2,
                                 prediction,
-                                id_alloc,
                                 manifold
                             );
                         }
@@ -134,26 +128,25 @@ impl<N: RealField> HeightFieldShapeManifoldGenerator<N> {
 impl<N: RealField> ContactManifoldGenerator<N> for HeightFieldShapeManifoldGenerator<N> {
     fn generate_contacts(
         &mut self,
-        d: &ContactDispatcher<N>,
+        d: &dyn ContactDispatcher<N>,
         ma: &Isometry<N>,
-        a: &Shape<N>,
-        proc1: Option<&ContactPreprocessor<N>>,
+        a: &dyn Shape<N>,
+        proc1: Option<&dyn ContactPreprocessor<N>>,
         mb: &Isometry<N>,
-        b: &Shape<N>,
-        proc2: Option<&ContactPreprocessor<N>>,
+        b: &dyn Shape<N>,
+        proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
     ) -> bool
     {
         if !self.flip {
             if let Some(hf) = a.as_shape::<HeightField<N>>() {
-                self.do_update(d, ma, hf, proc1, mb, b, proc2, prediction, id_alloc, manifold, false);
+                self.do_update(d, ma, hf, proc1, mb, b, proc2, prediction, manifold, false);
                 return true;
             }
         } else {
             if let Some(hf) = b.as_shape::<HeightField<N>>() {
-                self.do_update(d, mb, hf, proc2, ma, a, proc1, prediction, id_alloc, manifold, true);
+                self.do_update(d, mb, hf, proc2, ma, a, proc1, prediction, manifold, true);
                 return true;
             }
         }

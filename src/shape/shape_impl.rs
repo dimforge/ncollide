@@ -15,7 +15,7 @@ use crate::utils::IsometryOps;
 macro_rules! impl_as_convex_polyhedron (
     () => {
         #[inline]
-        fn as_convex_polyhedron(&self) -> Option<&ConvexPolyhedron<N>> {
+        fn as_convex_polyhedron(&self) -> Option<&dyn ConvexPolyhedron<N>> {
             Some(self)
         }
 
@@ -34,7 +34,7 @@ macro_rules! impl_as_convex_polyhedron (
 macro_rules! impl_as_support_map (
     () => {
         #[inline]
-        fn as_support_map(&self) -> Option<&SupportMap<N>> {
+        fn as_support_map(&self) -> Option<&dyn SupportMap<N>> {
             Some(self)
         }
 
@@ -48,7 +48,7 @@ macro_rules! impl_as_support_map (
 macro_rules! impl_as_composite_shape (
     () => {
         #[inline]
-        fn as_composite_shape(&self) -> Option<&CompositeShape<N>> {
+        fn as_composite_shape(&self) -> Option<&dyn CompositeShape<N>> {
             Some(self)
         }
 
@@ -62,12 +62,12 @@ macro_rules! impl_as_composite_shape (
 macro_rules! impl_as_deformable_shape (
     () => {
         #[inline]
-        fn as_deformable_shape(&self) -> Option<&DeformableShape<N>> {
+        fn as_deformable_shape(&self) -> Option<&dyn DeformableShape<N>> {
             Some(self)
         }
 
         #[inline]
-        fn as_deformable_shape_mut(&mut self) -> Option<&mut DeformableShape<N>> {
+        fn as_deformable_shape_mut(&mut self) -> Option<&mut dyn DeformableShape<N>> {
             Some(self)
         }
 
@@ -96,12 +96,12 @@ macro_rules! impl_shape_common (
         }
 
         #[inline]
-        fn as_ray_cast(&self) -> Option<&RayCast<N>> {
+        fn as_ray_cast(&self) -> Option<&dyn RayCast<N>> {
             Some(self)
         }
 
         #[inline]
-        fn as_point_query(&self) -> Option<&PointQuery<N>> {
+        fn as_point_query(&self) -> Option<&dyn PointQuery<N>> {
             Some(self)
         }
     }

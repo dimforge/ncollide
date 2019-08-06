@@ -7,8 +7,8 @@ use alga::general::RealField;
 use na::{self, Unit};
 
 use crate::math::{Isometry, Point, Vector};
-use crate::query::algorithms::{gjk, CSOPoint, VoronoiSimplex};
-use crate::shape::{ConstantOrigin, SupportMap};
+use crate::query::algorithms::{gjk, CSOPoint, VoronoiSimplex, special_support_maps::ConstantOrigin};
+use crate::shape::SupportMap;
 use crate::utils;
 
 #[derive(Copy, Clone, PartialEq)]

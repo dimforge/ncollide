@@ -1,4 +1,4 @@
-/// The status of the spatial partitoning structure traversal.
+/// The status of the spatial partitioning structure traversal.
 pub enum VisitStatus {
     /// The traversal should continue on the children of the currently visited nodes.
     Continue,
@@ -32,36 +32,29 @@ pub trait SimultaneousVisitor<T, BV> {
     ) -> VisitStatus;
 }
 
-/// The next action to be taken by a BVH traversal algorithm after having visited a node with a bounding volume.
-pub enum BestFirstBVVisitStatus<N> {
-    /// The traversal continues recursively, associating the given cost to the visited node.
-    ContinueWithCost(N),
-    // FIXME: rename this to StopPropagation?
-    /// The traversal does not continue recursively on the descendants of this node (but continues on other nodes).
-    Stop,
-    /// The traversal aborts, returning the last best result found.
-    ExitEarly,
-}
-
 /// The next action to be taken by a BVH traversal algorithm after having visited a node with some data.
-pub enum BestFirstDataVisitStatus<N, Res> {
-    /// The traversal continues recursively on the descendants of this node, if any. The given result associated by a cost value are registered.
-    ContinueWithResult(N, Res),
-    /// The traversal continues recursively on the descendant of this node.
-    Continue,
-    /// The traversal aborts, returning the given result.
-    ExitEarlyWithResult(Res),
-    /// The traversal aborts, returnin the last best result found.
-    ExitEarly,
+pub enum BestFirstVisitStatus<N, Res> {
+    /// The traversal continues recursively, associating the given cost to the visited node and some associated result.
+    Continue {
+        /// The cost associated to this node.
+        cost: N,
+        /// The result, if any, associated to this cost.
+        result: Option<Res>
+    },
+    /// The traversal does not continue recursively on the visited node's children.
+    Stop,
+    /// The traversal aborts.
+    ///
+    /// If a data is provided, then it is returned as the result of the traversal.
+    /// If no result is provided, then the last best result found becomes the result of the traversal.
+    ExitEarly(Option<Res>),
 }
 
 /// Trait implemented by cost functions used by the best-first search on a `BVT`.
 pub trait BestFirstVisitor<N, T, BV> {
-    /// The result of a best-fist traversal.
+    /// The result of a best-first traversal.
     type Result;
 
     /// Compute the next action to be taken by the best-first-search after visiting a node containing the given bounding volume.
-    fn visit_bv(&mut self, bv: &BV) -> BestFirstBVVisitStatus<N>;
-    /// Compute the next action to be taken by the best-first-search after visiting a node containing the given data.
-    fn visit_data(&mut self, data: &T) -> BestFirstDataVisitStatus<N, Self::Result>;
+    fn visit(&mut self, best_cost_so_far: N, bv: &BV, value: Option<&T>) -> BestFirstVisitStatus<N, Self::Result>;
 }

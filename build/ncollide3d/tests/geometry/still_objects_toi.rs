@@ -25,7 +25,7 @@ fn collide(v_y: f32) -> Option<f32> {
     let vel2 = Vector3::zeros();
     let cuboid = Cuboid::new(Vector3::new(0.5, 0.5, 0.5));
 
-    time_of_impact(&pos1, &vel1, &cuboid, &pos2, &vel2, &cuboid)
+    time_of_impact(&pos1, &vel1, &cuboid, &pos2, &vel2, &cuboid, std::f32::MAX, 0.0).map(|toi| toi.toi)
 }
 
 #[test]

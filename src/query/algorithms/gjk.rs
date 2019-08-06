@@ -4,11 +4,11 @@
 use alga::general::RealField;
 use na::{self, Unit};
 
-use crate::query::algorithms::{CSOPoint, VoronoiSimplex};
-use crate::shape::{ConstantOrigin, SupportMap};
+use crate::query::algorithms::{CSOPoint, VoronoiSimplex, special_support_maps::ConstantOrigin};
+use crate::shape::SupportMap;
 // use query::Proximity;
 use crate::math::{Isometry, Point, Vector, DIM};
-use crate::query::{ray_internal, Ray};
+use crate::query::{self, Ray};
 
 /// Results of the GJK algorithm.
 #[derive(Clone, Debug, PartialEq)]
@@ -26,7 +26,7 @@ pub enum GJKResult<N: RealField> {
 /// The absolute tolerence used by the GJK algorithm.
 pub fn eps_tol<N: RealField>() -> N {
     let _eps = N::default_epsilon();
-    _eps * na::convert(100.0f64)
+    _eps * na::convert(10.0f64)
 }
 
 /// Projects the origin on the boundary of the given shape.
@@ -92,29 +92,6 @@ where
     let _eps_tol: N = eps_tol();
     let _eps_rel: N = _eps_tol.sqrt();
 
-    fn result<N: RealField>(simplex: &VoronoiSimplex<N>, prev: bool) -> (Point<N>, Point<N>) {
-        let mut res = (Point::origin(), Point::origin());
-        if prev {
-            for i in 0..simplex.prev_dimension() + 1 {
-                let coord = simplex.prev_proj_coord(i);
-                let point = simplex.prev_point(i);
-                res.0 += point.orig1.coords * coord;
-                res.1 += point.orig2.coords * coord;
-            }
-
-            res
-        } else {
-            for i in 0..simplex.dimension() + 1 {
-                let coord = simplex.proj_coord(i);
-                let point = simplex.point(i);
-                res.0 += point.orig1.coords * coord;
-                res.1 += point.orig2.coords * coord;
-            }
-
-            res
-        }
-    }
-
     // FIXME: reset the simplex if it is empty?
     let mut proj = simplex.project_origin_and_reduce();
     let mut old_dir = -Unit::new_normalize(proj.coords);
@@ -149,7 +126,7 @@ where
 
         if min_bound > max_dist {
             return GJKResult::NoIntersection(dir);
-        } else if !exact_dist && min_bound > na::zero() {
+        } else if !exact_dist && min_bound > na::zero() && max_bound <= max_dist {
             return GJKResult::Proximity(old_dir);
         } else if max_bound - min_bound <= _eps_rel * max_bound {
             if exact_dist {
@@ -187,7 +164,7 @@ where
         }
         niter += 1;
         if niter == 10000 {
-//            println!("Error: GJK did not converge.");
+//            eprintln!("Error: GJK did not converge.");
             return GJKResult::NoIntersection(Vector::x_axis());
         }
     }
@@ -209,8 +186,8 @@ where
     minkowski_ray_cast(m, shape, &m2, &g2, ray, simplex)
 }
 
-/// Compute the distance that can travel `g1` along the direction `dir` so that
-/// `g1` and `g2` just touch.
+/// Compute the normal and the distance that can travel `g1` along the direction
+/// `dir` so that `g1` and `g2` just touch.
 pub fn directional_distance<N, G1: ?Sized, G2: ?Sized>(
     m1: &Isometry<N>,
     g1: &G1,
@@ -218,25 +195,7 @@ pub fn directional_distance<N, G1: ?Sized, G2: ?Sized>(
     g2: &G2,
     dir: &Vector<N>,
     simplex: &mut VoronoiSimplex<N>,
-) -> Option<N>
-where
-    N: RealField,
-    G1: SupportMap<N>,
-    G2: SupportMap<N>,
-{
-    directional_distance_and_normal(m1, g1, m2, g2, dir, simplex).map(|res| res.0)
-}
-
-/// Compute the normal and the distance that can travel `g1` along the direction
-/// `dir` so that `g1` and `g2` just touch.
-pub fn directional_distance_and_normal<N, G1: ?Sized, G2: ?Sized>(
-    m1: &Isometry<N>,
-    g1: &G1,
-    m2: &Isometry<N>,
-    g2: &G2,
-    dir: &Vector<N>,
-    simplex: &mut VoronoiSimplex<N>,
-) -> Option<(N, Vector<N>)>
+) -> Option<(N, Vector<N>, Point<N>, Point<N>)>
 where
     N: RealField,
     G1: SupportMap<N>,
@@ -244,6 +203,17 @@ where
 {
     let ray = Ray::new(Point::origin(), *dir);
     minkowski_ray_cast(m1, g1, m2, g2, &ray, simplex)
+        .map(|(toi, normal)| {
+            let witnesses = if !toi.is_zero() {
+                result(simplex, simplex.dimension() == DIM)
+            } else {
+                // If there is penetration, the witness points
+                // are undefined.
+                (Point::origin(), Point::origin())
+            };
+
+            (toi, normal, witnesses.0, witnesses.1)
+        })
 }
 
 // Ray-cast on the Minkowski Difference `m1 * g1 - m2 * g2`.
@@ -260,47 +230,75 @@ where
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
-    let mut ltoi: N = na::zero();
-    let mut old_max_bound = N::max_value();
-    let _eps_tol = eps_tol();
+    let _eps = N::default_epsilon();
+    let _eps_tol: N = eps_tol();
+    let _eps_rel: N = _eps_tol.sqrt();
 
-    if relative_eq!(ray.dir.norm_squared(), N::zero()) {
+    let ray_length = ray.dir.norm();
+
+    if relative_eq!(ray_length, N::zero()) {
         return None;
     }
 
-    let mut curr_ray = *ray;
-    let mut dir = -ray.dir;
+    let mut ltoi = N::zero();
+    let mut curr_ray = Ray::new(ray.origin, ray.dir / ray_length);
+    let dir = -curr_ray.dir;
     let mut ldir = dir;
-    let mut simplex_init = false;
+
+    // Initialize the simplex.
+    let support_point = CSOPoint::from_shapes(m1, g1, m2, g2, &dir);
+    simplex.reset(support_point.translate(&-curr_ray.origin.coords));
+
+
+    // FIXME: reset the simplex if it is empty?
+    let mut proj = simplex.project_origin_and_reduce();
+    let mut max_bound = N::max_value();
+    let mut dir;
+    let mut niter = 0;
+    let mut last_chance = false;
 
     loop {
-        let mut ray_advanced = false;
+        let old_max_bound = max_bound;
 
-        if dir.normalize_mut().is_zero() {
-            return Some((ltoi, ldir));
+        if let Some((new_dir, dist)) = Unit::try_new_and_get(-proj.coords, _eps_tol) {
+            dir = new_dir;
+            max_bound = dist;
+        } else {
+            return Some((ltoi / ray_length, ldir));
         }
 
-        let support_point = CSOPoint::from_shapes(m1, g1, m2, g2, &dir);
+        let support_point = if max_bound >= old_max_bound {
+            // Upper bounds inconsistencies. Consider the projection as a valid support point.
+            last_chance = true;
+            CSOPoint::single_point(proj + curr_ray.origin.coords)
+        } else {
+            CSOPoint::from_shapes(m1, g1, m2, g2, &dir)
+        };
+
+
+        if last_chance && ltoi > N::zero() { // last_chance && ltoi > N::zero() && (support_point.point - curr_ray.origin).dot(&ldir) >= N::zero() {
+            return Some((ltoi / ray_length, ldir));
+        }
 
         // Clip the ray on the support plane (None <=> t < 0)
         // The configurations are:
         //   dir.dot(curr_ray.dir)  |   t   |               Action
-        // −−−−−−−−−−−−−−−−−−−−+−−−−−−−+−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−
-        //          < 0        |  < 0  | Continue.
-        //          < 0        |  > 0  | New lower bound, move the origin.
-        //          > 0        |  < 0  | Miss. No intersection.
-        //          > 0        |  > 0  | New higher bound.
-        match ray_internal::plane_toi_with_ray(&support_point.point, &dir, &curr_ray) {
+        // −−−−−−−−−−−−−−−−−−−−-----+−−−−−−−+−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−
+        //          < 0             |  < 0  | Continue.
+        //          < 0             |  > 0  | New lower bound, move the origin.
+        //          > 0             |  < 0  | Miss. No intersection.
+        //          > 0             |  > 0  | New higher bound.
+        match query::ray_toi_with_plane(&support_point.point, &dir, &curr_ray) {
             Some(t) => {
                 if dir.dot(&curr_ray.dir) < na::zero() && t > N::zero() {
                     // new lower bound
-                    ldir = dir;
+                    ldir = *dir;
                     ltoi += t;
                     let shift = curr_ray.dir * t;
-                    curr_ray.origin = curr_ray.origin + shift;
-                    // FIXME: could we simply translate the simplex by old_origin - new_origin ?
-                    simplex.modify_pnts(&|pt| pt.translate1_mut(&-shift));
-                    ray_advanced = true;
+                    curr_ray.origin += shift;
+                    max_bound = N::max_value();
+                    simplex.modify_pnts(&|pt| pt.translate_mut(&-shift));
+                    last_chance = false;
                 }
             }
             None => {
@@ -311,31 +309,57 @@ where
             }
         }
 
-        if !simplex_init {
-            simplex.reset(support_point.translate1(&-curr_ray.origin.coords));
-            simplex_init = true;
-        } else if !simplex.add_point(support_point.translate1(&-curr_ray.origin.coords)) && !ray_advanced {
-            return Some((ltoi, ldir));
+        if last_chance {
+            return None;
         }
 
-        let proj = simplex.project_origin_and_reduce().coords;
-        let max_bound = proj.norm_squared();
+        let min_bound = -dir.dot(&(support_point.point.coords - curr_ray.origin.coords));
+
+        assert!(min_bound == min_bound);
+
+        if max_bound - min_bound <= _eps_rel * max_bound {
+            return None;
+        }
+
+        let _ = simplex.add_point(support_point.translate(&-curr_ray.origin.coords));
+        proj = simplex.project_origin_and_reduce();
 
         if simplex.dimension() == DIM {
-            return Some((ltoi, ldir));
-        } else if max_bound <= _eps_tol || max_bound <= _eps_tol * simplex.max_sq_len() {
-            // FIXME: we use the same tolerance for absolute and relative epsilons. This could be improved.
-            // Return ldir: the last projection plane is tangent to the intersected surface.
-            return Some((ltoi, ldir));
-        } else if max_bound >= old_max_bound {
-            if max_bound <= old_max_bound + _eps_tol {
-                return Some((ltoi, ldir))
-            } else {
+            if min_bound >= _eps_tol {
                 return None;
+            } else {
+                return Some((ltoi / ray_length, ldir)); // Point inside of the cso.
             }
         }
 
-        old_max_bound = max_bound;
-        dir = -proj;
+        niter += 1;
+        if niter == 10000 {
+//            eprintln!("Error: GJK did not converge.");
+            return None;
+        }
+    }
+}
+
+
+fn result<N: RealField>(simplex: &VoronoiSimplex<N>, prev: bool) -> (Point<N>, Point<N>) {
+    let mut res = (Point::origin(), Point::origin());
+    if prev {
+        for i in 0..simplex.prev_dimension() + 1 {
+            let coord = simplex.prev_proj_coord(i);
+            let point = simplex.prev_point(i);
+            res.0 += point.orig1.coords * coord;
+            res.1 += point.orig2.coords * coord;
+        }
+
+        res
+    } else {
+        for i in 0..simplex.dimension() + 1 {
+            let coord = simplex.proj_coord(i);
+            let point = simplex.point(i);
+            res.0 += point.orig1.coords * coord;
+            res.1 += point.orig2.coords * coord;
+        }
+
+        res
     }
 }

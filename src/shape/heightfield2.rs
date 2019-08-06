@@ -143,7 +143,7 @@ impl<N: RealField> HeightField<N> {
     }
 
     /// Applies `f` to each segment of this heightfield that intersects the given `aabb`.
-    pub fn map_elements_in_local_aabb(&self, aabb: &AABB<N>, f: &mut impl FnMut(usize, &Segment<N>, &ContactPreprocessor<N>)) {
+    pub fn map_elements_in_local_aabb(&self, aabb: &AABB<N>, f: &mut impl FnMut(usize, &Segment<N>, &dyn ContactPreprocessor<N>)) {
         let _0_5: N = na::convert(0.5);
         let ref_mins = aabb.mins().coords.component_div(&self.scale);
         let ref_maxs = aabb.maxs().coords.component_div(&self.scale);

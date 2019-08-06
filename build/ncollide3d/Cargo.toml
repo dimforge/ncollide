@@ -29,6 +29,7 @@ downcast-rs = "1.0"
 num-traits = { version = "0.2", default-features = false }
 smallvec   = "0.6"
 slab       = "0.4"
+slotmap    = "0.3"
 petgraph   = "0.4"
 alga       = "0.9"
 nalgebra   = "0.18"
