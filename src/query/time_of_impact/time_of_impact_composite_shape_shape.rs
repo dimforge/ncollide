@@ -14,13 +14,14 @@ pub fn time_of_impact_composite_shape_shape<N, G1: ?Sized>(
     m2: &Isometry<N>,
     vel2: &Vector<N>,
     g2: &Shape<N>,
-    distance: N,
+    max_toi: N,
+    target_distance: N,
 ) -> Option<TOI<N>>
 where
     N: RealField,
     G1: CompositeShape<N>,
 {
-    let mut visitor = CompositeShapeAgainstAnyTOIVisitor::new(m1, vel1, g1, m2, vel2, g2, distance);
+    let mut visitor = CompositeShapeAgainstAnyTOIVisitor::new(m1, vel1, g1, m2, vel2, g2, max_toi, target_distance);
     g1.bvh().best_first_search(&mut visitor).map(|res| res.1)
 }
 
@@ -32,13 +33,15 @@ pub fn time_of_impact_shape_composite_shape<N, G2: ?Sized>(
     m2: &Isometry<N>,
     vel2: &Vector<N>,
     g2: &G2,
-    distance: N,
+    max_toi: N,
+    target_distance: N,
 ) -> Option<TOI<N>>
 where
     N: RealField,
     G2: CompositeShape<N>,
 {
-    time_of_impact_composite_shape_shape(m2, vel2, g2, m1, vel1, g1, distance).map(|toi| toi.swapped())
+    time_of_impact_composite_shape_shape(m2, vel2, g2, m1, vel1, g1, max_toi, target_distance)
+        .map(|toi| toi.swapped())
 }
 
 struct CompositeShapeAgainstAnyTOIVisitor<'a, N: 'a + RealField, G1: ?Sized + 'a> {
@@ -52,7 +55,8 @@ struct CompositeShapeAgainstAnyTOIVisitor<'a, N: 'a + RealField, G1: ?Sized + 'a
     m2: &'a Isometry<N>,
     vel2: &'a Vector<N>,
     g2: &'a Shape<N>,
-    distance: N,
+    max_toi: N,
+    target_distance: N,
 }
 
 impl<'a, N, G1: ?Sized> CompositeShapeAgainstAnyTOIVisitor<'a, N, G1>
@@ -67,11 +71,12 @@ where
         m2: &'a Isometry<N>,
         vel2: &'a Vector<N>,
         g2: &'a Shape<N>,
-        distance: N,
+        max_toi: N,
+        target_distance: N,
     ) -> CompositeShapeAgainstAnyTOIVisitor<'a, N, G1>
     {
         let ls_m2 = m1.inverse() * m2.clone();
-        let ls_aabb2 = g2.aabb(&ls_m2).loosened(distance);
+        let ls_aabb2 = g2.aabb(&ls_m2).loosened(target_distance);
 
         CompositeShapeAgainstAnyTOIVisitor {
             msum_shift: -ls_aabb2.center().coords,
@@ -86,7 +91,8 @@ where
             m2,
             vel2,
             g2,
-            distance,
+            max_toi,
+            target_distance,
         }
     }
 }
@@ -108,15 +114,23 @@ where
 
         // Compute the TOI.
         if let Some(toi) = msum.toi_with_ray(&Isometry::identity(), &self.ray, true) {
+            if toi > self.max_toi {
+                return BestFirstVisitStatus::Stop;
+            }
+
             let mut res = BestFirstVisitStatus::Continue { cost: toi, result: None };
 
             if let Some(b) = data {
                 if toi < best {
                     self.g1.map_part_at(*b, self.m1, &mut |m1, g1| {
                         if let Some(toi) = query::time_of_impact(
-                            m1, self.vel1, g1, self.m2, self.vel2, self.g2, self.distance,
+                            m1, self.vel1, g1, self.m2, self.vel2, self.g2, self.max_toi, self.target_distance,
                         ) {
-                            res = BestFirstVisitStatus::Continue { cost: toi.toi, result: Some(toi) }
+                            if toi.toi > self.max_toi {
+                                res = BestFirstVisitStatus::Stop;
+                            } else {
+                                res = BestFirstVisitStatus::Continue { cost: toi.toi, result: Some(toi) }
+                            }
                         }
                     });
                 }

@@ -13,7 +13,8 @@ pub fn time_of_impact_support_map_support_map<N, G1: ?Sized, G2: ?Sized>(
     m2: &Isometry<N>,
     vel2: &Vector<N>,
     g2: &G2,
-    distance: N,
+    max_toi: N,
+    target_distance: N,
 ) -> Option<TOI<N>>
 where
     N: RealField,
@@ -22,29 +23,41 @@ where
 {
     let dvel = vel2 - vel1;
 
-    if distance.is_zero() {
+    if target_distance.is_zero() {
         gjk::directional_distance(m1, g1, m2, g2, &dvel, &mut VoronoiSimplex::new())
-            .map(|(toi, _)|
-                TOI {
-                    toi,
-                    witness1: Point::origin(), // XXX
-                    witness2: Point::origin(), // XXX
-                    status: TOIStatus::Converged, // XXX
+            .and_then(|(toi, _)|
+                if toi > max_toi {
+                    None
+                } else {
+                    Some(TOI {
+                        toi,
+                        normal1: Vector::x_axis(),
+                        normal2: Vector::x_axis(),
+                        witness1: Point::origin(), // XXX
+                        witness2: Point::origin(), // XXX
+                        status: TOIStatus::Converged, // XXX
+                    })
                 }
             )
     } else {
         let dilated1 = DilatedShape {
             shape: g1,
-            radius: distance
+            radius: target_distance
         };
 
         gjk::directional_distance(m1, &dilated1, m2, g2, &dvel, &mut VoronoiSimplex::new())
-            .map(|(toi, _)|
-                TOI {
-                    toi,
-                    witness1: Point::origin(), // XXX
-                    witness2: Point::origin(), // XXX
-                    status: TOIStatus::Converged, // XXX
+            .and_then(|(toi, _)|
+                if toi > max_toi {
+                    None
+                } else {
+                    Some(TOI {
+                        toi,
+                        normal1: Vector::x_axis(),
+                        normal2: Vector::x_axis(),
+                        witness1: Point::origin(), // XXX
+                        witness2: Point::origin(), // XXX
+                        status: TOIStatus::Converged, // XXX
+                    })
                 }
             )
     }

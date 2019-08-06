@@ -10,7 +10,7 @@ fn test_ball_ball_toi() {
     let m1 = Isometry2::new(na::zero(), na::zero());
     let m2 = Isometry2::new(Vector2::new(0.0, 10.0), na::zero());
 
-    let cast = query::time_of_impact(&m1, &Vector2::new(0.0, 10.0), &b, &m2, &na::zero(), &b, 0.0);
+    let cast = query::time_of_impact(&m1, &Vector2::new(0.0, 10.0), &b, &m2, &na::zero(), &b,std::f64::MAX, 0.0);
 
     assert_eq!(cast.unwrap().toi, 0.9);
 }

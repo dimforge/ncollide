@@ -1,9 +1,10 @@
 use na::{RealField, Unit};
 
-use crate::math::{Isometry, Point};
+use crate::math::{Isometry, Point, Vector};
 use crate::query::{self, ClosestPoints, TOIStatus, TOI};
 use crate::shape::SupportMap;
 use crate::interpolation::RigidMotion;
+use crate::utils::IsometryOps;
 
 
 /// Time of impacts between two support-mapped shapes under a rigid motion.
@@ -53,6 +54,8 @@ pub fn nonlinear_time_of_impact_support_map_support_map_with_closest_points_func
     let rel_tol = abs_tol.sqrt();
     let mut result = TOI {
         toi: N::zero(),
+        normal1: Vector::x_axis(),
+        normal2: Vector::x_axis(),
         witness1: Point::origin(),
         witness2: Point::origin(),
         status: TOIStatus::Penetrating,
@@ -73,12 +76,16 @@ pub fn nonlinear_time_of_impact_support_map_support_map_with_closest_points_func
                 break;
             },
             ClosestPoints::WithinMargin(p1, p2) => {
-                // FIXME: do the "inverse_transform_point" only when we are about to return
+                // FIXME: do the "inverse_transform_point" only when we are about to return.
                 // the result.
                 result.witness1 = pos1.inverse_transform_point(&p1);
                 result.witness2 = pos2.inverse_transform_point(&p2);
 
                 if let Some((dir, mut dist)) = Unit::try_new_and_get(p2 - p1, N::default_epsilon()) {
+                    // FIXME: do the "inverse transform unit vector" only when we are about to return.
+                    result.normal1 = pos1.inverse_transform_unit_vector(&dir);
+                    result.normal2 = pos2.inverse_transform_unit_vector(&-dir);
+
                     let mut niter = 0;
                     min_t = result.toi;
                     let mut max_t = max_toi;
