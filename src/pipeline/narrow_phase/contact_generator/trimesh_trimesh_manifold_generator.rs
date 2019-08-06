@@ -42,11 +42,11 @@ impl<N: RealField> TriMeshTriMeshManifoldGenerator<N> {
         m1: &Isometry<N>,
         mesh1: &TriMesh<N>,
         i1: usize,
-        proc1: Option<&ContactPreprocessor<N>>,
+        proc1: Option<&dyn ContactPreprocessor<N>>,
         m2: &Isometry<N>,
         mesh2: &TriMesh<N>,
         i2: usize,
-        proc2: Option<&ContactPreprocessor<N>>,
+        proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         manifold: &mut ContactManifold<N>,
     )
@@ -518,13 +518,13 @@ impl<N: RealField> TriMeshTriMeshManifoldGenerator<N> {
 impl<N: RealField> ContactManifoldGenerator<N> for TriMeshTriMeshManifoldGenerator<N> {
     fn generate_contacts(
         &mut self,
-        _: &ContactDispatcher<N>,
+        _: &dyn ContactDispatcher<N>,
         m1: &Isometry<N>,
-        g1: &Shape<N>,
-        proc1: Option<&ContactPreprocessor<N>>,
+        g1: &dyn Shape<N>,
+        proc1: Option<&dyn ContactPreprocessor<N>>,
         m2: &Isometry<N>,
-        g2: &Shape<N>,
-        proc2: Option<&ContactPreprocessor<N>>,
+        g2: &dyn Shape<N>,
+        proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         manifold: &mut ContactManifold<N>,
     ) -> bool

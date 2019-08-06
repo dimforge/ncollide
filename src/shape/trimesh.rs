@@ -707,7 +707,7 @@ impl<N: RealField> CompositeShape<N> for TriMesh<N> {
         &self,
         i: usize,
         m: &Isometry<N>,
-        f: &mut FnMut(&Isometry<N>, &Shape<N>),
+        f: &mut dyn FnMut(&Isometry<N>, &dyn Shape<N>),
     )
     {
         let element = self.triangle_at(i);
@@ -719,7 +719,7 @@ impl<N: RealField> CompositeShape<N> for TriMesh<N> {
         i: usize,
         m: &Isometry<N>,
         prediction: &ContactPrediction<N>,
-        f: &mut FnMut(&Isometry<N>, &Shape<N>, &ContactPreprocessor<N>),
+        f: &mut dyn FnMut(&Isometry<N>, &dyn Shape<N>, &dyn ContactPreprocessor<N>),
     ) {
         let element = self.triangle_at(i);
         let preprocessor = TriMeshContactProcessor::new(self, m, i, prediction);

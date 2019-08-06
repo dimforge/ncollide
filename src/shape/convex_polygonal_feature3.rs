@@ -344,10 +344,10 @@ impl<N: RealField> ConvexPolygonalFeature<N> {
         c: Contact<N>,
         m1: &Isometry<N>,
         f1: FeatureId,
-        proc1: Option<&ContactPreprocessor<N>>,
+        proc1: Option<&dyn ContactPreprocessor<N>>,
         m2: &Isometry<N>,
         f2: FeatureId,
-        proc2: Option<&ContactPreprocessor<N>>,
+        proc2: Option<&dyn ContactPreprocessor<N>>,
         manifold: &mut ContactManifold<N>,
     )
     {

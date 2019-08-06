@@ -344,7 +344,7 @@ impl<N: RealField> VoronoiSimplex<N> {
     }
 
     /// Apply a function to all the vertices of this simplex.
-    pub fn modify_pnts(&mut self, f: &Fn(&mut CSOPoint<N>)) {
+    pub fn modify_pnts(&mut self, f: &dyn Fn(&mut CSOPoint<N>)) {
         for i in 0..self.dim + 1 {
             f(&mut self.vertices[i])
         }
