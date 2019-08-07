@@ -1,6 +1,6 @@
 use alga::general::RealField;
 
-use slab::{Iter, Slab};
+use slab::{Iter, IterMut, Slab};
 use std::ops::{Index, IndexMut};
 use std::hash::Hash;
 use crate::pipeline::object::{CollisionObject, CollisionObjectSlabHandle, CollisionObjectRef};
@@ -108,6 +108,14 @@ impl<N: RealField, T> CollisionObjectSlab<N, T> {
         }
     }
 
+    /// Retrieves an iterator yielding references to each collision object.
+    #[inline]
+    pub fn iter_mut(&mut self) -> CollisionObjectsMut<N, T> {
+        CollisionObjectsMut {
+            iter_mut: self.objects.iter_mut(),
+        }
+    }
+
     /// The number of collision objects on this slab.
     #[inline]
     pub fn len(&self) -> usize {
@@ -142,5 +150,19 @@ impl<'a, N: 'a + RealField, T: 'a> Iterator for CollisionObjects<'a, N, T> {
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         self.iter.next().map(|obj| ((CollisionObjectSlabHandle(obj.0), obj.1)))
+    }
+}
+
+/// An iterator yielding mutable references to collision objects.
+pub struct CollisionObjectsMut<'a, N: 'a + RealField, T: 'a> {
+    iter_mut: IterMut<'a, CollisionObject<N, T>>,
+}
+
+impl<'a, N: 'a + RealField, T: 'a> Iterator for CollisionObjectsMut<'a, N, T> {
+    type Item = (CollisionObjectSlabHandle, &'a mut CollisionObject<N, T>);
+
+    #[inline]
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter_mut.next().map(|obj| ((CollisionObjectSlabHandle(obj.0), obj.1)))
     }
 }

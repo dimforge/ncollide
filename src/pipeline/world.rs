@@ -109,6 +109,11 @@ impl<N: RealField, T> CollisionWorld<N, T> {
             &mut self.interactions,
             self.pair_filters.as_ref().map(|f| &**f)
         );
+
+        // Clear update flags.
+        for (_, co) in self.objects.iter_mut() {
+            co.clear_update_flags();
+        }
     }
 
     /// Empty the contact and proximity event pools.
