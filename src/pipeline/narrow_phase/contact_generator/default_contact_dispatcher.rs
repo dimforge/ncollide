@@ -1,6 +1,7 @@
 use na::RealField;
 use crate::pipeline::{
     BallBallManifoldGenerator, BallConvexPolyhedronManifoldGenerator,
+    MultiballConvexPolyhedronManifoldGenerator,
     CompositeShapeCompositeShapeManifoldGenerator, CompositeShapeShapeManifoldGenerator,
     ContactAlgorithm, ContactDispatcher, ConvexPolyhedronConvexPolyhedronManifoldGenerator,
     PlaneBallManifoldGenerator, PlaneConvexPolyhedronManifoldGenerator, CapsuleShapeManifoldGenerator,
@@ -10,7 +11,8 @@ use crate::pipeline::{
 use crate::pipeline::narrow_phase::TriMeshTriMeshManifoldGenerator;
 #[cfg(feature = "dim3")]
 use crate::shape::TriMesh;
-use crate::shape::{Ball, Plane, Shape, Capsule, HeightField};
+use crate::shape::{Ball, Multiball, Plane, Shape, Capsule, HeightField};
+use std::ops::Mul;
 
 /// Collision dispatcher for shapes defined by `ncollide_entities`.
 pub struct DefaultContactDispatcher {}
@@ -26,6 +28,8 @@ impl<N: RealField> ContactDispatcher<N> for DefaultContactDispatcher {
     fn get_contact_algorithm(&self, a: &dyn Shape<N>, b: &dyn Shape<N>) -> Option<ContactAlgorithm<N>> {
         let a_is_ball = a.is_shape::<Ball<N>>();
         let b_is_ball = b.is_shape::<Ball<N>>();
+        let a_is_multiball = a.is_shape::<Multiball<N>>();
+        let b_is_multiball = b.is_shape::<Multiball<N>>();
         let a_is_plane = a.is_shape::<Plane<N>>();
         let b_is_plane = b.is_shape::<Plane<N>>();
         let a_is_capsule = a.is_shape::<Capsule<N>>();
@@ -66,6 +70,12 @@ impl<N: RealField> ContactDispatcher<N> for DefaultContactDispatcher {
             Some(Box::new(gen))
         } else if b_is_ball && a.is_convex_polyhedron() {
             let gen = BallConvexPolyhedronManifoldGenerator::<N>::new(true);
+            Some(Box::new(gen))
+        } else if a_is_multiball && b.is_convex_polyhedron() {
+            let gen = MultiballConvexPolyhedronManifoldGenerator::<N>::new(false);
+            Some(Box::new(gen))
+        } else if b_is_multiball && a.is_convex_polyhedron() {
+            let gen = MultiballConvexPolyhedronManifoldGenerator::<N>::new(true);
             Some(Box::new(gen))
         } else if a.is_convex_polyhedron() && b.is_convex_polyhedron() {
             let gen = ConvexPolyhedronConvexPolyhedronManifoldGenerator::new();

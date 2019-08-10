@@ -5,7 +5,7 @@ pub use self::spatialized_normal_cone::SpatializedNormalCone;
 #[doc(inline)]
 pub use crate::bounding_volume::aabb::{aabb, AABB, local_aabb};
 pub use crate::bounding_volume::aabb_ball::ball_aabb;
-pub use crate::bounding_volume::aabb_utils::{point_cloud_aabb, support_map_aabb};
+pub use crate::bounding_volume::aabb_utils::{local_point_cloud_aabb, point_cloud_aabb, support_map_aabb};
 #[doc(inline)]
 pub use crate::bounding_volume::bounding_sphere::{bounding_sphere, BoundingSphere, local_bounding_sphere};
 pub use crate::bounding_volume::bounding_sphere_utils::{

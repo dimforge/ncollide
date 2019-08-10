@@ -1,4 +1,4 @@
-use crate::math::{Isometry, Point, Vector};
+use crate::math::{Isometry, Translation, Point, Vector};
 use na::{self, RealField, Unit};
 use crate::query::{self, Contact};
 use crate::shape::{FeatureId, Shape};
@@ -80,6 +80,16 @@ impl<N: RealField> ContactKinematic<N> {
             approx1: approx.clone(),
             approx2: approx,
         }
+    }
+
+    /// Applies the given translation to the first set of contact information.
+    pub fn translate1(&mut self, m: &Translation<N>) {
+        self.approx1.point = m * self.approx1.point;
+    }
+
+    /// Applies the given translation to the second set of contact information.
+    pub fn translate2(&mut self, m: &Translation<N>) {
+        self.approx2.point = m * self.approx2.point;
     }
 
     /// Applies the given transformation to the first set of contact information.

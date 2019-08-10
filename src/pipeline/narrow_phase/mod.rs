@@ -7,7 +7,7 @@ pub use self::contact_generator::{
     ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator,
     ConvexPolyhedronConvexPolyhedronManifoldGenerator, DefaultContactDispatcher,
     PlaneBallManifoldGenerator, PlaneConvexPolyhedronManifoldGenerator, CapsuleShapeManifoldGenerator,
-    CapsuleCapsuleManifoldGenerator, HeightFieldShapeManifoldGenerator
+    CapsuleCapsuleManifoldGenerator, HeightFieldShapeManifoldGenerator, MultiballConvexPolyhedronManifoldGenerator
 };
 #[cfg(feature = "dim3")]
 pub use self::contact_generator::{TriMeshTriMeshManifoldGenerator};

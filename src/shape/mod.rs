@@ -25,6 +25,7 @@ pub use self::deformable_shape::{DeformableShape, DeformationsType};
 pub use self::plane::Plane;
 pub use self::polyline::Polyline;
 pub use self::segment::{Segment, SegmentPointLocation};
+pub use self::multiball::Multiball;
 #[doc(inline)]
 pub use self::shape::{Shape, ShapeHandle};
 #[doc(inline)]
@@ -76,3 +77,4 @@ mod trimesh;
 mod heightfield3;
 #[cfg(feature = "dim2")]
 mod heightfield2;
+mod multiball;

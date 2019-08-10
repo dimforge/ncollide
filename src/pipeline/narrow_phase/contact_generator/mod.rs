@@ -1,6 +1,7 @@
 //! Persistant collision detection algorithms to compute contact points.
 pub use self::ball_ball_manifold_generator::BallBallManifoldGenerator;
 pub use self::ball_convex_polyhedron_manifold_generator::BallConvexPolyhedronManifoldGenerator;
+pub use self::multiball_convex_polyhedron_manifold_generator::MultiballConvexPolyhedronManifoldGenerator;
 pub use self::composite_shape_composite_shape_manifold_generator::CompositeShapeCompositeShapeManifoldGenerator;
 pub use self::composite_shape_shape_manifold_generator::CompositeShapeShapeManifoldGenerator;
 #[doc(inline)]
@@ -20,6 +21,7 @@ pub use self::capsule_capsule_manifold_generator::CapsuleCapsuleManifoldGenerato
 // // FIXME: un-hide this and move everything to a folder.
 mod ball_ball_manifold_generator;
 mod ball_convex_polyhedron_manifold_generator;
+mod multiball_convex_polyhedron_manifold_generator;
 mod composite_shape_composite_shape_manifold_generator;
 mod composite_shape_shape_manifold_generator;
 #[doc(hidden)]

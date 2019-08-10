@@ -22,8 +22,8 @@ impl<N: RealField> Cylinder<N> {
         assert!(half_height.is_positive() && radius.is_positive());
 
         Cylinder {
-            half_height: half_height,
-            radius: radius,
+            half_height,
+            radius,
         }
     }
 

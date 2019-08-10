@@ -1,4 +1,4 @@
-use crate::bounding_volume::{self, BoundingSphere, AABB};
+use crate::bounding_volume::{self, BoundingSphere, AABB, BoundingVolume};
 use crate::math::{Isometry, Vector};
 use na::{RealField, Unit};
 use crate::query::{PointQuery, RayCast};
@@ -6,7 +6,7 @@ use crate::query::{PointQuery, RayCast};
 use crate::shape::ConvexPolygon;
 use crate::shape::{
     Ball, CompositeShape, Compound, ConvexPolyhedron, Cuboid, FeatureId, Plane, Polyline, Segment,
-    Capsule, Shape, SupportMap, DeformableShape, HeightField
+    Capsule, Shape, SupportMap, DeformableShape, HeightField, Multiball
 };
 #[cfg(feature = "dim3")]
 use crate::shape::{ConvexHull, TriMesh, Triangle};
@@ -271,6 +271,56 @@ impl<N: RealField> Shape<N> for HeightField<N> {
     fn subshape_containing_feature(&self, _id: FeatureId) -> usize {
         // FIXME
         0
+    }
+}
+
+
+impl<N: RealField> Shape<N> for Multiball<N> {
+    #[inline]
+    fn aabb(&self, m: &Isometry<N>) -> AABB<N> {
+        bounding_volume::point_cloud_aabb(m, self.centers())
+            .loosened(self.radius())
+    }
+
+    #[inline]
+    fn local_aabb(&self) -> AABB<N> {
+        bounding_volume::local_point_cloud_aabb(self.centers())
+            .loosened(self.radius())
+    }
+
+    #[inline]
+    fn bounding_sphere(&self, m: &Isometry<N>) -> BoundingSphere<N> {
+        let (c, r) = bounding_volume::point_cloud_bounding_sphere(self.centers());
+        BoundingSphere::new(c, r + self.radius())
+    }
+
+    #[inline]
+    fn as_ray_cast(&self) -> Option<&dyn RayCast<N>> {
+        None
+    }
+
+    #[inline]
+    fn as_point_query(&self) -> Option<&dyn PointQuery<N>> {
+        None
+    }
+
+    fn tangent_cone_contains_dir(
+        &self,
+        feature: FeatureId,
+        m: &Isometry<N>,
+        _: Option<&[N]>,
+        dir: &Unit<Vector<N>>,
+    ) -> bool
+    {
+        // NOTE: the actual center of the concerned ball does not have
+        // to be taken into account since the result only depends on the orientation
+        // of the ball.
+        Ball::new(self.radius())
+            .tangent_cone_contains_dir(FeatureId::Face(0), m, None, dir)
+    }
+
+    fn subshape_containing_feature(&self, feature: FeatureId) -> usize {
+        self.subshape_feature_id(feature).0
     }
 }
 
