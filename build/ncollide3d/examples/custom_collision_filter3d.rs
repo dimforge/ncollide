@@ -14,7 +14,7 @@
 //}
 
 fn main() {
-//    let shape = ShapeHandle::new(Ball::new(0.5f32));
+//    let shape = ShapeHandle::new_shared(Ball::new(0.5f32));
 //    let groups = CollisionGroups::new();
 //    let query = GeometricQueryType::Contacts(0.0, 0.0);
 //

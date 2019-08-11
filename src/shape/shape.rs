@@ -4,8 +4,9 @@ use crate::math::{Isometry, Vector};
 use na::{self, RealField, Unit};
 use crate::query::{PointQuery, RayCast};
 use crate::shape::{CompositeShape, ConvexPolyhedron, DeformableShape, FeatureId, SupportMap};
-use std::ops::Deref;
-use std::sync::Arc;
+use std::ops::{Deref, DerefMut};
+use std::convert::AsRef;
+use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 use downcast_rs::Downcast;
 
 pub trait ShapeClone<N: RealField> {
@@ -157,41 +158,109 @@ impl<N: RealField> Clone for Box<dyn Shape<N>> {
     }
 }
 
-/// A shared handle to an abstract shape.
+/// An to an abstract shape.
 ///
-/// This can be mutated using COW.
+/// The shape can either be uniquely owned, immutable shared, or mutably shared.
 #[derive(Clone)]
-pub struct ShapeHandle<N: RealField>(Arc<Box<dyn Shape<N>>>);
+pub enum ShapeHandle<N: RealField> {
+    Owned(Box<dyn Shape<N>>),
+    Shared(Arc<Box<dyn Shape<N>>>), // FIXME: get rid of the box inside of the Arc.
+    SharedMutable(Arc<RwLock<(u64, Box<dyn Shape<N>>)>>) // FIXME: get rid of the Box once the `unsized_tuple_coercion` rust feature is stabilized.
+}
 
 impl<N: RealField> ShapeHandle<N> {
-    /// Creates a sharable shape handle from a shape.
-    #[inline]
-    pub fn new<S: Shape<N>>(shape: S) -> ShapeHandle<N> {
-        ShapeHandle(Arc::new(Box::new(shape)))
+    #[deprecated = "Use `Self::new_shared` instead to make the choice of ownership clear."]
+    pub fn new(shape: impl Shape<N>) -> Self {
+        Self::new_shared(shape)
+    }
+    pub fn new_owned(shape: impl Shape<N>) -> Self {
+        ShapeHandle::Owned(Box::new(shape))
     }
 
-    /// Creates a sharable shape handle from a shape trait object.
-    pub fn from_box(shape: Box<dyn Shape<N>>) -> ShapeHandle<N> {
-        ShapeHandle(Arc::new(shape))
+    pub fn new_shared(shape: impl Shape<N>) -> Self {
+        ShapeHandle::Shared(Arc::new(Box::new(shape)))
     }
 
-    pub(crate) fn make_mut(&mut self) -> &mut dyn Shape<N> {
-        &mut **Arc::make_mut(&mut self.0)
-    }
-}
-
-impl<N: RealField> AsRef<dyn Shape<N>> for ShapeHandle<N> {
-    #[inline]
-    fn as_ref(&self) -> &dyn Shape<N> {
-        &*self.deref()
+    pub fn new_shared_mutable(shape: impl Shape<N>) -> Self {
+        ShapeHandle::SharedMutable(Arc::new(RwLock::new((0, Box::new(shape)))))
     }
 }
 
-impl<N: RealField> Deref for ShapeHandle<N> {
+pub enum ShapeRef<'a, N: RealField> {
+    OwnedRef(&'a dyn Shape<N>),
+    SharedRef(RwLockReadGuard<'a, (u64, Box<dyn Shape<N>>)>)
+}
+
+pub enum ShapeMut<'a, N: RealField> {
+    OwnedRef(&'a mut dyn Shape<N>),
+    SharedRef(RwLockWriteGuard<'a, (u64, Box<dyn Shape<N>>)>)
+}
+
+impl<N: RealField> ShapeHandle<N> {
+    pub fn as_ref(&self) -> ShapeRef<N> {
+        match self {
+            ShapeHandle::Owned(shape) => ShapeRef::OwnedRef(&**shape),
+            ShapeHandle::Shared(shape) => ShapeRef::OwnedRef(&***shape),
+            ShapeHandle::SharedMutable(shape) => ShapeRef::SharedRef(shape.read().unwrap()),
+        }
+    }
+
+    pub fn make_mut(&mut self) -> ShapeMut<N> {
+        match self {
+            ShapeHandle::Owned(shape) => ShapeMut::OwnedRef(&mut **shape),
+            ShapeHandle::Shared(shape) => ShapeMut::OwnedRef(&mut **Arc::make_mut(shape)),
+            ShapeHandle::SharedMutable(shape) => {
+                let mut write = shape.write().unwrap();
+                write.0 += 1; // Register the fact there was a mutable borrow (and thus a possible shape modification).
+                ShapeMut::SharedRef(write)
+            },
+        }
+    }
+
+    pub(crate) fn is_shared_and_modified(&self, unmodified_timestamp: u64) -> bool {
+        if let ShapeHandle::SharedMutable(shape) = self {
+            shape.read().unwrap().0 == unmodified_timestamp
+        } else {
+            false
+        }
+    }
+
+    pub(crate) fn modification_timestamp(&self) -> u64 {
+        if let ShapeHandle::SharedMutable(shape) = self {
+            shape.read().unwrap().0
+        } else {
+            0
+        }
+    }
+}
+
+impl<'a, N: RealField> Deref for ShapeRef<'a, N> {
     type Target = dyn Shape<N>;
 
-    #[inline]
     fn deref(&self) -> &dyn Shape<N> {
-        &**self.0.deref()
+        match self {
+            ShapeRef::OwnedRef(s) => s.deref(),
+            ShapeRef::SharedRef(s) => &*s.1,
+        }
+    }
+}
+
+impl<'a, N: RealField> Deref for ShapeMut<'a, N> {
+    type Target = dyn Shape<N>;
+
+    fn deref(&self) -> &dyn Shape<N> {
+        match self {
+            ShapeMut::OwnedRef(s) => s.deref(),
+            ShapeMut::SharedRef(s) => &*s.1,
+        }
+    }
+}
+
+impl<'a, N: RealField> DerefMut for ShapeMut<'a, N> {
+    fn deref_mut(&mut self) -> &mut dyn Shape<N> {
+        match self {
+            ShapeMut::OwnedRef(s) => s.deref_mut(),
+            ShapeMut::SharedRef(s) => &mut *s.1,
+        }
     }
 }

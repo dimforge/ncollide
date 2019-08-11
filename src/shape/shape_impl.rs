@@ -193,7 +193,7 @@ impl<N: RealField> Shape<N> for Compound<N> {
         let (i, fid) = self.subshape_feature_id(feature);
         let shape = &self.shapes()[i];
         let ls_dir = m.inverse_transform_unit_vector(dir);
-        shape.1.tangent_cone_contains_dir(fid, &shape.0, None, &ls_dir)
+        shape.1.as_ref().tangent_cone_contains_dir(fid, &shape.0, None, &ls_dir)
     }
 
     fn subshape_containing_feature(&self, feature: FeatureId) -> usize {
@@ -276,6 +276,8 @@ impl<N: RealField> Shape<N> for HeightField<N> {
 
 
 impl<N: RealField> Shape<N> for Multiball<N> {
+    impl_as_deformable_shape!();
+
     #[inline]
     fn aabb(&self, m: &Isometry<N>) -> AABB<N> {
         bounding_volume::point_cloud_aabb(m, self.centers())

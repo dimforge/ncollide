@@ -7,7 +7,7 @@ use crate::bounding_volume::{BoundingVolume, AABB};
 use crate::math::Isometry;
 use na::{self, RealField};
 use crate::partitioning::{BVHImpl, BVT};
-use crate::shape::{CompositeShape, Shape, ShapeHandle, FeatureId};
+use crate::shape::{CompositeShape, Shape, FeatureId};
 use crate::query::{ContactPrediction, ContactPreprocessor, Contact, ContactKinematic};
 
 /// A compound shape with an aabb bounding volume.
@@ -17,7 +17,7 @@ use crate::query::{ContactPrediction, ContactPreprocessor, Contact, ContactKinem
 /// delta transformation to shift or rotate it with regard to the other shapes.
 #[derive(Clone)]
 pub struct Compound<N: RealField> {
-    shapes: Vec<(Isometry<N>, ShapeHandle<N>)>,
+    shapes: Vec<(Isometry<N>, Box<dyn Shape<N>>)>,
     bvt: BVT<usize, AABB<N>>,
     bvs: Vec<AABB<N>>,
     nbits: usize
@@ -25,7 +25,7 @@ pub struct Compound<N: RealField> {
 
 impl<N: RealField> Compound<N> {
     /// Builds a new compound shape.
-    pub fn new(shapes: Vec<(Isometry<N>, ShapeHandle<N>)>) -> Compound<N> {
+    pub fn new(shapes: Vec<(Isometry<N>, Box<dyn Shape<N>>)>) -> Compound<N> {
         let mut bvs = Vec::new();
         let mut leaves = Vec::new();
 
@@ -36,7 +36,7 @@ impl<N: RealField> Compound<N> {
             bvs.push(bv.clone());
             leaves.push((i, bv));
 
-            if let Some(_comp) = shape.as_composite_shape() {
+            if let Some(_comp) = shape.as_ref().as_composite_shape() {
                 panic!("Nested composite shapes are not allowed.");
             }
         }
@@ -45,9 +45,9 @@ impl<N: RealField> Compound<N> {
         let bvt = BVT::new_balanced(leaves);
 
         Compound {
-            shapes: shapes,
-            bvt: bvt,
-            bvs: bvs,
+            shapes,
+            bvt,
+            bvs,
             nbits,
         }
     }
@@ -56,7 +56,7 @@ impl<N: RealField> Compound<N> {
 impl<N: RealField> Compound<N> {
     /// The shapes of this compound shape.
     #[inline]
-    pub fn shapes(&self) -> &[(Isometry<N>, ShapeHandle<N>)] {
+    pub fn shapes(&self) -> &[(Isometry<N>, Box<dyn Shape<N>>)] {
         &self.shapes[..]
     }
 
@@ -115,7 +115,7 @@ impl<N: RealField> CompositeShape<N> for Compound<N> {
         let elt = &self.shapes()[i];
         let pos = m * elt.0;
 
-        f(&pos, elt.1.as_ref())
+        f(&pos, &*elt.1.as_ref())
     }
 
     fn map_part_and_preprocessor_at(
@@ -129,7 +129,7 @@ impl<N: RealField> CompositeShape<N> for Compound<N> {
         let pos = m * elt.0;
         let proc = CompoundContactProcessor::new(&elt.0, i, self.nbits);
 
-        f(&pos, elt.1.as_ref(), &proc)
+        f(&pos, &*elt.1.as_ref(), &proc)
     }
 
     #[inline]

@@ -7,7 +7,7 @@ use std::f64;
 
 /// Shape of a box.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Debug, Clone, Copy)]
 pub struct Cuboid<N: RealField> {
     half_extents: Vector<N>,
 }

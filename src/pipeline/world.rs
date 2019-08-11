@@ -75,7 +75,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
             &mut *self.broad_phase,
             &mut self.interactions,
             &position,
-            shape.as_ref(),
+            &*shape.as_ref(),
             query_type,
         );
 
@@ -312,7 +312,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
                 shape,
                 x.position(),
                 &Vector::zeros(),
-                x.shape().as_ref(),
+                &*x.shape(),
                 N::max_value(),
                 N::zero(),
             )

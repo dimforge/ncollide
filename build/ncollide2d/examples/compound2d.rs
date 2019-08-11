@@ -12,8 +12,8 @@ fn main() {
 
     // 1) Initialize the shape list.
     let mut shapes = Vec::new();
-    let horizontal_box = ShapeHandle::new(Cuboid::new(Vector2::new(1.5f32, 0.25)));
-    let vertical_box = ShapeHandle::new(Cuboid::new(Vector2::new(0.25f32, 1.5)));
+    let horizontal_box = ShapeHandle::new_shared(Cuboid::new(Vector2::new(1.5f32, 0.25)));
+    let vertical_box = ShapeHandle::new_shared(Cuboid::new(Vector2::new(0.25f32, 1.5)));
 
     shapes.push((delta1, horizontal_box));
     shapes.push((delta2, vertical_box.clone()));

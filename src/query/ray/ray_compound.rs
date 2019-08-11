@@ -64,7 +64,7 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for CompoundRayToiVis
             if let Some(b) = data {
                 if toi < best {
                     let elt = &self.compound.shapes()[*b];
-                    match elt.1.toi_with_ray(&elt.0, self.ray, self.solid) {
+                    match elt.1.as_ref().toi_with_ray(&elt.0, self.ray, self.solid) {
                         Some(toi) => res = BestFirstVisitStatus::Continue { cost: toi, result: Some(toi) },
                         None => {},
                     }
@@ -95,7 +95,7 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for CompoundRayToiAnd
             if let Some(b) = data {
                 if toi < best {
                     let elt = &self.compound.shapes()[*b];
-                    match elt.1.toi_and_normal_with_ray(&elt.0, self.ray, self.solid) {
+                    match elt.1.as_ref().toi_and_normal_with_ray(&elt.0, self.ray, self.solid) {
                         Some(toi) => res = BestFirstVisitStatus::Continue { cost: toi.toi, result: Some(toi) },
                         None => {},
                     }

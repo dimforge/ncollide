@@ -73,10 +73,10 @@ impl<N: RealField, Handle: CollisionObjectHandle> NarrowPhase<N, Handle> {
             let _ = detector.generate_contacts(
                 &*self.contact_dispatcher,
                 &co1.position(),
-                co1.shape(),
+                &*co1.shape(),
                 None,
                 &co2.position(),
-                co2.shape(),
+                &*co2.shape(),
                 None,
                 &prediction,
                 manifold,
@@ -129,9 +129,9 @@ impl<N: RealField, Handle: CollisionObjectHandle> NarrowPhase<N, Handle> {
         if let Some(new_proximity) = detector.update(
             &*self.proximity_dispatcher,
             &co1.position(),
-            co1.shape(),
+            &*co1.shape(),
             &co2.position(),
-            co2.shape(),
+            &*co2.shape(),
             co1.query_type().query_limit() + co2.query_type().query_limit(),
         ) {
             self.emit_proximity_event(handle1, handle2, *curr_proximity, new_proximity);
@@ -208,7 +208,7 @@ impl<N: RealField, Handle: CollisionObjectHandle> NarrowPhase<N, Handle> {
                         let dispatcher = &self.contact_dispatcher;
 
                         if let Some(detector) = dispatcher
-                            .get_contact_algorithm(co1.shape(), co2.shape())
+                            .get_contact_algorithm(&*co1.shape(), &*co2.shape())
                             {
                                 let manifold = detector.init_manifold();
                                 let _ = interactions.0.add_edge(id1, id2, Interaction::Contact(detector, manifold));
@@ -218,7 +218,7 @@ impl<N: RealField, Handle: CollisionObjectHandle> NarrowPhase<N, Handle> {
                         let dispatcher = &self.proximity_dispatcher;
 
                         if let Some(detector) = dispatcher
-                            .get_proximity_algorithm(co1.shape(), co2.shape())
+                            .get_proximity_algorithm(&*co1.shape(), &*co2.shape())
                             {
                                 let _ = interactions.0.add_edge(id1, id2, Interaction::Proximity(detector, Proximity::Disjoint));
                             }

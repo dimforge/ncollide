@@ -3,7 +3,7 @@ use crate::math::Isometry;
 use crate::pipeline::broad_phase::BroadPhaseProxyHandle;
 use crate::pipeline::narrow_phase::CollisionObjectGraphIndex;
 use crate::pipeline::object::CollisionGroups;
-use crate::shape::{Shape, ShapeHandle};
+use crate::shape::{Shape, ShapeHandle, ShapeRef, ShapeMut};
 use crate::bounding_volume::{self, BoundingVolume, AABB};
 use crate::pipeline::object::GeometricQueryType;
 
@@ -76,7 +76,7 @@ pub trait CollisionObjectRef<N: RealField> {
     /// interactions in-between two discontinuous positions of the collision object.
     fn predicted_position(&self) -> Option<&Isometry<N>>;
     /// The shape of this collision object.
-    fn shape(&self) -> &dyn Shape<N>;
+    fn shape(&self) -> ShapeRef<N>;
     /// The collision groups of this collision object.
     fn collision_groups(&self) -> &CollisionGroups;
     /// The type of geometric queries this collision object is subjected to.
@@ -86,7 +86,7 @@ pub trait CollisionObjectRef<N: RealField> {
 
     /// Computes the AABB of this collision object, ignoring `self.predicted_position()`.
     fn compute_aabb(&self) -> AABB<N> {
-        let mut aabb = bounding_volume::aabb(self.shape(), self.position());
+        let mut aabb = bounding_volume::aabb(&*self.shape(), self.position());
         aabb.loosen(self.query_type().query_limit());
         aabb
     }
@@ -98,7 +98,7 @@ pub trait CollisionObjectRef<N: RealField> {
     /// bounds both.
     fn compute_swept_aabb(&self) -> AABB<N> {
         if let Some(predicted_pos) = self.predicted_position() {
-            let shape = self.shape();
+            let shape = &*self.shape();
             let mut aabb1 = bounding_volume::aabb(shape, self.position());
             let mut aabb2 = bounding_volume::aabb(shape, predicted_pos);
             let margin = self.query_type().query_limit();
@@ -135,6 +135,7 @@ pub struct CollisionObject<N: RealField, T> {
     collision_groups: CollisionGroups,
     query_type: GeometricQueryType<N>,
     update_flags: CollisionObjectUpdateFlags,
+    shared_shape_update_timestamp: u64,
     data: T,
 }
 
@@ -160,6 +161,7 @@ impl<N: RealField, T> CollisionObject<N, T> {
             data,
             query_type,
             update_flags: CollisionObjectUpdateFlags::all(),
+            shared_shape_update_timestamp: 0,
         }
     }
 
@@ -184,6 +186,7 @@ impl<N: RealField, T> CollisionObject<N, T> {
 
     /// Clears the update flags of this collision object.
     pub fn clear_update_flags(&mut self) {
+        self.shared_shape_update_timestamp = self.shape.modification_timestamp();
         self.update_flags = CollisionObjectUpdateFlags::empty()
     }
 
@@ -251,9 +254,30 @@ impl<N: RealField, T> CollisionObject<N, T> {
 
     /// The collision object shape.
     #[inline]
-    pub fn shape(&self) -> &ShapeHandle<N> {
-        &self.shape
+    pub fn shape(&self) -> ShapeRef<N> {
+        self.shape.as_ref()
     }
+
+    /// Mutable reference to the collision object shape.
+    ///
+    /// If the shape is stored as a `ShapeHandle::Shared` variant, then its will
+    /// perform an Arc clone-on-write operation.
+    ///
+    /// By calling this method, the collision object will assume that the shape
+    /// will be changed, and thus, will set the corresponding update flags so
+    /// the collision object world can do updates accordingly.
+    #[inline]
+    pub fn shape_mut(&mut self) -> ShapeMut<N> {
+        self.update_flags |= CollisionObjectUpdateFlags::SHAPE_CHANGED;
+        self.shape.make_mut()
+    }
+
+    /// Returns a clone of the collision object shape.
+    #[inline]
+    pub fn clone_shape(&self) -> ShapeHandle<N> {
+        self.shape.clone()
+    }
+
 
     /// Set the collision object shape.
     #[inline]
@@ -320,8 +344,8 @@ impl<N: RealField, T> CollisionObjectRef<N> for CollisionObject<N, T> {
         self.predicted_position()
     }
 
-    fn shape(&self) -> &dyn Shape<N> {
-        self.shape().as_ref()
+    fn shape(&self) -> ShapeRef<N> {
+        self.shape()
     }
 
     fn collision_groups(&self) -> &CollisionGroups {
@@ -333,6 +357,10 @@ impl<N: RealField, T> CollisionObjectRef<N> for CollisionObject<N, T> {
     }
 
     fn update_flags(&self) -> CollisionObjectUpdateFlags {
-        self.update_flags
+        if self.shape.is_shared_and_modified(self.shared_shape_update_timestamp) {
+            self.update_flags | CollisionObjectUpdateFlags::SHAPE_CHANGED
+        } else {
+            self.update_flags
+        }
     }
 }

@@ -23,7 +23,7 @@ fn interferences_with_ray() {
 
     assert!(ball.toi_with_ray(&iso, &ray, true,).is_some());
 
-    let shape = ShapeHandle::new(ball);
+    let shape = ShapeHandle::new_shared(ball);
     world.add(iso, shape.clone(), groups, query, ());
     world.update();
 

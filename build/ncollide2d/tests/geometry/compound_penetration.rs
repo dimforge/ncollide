@@ -28,7 +28,7 @@ fn compound() {
 
     let shapes = vec![(
         Isometry2::new(Vector2::new(10.0, 10.0), na::zero()),
-        ShapeHandle::new(c1),
+        ShapeHandle::new_shared(c1),
     )];
     let compound = Compound::new(shapes);
 

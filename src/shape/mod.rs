@@ -27,7 +27,7 @@ pub use self::polyline::Polyline;
 pub use self::segment::{Segment, SegmentPointLocation};
 pub use self::multiball::Multiball;
 #[doc(inline)]
-pub use self::shape::{Shape, ShapeHandle};
+pub use self::shape::{Shape, ShapeHandle, ShapeRef, ShapeMut};
 #[doc(inline)]
 pub use self::support_map::SupportMap;
 #[cfg(feature = "dim3")]

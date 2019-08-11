@@ -96,18 +96,18 @@ fn main() {
      * Setup initial object properties.
      */
     // Plane shapes.
-    let plane_left = ShapeHandle::new(Plane::new(Vector3::x_axis()));
-    let plane_bottom = ShapeHandle::new(Plane::new(Vector3::y_axis()));
-    let plane_back = ShapeHandle::new(Plane::new(Vector3::z_axis()));
-    let plane_right = ShapeHandle::new(Plane::new(-Vector3::x_axis()));
-    let plane_top = ShapeHandle::new(Plane::new(-Vector3::y_axis()));
-    let plane_front = ShapeHandle::new(Plane::new(-Vector3::z_axis()));
+    let plane_left = ShapeHandle::new_shared(Plane::new(Vector3::x_axis()));
+    let plane_bottom = ShapeHandle::new_shared(Plane::new(Vector3::y_axis()));
+    let plane_back = ShapeHandle::new_shared(Plane::new(Vector3::z_axis()));
+    let plane_right = ShapeHandle::new_shared(Plane::new(-Vector3::x_axis()));
+    let plane_top = ShapeHandle::new_shared(Plane::new(-Vector3::y_axis()));
+    let plane_front = ShapeHandle::new_shared(Plane::new(-Vector3::z_axis()));
 
     // Shared cuboid for the rectangular areas.
-    let rect = ShapeHandle::new(Cuboid::new(Vector3::new(4.9f32, 4.9, 4.9)));
+    let rect = ShapeHandle::new_shared(Cuboid::new(Vector3::new(4.9f32, 4.9, 4.9)));
 
     // Ball shape.
-    let ball = ShapeHandle::new(Ball::new(0.5f32));
+    let ball = ShapeHandle::new_shared(Ball::new(0.5f32));
 
     // Positions of the planes.
     let planes_pos = [

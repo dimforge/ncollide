@@ -1,10 +1,10 @@
 use std::collections::HashMap;
 use na::{RealField};
 
-use crate::query::{ContactKinematic, Contact, ContactPreprocessor};
-use crate::shape::FeatureId;
+use crate::query::{ContactKinematic, Contact, ContactPreprocessor, LocalShapeApproximation};
+use crate::shape::{FeatureId, DeformableShape, DeformationsType};
 use crate::bounding_volume::AABB;
-use crate::math::Point;
+use crate::math::{Point, DIM};
 
 #[derive(PartialEq, Debug, Clone)]
 struct HGrid<N: RealField> {
@@ -100,6 +100,47 @@ impl<N: RealField> Multiball<N> {
     }
 }
 
+
+impl<N: RealField> DeformableShape<N> for Multiball<N> {
+    fn deformations_type(&self) -> DeformationsType {
+        DeformationsType::Vectors
+    }
+
+    /// Updates all the degrees of freedom of this shape.
+    fn set_deformations(&mut self, coords: &[N]) {
+        assert!(coords.len() >= self.centers.len() * DIM, "Set deformations error: dimension mismatch.");
+
+        // There is a bit of unsafe code in order to perform a memcopy for
+        // efficiency reasons when the mapping between degrees of freedom
+        // is trivial.
+        unsafe {
+            let len = self.centers.len();
+            let coords_ptr = coords.as_ptr() as *const Point<N>;
+            let coords_pt: &[Point<N>] = std::slice::from_raw_parts(coords_ptr, len);
+            self.centers.copy_from_slice(coords_pt);
+        }
+
+        // FIXME: update the HGrid.
+    }
+
+    fn update_local_approximation(
+        &self,
+        coords: &[N],
+        approx: &mut LocalShapeApproximation<N>,
+    )
+    {
+        match approx.feature {
+            FeatureId::Face(i) => {
+                let i_first_coord = i * DIM;
+                approx.point.coords.copy_from_slice(&coords[i_first_coord..i_first_coord + DIM]);
+            },
+            _ => panic!(
+                "Encountered invalid multiball feature: {:?}. Only FeatureId::Face are possible",
+                approx.feature
+            ),
+        }
+    }
+}
 
 struct MultiballContactPreprocessor<N: RealField> {
     ball_id: usize,

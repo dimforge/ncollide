@@ -66,11 +66,11 @@ fn duplicate_trimesh_on_world() {
     let mesh = TriMesh::new(vertices, indices, None);
 
     let iso = Isometry3::new(Vector3::new(0., 0., 0.), zero());
-    let shape = ShapeHandle::new(mesh.clone());
+    let shape = ShapeHandle::new_shared(mesh.clone());
     world.add(iso, shape, groups, contacts_query, ());
 
     let iso = Isometry3::new(Vector3::new(0., 0., 0.), zero());
-    let shape = ShapeHandle::new(mesh);
+    let shape = ShapeHandle::new_shared(mesh);
     world.add(iso, shape, groups, contacts_query, ());
 
     world.update();
