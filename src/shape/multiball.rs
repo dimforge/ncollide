@@ -4,11 +4,11 @@ use na::{RealField};
 use crate::query::{ContactKinematic, Contact, ContactPreprocessor, LocalShapeApproximation};
 use crate::shape::{FeatureId, DeformableShape, DeformationsType};
 use crate::bounding_volume::AABB;
-use crate::math::{Point, DIM};
+use crate::math::{Point, Vector, DIM};
 
 #[derive(PartialEq, Debug, Clone)]
 struct HGrid<N: RealField> {
-    cells: HashMap<Point<u64>, Vec<usize>>,
+    cells: HashMap<Point<i64>, Vec<usize>>,
     cell_width: N,
 }
 
@@ -20,9 +20,33 @@ impl<N: RealField> HGrid<N> {
         }
     }
 
-    pub fn insert(&mut self, id: usize, point: &Point<N>, half_extent: N) {
-        // XXX
-        self.cells.entry(Point::origin()).or_insert(Vec::new()).push(id)
+    fn quantify(value: N, cell_width: N) -> i64 {
+        na::try_convert::<N, f64>((value / cell_width).floor()).unwrap() as i64
+    }
+
+    fn key(point: &Point<N>, cell_width: N) -> Point<i64> {
+        Point::from(point.coords.map(|e| Self::quantify(e, cell_width)))
+    }
+
+    pub fn clear(&mut self) {
+        self.cells.clear();
+    }
+
+    pub fn insert(&mut self, id: usize, point: &Point<N>) {
+        let key = Self::key(point, self.cell_width);
+        self.cells.entry(key).or_insert(Vec::new()).push(id)
+    }
+
+    pub fn elements_close_to_point<'a>(&'a self, point: &Point<N>, radius: N) -> impl Iterator<Item = usize> + 'a {
+        let key = Self::key(point, self.cell_width);
+        let quantified_radius = Self::quantify(radius, self.cell_width);
+        let range = -(quantified_radius as i64)..=(quantified_radius as i64);
+        let cells = &self.cells;
+
+        NeighborCellsIterator::new(key, quantified_radius)
+            .flat_map(move |cell| cells.get(&cell).into_iter())
+            .flat_map(|cells| cells.iter())
+            .cloned()
     }
 
     pub fn elements_intersecting_aabb<'a>(&'a self, aabb: &AABB<N>) -> impl Iterator<Item = usize> + 'a {
@@ -31,6 +55,54 @@ impl<N: RealField> HGrid<N> {
 
     pub fn elements_containing_point(&self, point: &Point<N>) -> impl Iterator<Item = usize> {
         std::iter::empty()
+    }
+}
+
+struct NeighborCellsIterator {
+    start: Point<i64>,
+    end: Point<i64>,
+    curr: Point<i64>,
+    done: bool,
+}
+
+impl NeighborCellsIterator {
+    fn new(center: Point<i64>, radius: i64) -> Self {
+        let start = center - Vector::repeat(radius as i64);
+        Self {
+            start,
+            end: center + Vector::repeat(radius as i64),
+            curr: start,
+            done: false,
+        }
+    }
+}
+
+impl Iterator for NeighborCellsIterator {
+    type Item = Point<i64>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.done {
+            return None;
+        }
+
+        if self.curr == self.end {
+            self.done = true;
+            Some(self.curr)
+        } else {
+            let result = self.curr;
+
+            for i in 0..DIM {
+                self.curr[i] += 1;
+
+                if self.curr[i] > self.end[i] {
+                    self.curr[i] = self.start[i];
+                } else {
+                    break;
+                }
+            }
+
+            Some(result)
+        }
     }
 }
 
@@ -50,7 +122,7 @@ impl<N: RealField> Multiball<N> {
         let mut grid = HGrid::new(cell_width);
 
         for (i, c) in centers.iter().enumerate() {
-            grid.insert(i, c, radius)
+            grid.insert(i, c)
         }
 
         Self {
@@ -77,6 +149,14 @@ impl<N: RealField> Multiball<N> {
     /// An iterator over the indices of the balls that contain the given point.
     pub fn balls_containing_point(&self, point: &Point<N>) -> impl Iterator<Item = usize> {
         self.grid.elements_containing_point(point)
+    }
+
+    /// An iterator over a conservative list of indices of the balls that are potentially closer than a distance of `radius`.
+    ///
+    /// The return list of indices is conservative, meaning that it will return all the balls at a radius smaller or
+    /// equal to `radius`, but it may also return other balls.
+    pub fn balls_close_to_point<'a>(&'a self, point: &Point<N>, radius: N) -> impl Iterator<Item = usize> + 'a {
+        self.grid.elements_close_to_point(point, radius)
     }
 
     /// The contact preprocessor to be used for contact determination with the given ball of this multiball.
@@ -120,7 +200,13 @@ impl<N: RealField> DeformableShape<N> for Multiball<N> {
             self.centers.copy_from_slice(coords_pt);
         }
 
-        // FIXME: update the HGrid.
+        // XXX: perform an update more efficient than
+        // recomputing the whole grid.
+        self.grid.clear();
+
+        for (i, c) in self.centers.iter().enumerate() {
+            self.grid.insert(i, c)
+        }
     }
 
     fn update_local_approximation(
