@@ -3,7 +3,7 @@ use crate::math::Vector;
 use na::{RealField, Unit};
 
 /// SupportMap description of a plane.
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Debug, Clone, Copy)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Plane<N: RealField> {
     /// The plane normal.
