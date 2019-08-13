@@ -298,7 +298,7 @@ impl<N: RealField> Shape<N> for Multiball<N> {
 
     #[inline]
     fn as_ray_cast(&self) -> Option<&dyn RayCast<N>> {
-        None
+        Some(self as &dyn RayCast<N>)
     }
 
     #[inline]

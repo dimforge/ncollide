@@ -12,6 +12,7 @@ pub use self::ray_triangle::ray_intersection_with_triangle;
 pub mod ray;
 mod ray_aabb;
 mod ray_ball;
+mod ray_multiball;
 mod ray_bounding_sphere;
 mod ray_compound;
 mod ray_cuboid;
