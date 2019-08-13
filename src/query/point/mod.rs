@@ -23,3 +23,4 @@ mod point_triangle;
 #[cfg(feature = "dim3")]
 mod point_trimesh;
 mod point_heightfield;
+mod point_multiball;

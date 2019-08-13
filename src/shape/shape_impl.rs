@@ -303,7 +303,7 @@ impl<N: RealField> Shape<N> for Multiball<N> {
 
     #[inline]
     fn as_point_query(&self) -> Option<&dyn PointQuery<N>> {
-        None
+        Some(self as &dyn PointQuery<N>)
     }
 
     fn tangent_cone_contains_dir(
