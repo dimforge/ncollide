@@ -9,14 +9,13 @@ use std::sync::Arc;
 use downcast_rs::Downcast;
 
 pub trait ShapeClone<N: RealField> {
-    fn clone_box(&self) -> Box<dyn Shape<N>> {
-        unimplemented!()
-    }
+    /// Construct an `Arc` that refers to a uniquely-owned copy of `self`
+    fn clone_arc(&self) -> Arc<dyn Shape<N>>;
 }
 
 impl<N: RealField, T: 'static + Shape<N> + Clone> ShapeClone<N> for T {
-    fn clone_box(&self) -> Box<dyn Shape<N>> {
-        Box::new(self.clone())
+    fn clone_arc(&self) -> Arc<dyn Shape<N>> {
+        Arc::new(self.clone())
     }
 }
 
@@ -151,39 +150,37 @@ impl<N: RealField> dyn Shape<N> {
     }
 }
 
-impl<N: RealField> Clone for Box<dyn Shape<N>> {
-    fn clone(&self) -> Box<dyn Shape<N>> {
-        self.clone_box()
-    }
-}
-
 /// A shared handle to an abstract shape.
 ///
 /// This can be mutated using COW.
 #[derive(Clone)]
-pub struct ShapeHandle<N: RealField>(Arc<Box<dyn Shape<N>>>);
+pub struct ShapeHandle<N: RealField>(Arc<dyn Shape<N>>);
 
 impl<N: RealField> ShapeHandle<N> {
     /// Creates a sharable shape handle from a shape.
     #[inline]
     pub fn new<S: Shape<N>>(shape: S) -> ShapeHandle<N> {
-        ShapeHandle(Arc::new(Box::new(shape)))
-    }
-
-    /// Creates a sharable shape handle from a shape trait object.
-    pub fn from_box(shape: Box<dyn Shape<N>>) -> ShapeHandle<N> {
         ShapeHandle(Arc::new(shape))
     }
 
+    /// Creates a sharable shape handle from a shape trait object.
+    pub fn from_arc(shape: Arc<dyn Shape<N>>) -> ShapeHandle<N> {
+        ShapeHandle(shape)
+    }
+
     pub(crate) fn make_mut(&mut self) -> &mut dyn Shape<N> {
-        &mut **Arc::make_mut(&mut self.0)
+        if Arc::get_mut(&mut self.0).is_none() {
+            let unique_self = self.0.clone_arc();
+            self.0 = unique_self;
+        }
+        Arc::get_mut(&mut self.0).unwrap()
     }
 }
 
 impl<N: RealField> AsRef<dyn Shape<N>> for ShapeHandle<N> {
     #[inline]
     fn as_ref(&self) -> &dyn Shape<N> {
-        &*self.deref()
+        &*self.0
     }
 }
 
@@ -192,6 +189,6 @@ impl<N: RealField> Deref for ShapeHandle<N> {
 
     #[inline]
     fn deref(&self) -> &dyn Shape<N> {
-        &**self.0.deref()
+        &*self.0
     }
 }
