@@ -1,12 +1,11 @@
 use crate::math::Isometry;
-use na::RealField;
-use crate::query::{Ray, RayCast, RayIntersection};
-use crate::shape::HeightField;
-#[cfg(feature = "dim2")]
-use crate::shape::FeatureId;
 #[cfg(feature = "dim2")]
 use crate::query;
-
+use crate::query::{Ray, RayCast, RayIntersection};
+#[cfg(feature = "dim2")]
+use crate::shape::FeatureId;
+use crate::shape::HeightField;
+use na::RealField;
 
 #[cfg(feature = "dim2")]
 impl<N: RealField> RayCast<N> for HeightField<N> {
@@ -16,25 +15,31 @@ impl<N: RealField> RayCast<N> for HeightField<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         _: bool,
-    ) -> Option<RayIntersection<N>>
-    {
+    ) -> Option<RayIntersection<N>> {
         let aabb = self.aabb();
         let ls_ray = ray.inverse_transform_by(m);
         let (min_t, max_t) = aabb.clip_ray_parameters(&ls_ray)?;
         let (clip_ray_a, _clip_ray_b) = (ls_ray.point_at(min_t), ls_ray.point_at(max_t));
-        let mut curr = match self.cell_at_point(&clip_ray_a) {
-            Some(cell) => cell,
-            // None may happen due to slight numerical errors.
-            None => if ls_ray.origin.x > N::zero() { self.num_cells() - 1 } else {
-                0
+
+        // None may happen due to slight numerical errors.
+        let mut curr = self.cell_at_point(&clip_ray_a).unwrap_or_else(|| {
+            if ls_ray.origin.x > N::zero() {
+                self.num_cells() - 1
+            } else {
+                0_usize
             }
-        };
+        });
 
         /*
          * Test the segment under the ray.
          */
         if let Some(seg) = self.segment_at(curr) {
-            let (s, t) = query::closest_points_line_line_parameters(&ray.origin, &ray.dir, seg.a(), &seg.scaled_direction());
+            let (s, t) = query::closest_points_line_line_parameters(
+                &ray.origin,
+                &ray.dir,
+                seg.a(),
+                &seg.scaled_direction(),
+            );
             if s >= N::zero() && t >= N::zero() && t <= N::one() {
                 // Cast succeeded on the first element!
                 let n = seg.normal().unwrap().into_inner();
@@ -46,7 +51,7 @@ impl<N: RealField> RayCast<N> for HeightField<N> {
                     curr
                 };
 
-                return Some(RayIntersection::new(s, m * n, FeatureId::Face(fid)))
+                return Some(RayIntersection::new(s, m * n, FeatureId::Face(fid)));
             }
         }
 
@@ -66,9 +71,11 @@ impl<N: RealField> RayCast<N> for HeightField<N> {
 
             if right {
                 curr += 1;
-                curr_param = (cell_width * na::convert(curr as f64) + start_x - ls_ray.origin.x) / ls_ray.dir.x;
+                curr_param = (cell_width * na::convert(curr as f64) + start_x - ls_ray.origin.x)
+                    / ls_ray.dir.x;
             } else {
-                curr_param = (ls_ray.origin.x - cell_width * na::convert(curr as f64) - start_x) / ls_ray.dir.x;
+                curr_param = (ls_ray.origin.x - cell_width * na::convert(curr as f64) - start_x)
+                    / ls_ray.dir.x;
                 curr -= 1;
             }
 
@@ -79,7 +86,12 @@ impl<N: RealField> RayCast<N> for HeightField<N> {
 
             if let Some(seg) = self.segment_at(curr) {
                 // TODO: test the y-coordinates (equivalent to an AABB test) before actually computing the intersection.
-                let (s, t) = query::closest_points_line_line_parameters(&ray.origin, &ray.dir, seg.a(), &seg.scaled_direction());
+                let (s, t) = query::closest_points_line_line_parameters(
+                    &ray.origin,
+                    &ray.dir,
+                    seg.a(),
+                    &seg.scaled_direction(),
+                );
                 if t >= N::zero() && t <= N::one() {
                     let n = seg.normal().unwrap().into_inner();
                     let fid = if n.dot(&ls_ray.dir) > N::zero() {
@@ -89,7 +101,7 @@ impl<N: RealField> RayCast<N> for HeightField<N> {
                         // The ray hit the front face.
                         curr
                     };
-                    return Some(RayIntersection::new(s, m * n, FeatureId::Face(fid)))
+                    return Some(RayIntersection::new(s, m * n, FeatureId::Face(fid)));
                 }
             }
         }
@@ -97,7 +109,6 @@ impl<N: RealField> RayCast<N> for HeightField<N> {
         None
     }
 }
-
 
 #[cfg(feature = "dim3")]
 impl<N: RealField> RayCast<N> for HeightField<N> {
@@ -107,8 +118,7 @@ impl<N: RealField> RayCast<N> for HeightField<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>>
-    {
+    ) -> Option<RayIntersection<N>> {
         let aabb = self.aabb();
         let ls_ray = ray.inverse_transform_by(m);
         let (min_t, max_t) = aabb.clip_ray_parameters(&ls_ray)?;
@@ -136,25 +146,33 @@ impl<N: RealField> RayCast<N> for HeightField<N> {
 
         loop {
             let tris = self.triangles_at(cell.0, cell.1);
-            let inter1 = tris.0.and_then(|tri| tri.toi_and_normal_with_ray(m, ray, solid));
-            let inter2 = tris.1.and_then(|tri| tri.toi_and_normal_with_ray(m, ray, solid));
+            let inter1 = tris
+                .0
+                .and_then(|tri| tri.toi_and_normal_with_ray(m, ray, solid));
+            let inter2 = tris
+                .1
+                .and_then(|tri| tri.toi_and_normal_with_ray(m, ray, solid));
 
             match (inter1, inter2) {
                 (Some(mut inter1), Some(mut inter2)) => {
                     if inter1.toi < inter2.toi {
-                        inter1.feature = self.convert_triangle_feature_id(cell.0, cell.1, true, inter1.feature);
+                        inter1.feature =
+                            self.convert_triangle_feature_id(cell.0, cell.1, true, inter1.feature);
                         return Some(inter1);
                     } else {
-                        inter2.feature = self.convert_triangle_feature_id(cell.0, cell.1, false, inter2.feature);
+                        inter2.feature =
+                            self.convert_triangle_feature_id(cell.0, cell.1, false, inter2.feature);
                         return Some(inter2);
                     }
                 }
                 (Some(mut inter), None) => {
-                    inter.feature = self.convert_triangle_feature_id(cell.0, cell.1, true, inter.feature);
+                    inter.feature =
+                        self.convert_triangle_feature_id(cell.0, cell.1, true, inter.feature);
                     return Some(inter);
                 }
                 (None, Some(mut inter)) => {
-                    inter.feature = self.convert_triangle_feature_id(cell.0, cell.1, false, inter.feature);
+                    inter.feature =
+                        self.convert_triangle_feature_id(cell.0, cell.1, false, inter.feature);
                     return Some(inter);
                 }
                 (None, None) => {}
@@ -201,7 +219,7 @@ impl<N: RealField> RayCast<N> for HeightField<N> {
                 } else if cell.0 > 0 {
                     cell.0 -= 1
                 } else {
-                    break
+                    break;
                 }
             } else {
                 break;

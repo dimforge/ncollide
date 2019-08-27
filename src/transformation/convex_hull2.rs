@@ -1,10 +1,10 @@
 use std::marker::PhantomData;
 
-use alga::general::RealField;
-use na::{self, Point2, Vector2};
 #[cfg(feature = "dim2")]
 use crate::procedural::Polyline;
 use crate::transformation::convex_hull_utils::{indexed_support_point_id, support_point_id};
+use alga::general::RealField;
+use na::{self, Point2, Vector2};
 
 /// Computes the convex hull of a set of 2d points.
 #[cfg(feature = "dim2")]
@@ -35,21 +35,18 @@ pub fn convex_hull2_idx<N: RealField>(points: &[Point2<N>]) -> Vec<usize> {
         let pt_id =
             indexed_support_point_id(&segments[i].normal, points, &segments[i].visible_points[..]);
 
-        match pt_id {
-            Some(point) => {
-                segments[i].valid = false;
+        if let Some(point) = pt_id {
+            segments[i].valid = false;
 
-                attach_and_push_facets2(
-                    segments[i].prev,
-                    segments[i].next,
-                    point,
-                    &points[..],
-                    &mut segments,
-                    i,
-                    &mut undecidable_points,
-                );
-            }
-            None => {}
+            attach_and_push_facets2(
+                segments[i].prev,
+                segments[i].next,
+                point,
+                &points[..],
+                &mut segments,
+                i,
+                &mut undecidable_points,
+            );
         }
 
         i = i + 1;
@@ -84,8 +81,7 @@ pub fn convex_hull2_idx<N: RealField>(points: &[Point2<N>]) -> Vec<usize> {
 fn get_initial_polyline<N: RealField>(
     points: &[Point2<N>],
     undecidable: &mut Vec<usize>,
-) -> Vec<SegmentFacet<N>>
-{
+) -> Vec<SegmentFacet<N>> {
     let mut res = Vec::new();
 
     assert!(points.len() >= 2);
@@ -143,8 +139,7 @@ fn attach_and_push_facets2<N: RealField>(
     segments: &mut Vec<SegmentFacet<N>>,
     removed_facet: usize,
     undecidable: &mut Vec<usize>,
-)
-{
+) {
     let new_facet1_id = segments.len();
     let new_facet2_id = new_facet1_id + 1;
     let prev_pt = segments[prev_facet].pts[1];
@@ -206,8 +201,7 @@ impl<N: RealField> SegmentFacet<N> {
         prev: usize,
         next: usize,
         points: &[Point2<N>],
-    ) -> SegmentFacet<N>
-    {
+    ) -> SegmentFacet<N> {
         let p1p2 = points[p2] - points[p1];
 
         let mut normal = Vector2::new(-p1p2.y, p1p2.x);

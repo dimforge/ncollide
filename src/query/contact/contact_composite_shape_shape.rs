@@ -1,9 +1,9 @@
 use crate::bounding_volume::BoundingVolume;
 use crate::math::Isometry;
-use na::{self, RealField};
 use crate::query::visitors::BoundingVolumeInterferencesCollector;
 use crate::query::{self, Contact};
 use crate::shape::{CompositeShape, Shape};
+use na::{self, RealField};
 
 /// Best contact between a composite shape (`Mesh`, `Compound`) and any other shape.
 pub fn contact_composite_shape_shape<N: RealField, G1: ?Sized>(
@@ -31,18 +31,12 @@ where
 
     for i in interferences.into_iter() {
         g1.map_part_at(i, m1, &mut |m, part| {
-            match query::contact(m, part, m2, g2, prediction) {
-                Some(c) => {
-                    let replace = match res {
-                        Some(ref cbest) => c.depth > cbest.depth,
-                        None => true,
-                    };
+            if let Some(c) = query::contact(m, part, m2, g2, prediction) {
+                let replace = res.map_or(true, |cbest| c.depth > cbest.depth);
 
-                    if replace {
-                        res = Some(c)
-                    }
+                if replace {
+                    res = Some(c)
                 }
-                None => {}
             }
         });
     }

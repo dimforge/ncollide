@@ -1,13 +1,13 @@
 use na::{self, RealField};
 
 use crate::math::Isometry;
+#[cfg(feature = "dim2")]
+use crate::query;
 use crate::query::algorithms::{gjk, CSOPoint, VoronoiSimplex};
 use crate::query::{Ray, RayCast, RayIntersection};
 #[cfg(feature = "dim2")]
-use crate::query;
-#[cfg(feature = "dim2")]
 use crate::shape::ConvexPolygon;
-use crate::shape::{Capsule, Segment, SupportMap, FeatureId};
+use crate::shape::{Capsule, FeatureId, Segment, SupportMap};
 #[cfg(feature = "dim3")]
 use crate::shape::{Cone, ConvexHull, Cylinder};
 
@@ -29,26 +29,24 @@ where
     let inter = gjk::cast_ray(m, shape, simplex, ray);
 
     if !solid {
-        match inter {
-            None => None,
-            Some((toi, normal)) => {
-                if toi.is_zero() {
-                    // the ray is inside of the shape.
-                    let ndir = ray.dir.normalize();
-                    let supp = shape.support_point(m, &ndir);
-                    let shift = (supp - ray.origin).dot(&ndir) + na::convert(0.001f64);
-                    let new_ray = Ray::new(ray.origin + ndir * shift, -ray.dir);
+        inter.and_then(|(toi, normal)| {
+            if toi.is_zero() {
+                // the ray is inside of the shape.
+                let ndir = ray.dir.normalize();
+                let supp = shape.support_point(m, &ndir);
+                let shift = (supp - ray.origin).dot(&ndir) + na::convert(0.001f64);
+                let new_ray = Ray::new(ray.origin + ndir * shift, -ray.dir);
 
-                    // FIXME: replace by? : simplex.translate_by(&(ray.origin - new_ray.origin));
-                    simplex.reset(CSOPoint::single_point(supp - new_ray.origin.coords));
+                // FIXME: replace by? : simplex.translate_by(&(ray.origin - new_ray.origin));
+                simplex.reset(CSOPoint::single_point(supp - new_ray.origin.coords));
 
-                    gjk::cast_ray(m, shape, simplex, &new_ray)
-                        .map(|(toi, normal)| RayIntersection::new(shift - toi, normal, FeatureId::Unknown))
-                } else {
-                    Some(RayIntersection::new(toi, normal, FeatureId::Unknown))
-                }
+                gjk::cast_ray(m, shape, simplex, &new_ray).map(|(toi, normal)| {
+                    RayIntersection::new(shift - toi, normal, FeatureId::Unknown)
+                })
+            } else {
+                Some(RayIntersection::new(toi, normal, FeatureId::Unknown))
             }
-        }
+        })
     } else {
         inter.map(|(toi, normal)| RayIntersection::new(toi, normal, FeatureId::Unknown))
     }
@@ -61,8 +59,7 @@ impl<N: RealField> RayCast<N> for Cylinder<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>>
-    {
+    ) -> Option<RayIntersection<N>> {
         let ls_ray = ray.inverse_transform_by(m);
 
         ray_intersection_with_support_map_with_params(
@@ -86,8 +83,7 @@ impl<N: RealField> RayCast<N> for Cone<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>>
-    {
+    ) -> Option<RayIntersection<N>> {
         let ls_ray = ray.inverse_transform_by(m);
 
         ray_intersection_with_support_map_with_params(
@@ -110,8 +106,7 @@ impl<N: RealField> RayCast<N> for Capsule<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>>
-    {
+    ) -> Option<RayIntersection<N>> {
         let ls_ray = ray.inverse_transform_by(m);
 
         ray_intersection_with_support_map_with_params(
@@ -135,8 +130,7 @@ impl<N: RealField> RayCast<N> for ConvexHull<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>>
-    {
+    ) -> Option<RayIntersection<N>> {
         let ls_ray = ray.inverse_transform_by(m);
 
         ray_intersection_with_support_map_with_params(
@@ -160,8 +154,7 @@ impl<N: RealField> RayCast<N> for ConvexPolygon<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>>
-    {
+    ) -> Option<RayIntersection<N>> {
         let ls_ray = ray.inverse_transform_by(m);
 
         ray_intersection_with_support_map_with_params(
@@ -185,14 +178,18 @@ impl<N: RealField> RayCast<N> for Segment<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>>
-    {
+    ) -> Option<RayIntersection<N>> {
         #[cfg(feature = "dim2")]
         {
             let seg = self.transformed(m);
             let seg_dir = seg.scaled_direction();
             let (s, t, parallel) = query::closest_points_line_line_parameters_eps(
-                &ray.origin, &ray.dir, seg.a(), &seg_dir, N::default_epsilon());
+                &ray.origin,
+                &ray.dir,
+                seg.a(),
+                &seg_dir,
+                N::default_epsilon(),
+            );
 
             if parallel {
                 // The lines are parallel, we have to distinguish
@@ -212,28 +209,24 @@ impl<N: RealField> RayCast<N> for Segment<N> {
                                 Some(RayIntersection::new(
                                     dist1 / ray.dir.norm_squared(),
                                     normal,
-                                    FeatureId::Vertex(0)
+                                    FeatureId::Vertex(0),
                                 ))
                             } else {
                                 Some(RayIntersection::new(
                                     dist2 / ray.dir.norm_squared(),
                                     normal,
-                                    FeatureId::Vertex(1)
+                                    FeatureId::Vertex(1),
                                 ))
                             }
                         }
                         (true, false) | (false, true) => {
                             // The ray origin lies on the segment.
-                            Some(RayIntersection::new(
-                                N::zero(),
-                                normal,
-                                FeatureId::Face(0)
-                            ))
+                            Some(RayIntersection::new(N::zero(), normal, FeatureId::Face(0)))
                         }
                         (false, false) => {
                             // The segment is behind the ray.
                             None
-                        },
+                        }
                     }
                 } else {
                     // The rays never intersect.
@@ -243,17 +236,9 @@ impl<N: RealField> RayCast<N> for Segment<N> {
                 let normal = seg.scaled_normal();
 
                 if normal.dot(&ray.dir) > N::zero() {
-                    Some(RayIntersection::new(
-                        s,
-                        -normal,
-                        FeatureId::Face(1)
-                    ))
+                    Some(RayIntersection::new(s, -normal, FeatureId::Face(1)))
                 } else {
-                    Some(RayIntersection::new(
-                        s,
-                        normal,
-                        FeatureId::Face(0)
-                    ))
+                    Some(RayIntersection::new(s, normal, FeatureId::Face(0)))
                 }
             } else {
                 // The closest points are outside of
@@ -273,10 +258,10 @@ impl<N: RealField> RayCast<N> for Segment<N> {
                 &ls_ray,
                 solid,
             )
-                .map(|mut res| {
-                    res.normal = m * res.normal;
-                    res
-                })
+            .map(|mut res| {
+                res.normal = m * res.normal;
+                res
+            })
         }
     }
 }

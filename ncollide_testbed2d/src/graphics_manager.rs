@@ -230,9 +230,8 @@ impl<'a, N: RealField + ToPrimitive> GraphicsManager<'a, N> {
     }
 
     pub fn color_for_object(&mut self, handle: CollisionObjectSlabHandle) -> Point3<u8> {
-        match self.handle2color.get(&handle) {
-            Some(color) => return *color,
-            None => {}
+        if let Some(color) = self.handle2color.get(&handle) {
+            return *color;
         }
 
         let color = Point3::new(

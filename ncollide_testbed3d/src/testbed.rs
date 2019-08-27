@@ -302,13 +302,11 @@ impl Testbed {
 
                         let (ref ppos, ref pdir) = self.grabbed_object_plane;
 
-                        match ray_internal::plane_toi_with_ray(ppos, pdir, &Ray::new(pos, dir)) {
-                            Some(inter) => {
-                                let new_pos =
-                                    Isometry3::new((pos + dir * inter).coords, na::zero());
-                                world.set_position(handle, new_pos);
-                            }
-                            None => {}
+                        if let Some(inter) =
+                            ray_internal::plane_toi_with_ray(ppos, pdir, &Ray::new(pos, dir))
+                        {
+                            let new_pos = Isometry3::new((pos + dir * inter).coords, na::zero());
+                            world.set_position(handle, new_pos);
                         }
                     }
 
