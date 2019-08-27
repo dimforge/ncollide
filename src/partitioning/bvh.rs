@@ -199,9 +199,9 @@ impl<'a, N: RealField, T, BV> BVHImpl<'a, N, T, BV> {
     }
 
     /// Visits the bounding volume traversal tree implicitly formed with `other`.
-    pub fn visit_bvtt<'b>(
+    pub fn visit_bvtt(
         self,
-        other: BVHImpl<'b, N, T, BV>,
+        other: BVHImpl<N, T, BV>,
         visitor: &mut impl SimultaneousVisitor<T, BV>,
     )
     {

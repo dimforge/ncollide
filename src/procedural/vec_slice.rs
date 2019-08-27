@@ -51,7 +51,7 @@ impl<'a, T> VecSlice<'a, T> {
     }
 
     #[inline]
-    pub fn get<'b>(&'b self, i: usize) -> &'b T {
+    pub fn get(&self, i: usize) -> &T {
         assert!(i < self.length);
 
         unsafe {
@@ -60,7 +60,7 @@ impl<'a, T> VecSlice<'a, T> {
     }
 
     #[inline]
-    pub unsafe fn get_unchecked<'b>(&'b self, i: usize) -> &'b T {
+    pub unsafe fn get_unchecked(&self, i: usize) -> &T {
         self.data.get_unchecked(self.id(i))
     }
 }
@@ -84,7 +84,7 @@ impl<'a, T> VecSliceMut<'a, T> {
     }
 
     #[inline]
-    pub fn get<'b>(&'b self, i: usize) -> &'b T {
+    pub fn get(&self, i: usize) -> &T {
         assert!(i < self.length);
 
         unsafe {
@@ -93,7 +93,7 @@ impl<'a, T> VecSliceMut<'a, T> {
     }
 
     #[inline]
-    pub fn get_mut<'b>(&'b mut self, i: usize) -> &'b mut T {
+    pub fn get_mut(&mut self, i: usize) -> &mut T {
         assert!(i < self.length);
 
         unsafe {
@@ -102,12 +102,12 @@ impl<'a, T> VecSliceMut<'a, T> {
     }
 
     #[inline]
-    pub unsafe fn get_unchecked<'b>(&'b self, i: usize) -> &'b T {
+    pub unsafe fn get_unchecked(&self, i: usize) -> &T {
         self.data.get_unchecked(self.id(i))
     }
 
     #[inline]
-    pub unsafe fn get_unchecked_mut<'b>(&'b mut self, i: usize) -> &'b mut T {
+    pub unsafe fn get_unchecked_mut(&mut self, i: usize) -> &mut T {
         let id = self.id(i);
         self.data.unsafe_mut_ref(id)
     }
