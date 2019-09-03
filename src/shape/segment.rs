@@ -296,6 +296,7 @@ impl<N: RealField> ConvexPolyhedron<N> for Segment<N> {
         face: &mut ConvexPolygonalFeature<N>,
     )
     {
+        face.clear();
         face.push(self.a, FeatureId::Vertex(0));
         face.push(self.b, FeatureId::Vertex(1));
         face.push_edge_feature_id(FeatureId::Edge(0));
