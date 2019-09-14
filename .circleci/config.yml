@@ -8,6 +8,7 @@ executors:
     docker:
         - image: rust:latest
 
+
 jobs:
   check-fmt:
     executor: rust-executor
@@ -53,7 +54,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name bench ncollide2d
+          name: bench ncollide2d
           command: cargo bench
 
 
