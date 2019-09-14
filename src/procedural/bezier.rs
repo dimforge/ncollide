@@ -12,8 +12,7 @@ pub fn bezier_curve_at<N: RealField>(
     control_points: &[Point<N>],
     t: N,
     cache: &mut Vec<Point<N>>,
-) -> Point<N>
-{
+) -> Point<N> {
     if control_points.len() > cache.len() {
         let diff = control_points.len() - cache.len();
         cache.extend(iter::repeat(Point::origin()).take(diff))

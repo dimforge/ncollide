@@ -1,8 +1,8 @@
 use crate::math::Isometry;
-use na::RealField;
+use crate::query::ContactPreprocessor;
 use crate::query::{ContactManifold, ContactPrediction};
 use crate::shape::Shape;
-use crate::query::ContactPreprocessor;
+use na::RealField;
 use std::any::Any;
 
 /// An algorithm to compute contact points, normals and penetration depths between two specific
@@ -39,5 +39,9 @@ pub type ContactAlgorithm<N> = Box<dyn ContactManifoldGenerator<N>>;
 
 pub trait ContactDispatcher<N>: Any + Send + Sync {
     /// Allocate a collision algorithm corresponding to a pair of objects with the given shapes.
-    fn get_contact_algorithm(&self, a: &dyn Shape<N>, b: &dyn Shape<N>) -> Option<ContactAlgorithm<N>>;
+    fn get_contact_algorithm(
+        &self,
+        a: &dyn Shape<N>,
+        b: &dyn Shape<N>,
+    ) -> Option<ContactAlgorithm<N>>;
 }

@@ -1,11 +1,11 @@
 use crate::bounding_volume::{self, BoundingVolume};
 use crate::math::Isometry;
-use na::{self, RealField};
 use crate::pipeline::narrow_phase::{ProximityAlgorithm, ProximityDetector, ProximityDispatcher};
 use crate::query::{visitors::BoundingVolumeInterferencesCollector, Proximity};
 use crate::shape::{CompositeShape, Shape};
-use std::collections::{hash_map::Entry, HashMap};
 use crate::utils::DeterministicState;
+use na::{self, RealField};
+use std::collections::{hash_map::Entry, HashMap};
 
 /// Proximity detector between a concave shape and another shape.
 pub struct CompositeShapeShapeProximityDetector<N> {
@@ -38,9 +38,8 @@ impl<N: RealField> CompositeShapeShapeProximityDetector<N> {
         m2: &Isometry<N>,
         g2: &dyn Shape<N>,
         margin: N,
-        flip: bool)
-        -> Option<Proximity>
-    {
+        flip: bool,
+    ) -> Option<Proximity> {
         let mut result = Proximity::Disjoint;
 
         // Remove outdated sub detectors.

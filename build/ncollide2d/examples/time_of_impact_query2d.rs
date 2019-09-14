@@ -27,7 +27,7 @@ fn main() {
         &cuboid_pos,
         &box_vel1,
         &cuboid,
-       std::f64::MAX,
+        std::f64::MAX,
         0.0,
     );
     let toi_will_touch = query::time_of_impact(
@@ -37,7 +37,7 @@ fn main() {
         &cuboid_pos,
         &box_vel2,
         &cuboid,
-       std::f64::MAX,
+        std::f64::MAX,
         0.0,
     );
     let toi_wont_touch = query::time_of_impact(
@@ -47,7 +47,7 @@ fn main() {
         &cuboid_pos,
         &box_vel1,
         &cuboid,
-       std::f64::MAX,
+        std::f64::MAX,
         0.0,
     );
 

@@ -2,7 +2,7 @@
 
 pub use self::bvh::{BVHImpl, BVH};
 pub use self::bvt::{BVTNodeId, BinaryPartition, BVT};
-pub use self::dbvt::{DBVTLeaf, DBVTLeafId, DBVT, DBVTNodeId};
+pub use self::dbvt::{DBVTLeaf, DBVTLeafId, DBVTNodeId, DBVT};
 pub use self::visitor::{
     BestFirstVisitStatus, BestFirstVisitor, SimultaneousVisitor, VisitStatus, Visitor,
 };

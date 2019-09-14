@@ -1,8 +1,8 @@
 use crate::bounding_volume::BoundingSphere;
 use crate::math::{Isometry, Point};
-use na::RealField;
 use crate::query::{PointProjection, PointQuery};
 use crate::shape::{Ball, FeatureId};
+use na::RealField;
 
 impl<N: RealField> PointQuery<N> for BoundingSphere<N> {
     #[inline]
@@ -20,8 +20,7 @@ impl<N: RealField> PointQuery<N> for BoundingSphere<N> {
         &self,
         m: &Isometry<N>,
         pt: &Point<N>,
-    ) -> (PointProjection<N>, FeatureId)
-    {
+    ) -> (PointProjection<N>, FeatureId) {
         (self.project_point(m, pt, false), FeatureId::Face(0))
     }
 

@@ -1,7 +1,7 @@
 use crate::math::Isometry;
-use na::RealField;
 use crate::query::{Ray, RayCast, RayIntersection};
 use crate::shape::Shape;
+use na::RealField;
 
 impl<N: RealField> RayCast<N> for dyn Shape<N> {
     #[inline]
@@ -17,8 +17,7 @@ impl<N: RealField> RayCast<N> for dyn Shape<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>>
-    {
+    ) -> Option<RayIntersection<N>> {
         self.as_ray_cast()
             .expect("No RayCast implementation for the underlying shape.")
             .toi_and_normal_with_ray(m, ray, solid)
@@ -31,8 +30,7 @@ impl<N: RealField> RayCast<N> for dyn Shape<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>>
-    {
+    ) -> Option<RayIntersection<N>> {
         self.as_ray_cast()
             .expect("No RayCast implementation for the underlying shape.")
             .toi_and_normal_and_uv_with_ray(m, ray, solid)

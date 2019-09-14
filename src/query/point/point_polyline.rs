@@ -1,11 +1,11 @@
 use crate::bounding_volume::AABB;
 use crate::math::{Isometry, Point};
-use na::{self, RealField};
 use crate::partitioning::{BestFirstVisitStatus, BestFirstVisitor, BVH};
 use crate::query::{
     visitors::CompositePointContainmentTest, PointProjection, PointQuery, PointQueryWithLocation,
 };
 use crate::shape::{FeatureId, Polyline, SegmentPointLocation};
+use na::{self, RealField};
 
 impl<N: RealField> PointQuery<N> for Polyline<N> {
     #[inline]
@@ -19,8 +19,7 @@ impl<N: RealField> PointQuery<N> for Polyline<N> {
         &self,
         _: &Isometry<N>,
         _: &Point<N>,
-    ) -> (PointProjection<N>, FeatureId)
-    {
+    ) -> (PointProjection<N>, FeatureId) {
         unimplemented!()
     }
 
@@ -50,8 +49,7 @@ impl<N: RealField> PointQueryWithLocation<N> for Polyline<N> {
         m: &Isometry<N>,
         point: &Point<N>,
         _: bool,
-    ) -> (PointProjection<N>, Self::Location)
-    {
+    ) -> (PointProjection<N>, Self::Location) {
         let ls_pt = m.inverse_transform_point(point);
         let mut visitor = PolylinePointProjVisitor {
             polyline: self,
@@ -77,14 +75,18 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for PolylinePointProj
     type Result = (PointProjection<N>, (usize, SegmentPointLocation<N>));
 
     #[inline]
-    fn visit(&mut self, best: N, aabb: &AABB<N>, data: Option<&usize>) -> BestFirstVisitStatus<N, Self::Result> {
-        let dist = aabb.distance_to_point(
-            &Isometry::identity(),
-            self.point,
-            true,
-        );
+    fn visit(
+        &mut self,
+        best: N,
+        aabb: &AABB<N>,
+        data: Option<&usize>,
+    ) -> BestFirstVisitStatus<N, Self::Result> {
+        let dist = aabb.distance_to_point(&Isometry::identity(), self.point, true);
 
-        let mut res = BestFirstVisitStatus::Continue { cost: dist, result: None };
+        let mut res = BestFirstVisitStatus::Continue {
+            cost: dist,
+            result: None,
+        };
 
         if let Some(b) = data {
             if dist < best {

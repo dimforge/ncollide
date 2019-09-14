@@ -1,0 +1,74 @@
+version: 2.1
+
+executors:
+  rust-nightly-executor:
+    docker:
+        - image: rustlang/rust:nightly
+  rust-executor:
+    docker:
+        - image: rust:latest
+
+
+jobs:
+  check-fmt:
+    executor: rust-executor
+    steps:
+      - checkout
+      - run:
+          name: install rustfmt
+          command: rustup component add rustfmt
+      - run:
+          name: check formatting
+          command: cargo fmt -- --check
+  build-native:
+    executor: rust-executor
+    steps:
+      - checkout
+      - run:
+          name: build ncollide2d
+          command: cargo build --verbose -p ncollide2d;
+      - run:
+          name: build ncollide3d
+          command: cargo build --verbose -p ncollide3d;
+      - run:
+          name: test ncollide2d
+          command: cargo test --verbose -p ncollide2d;
+      - run:
+          name: test ncollide3d
+          command: cargo test --verbose -p ncollide3d;
+  build-wasm:
+    executor: rust-executor
+    steps:
+      - checkout
+      - run:
+          name: install cargo-web
+          command: cargo install -f cargo-web;
+      - run:
+          name: build ncollide2d
+          command: cargo web build --verbose --target wasm32-unknown-unknown -p ncollide2d;
+      - run:
+          name: build ncollide3d
+          command: cargo web build --verbose --target wasm32-unknown-unknown -p ncollide3d;
+  bench-native:
+    executor: rust-nightly-executor
+    steps:
+      - checkout
+      - run:
+          name: bench ncollide2d
+          command: cargo bench
+
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - check-fmt
+      - build-native:
+          requires:
+            - check-fmt
+      - build-wasm:
+          requires:
+            - check-fmt
+      - bench-native:
+          requires:
+            - build-native

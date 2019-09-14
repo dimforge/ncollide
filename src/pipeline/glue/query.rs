@@ -1,22 +1,25 @@
 use na::RealField;
 use std::vec::IntoIter;
 
-use crate::math::Point;
-use crate::query::{Ray, RayIntersection, RayCast, PointQuery};
 use crate::bounding_volume::AABB;
-use crate::pipeline::object::{CollisionObjectRef, CollisionObjectSet, CollisionGroups};
+use crate::math::Point;
 use crate::pipeline::broad_phase::BroadPhase;
+use crate::pipeline::object::{CollisionGroups, CollisionObjectRef, CollisionObjectSet};
+use crate::query::{PointQuery, Ray, RayCast, RayIntersection};
 
 /// Returns an iterator yielding all the collision objects intersecting with the given ray.
 ///
 /// The result will only include collision objects in a group that can interact with the given `groups`.
-pub fn interferences_with_ray<'a, 'b, N, Objects>(objects: &'a Objects,
-                                                  broad_phase: &'a (impl BroadPhase<N, AABB<N>, Objects::CollisionObjectHandle> + ?Sized),
-                                                  ray: &'b Ray<N>,
-                                                  groups: &'b CollisionGroups)
-                                                  -> InterferencesWithRay<'a, 'b, N, Objects>
-    where N: RealField,
-          Objects: CollisionObjectSet<N> {
+pub fn interferences_with_ray<'a, 'b, N, Objects>(
+    objects: &'a Objects,
+    broad_phase: &'a (impl BroadPhase<N, AABB<N>, Objects::CollisionObjectHandle> + ?Sized),
+    ray: &'b Ray<N>,
+    groups: &'b CollisionGroups,
+) -> InterferencesWithRay<'a, 'b, N, Objects>
+where
+    N: RealField,
+    Objects: CollisionObjectSet<N>,
+{
     let mut handles = Vec::new();
     broad_phase.interferences_with_ray(ray, &mut handles);
 
@@ -37,9 +40,15 @@ pub struct InterferencesWithRay<'a, 'b, N: RealField, Objects: CollisionObjectSe
 }
 
 impl<'a, 'b, N: RealField, Objects> Iterator for InterferencesWithRay<'a, 'b, N, Objects>
-    where N: RealField,
-          Objects: CollisionObjectSet<N> {
-    type Item = (Objects::CollisionObjectHandle, &'a Objects::CollisionObject, RayIntersection<N>);
+where
+    N: RealField,
+    Objects: CollisionObjectSet<N>,
+{
+    type Item = (
+        Objects::CollisionObjectHandle,
+        &'a Objects::CollisionObject,
+        RayIntersection<N>,
+    );
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
@@ -61,18 +70,19 @@ impl<'a, 'b, N: RealField, Objects> Iterator for InterferencesWithRay<'a, 'b, N,
     }
 }
 
-
-
 /// Returns an iterator yielding all the collision objects containing the given point.
 ///
 /// The result will only include collision objects in a group that can interact with the given `groups`.
-pub fn interferences_with_point<'a, 'b, N, Objects>(objects: &'a Objects,
-                                                    broad_phase: &'a (impl BroadPhase<N, AABB<N>, Objects::CollisionObjectHandle> + ?Sized),
-                                                    point: &'b Point<N>,
-                                                    groups: &'b CollisionGroups)
-                                                    -> InterferencesWithPoint<'a, 'b, N, Objects>
-    where N: RealField,
-          Objects: CollisionObjectSet<N> {
+pub fn interferences_with_point<'a, 'b, N, Objects>(
+    objects: &'a Objects,
+    broad_phase: &'a (impl BroadPhase<N, AABB<N>, Objects::CollisionObjectHandle> + ?Sized),
+    point: &'b Point<N>,
+    groups: &'b CollisionGroups,
+) -> InterferencesWithPoint<'a, 'b, N, Objects>
+where
+    N: RealField,
+    Objects: CollisionObjectSet<N>,
+{
     let mut handles = Vec::new();
     broad_phase.interferences_with_point(point, &mut handles);
 
@@ -93,8 +103,10 @@ pub struct InterferencesWithPoint<'a, 'b, N: RealField, Objects: CollisionObject
 }
 
 impl<'a, 'b, N: RealField, Objects> Iterator for InterferencesWithPoint<'a, 'b, N, Objects>
-    where N: RealField,
-          Objects: CollisionObjectSet<N> {
+where
+    N: RealField,
+    Objects: CollisionObjectSet<N>,
+{
     type Item = (Objects::CollisionObjectHandle, &'a Objects::CollisionObject);
 
     #[inline]
@@ -113,17 +125,19 @@ impl<'a, 'b, N: RealField, Objects> Iterator for InterferencesWithPoint<'a, 'b, 
     }
 }
 
-
 /// Returns an iterator yielding all the collision objects with an AABB intersecting with the given AABB.
 ///
 /// The result will only include collision objects in a group that can interact with the given `groups`.
-pub fn interferences_with_aabb<'a, 'b, N, Objects>(objects: &'a Objects,
-                                                   broad_phase: &'a (impl BroadPhase<N, AABB<N>, Objects::CollisionObjectHandle> + ?Sized),
-                                                   aabb: &AABB<N>,
-                                                   groups: &'b CollisionGroups)
-                                                   -> InterferencesWithAABB<'a, 'b, N, Objects>
-    where N: RealField,
-          Objects: CollisionObjectSet<N> {
+pub fn interferences_with_aabb<'a, 'b, N, Objects>(
+    objects: &'a Objects,
+    broad_phase: &'a (impl BroadPhase<N, AABB<N>, Objects::CollisionObjectHandle> + ?Sized),
+    aabb: &AABB<N>,
+    groups: &'b CollisionGroups,
+) -> InterferencesWithAABB<'a, 'b, N, Objects>
+where
+    N: RealField,
+    Objects: CollisionObjectSet<N>,
+{
     let mut handles = Vec::new();
     broad_phase.interferences_with_bounding_volume(aabb, &mut handles);
 
@@ -141,7 +155,9 @@ pub struct InterferencesWithAABB<'a, 'b, N: RealField, Objects: CollisionObjectS
     handles: IntoIter<&'a Objects::CollisionObjectHandle>,
 }
 
-impl<'a, 'b, N: RealField, Objects: CollisionObjectSet<N>> Iterator for InterferencesWithAABB<'a, 'b, N, Objects> {
+impl<'a, 'b, N: RealField, Objects: CollisionObjectSet<N>> Iterator
+    for InterferencesWithAABB<'a, 'b, N, Objects>
+{
     type Item = (Objects::CollisionObjectHandle, &'a Objects::CollisionObject);
 
     #[inline]

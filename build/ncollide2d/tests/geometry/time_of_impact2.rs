@@ -25,7 +25,7 @@ fn ball_cuboid_toi() {
         &cuboid_pos,
         &box_vel1,
         &cuboid,
-       std::f64::MAX,
+        std::f64::MAX,
         0.0,
     );
     let toi_will_touch = query::time_of_impact(
@@ -35,7 +35,7 @@ fn ball_cuboid_toi() {
         &cuboid_pos,
         &box_vel2,
         &cuboid,
-       std::f64::MAX,
+        std::f64::MAX,
         0.0,
     );
     let toi_wont_touch = query::time_of_impact(
@@ -45,7 +45,7 @@ fn ball_cuboid_toi() {
         &cuboid_pos,
         &box_vel1,
         &cuboid,
-       std::f64::MAX,
+        std::f64::MAX,
         0.0,
     );
 
@@ -68,6 +68,15 @@ fn cuboid_cuboid_toi_issue_214() {
     let vel1 = Vector2::new(1.0, 0.0);
     let vel2 = Vector2::new(0.0, 0.0);
 
-    let toi = query::time_of_impact(&pos1, &vel1, &shape1, &pos2, &vel2, &shape2,std::f64::MAX, 0.0);
+    let toi = query::time_of_impact(
+        &pos1,
+        &vel1,
+        &shape1,
+        &pos2,
+        &vel2,
+        &shape2,
+        std::f64::MAX,
+        0.0,
+    );
     assert!(toi.is_some());
 }

@@ -1,6 +1,6 @@
 use crate::math::{Isometry, Point, Vector};
-use na::{RealField, Unit};
 use crate::shape::SupportMap;
+use na::{RealField, Unit};
 use std::ops::Sub;
 
 /// A point of a Configuration-Space Obstacle.

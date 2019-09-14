@@ -1,7 +1,7 @@
 use crate::math::{Isometry, Point};
-use na::RealField;
 use crate::query::{PointProjection, PointQuery};
 use crate::shape::{FeatureId, Shape};
+use na::RealField;
 
 impl<N: RealField> PointQuery<N> for dyn Shape<N> {
     #[inline]
@@ -16,8 +16,7 @@ impl<N: RealField> PointQuery<N> for dyn Shape<N> {
         &self,
         m: &Isometry<N>,
         pt: &Point<N>,
-    ) -> (PointProjection<N>, FeatureId)
-    {
+    ) -> (PointProjection<N>, FeatureId) {
         self.as_point_query()
             .expect("No PointQuery implementation for the underlying shape.")
             .project_point_with_feature(m, pt)

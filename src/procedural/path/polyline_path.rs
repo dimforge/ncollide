@@ -1,6 +1,6 @@
 use crate::math::{Point, Vector};
-use na::RealField;
 use crate::procedural::path::{CurveSampler, PathSample};
+use na::RealField;
 
 /// A path with its sample points given by a polyline.
 ///

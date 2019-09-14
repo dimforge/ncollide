@@ -1,7 +1,7 @@
 use crate::common::{generate, unref};
 use na::{Isometry3, Vector3};
-use ncollide3d::shape::{Ball, Capsule, Cone, ConvexHull, Cuboid, Cylinder, Segment, Triangle};
 use ncollide3d::shape::SupportMap;
+use ncollide3d::shape::{Ball, Capsule, Cone, ConvexHull, Cuboid, Cylinder, Segment, Triangle};
 use rand::SeedableRng;
 use rand_isaac::IsaacRng;
 use test::Bencher;

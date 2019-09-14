@@ -5,8 +5,8 @@ use ncollide3d::query::{PointQuery, Ray, RayCast};
 use ncollide3d::shape::{Ball, Cuboid, Shape};
 
 fn run_test<S>(name: &str, shape: S)
-    where
-        S: Shape<f32> + RayCast<f32> + PointQuery<f32>,
+where
+    S: Shape<f32> + RayCast<f32> + PointQuery<f32>,
 {
     for _ in 0..1000 {
         let ray_origin = Point3::from(rand::random::<Vector3<f32>>().normalize() * 5.0);

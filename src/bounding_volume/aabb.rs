@@ -1,6 +1,6 @@
 //! Axis Aligned Bounding Box.
 
-use crate::bounding_volume::{BoundingVolume, HasBoundingVolume, BoundingSphere};
+use crate::bounding_volume::{BoundingSphere, BoundingVolume, HasBoundingVolume};
 use crate::math::{Isometry, Point, Vector};
 use crate::utils::IsometryOps;
 use na::{self, RealField};

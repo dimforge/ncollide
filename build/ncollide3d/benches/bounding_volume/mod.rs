@@ -1,9 +1,10 @@
 use crate::common::{generate, generate_trimesh_around_origin, unref};
 use na::Isometry3;
+use ncollide3d::bounding_volume::{BoundingSphere, AABB};
 use ncollide3d::bounding_volume::{BoundingVolume, HasBoundingVolume};
-use ncollide3d::bounding_volume::{AABB, BoundingSphere};
-use ncollide3d::shape::{Ball, Capsule, Cone, ConvexHull, Cuboid, Cylinder, Segment, Triangle,
-                        TriMesh};
+use ncollide3d::shape::{
+    Ball, Capsule, Cone, ConvexHull, Cuboid, Cylinder, Segment, TriMesh, Triangle,
+};
 use rand::SeedableRng;
 use rand_isaac::IsaacRng;
 use test::Bencher;

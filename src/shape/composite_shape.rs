@@ -1,9 +1,9 @@
 use crate::bounding_volume::AABB;
 use crate::math::Isometry;
-use na::RealField;
 use crate::partitioning::BVHImpl;
+use crate::query::{ContactPrediction, ContactPreprocessor};
 use crate::shape::Shape;
-use crate::query::{ContactPreprocessor, ContactPrediction};
+use na::RealField;
 
 /// Trait implemented by shapes composed of multiple simpler shapes.
 ///
@@ -31,7 +31,6 @@ pub trait CompositeShape<N: RealField> {
         prediction: &ContactPrediction<N>,
         _: &mut dyn FnMut(&Isometry<N>, &dyn Shape<N>, &dyn ContactPreprocessor<N>),
     );
-
 
     // FIXME: the following two methods are not generic enough.
     /// Gets the AABB of the shape identified by the index `i`.

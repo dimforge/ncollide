@@ -1,6 +1,6 @@
 use crate::math::Point;
-use na::{self, RealField};
 use crate::utils;
+use na::{self, RealField};
 
 /// Computes the bounding sphere of a set of point, given its center.
 // FIXME: return a bounding sphere?
@@ -8,8 +8,7 @@ use crate::utils;
 pub fn point_cloud_bounding_sphere_with_center<N: RealField>(
     pts: &[Point<N>],
     center: Point<N>,
-) -> (Point<N>, N)
-{
+) -> (Point<N>, N) {
     let mut sqradius = na::zero();
 
     for pt in pts.iter() {

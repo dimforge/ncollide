@@ -1,12 +1,12 @@
 //! Definition of the triangle shape.
 
 use crate::math::{Isometry, Point, Vector};
-use na::RealField;
-use na::{self, Unit};
 use crate::shape::Segment;
 use crate::shape::SupportMap;
 #[cfg(feature = "dim3")]
 use crate::shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId};
+use na::RealField;
+use na::{self, Unit};
 #[cfg(feature = "dim3")]
 use std::f64;
 use std::mem;
@@ -202,8 +202,7 @@ impl<N: RealField> Triangle<N> {
         feature: FeatureId,
         m: &Isometry<N>,
         dir: &Unit<Vector<N>>,
-    ) -> bool
-    {
+    ) -> bool {
         let ls_dir = m.inverse_transform_vector(dir);
 
         if let Some(normal) = self.normal() {
@@ -377,8 +376,7 @@ impl<N: RealField> ConvexPolyhedron<N> for Triangle<N> {
         m: &Isometry<N>,
         dir: &Unit<Vector<N>>,
         face: &mut ConvexPolygonalFeature<N>,
-    )
-    {
+    ) {
         let normal = self.scaled_normal();
 
         if normal.dot(&*dir) >= na::zero() {
@@ -395,8 +393,7 @@ impl<N: RealField> ConvexPolyhedron<N> for Triangle<N> {
         dir: &Unit<Vector<N>>,
         eps: N,
         out: &mut ConvexPolygonalFeature<N>,
-    )
-    {
+    ) {
         out.clear();
         let tri = self.transformed(transform);
         let feature = tri.support_feature_id_toward(dir, eps);
@@ -414,15 +411,12 @@ impl<N: RealField> ConvexPolyhedron<N> for Triangle<N> {
                 out.push_edge_feature_id(feature);
                 out.set_feature_id(feature);
             }
-            FeatureId::Face(_) => {
-                tri.face(feature, out)
-            }
-            _ => unreachable!()
+            FeatureId::Face(_) => tri.face(feature, out),
+            _ => unreachable!(),
         }
-
     }
 
     fn support_feature_id_toward(&self, local_dir: &Unit<Vector<N>>) -> FeatureId {
-        self.support_feature_id_toward(local_dir,  na::convert(f64::consts::PI / 180.0))
+        self.support_feature_id_toward(local_dir, na::convert(f64::consts::PI / 180.0))
     }
 }

@@ -1,5 +1,5 @@
-use na::RealField;
 use crate::query::ContactPrediction;
+use na::RealField;
 
 /// The kind of query a CollisionObject may be involved on.
 ///

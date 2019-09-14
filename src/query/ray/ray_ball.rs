@@ -39,8 +39,7 @@ impl<N: RealField> RayCast<N> for Ball<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>>
-    {
+    ) -> Option<RayIntersection<N>> {
         ray_toi_and_normal_with_ball(
             &Point::from(m.translation.vector),
             self.radius(),
@@ -57,8 +56,7 @@ impl<N: RealField> RayCast<N> for Ball<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>>
-    {
+    ) -> Option<RayIntersection<N>> {
         let center = Point::from(m.translation.vector);
         let (inside, inter) = ray_toi_with_ball(&center, self.radius(), ray, solid);
 
@@ -67,7 +65,12 @@ impl<N: RealField> RayCast<N> for Ball<N> {
             let normal = pos.normalize();
             let uv = ball_uv(&normal);
 
-            RayIntersection::new_with_uvs(n, if inside { -normal } else { normal }, FeatureId::Face(0), Some(uv))
+            RayIntersection::new_with_uvs(
+                n,
+                if inside { -normal } else { normal },
+                FeatureId::Face(0),
+                Some(uv),
+            )
         })
     }
 }
@@ -81,8 +84,7 @@ pub fn ray_toi_with_ball<N: RealField>(
     radius: N,
     ray: &Ray<N>,
     solid: bool,
-) -> (bool, Option<N>)
-{
+) -> (bool, Option<N>) {
     let dcenter = ray.origin - *center;
 
     let a = ray.dir.norm_squared();
@@ -123,7 +125,6 @@ pub fn ray_toi_with_ball<N: RealField>(
     }
 }
 
-
 /// Computes the time of impact and contact normal of a ray on a ball.
 #[inline]
 pub fn ray_toi_and_normal_with_ball<N: RealField>(
@@ -131,8 +132,7 @@ pub fn ray_toi_and_normal_with_ball<N: RealField>(
     radius: N,
     ray: &Ray<N>,
     solid: bool,
-) -> (bool, Option<RayIntersection<N>>)
-{
+) -> (bool, Option<RayIntersection<N>>) {
     let (inside, inter) = ray_toi_with_ball(&center, radius, ray, solid);
 
     (

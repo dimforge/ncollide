@@ -1,6 +1,8 @@
 //! Interpolation of the motion of an object.
 
-pub use self::rigid_motion::{RigidMotion, RigidMotionComposition, InterpolatedRigidMotion,
-                             ConstantLinearVelocityRigidMotion, ConstantVelocityRigidMotion};
+pub use self::rigid_motion::{
+    ConstantLinearVelocityRigidMotion, ConstantVelocityRigidMotion, InterpolatedRigidMotion,
+    RigidMotion, RigidMotionComposition,
+};
 
 mod rigid_motion;

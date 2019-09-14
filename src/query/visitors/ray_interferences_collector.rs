@@ -1,7 +1,7 @@
 use crate::math::Isometry;
-use na::RealField;
 use crate::partitioning::{VisitStatus, Visitor};
 use crate::query::{Ray, RayCast};
+use na::RealField;
 
 /// Bounding Volume Tree visitor collecting interferences with a given ray.
 pub struct RayInterferencesCollector<'a, N: 'a + RealField, T: 'a> {

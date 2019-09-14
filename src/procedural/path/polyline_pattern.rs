@@ -1,7 +1,7 @@
-use na::{self, Isometry3, Point2, Point3, RealField, Vector3};
 use crate::procedural::path::{CurveSampler, PathSample, StrokePattern};
 use crate::procedural::trimesh::{IndexBuffer, TriMesh};
 use crate::procedural::utils;
+use na::{self, Isometry3, Point2, Point3, RealField, Vector3};
 
 /// A pattern composed of polyline and two caps.
 pub struct PolylinePattern<N: RealField, C1, C2> {
@@ -51,8 +51,7 @@ where
         closed: bool,
         start_cap: C1,
         end_cap: C2,
-    ) -> PolylinePattern<N, C1, C2>
-    {
+    ) -> PolylinePattern<N, C1, C2> {
         let mut coords3d = Vec::with_capacity(pattern.len());
 
         for v in pattern.iter() {

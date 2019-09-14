@@ -1,9 +1,7 @@
 use crate::math::{Isometry, Point};
-use na::{self, RealField};
-use crate::query::{
-    PointProjection, PointQuery, PointQueryWithLocation,
-};
+use crate::query::{PointProjection, PointQuery, PointQueryWithLocation};
 use crate::shape::{FeatureId, HeightField, TrianglePointLocation};
+use na::{self, RealField};
 
 impl<N: RealField> PointQuery<N> for HeightField<N> {
     #[inline]
@@ -33,8 +31,7 @@ impl<N: RealField> PointQuery<N> for HeightField<N> {
         &self,
         m: &Isometry<N>,
         point: &Point<N>,
-    ) -> (PointProjection<N>, FeatureId)
-    {
+    ) -> (PointProjection<N>, FeatureId) {
         // FIXME: compute the feature properly.
         (self.project_point(m, point, false), FeatureId::Unknown)
     }
@@ -56,8 +53,7 @@ impl<N: RealField> PointQueryWithLocation<N> for HeightField<N> {
         _m: &Isometry<N>,
         _point: &Point<N>,
         _: bool,
-    ) -> (PointProjection<N>, Self::Location)
-    {
+    ) -> (PointProjection<N>, Self::Location) {
         unimplemented!()
     }
 }

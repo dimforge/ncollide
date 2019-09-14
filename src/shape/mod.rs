@@ -22,6 +22,10 @@ pub use self::cylinder::Cylinder;
 pub use self::deformable_shape::{DeformableShape, DeformationsType};
 //#[cfg(feature = "dim3")]
 //pub use self::deformable_trimesh::DeformableTriMesh;
+#[cfg(feature = "dim2")]
+pub use self::heightfield2::HeightField;
+#[cfg(feature = "dim3")]
+pub use self::heightfield3::{HeightField, HeightFieldCellStatus};
 pub use self::plane::Plane;
 pub use self::polyline::Polyline;
 pub use self::segment::{Segment, SegmentPointLocation};
@@ -34,10 +38,6 @@ pub use self::tetrahedron::{Tetrahedron, TetrahedronPointLocation};
 pub use self::triangle::{Triangle, TrianglePointLocation};
 #[cfg(feature = "dim3")]
 pub use self::trimesh::{TriMesh, TriMeshFace};
-#[cfg(feature = "dim3")]
-pub use self::heightfield3::{HeightField, HeightFieldCellStatus};
-#[cfg(feature = "dim2")]
-pub use self::heightfield2::HeightField;
 
 mod ball;
 mod capsule;
@@ -59,6 +59,10 @@ mod cuboid;
 #[cfg(feature = "dim3")]
 mod cylinder;
 mod deformable_shape;
+#[cfg(feature = "dim2")]
+mod heightfield2;
+#[cfg(feature = "dim3")]
+mod heightfield3;
 mod plane;
 mod polyline;
 mod segment;
@@ -72,7 +76,3 @@ mod tetrahedron;
 mod triangle;
 #[cfg(feature = "dim3")]
 mod trimesh;
-#[cfg(feature = "dim3")]
-mod heightfield3;
-#[cfg(feature = "dim2")]
-mod heightfield2;

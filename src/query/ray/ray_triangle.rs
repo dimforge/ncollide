@@ -2,7 +2,7 @@ use na::{self, RealField, Vector3};
 
 use crate::math::{Isometry, Point};
 use crate::query::{Ray, RayCast, RayIntersection};
-use crate::shape::{Triangle, FeatureId};
+use crate::shape::{FeatureId, Triangle};
 
 impl<N: RealField> RayCast<N> for Triangle<N> {
     #[inline]
@@ -11,8 +11,7 @@ impl<N: RealField> RayCast<N> for Triangle<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         _: bool,
-    ) -> Option<RayIntersection<N>>
-    {
+    ) -> Option<RayIntersection<N>> {
         let ls_ray = ray.inverse_transform_by(m);
         let res = ray_intersection_with_triangle(self.a(), self.b(), self.c(), &ls_ray);
 
@@ -32,8 +31,7 @@ pub fn ray_intersection_with_triangle<N: RealField>(
     b: &Point<N>,
     c: &Point<N>,
     ray: &Ray<N>,
-) -> Option<(RayIntersection<N>, Vector3<N>)>
-{
+) -> Option<(RayIntersection<N>, Vector3<N>)> {
     let ab = *b - *a;
     let ac = *c - *a;
 
@@ -53,8 +51,6 @@ pub fn ray_intersection_with_triangle<N: RealField>(
     if (t < na::zero() && d < na::zero()) || (t > na::zero() && d > na::zero()) {
         return None;
     }
-
-
 
     let fid = if d < N::zero() { 0 } else { 1 };
 

@@ -1,10 +1,10 @@
 use crate::math::Point;
-use na::{self, RealField};
+use crate::query::ContactPreprocessor;
 use crate::query::{Contact, ContactKinematic, TrackedContact};
 use crate::shape::FeatureId;
+use na::{self, RealField};
 use slab::Slab;
 use std::collections::{hash_map::Entry, HashMap};
-use crate::query::ContactPreprocessor;
 
 /// The technique used for contact tracking.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -90,7 +90,7 @@ impl<N: RealField> ContactManifold<N> {
     pub fn clear(&mut self) {
         match &mut self.cache {
             ContactCache::FeatureBased(h) => h.clear(),
-            ContactCache::DistanceBased(v, _) => v.clear()
+            ContactCache::DistanceBased(v, _) => v.clear(),
         }
         self.contacts.clear();
         self.ncontacts = 0;
@@ -169,8 +169,7 @@ impl<N: RealField> ContactManifold<N> {
         tracking_pt: Point<N>,
         preprocessor1: Option<&dyn ContactPreprocessor<N>>,
         preprocessor2: Option<&dyn ContactPreprocessor<N>>,
-    ) -> bool
-    {
+    ) -> bool {
         if let Some(pp) = preprocessor1 {
             if !pp.process_contact(&mut contact, &mut kinematic, true) {
                 return false;
@@ -183,8 +182,8 @@ impl<N: RealField> ContactManifold<N> {
             }
         }
 
-        let is_deepest = self.ncontacts == 0
-            || contact.depth > self.contacts[self.deepest].0.contact.depth;
+        let is_deepest =
+            self.ncontacts == 0 || contact.depth > self.contacts[self.deepest].0.contact.depth;
 
         match &mut self.cache {
             ContactCache::DistanceBased(cache, threshold) => {

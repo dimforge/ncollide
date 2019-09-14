@@ -1,8 +1,8 @@
 //! Support mapping based Cuboid shape.
 
 use crate::math::{Isometry, Point, Vector, DIM};
-use na::{self, RealField, Unit};
 use crate::shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
+use na::{self, RealField, Unit};
 use std::f64;
 
 /// Shape of a box.
@@ -48,8 +48,7 @@ impl<N: RealField> Cuboid<N> {
         feature: FeatureId,
         m: &Isometry<N>,
         dir: &Unit<Vector<N>>,
-    ) -> bool
-    {
+    ) -> bool {
         let ls_dir = m.inverse_transform_vector(dir);
 
         match feature {
@@ -78,8 +77,7 @@ impl<N: RealField> Cuboid<N> {
         feature: FeatureId,
         m: &Isometry<N>,
         dir: &Unit<Vector<N>>,
-    ) -> bool
-    {
+    ) -> bool {
         let ls_dir = m.inverse_transform_vector(dir);
 
         match feature {
@@ -251,37 +249,25 @@ impl<N: RealField> ConvexPolyhedron<N> for Cuboid<N> {
 
             let (sbit, msbit) = if sign < na::zero() { (1, 0) } else { (0, 1) };
             let mut vertex_id = sbit << i1;
-            out.push(
-                Point::from(vertex),
-                FeatureId::Vertex(vertex_id),
-            );
+            out.push(Point::from(vertex), FeatureId::Vertex(vertex_id));
             out.push_edge_feature_id(FeatureId::Edge(edge_i2 | ((vertex_id & mask_i2) << 2)));
 
             vertex[i2] = -sign * self.half_extents[i2];
             vertex[i3] = sign * self.half_extents[i3];
             vertex_id |= msbit << i2 | sbit << i3;
-            out.push(
-                Point::from(vertex),
-                FeatureId::Vertex(vertex_id),
-            );
+            out.push(Point::from(vertex), FeatureId::Vertex(vertex_id));
             out.push_edge_feature_id(FeatureId::Edge(edge_i3 | ((vertex_id & mask_i3) << 2)));
 
             vertex[i2] = -self.half_extents[i2];
             vertex[i3] = -self.half_extents[i3];
             vertex_id |= 1 << i2 | 1 << i3;
-            out.push(
-                Point::from(vertex),
-                FeatureId::Vertex(vertex_id),
-            );
+            out.push(Point::from(vertex), FeatureId::Vertex(vertex_id));
             out.push_edge_feature_id(FeatureId::Edge(edge_i2 | ((vertex_id & mask_i2) << 2)));
 
             vertex[i2] = sign * self.half_extents[i2];
             vertex[i3] = -sign * self.half_extents[i3];
             vertex_id = sbit << i1 | sbit << i2 | msbit << i3;
-            out.push(
-                Point::from(vertex),
-                FeatureId::Vertex(vertex_id),
-            );
+            out.push(Point::from(vertex), FeatureId::Vertex(vertex_id));
             out.push_edge_feature_id(FeatureId::Edge(edge_i3 | ((vertex_id & mask_i3) << 2)));
 
             let mut normal: Vector<N> = na::zero();
@@ -303,8 +289,7 @@ impl<N: RealField> ConvexPolyhedron<N> for Cuboid<N> {
         m: &Isometry<N>,
         dir: &Unit<Vector<N>>,
         out: &mut ConvexPolygonalFeature<N>,
-    )
-    {
+    ) {
         out.clear();
         let local_dir = m.inverse_transform_vector(dir);
 
@@ -335,8 +320,7 @@ impl<N: RealField> ConvexPolyhedron<N> for Cuboid<N> {
         dir: &Unit<Vector<N>>,
         angle: N,
         out: &mut ConvexPolygonalFeature<N>,
-    )
-    {
+    ) {
         let local_dir = m.inverse_transform_vector(dir);
         let cang = angle.cos();
         let mut support_point = self.half_extents;
@@ -528,7 +512,7 @@ impl<N: RealField> ConvexPolyhedron<N> for Cuboid<N> {
 
                 Unit::new_normalize(dir)
             }
-            _ => panic!("Invalid feature ID {:?}.", feature)
+            _ => panic!("Invalid feature ID {:?}.", feature),
         }
     }
 
@@ -582,7 +566,7 @@ impl<N: RealField> ConvexPolyhedron<N> for Cuboid<N> {
 
                 Unit::new_normalize(dir)
             }
-            _ => panic!("Invalid feature ID: {:?}", feature)
+            _ => panic!("Invalid feature ID: {:?}", feature),
         }
     }
 }

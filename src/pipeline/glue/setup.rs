@@ -1,11 +1,14 @@
 use na::RealField;
 
+use crate::bounding_volume::{BoundingVolume, AABB};
 use crate::math::Isometry;
-use crate::shape::Shape;
-use crate::bounding_volume::{AABB, BoundingVolume};
+use crate::pipeline::broad_phase::{BroadPhase, BroadPhaseProxyHandle, DBVTBroadPhase};
+use crate::pipeline::narrow_phase::{
+    CollisionObjectGraphIndex, DefaultContactDispatcher, DefaultProximityDispatcher,
+    InteractionGraph, NarrowPhase,
+};
 use crate::pipeline::object::{CollisionObjectHandle, GeometricQueryType};
-use crate::pipeline::broad_phase::{BroadPhase, DBVTBroadPhase, BroadPhaseProxyHandle};
-use crate::pipeline::narrow_phase::{NarrowPhase, DefaultContactDispatcher, DefaultProximityDispatcher, InteractionGraph, CollisionObjectGraphIndex};
+use crate::shape::Shape;
 
 /// Registers a collision object handle so it can be taken into acconut by the broad-phase and the narrow-phase.
 ///
@@ -13,13 +16,14 @@ use crate::pipeline::narrow_phase::{NarrowPhase, DefaultContactDispatcher, Defau
 /// for a new collision object with the given `handle`, and known to currently have the given `position`, `shape` and `query_type`.
 /// The result of this registration is a pair of handles that must be stored by the user as the will be needed for various
 /// queries (on the broad-phase and interaction graph), as well as for freeing (using `remove_proxies`) the resources allocated here.
-pub fn create_proxies<'a, N: RealField, Handle: CollisionObjectHandle>(handle: Handle,
-                                                      broad_phase: &mut (impl BroadPhase<N,AABB<N>, Handle> + ?Sized),
-                                                      interactions: &mut InteractionGraph<N, Handle>,
-                                                      position: &Isometry<N>,
-                                                      shape: &(impl Shape<N> + ?Sized),
-                                                      query_type: GeometricQueryType<N>)
-                                                      -> (BroadPhaseProxyHandle, CollisionObjectGraphIndex) {
+pub fn create_proxies<'a, N: RealField, Handle: CollisionObjectHandle>(
+    handle: Handle,
+    broad_phase: &mut (impl BroadPhase<N, AABB<N>, Handle> + ?Sized),
+    interactions: &mut InteractionGraph<N, Handle>,
+    position: &Isometry<N>,
+    shape: &(impl Shape<N> + ?Sized),
+    query_type: GeometricQueryType<N>,
+) -> (BroadPhaseProxyHandle, CollisionObjectGraphIndex) {
     let mut aabb = shape.aabb(position);
     aabb.loosen(query_type.query_limit());
 
@@ -28,7 +32,6 @@ pub fn create_proxies<'a, N: RealField, Handle: CollisionObjectHandle>(handle: H
 
     (proxy_handle, graph_index)
 }
-
 
 /// Free all the resources allocated by the broad-phase and the interaction graph for the given proxy handles.
 ///
@@ -45,31 +48,36 @@ pub fn create_proxies<'a, N: RealField, Handle: CollisionObjectHandle>(handle: H
 /// result in the collision object graph index of another collision object to be changed.
 #[must_use = "The graph index of the collision object returned by this method has been changed to the returned graph index."]
 pub fn remove_proxies<'a, N: RealField, Handle: CollisionObjectHandle>(
-    broad_phase: &mut (impl BroadPhase<N,AABB<N>, Handle> + ?Sized),
+    broad_phase: &mut (impl BroadPhase<N, AABB<N>, Handle> + ?Sized),
     interactions: &mut InteractionGraph<N, Handle>,
     proxy_handle: BroadPhaseProxyHandle,
-    graph_index: CollisionObjectGraphIndex)
-    -> Option<(Handle, CollisionObjectGraphIndex)> {
+    graph_index: CollisionObjectGraphIndex,
+) -> Option<(Handle, CollisionObjectGraphIndex)> {
     // NOTE: no need to notify handle the removed pairs because the node
     // will be removed from the interaction graph anyway.
     broad_phase.remove(&[proxy_handle], &mut |_, _| {});
-    interactions.remove_node(graph_index).map(|h| (h, graph_index))
+    interactions
+        .remove_node(graph_index)
+        .map(|h| (h, graph_index))
 }
 
 /// Allocate a default narrow-phase, configured with the default contact and proximity dispatchers.
-pub fn default_narrow_phase<N: RealField, Handle: CollisionObjectHandle>() -> NarrowPhase<N, Handle> {
+pub fn default_narrow_phase<N: RealField, Handle: CollisionObjectHandle>() -> NarrowPhase<N, Handle>
+{
     let coll_dispatcher = Box::new(DefaultContactDispatcher::new());
     let prox_dispatcher = Box::new(DefaultProximityDispatcher::new());
     NarrowPhase::new(coll_dispatcher, prox_dispatcher)
 }
 
 /// Allocate a default broad-phase, configured with a default coherence margin (set to 0.01).
-pub fn default_broad_phase<N: RealField, Handle: CollisionObjectHandle>() -> DBVTBroadPhase<N, AABB<N>, Handle> {
+pub fn default_broad_phase<N: RealField, Handle: CollisionObjectHandle>(
+) -> DBVTBroadPhase<N, AABB<N>, Handle> {
     let default_margin = 0.01f64;
     DBVTBroadPhase::new(na::convert(default_margin))
 }
 
 /// Allocate a default interaction graph.
-pub fn default_interaction_graph<N: RealField, Handle: CollisionObjectHandle>() -> InteractionGraph<N, Handle> {
+pub fn default_interaction_graph<N: RealField, Handle: CollisionObjectHandle>(
+) -> InteractionGraph<N, Handle> {
     InteractionGraph::new()
 }

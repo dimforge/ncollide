@@ -10,6 +10,7 @@ mod point_bounding_sphere;
 mod point_capsule;
 mod point_compound;
 mod point_cuboid;
+mod point_heightfield;
 mod point_plane;
 mod point_polyline;
 #[doc(hidden)]
@@ -22,4 +23,3 @@ mod point_tetrahedron;
 mod point_triangle;
 #[cfg(feature = "dim3")]
 mod point_trimesh;
-mod point_heightfield;

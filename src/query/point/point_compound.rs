@@ -1,9 +1,9 @@
 use crate::bounding_volume::AABB;
 use crate::math::{Isometry, Point};
-use na::{self, RealField};
 use crate::partitioning::{BestFirstVisitStatus, BestFirstVisitor, BVH};
 use crate::query::{visitors::CompositePointContainmentTest, PointProjection, PointQuery};
 use crate::shape::{CompositeShape, Compound, FeatureId};
+use na::{self, RealField};
 
 impl<N: RealField> PointQuery<N> for Compound<N> {
     // XXX: if solid == false, this might return internal projection.
@@ -27,8 +27,7 @@ impl<N: RealField> PointQuery<N> for Compound<N> {
         &self,
         _: &Isometry<N>,
         _: &Point<N>,
-    ) -> (PointProjection<N>, FeatureId)
-    {
+    ) -> (PointProjection<N>, FeatureId) {
         // XXX Properly propagate the feature id.
         unimplemented!()
         // (self.project_point(m, point), FeatureId::Unknown)
@@ -62,26 +61,30 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for CompoundPointProj
     type Result = PointProjection<N>;
 
     #[inline]
-    fn visit(&mut self, best: N, aabb: &AABB<N>, data: Option<&usize>) -> BestFirstVisitStatus<N, Self::Result> {
-        let dist = aabb.distance_to_point(
-            &Isometry::identity(),
-            self.point,
-            true,
-        );
+    fn visit(
+        &mut self,
+        best: N,
+        aabb: &AABB<N>,
+        data: Option<&usize>,
+    ) -> BestFirstVisitStatus<N, Self::Result> {
+        let dist = aabb.distance_to_point(&Isometry::identity(), self.point, true);
 
-        let mut res = BestFirstVisitStatus::Continue { cost: dist, result: None };
-
+        let mut res = BestFirstVisitStatus::Continue {
+            cost: dist,
+            result: None,
+        };
 
         if let Some(b) = data {
             if dist < best {
-                self.compound.map_part_at(*b, &Isometry::identity(), &mut |objm, obj| {
-                    let proj = obj.project_point(objm, self.point, self.solid);
+                self.compound
+                    .map_part_at(*b, &Isometry::identity(), &mut |objm, obj| {
+                        let proj = obj.project_point(objm, self.point, self.solid);
 
-                    res = BestFirstVisitStatus::Continue {
-                        cost: na::distance(self.point, &proj.point),
-                        result: Some(proj),
-                    };
-                });
+                        res = BestFirstVisitStatus::Continue {
+                            cost: na::distance(self.point, &proj.point),
+                            result: Some(proj),
+                        };
+                    });
             }
         }
 

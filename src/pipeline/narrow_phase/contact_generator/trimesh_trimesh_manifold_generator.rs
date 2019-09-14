@@ -1,15 +1,14 @@
 use crate::math::{Isometry, Vector};
-use na::{self, RealField, Unit};
 use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 use crate::query::{
-    self,
-    visitors::AABBSetsInterferencesCollector, Contact, ContactKinematic, ContactManifold,
-    ContactPrediction, ContactTrackingMode, NeighborhoodGeometry, ContactPreprocessor
+    self, visitors::AABBSetsInterferencesCollector, Contact, ContactKinematic, ContactManifold,
+    ContactPrediction, ContactPreprocessor, ContactTrackingMode, NeighborhoodGeometry,
 };
 use crate::shape::{
     ClippingCache, CompositeShape, ConvexPolygonalFeature, FeatureId, Segment,
     SegmentPointLocation, Shape, TriMesh, Triangle,
 };
+use na::{self, RealField, Unit};
 use std::mem;
 
 /// Collision detector between a concave shape and another shape.
@@ -49,8 +48,7 @@ impl<N: RealField> TriMeshTriMeshManifoldGenerator<N> {
         proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         manifold: &mut ContactManifold<N>,
-    )
-    {
+    ) {
         let face1 = &mesh1.faces()[i1];
         let face2 = &mesh2.faces()[i2];
 
@@ -449,7 +447,8 @@ impl<N: RealField> TriMeshTriMeshManifoldGenerator<N> {
                         *iv,
                         &-n2,
                         prediction.sin_angular1(),
-                    ) {
+                    )
+                {
                     let proj = p1 + *n2 * -dist;
 
                     // Accept the contact.
@@ -492,7 +491,8 @@ impl<N: RealField> TriMeshTriMeshManifoldGenerator<N> {
                         *iv,
                         &(m21 * -n1),
                         prediction.sin_angular2(),
-                    ) {
+                    )
+                {
                     let proj = p2 + *n1 * -dist;
 
                     // Accept the contact.
@@ -527,8 +527,7 @@ impl<N: RealField> ContactManifoldGenerator<N> for TriMeshTriMeshManifoldGenerat
         proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         manifold: &mut ContactManifold<N>,
-    ) -> bool
-    {
+    ) -> bool {
         if let (Some(mesh1), Some(mesh2)) =
             (g1.as_shape::<TriMesh<N>>(), g2.as_shape::<TriMesh<N>>())
         {
@@ -552,7 +551,8 @@ impl<N: RealField> ContactManifoldGenerator<N> for TriMeshTriMeshManifoldGenerat
             let mut interferences = mem::replace(&mut self.interferences, Vec::new());
             for id in interferences.drain(..) {
                 self.compute_faces_closest_points(
-                    &m12, &m21, m1, mesh1, id.0, proc1, m2, mesh2, id.1, proc2, prediction, manifold,
+                    &m12, &m21, m1, mesh1, id.0, proc1, m2, mesh2, id.1, proc2, prediction,
+                    manifold,
                 );
             }
             self.interferences = interferences;

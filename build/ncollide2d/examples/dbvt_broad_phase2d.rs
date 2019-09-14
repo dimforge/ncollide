@@ -2,9 +2,9 @@ extern crate nalgebra as na;
 extern crate ncollide2d;
 
 use na::{Isometry2, Vector2};
-use ncollide2d::shape::Ball;
 use ncollide2d::bounding_volume;
 use ncollide2d::broad_phase::{BroadPhase, BroadPhaseInterferenceHandler, DBVTBroadPhase};
+use ncollide2d::shape::Ball;
 
 struct InterferenceHandler;
 
@@ -14,11 +14,9 @@ impl BroadPhaseInterferenceHandler<i32> for InterferenceHandler {
         *a != *b
     }
 
-    fn interference_started(&mut self, _: &i32, _: &i32) {
-    }
+    fn interference_started(&mut self, _: &i32, _: &i32) {}
 
-    fn interference_stopped(&mut self, _: &i32, _: &i32) {
-    }
+    fn interference_stopped(&mut self, _: &i32, _: &i32) {}
 }
 
 fn main() {

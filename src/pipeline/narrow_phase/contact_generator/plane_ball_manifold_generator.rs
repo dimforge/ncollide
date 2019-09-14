@@ -1,16 +1,18 @@
-
-use std::marker::PhantomData;
 use crate::math::{Isometry, Point};
-use na::{self, RealField};
 use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
-use crate::query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry, ContactPreprocessor};
+use crate::query::{
+    Contact, ContactKinematic, ContactManifold, ContactPrediction, ContactPreprocessor,
+    NeighborhoodGeometry,
+};
 use crate::shape::{Ball, FeatureId, Plane, Shape};
+use na::{self, RealField};
+use std::marker::PhantomData;
 
 /// Collision detector between g1 plane and g1 shape implementing the `SupportMap` trait.
 #[derive(Clone)]
 pub struct PlaneBallManifoldGenerator<N: RealField> {
     flip: bool,
-    phantom: PhantomData<N>
+    phantom: PhantomData<N>,
 }
 
 impl<N: RealField> PlaneBallManifoldGenerator<N> {
@@ -20,7 +22,7 @@ impl<N: RealField> PlaneBallManifoldGenerator<N> {
     pub fn new(flip: bool) -> PlaneBallManifoldGenerator<N> {
         PlaneBallManifoldGenerator {
             flip,
-            phantom: PhantomData
+            phantom: PhantomData,
         }
     }
 
@@ -35,8 +37,7 @@ impl<N: RealField> PlaneBallManifoldGenerator<N> {
         prediction: &ContactPrediction<N>,
         manifold: &mut ContactManifold<N>,
         flip: bool,
-    ) -> bool
-    {
+    ) -> bool {
         if let (Some(plane), Some(ball)) = (g1.as_shape::<Plane<N>>(), g2.as_shape::<Ball<N>>()) {
             let plane_normal = m1 * plane.normal();
             let plane_center = Point::from(m1.translation.vector);
@@ -95,32 +96,11 @@ impl<N: RealField> ContactManifoldGenerator<N> for PlaneBallManifoldGenerator<N>
         proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         manifold: &mut ContactManifold<N>,
-    ) -> bool
-    {
+    ) -> bool {
         if !self.flip {
-            Self::do_update_to(
-                m1,
-                g1,
-                proc1,
-                m2,
-                g2,
-                proc2,
-                prediction,
-                manifold,
-                false,
-            )
+            Self::do_update_to(m1, g1, proc1, m2, g2, proc2, prediction, manifold, false)
         } else {
-            Self::do_update_to(
-                m2,
-                g2,
-                proc2,
-                m1,
-                g1,
-                proc1,
-                prediction,
-                manifold,
-                true,
-            )
+            Self::do_update_to(m2, g2, proc2, m1, g1, proc1, prediction, manifold, true)
         }
     }
 }

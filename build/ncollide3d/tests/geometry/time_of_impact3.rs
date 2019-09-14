@@ -27,7 +27,8 @@ fn ball_cuboid_toi() {
         &cuboid,
         std::f64::MAX,
         0.0,
-    ).map(|toi| toi.toi);
+    )
+    .map(|toi| toi.toi);
     let toi_will_touch = query::time_of_impact(
         &ball_pos_will_touch,
         &ball_vel2,
@@ -37,7 +38,8 @@ fn ball_cuboid_toi() {
         &cuboid,
         std::f64::MAX,
         0.0,
-    ).map(|toi| toi.toi);
+    )
+    .map(|toi| toi.toi);
     let toi_wont_touch = query::time_of_impact(
         &ball_pos_wont_touch,
         &ball_vel1,
@@ -47,7 +49,8 @@ fn ball_cuboid_toi() {
         &cuboid,
         std::f64::MAX,
         0.0,
-    ).map(|toi| toi.toi);
+    )
+    .map(|toi| toi.toi);
 
     assert_eq!(toi_intersecting, Some(0.0));
     assert!(relative_eq!(

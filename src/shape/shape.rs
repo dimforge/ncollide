@@ -1,12 +1,12 @@
 // Queries.
 use crate::bounding_volume::{BoundingSphere, AABB};
 use crate::math::{Isometry, Vector};
-use na::{self, RealField, Unit};
 use crate::query::{PointQuery, RayCast};
 use crate::shape::{CompositeShape, ConvexPolyhedron, DeformableShape, FeatureId, SupportMap};
+use downcast_rs::Downcast;
+use na::{self, RealField, Unit};
 use std::ops::Deref;
 use std::sync::Arc;
-use downcast_rs::Downcast;
 
 pub trait ShapeClone<N: RealField> {
     /// Construct an `Arc` that refers to a uniquely-owned copy of `self`

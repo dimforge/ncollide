@@ -1,21 +1,19 @@
 use crate::math::Isometry;
-use na::RealField;
 use crate::pipeline::narrow_phase::{ProximityDetector, ProximityDispatcher};
 use crate::query::{self, Proximity};
 use crate::shape::{Plane, Shape};
+use na::RealField;
 
 /// Proximity detector between a plane and a shape implementing the `SupportMap` trait.
 #[derive(Clone)]
-pub struct PlaneSupportMapProximityDetector {
-}
+pub struct PlaneSupportMapProximityDetector {}
 
 impl PlaneSupportMapProximityDetector {
     /// Creates a new persistent proximity detector between a plane and a shape with a support
     /// mapping function.
     #[inline]
     pub fn new() -> PlaneSupportMapProximityDetector {
-        PlaneSupportMapProximityDetector {
-        }
+        PlaneSupportMapProximityDetector {}
     }
 }
 
@@ -46,8 +44,7 @@ impl<N: RealField> ProximityDetector<N> for PlaneSupportMapProximityDetector {
         mb: &Isometry<N>,
         b: &dyn Shape<N>,
         margin: N,
-    ) -> Option<Proximity>
-    {
+    ) -> Option<Proximity> {
         let p = plane.as_shape::<Plane<N>>()?;
         let sm = b.as_support_map()?;
         Some(query::proximity_plane_support_map(ma, p, mb, sm, margin))
@@ -64,8 +61,7 @@ impl<N: RealField> ProximityDetector<N> for SupportMapPlaneProximityDetector {
         mb: &Isometry<N>,
         b: &dyn Shape<N>,
         margin: N,
-    ) -> Option<Proximity>
-    {
+    ) -> Option<Proximity> {
         self.subdetector.update(disp, mb, b, ma, a, margin)
     }
 }

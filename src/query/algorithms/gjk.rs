@@ -1,10 +1,9 @@
 //! The Gilbert–Johnson–Keerthi distance algorithm.
 
-
 use alga::general::RealField;
 use na::{self, Unit};
 
-use crate::query::algorithms::{CSOPoint, VoronoiSimplex, special_support_maps::ConstantOrigin};
+use crate::query::algorithms::{special_support_maps::ConstantOrigin, CSOPoint, VoronoiSimplex};
 use crate::shape::SupportMap;
 // use query::Proximity;
 use crate::math::{Isometry, Point, Vector, DIM};
@@ -164,7 +163,7 @@ where
         }
         niter += 1;
         if niter == 10000 {
-//            eprintln!("Error: GJK did not converge.");
+            //            eprintln!("Error: GJK did not converge.");
             return GJKResult::NoIntersection(Vector::x_axis());
         }
     }
@@ -202,18 +201,17 @@ where
     G2: SupportMap<N>,
 {
     let ray = Ray::new(Point::origin(), *dir);
-    minkowski_ray_cast(m1, g1, m2, g2, &ray, simplex)
-        .map(|(toi, normal)| {
-            let witnesses = if !toi.is_zero() {
-                result(simplex, simplex.dimension() == DIM)
-            } else {
-                // If there is penetration, the witness points
-                // are undefined.
-                (Point::origin(), Point::origin())
-            };
+    minkowski_ray_cast(m1, g1, m2, g2, &ray, simplex).map(|(toi, normal)| {
+        let witnesses = if !toi.is_zero() {
+            result(simplex, simplex.dimension() == DIM)
+        } else {
+            // If there is penetration, the witness points
+            // are undefined.
+            (Point::origin(), Point::origin())
+        };
 
-            (toi, normal, witnesses.0, witnesses.1)
-        })
+        (toi, normal, witnesses.0, witnesses.1)
+    })
 }
 
 // Ray-cast on the Minkowski Difference `m1 * g1 - m2 * g2`.
@@ -249,7 +247,6 @@ where
     let support_point = CSOPoint::from_shapes(m1, g1, m2, g2, &dir);
     simplex.reset(support_point.translate(&-curr_ray.origin.coords));
 
-
     // FIXME: reset the simplex if it is empty?
     let mut proj = simplex.project_origin_and_reduce();
     let mut max_bound = N::max_value();
@@ -275,8 +272,8 @@ where
             CSOPoint::from_shapes(m1, g1, m2, g2, &dir)
         };
 
-
-        if last_chance && ltoi > N::zero() { // last_chance && ltoi > N::zero() && (support_point.point - curr_ray.origin).dot(&ldir) >= N::zero() {
+        if last_chance && ltoi > N::zero() {
+            // last_chance && ltoi > N::zero() && (support_point.point - curr_ray.origin).dot(&ldir) >= N::zero() {
             return Some((ltoi / ray_length, ldir));
         }
 
@@ -334,12 +331,11 @@ where
 
         niter += 1;
         if niter == 10000 {
-//            eprintln!("Error: GJK did not converge.");
+            //            eprintln!("Error: GJK did not converge.");
             return None;
         }
     }
 }
-
 
 fn result<N: RealField>(simplex: &VoronoiSimplex<N>, prev: bool) -> (Point<N>, Point<N>) {
     let mut res = (Point::origin(), Point::origin());

@@ -1,11 +1,11 @@
 use crate::bounding_volume::AABB;
 use crate::math::{Isometry, Point};
-use na::{self, RealField};
 use crate::partitioning::{BestFirstVisitStatus, BestFirstVisitor};
 use crate::query::{
     visitors::CompositePointContainmentTest, PointProjection, PointQuery, PointQueryWithLocation,
 };
 use crate::shape::{CompositeShape, FeatureId, TriMesh, TrianglePointLocation};
+use na::{self, RealField};
 
 impl<N: RealField> PointQuery<N> for TriMesh<N> {
     #[inline]
@@ -19,8 +19,7 @@ impl<N: RealField> PointQuery<N> for TriMesh<N> {
         &self,
         _: &Isometry<N>,
         _: &Point<N>,
-    ) -> (PointProjection<N>, FeatureId)
-    {
+    ) -> (PointProjection<N>, FeatureId) {
         unimplemented!()
     }
 
@@ -50,8 +49,7 @@ impl<N: RealField> PointQueryWithLocation<N> for TriMesh<N> {
         m: &Isometry<N>,
         point: &Point<N>,
         _: bool,
-    ) -> (PointProjection<N>, Self::Location)
-    {
+    ) -> (PointProjection<N>, Self::Location) {
         let ls_pt = m.inverse_transform_point(point);
         let mut visitor = TriMeshPointProjVisitor {
             polyline: self,
@@ -77,14 +75,18 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for TriMeshPointProjV
     type Result = (PointProjection<N>, (usize, TrianglePointLocation<N>));
 
     #[inline]
-    fn visit(&mut self, best: N, aabb: &AABB<N>, data: Option<&usize>) -> BestFirstVisitStatus<N, Self::Result> {
-        let dist = aabb.distance_to_point(
-            &Isometry::identity(),
-            self.point,
-            true,
-        );
+    fn visit(
+        &mut self,
+        best: N,
+        aabb: &AABB<N>,
+        data: Option<&usize>,
+    ) -> BestFirstVisitStatus<N, Self::Result> {
+        let dist = aabb.distance_to_point(&Isometry::identity(), self.point, true);
 
-        let mut res = BestFirstVisitStatus::Continue { cost: dist, result: None };
+        let mut res = BestFirstVisitStatus::Continue {
+            cost: dist,
+            result: None,
+        };
 
         if let Some(b) = data {
             if dist < best {

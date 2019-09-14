@@ -1,8 +1,8 @@
 use super::ToPolyline;
-use alga::general::RealField;
-use na;
 use crate::procedural::{self, Polyline};
 use crate::shape::Ball;
+use alga::general::RealField;
+use na;
 
 impl<N: RealField> ToPolyline<N> for Ball<N> {
     type DiscretizationParameter = u32;

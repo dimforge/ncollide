@@ -1,7 +1,7 @@
 use crate::math::{Isometry, Point};
-use na::{self, RealField};
 use crate::query::{PointProjection, PointQuery};
 use crate::shape::{FeatureId, Plane};
+use na::{self, RealField};
 
 impl<N: RealField> PointQuery<N> for Plane<N> {
     #[inline]
@@ -23,8 +23,7 @@ impl<N: RealField> PointQuery<N> for Plane<N> {
         &self,
         m: &Isometry<N>,
         pt: &Point<N>,
-    ) -> (PointProjection<N>, FeatureId)
-    {
+    ) -> (PointProjection<N>, FeatureId) {
         (self.project_point(m, pt, false), FeatureId::Face(0))
     }
 

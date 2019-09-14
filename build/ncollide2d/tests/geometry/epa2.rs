@@ -58,7 +58,7 @@ fn cuboids_large_size_ratio_issue_181() {
             &cuboid_b,
             None,
             &prediction,
-            &mut manifold
+            &mut manifold,
         );
 
         if let Some(deepest) = manifold.deepest_contact() {

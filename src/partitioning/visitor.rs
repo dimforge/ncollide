@@ -39,7 +39,7 @@ pub enum BestFirstVisitStatus<N, Res> {
         /// The cost associated to this node.
         cost: N,
         /// The result, if any, associated to this cost.
-        result: Option<Res>
+        result: Option<Res>,
     },
     /// The traversal does not continue recursively on the visited node's children.
     Stop,
@@ -56,5 +56,10 @@ pub trait BestFirstVisitor<N, T, BV> {
     type Result;
 
     /// Compute the next action to be taken by the best-first-search after visiting a node containing the given bounding volume.
-    fn visit(&mut self, best_cost_so_far: N, bv: &BV, value: Option<&T>) -> BestFirstVisitStatus<N, Self::Result>;
+    fn visit(
+        &mut self,
+        best_cost_so_far: N,
+        bv: &BV,
+        value: Option<&T>,
+    ) -> BestFirstVisitStatus<N, Self::Result>;
 }

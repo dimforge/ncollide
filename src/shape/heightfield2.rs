@@ -1,11 +1,10 @@
+use na::{DVector, Point2, RealField};
 use std::iter;
-use na::{DVector, RealField, Point2};
 
 use crate::bounding_volume::AABB;
-use crate::query::{ContactPreprocessor, Contact, ContactKinematic};
-use crate::shape::Segment;
 use crate::math::Vector;
-
+use crate::query::{Contact, ContactKinematic, ContactPreprocessor};
+use crate::shape::Segment;
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
@@ -20,18 +19,24 @@ pub struct HeightField<N: RealField> {
 impl<N: RealField> HeightField<N> {
     /// Creates a new 2D heightfield with the given heights and scale factor.
     pub fn new(heights: DVector<N>, scale: Vector<N>) -> Self {
-        assert!(heights.len() > 1, "A heightfield heights must have at least 2 elements.");
+        assert!(
+            heights.len() > 1,
+            "A heightfield heights must have at least 2 elements."
+        );
 
         let max = heights.max();
         let min = heights.min();
         let hscale = scale * na::convert::<_, N>(0.5);
         let aabb = AABB::new(
             Point2::new(-hscale.x, min * scale.y),
-            Point2::new(hscale.x, max * scale.y)
+            Point2::new(hscale.x, max * scale.y),
         );
 
         HeightField {
-            heights, scale, aabb, removed: Vec::new()
+            heights,
+            scale,
+            aabb,
+            removed: Vec::new(),
         }
     }
 
@@ -72,13 +77,21 @@ impl<N: RealField> HeightField<N> {
 
     fn quantize_floor(&self, val: N, seg_length: N) -> usize {
         let _0_5: N = na::convert(0.5);
-        let i = na::clamp(((val + _0_5) / seg_length).floor(), N::zero(), na::convert((self.num_cells() - 1) as f64));
+        let i = na::clamp(
+            ((val + _0_5) / seg_length).floor(),
+            N::zero(),
+            na::convert((self.num_cells() - 1) as f64),
+        );
         unsafe { na::convert_unchecked::<N, f64>(i) as usize }
     }
 
     fn quantize_ceil(&self, val: N, seg_length: N) -> usize {
         let _0_5: N = na::convert(0.5);
-        let i = na::clamp(((val + _0_5) / seg_length).ceil(), N::zero(), na::convert(self.num_cells() as f64));
+        let i = na::clamp(
+            ((val + _0_5) / seg_length).ceil(),
+            N::zero(),
+            na::convert(self.num_cells() as f64),
+        );
         unsafe { na::convert_unchecked::<N, f64>(i) as usize }
     }
 
@@ -143,11 +156,15 @@ impl<N: RealField> HeightField<N> {
     }
 
     /// Applies `f` to each segment of this heightfield that intersects the given `aabb`.
-    pub fn map_elements_in_local_aabb(&self, aabb: &AABB<N>, f: &mut impl FnMut(usize, &Segment<N>, &dyn ContactPreprocessor<N>)) {
+    pub fn map_elements_in_local_aabb(
+        &self,
+        aabb: &AABB<N>,
+        f: &mut impl FnMut(usize, &Segment<N>, &dyn ContactPreprocessor<N>),
+    ) {
         let _0_5: N = na::convert(0.5);
         let ref_mins = aabb.mins().coords.component_div(&self.scale);
         let ref_maxs = aabb.maxs().coords.component_div(&self.scale);
-        let seg_length  = N::one() / na::convert(self.heights.len() as f64 - 1.0);
+        let seg_length = N::one() / na::convert(self.heights.len() as f64 - 1.0);
 
         if ref_maxs.x < -_0_5 || ref_mins.x > _0_5 {
             // Outside of the heightfield bounds.
@@ -164,7 +181,7 @@ impl<N: RealField> HeightField<N> {
                 continue;
             }
 
-            let x0 = -_0_5 +  seg_length * na::convert(i as f64);
+            let x0 = -_0_5 + seg_length * na::convert(i as f64);
             let x1 = x0 + seg_length;
 
             let y0 = self.heights[i + 0];
@@ -194,12 +211,11 @@ impl<N: RealField> HeightField<N> {
     }
 }
 
-
 #[allow(dead_code)]
 /// The contact preprocessor dedicated to 2D heightfields.
 pub struct HeightFieldTriangleContactPreprocessor<'a, N: RealField> {
     heightfield: &'a HeightField<N>,
-    triangle: usize
+    triangle: usize,
 }
 
 impl<'a, N: RealField> HeightFieldTriangleContactPreprocessor<'a, N> {
@@ -207,19 +223,18 @@ impl<'a, N: RealField> HeightFieldTriangleContactPreprocessor<'a, N> {
     pub fn new(heightfield: &'a HeightField<N>, triangle: usize) -> Self {
         HeightFieldTriangleContactPreprocessor {
             heightfield,
-            triangle
+            triangle,
         }
     }
 }
-
 
 impl<'a, N: RealField> ContactPreprocessor<N> for HeightFieldTriangleContactPreprocessor<'a, N> {
     fn process_contact(
         &self,
         _c: &mut Contact<N>,
         _kinematic: &mut ContactKinematic<N>,
-        _is_first: bool)
-        -> bool {
+        _is_first: bool,
+    ) -> bool {
         /*
         // Fix the feature ID.
         let feature = if is_first {

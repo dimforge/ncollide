@@ -15,6 +15,7 @@ mod ray_ball;
 mod ray_bounding_sphere;
 mod ray_compound;
 mod ray_cuboid;
+mod ray_heightfield;
 mod ray_plane;
 mod ray_polyline;
 mod ray_shape;
@@ -23,4 +24,3 @@ mod ray_support_map;
 mod ray_triangle;
 #[cfg(feature = "dim3")]
 mod ray_trimesh;
-mod ray_heightfield;

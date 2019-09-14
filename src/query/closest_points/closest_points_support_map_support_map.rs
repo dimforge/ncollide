@@ -1,9 +1,9 @@
 use crate::math::{Isometry, Vector};
-use na::{RealField, Unit};
 use crate::query::algorithms::VoronoiSimplex;
 use crate::query::algorithms::{gjk, gjk::GJKResult, CSOPoint};
 use crate::query::ClosestPoints;
 use crate::shape::SupportMap;
+use na::{RealField, Unit};
 
 /// Closest points between support-mapped shapes (`Cuboid`, `ConvexHull`, etc.)
 pub fn closest_points_support_map_support_map<N, G1: ?Sized, G2: ?Sized>(

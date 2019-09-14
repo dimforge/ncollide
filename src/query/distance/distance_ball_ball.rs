@@ -1,6 +1,6 @@
 use crate::math::Point;
-use na::{self, RealField};
 use crate::shape::Ball;
+use na::{self, RealField};
 
 /// Distance between balls.
 #[inline]
@@ -9,8 +9,7 @@ pub fn distance_ball_ball<N: RealField>(
     b1: &Ball<N>,
     center2: &Point<N>,
     b2: &Ball<N>,
-) -> N
-{
+) -> N {
     let r1 = b1.radius();
     let r2 = b2.radius();
     let delta_pos = *center2 - *center1;

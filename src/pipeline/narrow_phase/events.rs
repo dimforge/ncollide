@@ -39,7 +39,9 @@ impl<E> EventPool<E> {
 
     /// Removes from this set all events for which `filter` returns `false`.
     pub fn retain<F>(&mut self, filter: F)
-    where F: FnMut(&E) -> bool {
+    where
+        F: FnMut(&E) -> bool,
+    {
         self.events.retain(filter)
     }
 
@@ -94,9 +96,11 @@ impl<Handle> ProximityEvent<Handle> {
         collider2: Handle,
         prev_status: Proximity,
         new_status: Proximity,
-    ) -> Self
-    {
-        assert_ne!(prev_status, new_status, "The previous and new status of a proximity event must not be the same.");
+    ) -> Self {
+        assert_ne!(
+            prev_status, new_status,
+            "The previous and new status of a proximity event must not be the same."
+        );
         Self {
             collider1,
             collider2,

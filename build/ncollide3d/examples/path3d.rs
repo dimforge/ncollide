@@ -38,6 +38,4 @@ fn main() {
     let _ = pattern.stroke(&mut path);
 }
 */
-fn main() {
-
-}
+fn main() {}

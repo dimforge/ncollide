@@ -1,5 +1,4 @@
 use crate::math::{Isometry, Vector};
-use na::{self, RealField, Unit};
 use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 use crate::query::algorithms::gjk::GJKResult;
 use crate::query::algorithms::VoronoiSimplex;
@@ -8,6 +7,7 @@ use crate::query::{self, Contact, ContactManifold, ContactPrediction, ContactPre
 use crate::shape::ClippingCache;
 use crate::shape::ConvexPolygonalFeature;
 use crate::shape::{FeatureId, Shape};
+use na::{self, RealField, Unit};
 
 #[cfg(feature = "dim2")]
 #[derive(Clone)]
@@ -77,7 +77,9 @@ impl<N: RealField> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
     }
 }
 
-impl<N: RealField> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
+impl<N: RealField> ContactManifoldGenerator<N>
+    for ConvexPolyhedronConvexPolyhedronManifoldGenerator<N>
+{
     fn generate_contacts(
         &mut self,
         _: &dyn ContactDispatcher<N>,
@@ -89,8 +91,7 @@ impl<N: RealField> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhed
         proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         manifold: &mut ContactManifold<N>,
-    ) -> bool
-    {
+    ) -> bool {
         if let (Some(cpa), Some(cpb)) = (a.as_convex_polyhedron(), b.as_convex_polyhedron()) {
             let contact = query::contact_support_map_support_map_with_params(
                 ma,

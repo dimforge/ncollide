@@ -1,10 +1,10 @@
+use crate::bounding_volume::bounding_volume::BoundingVolume;
 use crate::bounding_volume::AABB;
 use crate::math::{Isometry, Point, Vector};
-use na::{self, RealField};
 use crate::partitioning::{BestFirstVisitStatus, BestFirstVisitor};
 use crate::query::{self, Ray, RayCast, TOI};
 use crate::shape::{CompositeShape, Shape};
-use crate::bounding_volume::bounding_volume::BoundingVolume;
+use na::{self, RealField};
 
 /// Time Of Impact of a composite shape with any other shape, under translational movement.
 pub fn time_of_impact_composite_shape_shape<N, G1: ?Sized>(
@@ -21,7 +21,16 @@ where
     N: RealField,
     G1: CompositeShape<N>,
 {
-    let mut visitor = CompositeShapeAgainstAnyTOIVisitor::new(m1, vel1, g1, m2, vel2, g2, max_toi, target_distance);
+    let mut visitor = CompositeShapeAgainstAnyTOIVisitor::new(
+        m1,
+        vel1,
+        g1,
+        m2,
+        vel2,
+        g2,
+        max_toi,
+        target_distance,
+    );
     g1.bvh().best_first_search(&mut visitor).map(|res| res.1)
 }
 
@@ -73,8 +82,7 @@ where
         g2: &'a dyn Shape<N>,
         max_toi: N,
         target_distance: N,
-    ) -> CompositeShapeAgainstAnyTOIVisitor<'a, N, G1>
-    {
+    ) -> CompositeShapeAgainstAnyTOIVisitor<'a, N, G1> {
         let ls_m2 = m1.inverse() * m2.clone();
         let ls_aabb2 = g2.aabb(&ls_m2).loosened(target_distance);
 
@@ -97,7 +105,8 @@ where
     }
 }
 
-impl<'a, N, G1: ?Sized> BestFirstVisitor<N, usize, AABB<N>> for CompositeShapeAgainstAnyTOIVisitor<'a, N, G1>
+impl<'a, N, G1: ?Sized> BestFirstVisitor<N, usize, AABB<N>>
+    for CompositeShapeAgainstAnyTOIVisitor<'a, N, G1>
 where
     N: RealField,
     G1: CompositeShape<N>,
@@ -105,7 +114,12 @@ where
     type Result = TOI<N>;
 
     #[inline]
-    fn visit(&mut self, best: N, bv: &AABB<N>, data: Option<&usize>) -> BestFirstVisitStatus<N, Self::Result> {
+    fn visit(
+        &mut self,
+        best: N,
+        bv: &AABB<N>,
+        data: Option<&usize>,
+    ) -> BestFirstVisitStatus<N, Self::Result> {
         // Compute the minkowski sum of the two AABBs.
         let msum = AABB::new(
             *bv.mins() + self.msum_shift + (-self.msum_margin),
@@ -118,18 +132,31 @@ where
                 return BestFirstVisitStatus::Stop;
             }
 
-            let mut res = BestFirstVisitStatus::Continue { cost: toi, result: None };
+            let mut res = BestFirstVisitStatus::Continue {
+                cost: toi,
+                result: None,
+            };
 
             if let Some(b) = data {
                 if toi < best {
                     self.g1.map_part_at(*b, self.m1, &mut |m1, g1| {
                         if let Some(toi) = query::time_of_impact(
-                            m1, self.vel1, g1, self.m2, self.vel2, self.g2, self.max_toi, self.target_distance,
+                            m1,
+                            self.vel1,
+                            g1,
+                            self.m2,
+                            self.vel2,
+                            self.g2,
+                            self.max_toi,
+                            self.target_distance,
                         ) {
                             if toi.toi > self.max_toi {
                                 res = BestFirstVisitStatus::Stop;
                             } else {
-                                res = BestFirstVisitStatus::Continue { cost: toi.toi, result: Some(toi) }
+                                res = BestFirstVisitStatus::Continue {
+                                    cost: toi.toi,
+                                    result: Some(toi),
+                                }
                             }
                         }
                     });

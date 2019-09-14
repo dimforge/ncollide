@@ -2,12 +2,13 @@
 
 use crate::bounding_volume::{self, BoundingVolume, AABB};
 use crate::math::{Isometry, Point, Vector, DIM};
-use na::{self, Id, Point2, RealField, Unit};
 use crate::partitioning::{BVHImpl, BVT};
-use crate::query::{LocalShapeApproximation, NeighborhoodGeometry, ContactPreprocessor, ContactPrediction, Contact, ContactKinematic};
-use crate::shape::{
-    CompositeShape, DeformableShape, DeformationsType, FeatureId, Segment, Shape,
+use crate::query::{
+    Contact, ContactKinematic, ContactPrediction, ContactPreprocessor, LocalShapeApproximation,
+    NeighborhoodGeometry,
 };
+use crate::shape::{CompositeShape, DeformableShape, DeformationsType, FeatureId, Segment, Shape};
+use na::{self, Id, Point2, RealField, Unit};
 use std::iter;
 use std::ops::Range;
 use std::slice;
@@ -54,19 +55,20 @@ pub struct Polyline<N: RealField> {
 
 impl<N: RealField> Polyline<N> {
     /// Builds a new polyline.
-    pub fn new(
-        points: Vec<Point<N>>,
-        indices: Option<Vec<Point2<usize>>>,
-    ) -> Polyline<N>
-    {
-        let indices = indices.unwrap_or((0..).map(|i| Point2::new(i, i + 1)).take(points.len() - 1).collect());
+    pub fn new(points: Vec<Point<N>>, indices: Option<Vec<Point2<usize>>>) -> Polyline<N> {
+        let indices = indices.unwrap_or(
+            (0..)
+                .map(|i| Point2::new(i, i + 1))
+                .take(points.len() - 1)
+                .collect(),
+        );
         let mut leaves = Vec::with_capacity(indices.len());
         let mut vertices: Vec<PolylineVertex> = iter::repeat(PolylineVertex {
             adj_edges: 0..0,
             adj_vertices: 0..0,
         })
-            .take(points.len())
-            .collect();
+        .take(points.len())
+        .collect();
         let mut edges = Vec::with_capacity(indices.len());
 
         let adj_edge_list = Self::adj_edge_list(&indices, &mut vertices);
@@ -83,7 +85,7 @@ impl<N: RealField> Polyline<N> {
                 leaves.push((i, bv.clone()));
                 edges.push(PolylineEdge {
                     indices: *is,
-                    bvt_leaf: 0,             // Will be set later.
+                    bvt_leaf: 0, // Will be set later.
                     normal,
                 })
             }
@@ -139,10 +141,8 @@ impl<N: RealField> Polyline<N> {
         }
 
         for e in edges.iter() {
-            adj_vertex_list
-                [vertices[e.x].adj_vertices.start + num_neighbors[e.x]] = e.y;
-            adj_vertex_list
-                [vertices[e.y].adj_vertices.start + num_neighbors[e.y]] = e.x;
+            adj_vertex_list[vertices[e.x].adj_vertices.start + num_neighbors[e.x]] = e.y;
+            adj_vertex_list[vertices[e.y].adj_vertices.start + num_neighbors[e.y]] = e.x;
 
             num_neighbors[e.x] += 1;
             num_neighbors[e.y] += 1;
@@ -204,7 +204,10 @@ impl<N: RealField> Polyline<N> {
             vertices.push(xy_point(-_0_5, _0_5 - step_y * na::convert(j as f64)));
         }
 
-        let mut indices: Vec<_> = (0..).map(|i| Point2::new(i, i + 1)).take(vertices.len() - 1).collect();
+        let mut indices: Vec<_> = (0..)
+            .map(|i| Point2::new(i, i + 1))
+            .take(vertices.len() - 1)
+            .collect();
         indices.push(Point2::new(vertices.len() - 1, 0));
 
         Polyline::new(vertices, Some(indices))
@@ -286,8 +289,7 @@ impl<N: RealField> Polyline<N> {
         _i: usize,
         _deformations: Option<&[N]>,
         _dir: &Unit<Vector<N>>,
-    ) -> bool
-    {
+    ) -> bool {
         return false;
     }
 
@@ -299,8 +301,7 @@ impl<N: RealField> Polyline<N> {
         i: usize,
         deformations: Option<&[N]>,
         dir: &Unit<Vector<N>>,
-    ) -> bool
-    {
+    ) -> bool {
         if !self.oriented {
             return false;
         }
@@ -380,8 +381,7 @@ impl<N: RealField> Polyline<N> {
         i: usize,
         dir: &Unit<Vector<N>>,
         sin_ang_tol: N,
-    ) -> bool
-    {
+    ) -> bool {
         let v = &self.vertices[i];
 
         for adj_vtx in &self.adj_vertex_list[v.adj_vertices.clone()] {
@@ -404,8 +404,7 @@ impl<N: RealField> Polyline<N> {
         _i: usize,
         _deformations: Option<&[N]>,
         _dir: &Unit<Vector<N>>,
-    ) -> bool
-    {
+    ) -> bool {
         return false;
     }
 
@@ -417,8 +416,7 @@ impl<N: RealField> Polyline<N> {
         i: usize,
         deformations: Option<&[N]>,
         dir: &Unit<Vector<N>>,
-    ) -> bool
-    {
+    ) -> bool {
         if !self.oriented {
             return false;
         }
@@ -457,7 +455,10 @@ impl<N: RealField> Polyline<N> {
     /// Tests whether the polar of the tangent cone of the i-th edge of this polyline
     /// contains the direction `dir` considering the cosinus of an angular tolerance `cos_ang_tol`.
     pub fn edge_tangent_cone_polar_contains_dir(
-        &self, i: usize, dir: &Unit<Vector<N>>, cos_ang_tol: N
+        &self,
+        i: usize,
+        dir: &Unit<Vector<N>>,
+        cos_ang_tol: N,
     ) -> bool {
         let normal;
 
@@ -478,7 +479,13 @@ impl<N: RealField> Polyline<N> {
 
     /// (Not yet implemented) Tests whether the polar of the tangent cone of the specified feature of
     /// this polyline contains the direction `dir` considering the sinus and cosinus of an angular tolerance.
-    pub fn tangent_cone_polar_contains_dir(&self, _feature: FeatureId, _dir: &Unit<Vector<N>>, _sin_ang_tol: N, _cos_ang_tol: N) -> bool {
+    pub fn tangent_cone_polar_contains_dir(
+        &self,
+        _feature: FeatureId,
+        _dir: &Unit<Vector<N>>,
+        _sin_ang_tol: N,
+        _cos_ang_tol: N,
+    ) -> bool {
         unimplemented!()
         /*
         match feature {
@@ -512,8 +519,7 @@ impl<N: RealField> CompositeShape<N> for Polyline<N> {
         i: usize,
         m: &Isometry<N>,
         f: &mut dyn FnMut(&Isometry<N>, &dyn Shape<N>),
-    )
-    {
+    ) {
         let element = self.segment_at(i);
         f(m, &element)
     }
@@ -551,7 +557,10 @@ impl<N: RealField> DeformableShape<N> for Polyline<N> {
 
     /// Updates all the degrees of freedom of this shape.
     fn set_deformations(&mut self, coords: &[N]) {
-        assert!(coords.len() >= self.points.len() * DIM, "Set deformations error: dimension mismatch.");
+        assert!(
+            coords.len() >= self.points.len() * DIM,
+            "Set deformations error: dimension mismatch."
+        );
         let is_first_init = self.init_deformation_infos();
         self.deformations.curr_timestamp += 1;
 
@@ -570,16 +579,16 @@ impl<N: RealField> DeformableShape<N> for Polyline<N> {
             let sq_dist_to_ref = na::distance_squared(pt, ref_pt);
 
             if is_first_init || sq_dist_to_ref > self.deformations.margin * self.deformations.margin
-                {
-                    // We have to update the adjacent bounding volumes.
-                    // Note that they can be duplicates on `seg_to_update`.
-                    // Those duplicates will be filtered using timestamps in the next for loop.
-                    let ids = self.vertices[target].adj_edges.clone();
-                    self.deformations
-                        .seg_to_update
-                        .extend_from_slice(&self.adj_edge_list[ids]);
-                    *ref_pt = *pt;
-                }
+            {
+                // We have to update the adjacent bounding volumes.
+                // Note that they can be duplicates on `seg_to_update`.
+                // Those duplicates will be filtered using timestamps in the next for loop.
+                let ids = self.vertices[target].adj_edges.clone();
+                self.deformations
+                    .seg_to_update
+                    .extend_from_slice(&self.adj_edge_list[ids]);
+                *ref_pt = *pt;
+            }
         }
 
         // Update normals.
@@ -608,12 +617,7 @@ impl<N: RealField> DeformableShape<N> for Polyline<N> {
         self.bvt.refit(N::zero())
     }
 
-    fn update_local_approximation(
-        &self,
-        coords: &[N],
-        approx: &mut LocalShapeApproximation<N>,
-    )
-    {
+    fn update_local_approximation(&self, coords: &[N], approx: &mut LocalShapeApproximation<N>) {
         match approx.feature {
             FeatureId::Vertex(i) => {
                 approx.point = Point::from_slice(&coords[i * DIM..(i + 1) * DIM]);
@@ -678,13 +682,21 @@ struct PolylineContactProcessor<'a, N: RealField> {
     polyline: &'a Polyline<N>,
     pos: &'a Isometry<N>,
     edge_id: usize,
-    prediction: &'a ContactPrediction<N>
+    prediction: &'a ContactPrediction<N>,
 }
 
 impl<'a, N: RealField> PolylineContactProcessor<'a, N> {
-    pub fn new(polyline: &'a Polyline<N>, pos: &'a Isometry<N>, edge_id: usize, prediction: &'a ContactPrediction<N>) -> Self {
+    pub fn new(
+        polyline: &'a Polyline<N>,
+        pos: &'a Isometry<N>,
+        edge_id: usize,
+        prediction: &'a ContactPrediction<N>,
+    ) -> Self {
         PolylineContactProcessor {
-            polyline, pos, edge_id, prediction
+            polyline,
+            pos,
+            edge_id,
+            prediction,
         }
     }
 }
@@ -694,8 +706,8 @@ impl<'a, N: RealField> ContactPreprocessor<N> for PolylineContactProcessor<'a, N
         &self,
         _c: &mut Contact<N>,
         kinematic: &mut ContactKinematic<N>,
-        is_first: bool)
-        -> bool {
+        is_first: bool,
+    ) -> bool {
         // Fix the feature ID.
         let feature = if is_first {
             kinematic.feature1()
@@ -724,7 +736,7 @@ impl<'a, N: RealField> ContactPreprocessor<N> for PolylineContactProcessor<'a, N
             kinematic.set_feature2(actual_feature);
         }
 
-/*
+        /*
         // TODO: Test the validity of the LMD.
         if c.depth > N::zero() {
             true
@@ -740,7 +752,6 @@ impl<'a, N: RealField> ContactPreprocessor<N> for PolylineContactProcessor<'a, N
         true
     }
 }
-
 
 #[cfg(feature = "dim2")]
 fn xy_point<N: RealField>(x: N, y: N) -> Point<N> {

@@ -1,7 +1,7 @@
 use crate::bounding_volume::{HasBoundingVolume, AABB};
 use crate::math::Isometry;
-use na::{self, RealField};
 use crate::shape::Compound;
+use na::{self, RealField};
 
 impl<N: RealField> HasBoundingVolume<N, AABB<N>> for Compound<N> {
     #[inline]

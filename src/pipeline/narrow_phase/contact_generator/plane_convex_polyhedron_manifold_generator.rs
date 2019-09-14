@@ -1,8 +1,11 @@
 use crate::math::{Isometry, Point};
-use na::{self, RealField};
 use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
-use crate::query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry, ContactPreprocessor};
+use crate::query::{
+    Contact, ContactKinematic, ContactManifold, ContactPrediction, ContactPreprocessor,
+    NeighborhoodGeometry,
+};
 use crate::shape::{ConvexPolygonalFeature, FeatureId, Plane, Shape};
+use na::{self, RealField};
 
 /// Collision detector between g1 plane and g1 shape implementing the `SupportMap` trait.
 #[derive(Clone)]
@@ -34,8 +37,7 @@ impl<N: RealField> PlaneConvexPolyhedronManifoldGenerator<N> {
         poly_feature: &mut ConvexPolygonalFeature<N>,
         manifold: &mut ContactManifold<N>,
         flip: bool,
-    ) -> bool
-    {
+    ) -> bool {
         if let (Some(plane), Some(cp)) = (g1.as_shape::<Plane<N>>(), g2.as_convex_polyhedron()) {
             let plane_normal = m1 * plane.normal();
             let plane_center = Point::from(m1.translation.vector);
@@ -91,8 +93,7 @@ impl<N: RealField> ContactManifoldGenerator<N> for PlaneConvexPolyhedronManifold
         proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         manifold: &mut ContactManifold<N>,
-    ) -> bool
-    {
+    ) -> bool {
         if !self.flip {
             Self::do_update_to(
                 m1,

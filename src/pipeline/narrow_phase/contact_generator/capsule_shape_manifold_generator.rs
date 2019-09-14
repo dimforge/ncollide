@@ -1,8 +1,8 @@
 use crate::math::Isometry;
-use na::{self, RealField};
 use crate::pipeline::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
 use crate::query::{ContactManifold, ContactPrediction, ContactPreprocessor};
 use crate::shape::{Capsule, Shape};
+use na::{self, RealField};
 
 /// Collision detector between a concave shape and another shape.
 pub struct CapsuleShapeManifoldGenerator<N: RealField> {
@@ -31,8 +31,7 @@ impl<N: RealField> CapsuleShapeManifoldGenerator<N> {
         prediction: &ContactPrediction<N>,
         manifold: &mut ContactManifold<N>,
         flip: bool,
-    ) -> bool
-    {
+    ) -> bool {
         let segment = g1.segment();
         let mut prediction = prediction.clone();
         let new_linear_prediction = prediction.linear() + g1.radius();
@@ -57,7 +56,7 @@ impl<N: RealField> CapsuleShapeManifoldGenerator<N> {
                 &segment,
                 Some(&(proc1, &g1.contact_preprocessor())),
                 &prediction,
-                manifold
+                manifold,
             )
         } else {
             self.sub_detector.as_mut().unwrap().generate_contacts(
@@ -69,7 +68,7 @@ impl<N: RealField> CapsuleShapeManifoldGenerator<N> {
                 g2,
                 proc2,
                 &prediction,
-                manifold
+                manifold,
             )
         }
     }
@@ -87,8 +86,7 @@ impl<N: RealField> ContactManifoldGenerator<N> for CapsuleShapeManifoldGenerator
         proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         manifold: &mut ContactManifold<N>,
-    ) -> bool
-    {
+    ) -> bool {
         if !self.flip {
             if let Some(cs) = a.as_shape::<Capsule<N>>() {
                 return self.do_update(d, ma, cs, proc1, mb, b, proc2, prediction, manifold, false);

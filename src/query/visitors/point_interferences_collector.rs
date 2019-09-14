@@ -1,7 +1,7 @@
 use crate::math::{Isometry, Point};
-use na::RealField;
 use crate::partitioning::{VisitStatus, Visitor};
 use crate::query::PointQuery;
+use na::RealField;
 
 // FIXME: add a point cost fn.
 
@@ -19,8 +19,7 @@ impl<'a, N: RealField, T> PointInterferencesCollector<'a, N, T> {
     pub fn new(
         point: &'a Point<N>,
         buffer: &'a mut Vec<T>,
-    ) -> PointInterferencesCollector<'a, N, T>
-    {
+    ) -> PointInterferencesCollector<'a, N, T> {
         PointInterferencesCollector {
             point: point,
             collector: buffer,

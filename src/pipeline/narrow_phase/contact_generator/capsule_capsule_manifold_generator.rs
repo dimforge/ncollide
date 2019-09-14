@@ -1,13 +1,15 @@
 use crate::math::Isometry;
-use na::{self, RealField};
-use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator, ConvexPolyhedronConvexPolyhedronManifoldGenerator};
+use crate::pipeline::narrow_phase::{
+    ContactDispatcher, ContactManifoldGenerator, ConvexPolyhedronConvexPolyhedronManifoldGenerator,
+};
 use crate::query::{ContactManifold, ContactPrediction, ContactPreprocessor};
 use crate::shape::{Capsule, Shape};
+use na::{self, RealField};
 
 /// Collision detector between a concave shape and another shape.
 pub struct CapsuleCapsuleManifoldGenerator<N: RealField> {
     // FIXME: use a dedicated segment-segment algorithm instead.
-    sub_detector: ConvexPolyhedronConvexPolyhedronManifoldGenerator<N>
+    sub_detector: ConvexPolyhedronConvexPolyhedronManifoldGenerator<N>,
 }
 
 impl<N: RealField> CapsuleCapsuleManifoldGenerator<N> {
@@ -28,9 +30,8 @@ impl<N: RealField> CapsuleCapsuleManifoldGenerator<N> {
         g2: &Capsule<N>,
         proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
-        manifold: &mut ContactManifold<N>
-    ) -> bool
-    {
+        manifold: &mut ContactManifold<N>,
+    ) -> bool {
         let segment1 = g1.segment();
         let segment2 = g2.segment();
 
@@ -48,7 +49,7 @@ impl<N: RealField> CapsuleCapsuleManifoldGenerator<N> {
             &segment2,
             Some(&(proc2, &g2.contact_preprocessor())),
             &prediction,
-            manifold
+            manifold,
         )
     }
 }
@@ -65,8 +66,7 @@ impl<N: RealField> ContactManifoldGenerator<N> for CapsuleCapsuleManifoldGenerat
         proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         manifold: &mut ContactManifold<N>,
-    ) -> bool
-    {
+    ) -> bool {
         if let (Some(cs1), Some(cs2)) = (a.as_shape::<Capsule<N>>(), b.as_shape::<Capsule<N>>()) {
             self.do_update(d, ma, cs1, proc1, mb, cs2, proc2, prediction, manifold)
         } else {

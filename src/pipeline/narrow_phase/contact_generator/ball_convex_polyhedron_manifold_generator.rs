@@ -1,10 +1,13 @@
 use crate::math::{Isometry, Point};
-use na::{RealField, Unit};
 use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
-use crate::query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry, ContactPreprocessor};
+use crate::query::{
+    Contact, ContactKinematic, ContactManifold, ContactPrediction, ContactPreprocessor,
+    NeighborhoodGeometry,
+};
 use crate::shape::{Ball, FeatureId, Shape};
-use std::marker::PhantomData;
 use crate::utils::IsometryOps;
+use na::{RealField, Unit};
+use std::marker::PhantomData;
 
 /// Collision detector between two balls.
 #[derive(Clone)]
@@ -33,8 +36,7 @@ impl<N: RealField> BallConvexPolyhedronManifoldGenerator<N> {
         proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         manifold: &mut ContactManifold<N>,
-    ) -> bool
-    {
+    ) -> bool {
         // NOTE: we use an underscore to silence a warning
         // for _cp2 because it is used in 3D but not in 2D.
         if let (Some(ball), Some(pq2), Some(cp2)) = (
@@ -76,19 +78,11 @@ impl<N: RealField> BallConvexPolyhedronManifoldGenerator<N> {
 
                 if !self.flip {
                     contact = Contact::new(world1, world2, normal, depth);
-                    kinematic.set_approx1(
-                        f1,
-                        Point::origin(),
-                        NeighborhoodGeometry::Point,
-                    );
+                    kinematic.set_approx1(f1, Point::origin(), NeighborhoodGeometry::Point);
                     kinematic.set_dilation1(ball.radius());
                 } else {
                     contact = Contact::new(world2, world1, -normal, depth);
-                    kinematic.set_approx2(
-                        f1,
-                        Point::origin(),
-                        NeighborhoodGeometry::Point,
-                    );
+                    kinematic.set_approx2(f1, Point::origin(), NeighborhoodGeometry::Point);
                     kinematic.set_dilation2(ball.radius());
                 }
 
@@ -140,8 +134,7 @@ impl<N: RealField> ContactManifoldGenerator<N> for BallConvexPolyhedronManifoldG
         proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         manifold: &mut ContactManifold<N>,
-    ) -> bool
-    {
+    ) -> bool {
         if !self.flip {
             self.do_generate(m1, a, proc1, m2, b, proc2, prediction, manifold)
         } else {

@@ -1,7 +1,7 @@
 use crate::math::{Isometry, Point, Vector};
-use na::{self, RealField, Unit};
 use crate::query::{PointProjection, PointQuery};
 use crate::shape::{Capsule, FeatureId, Segment};
+use na::{self, RealField, Unit};
 
 impl<N: RealField> PointQuery<N> for Capsule<N> {
     #[inline]
@@ -36,8 +36,7 @@ impl<N: RealField> PointQuery<N> for Capsule<N> {
         &self,
         m: &Isometry<N>,
         pt: &Point<N>,
-    ) -> (PointProjection<N>, FeatureId)
-    {
+    ) -> (PointProjection<N>, FeatureId) {
         (self.project_point(m, pt, false), FeatureId::Face(0))
     }
 }

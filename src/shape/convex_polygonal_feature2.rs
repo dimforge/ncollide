@@ -1,10 +1,10 @@
 use na::{self, RealField, Unit};
 
 use crate::math::{Isometry, Point, Vector};
+use crate::query::ContactPreprocessor;
 use crate::query::{Contact, ContactPrediction};
 use crate::query::{ContactKinematic, ContactManifold, NeighborhoodGeometry};
 use crate::shape::{FeatureId, Segment, SegmentPointLocation};
-use crate::query::ContactPreprocessor;
 use crate::utils::IsometryOps;
 
 /// A feature (face or vertex) of a 2D convex polygon.
@@ -112,8 +112,7 @@ impl<N: RealField> ConvexPolygonalFeature<N> {
         normal: &Unit<Vector<N>>,
         prediction: &ContactPrediction<N>,
         out: &mut Vec<(Contact<N>, FeatureId, FeatureId)>,
-    )
-    {
+    ) {
         // XXX: lift this restriction.
         if self.nvertices <= 1 || other.nvertices <= 1 {
             return;
@@ -211,8 +210,7 @@ impl<N: RealField> ConvexPolygonalFeature<N> {
         f2: FeatureId,
         proc2: Option<&dyn ContactPreprocessor<N>>,
         manifold: &mut ContactManifold<N>,
-    )
-    {
+    ) {
         let mut kinematic = ContactKinematic::new();
         let local1 = m1.inverse_transform_point(&c.world1);
         let local2 = m2.inverse_transform_point(&c.world2);
@@ -225,9 +223,7 @@ impl<N: RealField> ConvexPolygonalFeature<N> {
                     m1.inverse_transform_unit_vector(&self.normal.as_ref().unwrap()),
                 ),
             ),
-            FeatureId::Vertex(..) => {
-                kinematic.set_approx1(f1, local1, NeighborhoodGeometry::Point)
-            }
+            FeatureId::Vertex(..) => kinematic.set_approx1(f1, local1, NeighborhoodGeometry::Point),
             FeatureId::Unknown => return,
         }
 
@@ -238,9 +234,7 @@ impl<N: RealField> ConvexPolygonalFeature<N> {
                 );
                 kinematic.set_approx2(f2, local2, approx2)
             }
-            FeatureId::Vertex(..) => {
-                kinematic.set_approx2(f2, local2, NeighborhoodGeometry::Point)
-            }
+            FeatureId::Vertex(..) => kinematic.set_approx2(f2, local2, NeighborhoodGeometry::Point),
             FeatureId::Unknown => return,
         }
 

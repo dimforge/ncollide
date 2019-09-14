@@ -1,7 +1,7 @@
 use na::RealField;
 
 use crate::math::{Isometry, Vector};
-use crate::query::{Ray, RayCast, TOI, TOIStatus};
+use crate::query::{Ray, RayCast, TOIStatus, TOI};
 use crate::shape::{Plane, SupportMap};
 use crate::utils::IsometryOps;
 
@@ -74,6 +74,15 @@ where
     N: RealField,
     G: SupportMap<N>,
 {
-    time_of_impact_plane_support_map(mplane, vel_plane, plane, mother, vel_other, other, max_toi, target_distance)
-        .map(|toi| toi.swapped())
+    time_of_impact_plane_support_map(
+        mplane,
+        vel_plane,
+        plane,
+        mother,
+        vel_other,
+        other,
+        max_toi,
+        target_distance,
+    )
+    .map(|toi| toi.swapped())
 }
