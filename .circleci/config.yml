@@ -49,7 +49,7 @@ jobs:
       - run:
           name: build ncollide3d
           command: cargo web build --verbose --target wasm32-unknown-unknown -p ncollide3d;
-  bench:
+  bench-native:
     executor: rust-nightly-executor
     steps:
       - checkout
@@ -69,6 +69,6 @@ workflows:
       - build-wasm:
           requires:
             - check-fmt
-      - bench:
+      - bench-native:
           requires:
-            - check-fmt
+            - build-native
