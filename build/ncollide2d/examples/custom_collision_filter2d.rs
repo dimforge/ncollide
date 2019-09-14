@@ -14,21 +14,21 @@
 //}
 
 fn main() {
-//    let shape = ShapeHandle::new(Ball::new(0.5f32));
-//    let groups = CollisionGroups::new();
-//    let query = GeometricQueryType::Contacts(0.0, 0.0);
-//
-//    let mut world = CollisionWorld::new(0.02);
-//
-//    world.register_broad_phase_pair_filter("Parity filter", ParityFilter);
-//
-//    world.add(na::one(), shape.clone(), groups, query, ());
-//    world.add(na::one(), shape.clone(), groups, query, ());
-//    world.add(na::one(), shape.clone(), groups, query, ());
-//    world.add(na::one(), shape.clone(), groups, query, ());
-//
-//    world.update();
-//
-//    // There will be only 2 contact pairs instead of 6.
-//    assert!(world.contact_pairs(true).count() == 2);
+    //    let shape = ShapeHandle::new(Ball::new(0.5f32));
+    //    let groups = CollisionGroups::new();
+    //    let query = GeometricQueryType::Contacts(0.0, 0.0);
+    //
+    //    let mut world = CollisionWorld::new(0.02);
+    //
+    //    world.register_broad_phase_pair_filter("Parity filter", ParityFilter);
+    //
+    //    world.add(na::one(), shape.clone(), groups, query, ());
+    //    world.add(na::one(), shape.clone(), groups, query, ());
+    //    world.add(na::one(), shape.clone(), groups, query, ());
+    //    world.add(na::one(), shape.clone(), groups, query, ());
+    //
+    //    world.update();
+    //
+    //    // There will be only 2 contact pairs instead of 6.
+    //    assert!(world.contact_pairs(true).count() == 2);
 }

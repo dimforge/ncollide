@@ -1,12 +1,11 @@
-use alga::general::RealField;
+use crate::bounding_volume::{self, BoundingVolume, AABB};
 use crate::math::Isometry;
 use crate::pipeline::broad_phase::BroadPhaseProxyHandle;
 use crate::pipeline::narrow_phase::CollisionObjectGraphIndex;
 use crate::pipeline::object::CollisionGroups;
-use crate::shape::{Shape, ShapeHandle};
-use crate::bounding_volume::{self, BoundingVolume, AABB};
 use crate::pipeline::object::GeometricQueryType;
-
+use crate::shape::{Shape, ShapeHandle};
+use alga::general::RealField;
 
 bitflags! {
     #[derive(Default)]
@@ -36,10 +35,10 @@ impl CollisionObjectUpdateFlags {
         // The only change that does not trigger an update
         // is a change on predicted position.
         self.intersects(
-            Self::POSITION_CHANGED |
-                Self::SHAPE_CHANGED |
-                Self::COLLISION_GROUPS_CHANGED |
-                Self::QUERY_TYPE_CHANGED
+            Self::POSITION_CHANGED
+                | Self::SHAPE_CHANGED
+                | Self::COLLISION_GROUPS_CHANGED
+                | Self::QUERY_TYPE_CHANGED,
         )
     }
 
@@ -53,7 +52,9 @@ impl CollisionObjectUpdateFlags {
     /// Checks if the collision object has been changed in a way that justify that the broad-phase
     /// recompute all potential proximity pairs for this collision objects.
     pub fn needs_broad_phase_redispatch(&self) -> bool {
-        self.intersects(Self::SHAPE_CHANGED | Self::COLLISION_GROUPS_CHANGED | Self::QUERY_TYPE_CHANGED)
+        self.intersects(
+            Self::SHAPE_CHANGED | Self::COLLISION_GROUPS_CHANGED | Self::QUERY_TYPE_CHANGED,
+        )
     }
 }
 
@@ -148,8 +149,7 @@ impl<N: RealField, T> CollisionObject<N, T> {
         groups: CollisionGroups,
         query_type: GeometricQueryType<N>,
         data: T,
-    ) -> CollisionObject<N, T>
-    {
+    ) -> CollisionObject<N, T> {
         CollisionObject {
             proxy_handle,
             graph_index,
@@ -301,7 +301,6 @@ impl<N: RealField, T> CollisionObject<N, T> {
         &mut self.data
     }
 }
-
 
 impl<N: RealField, T> CollisionObjectRef<N> for CollisionObject<N, T> {
     fn graph_index(&self) -> Option<CollisionObjectGraphIndex> {

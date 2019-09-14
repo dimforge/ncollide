@@ -1,9 +1,9 @@
 use crate::math::{Isometry, Vector};
-use na::{RealField, Unit};
 use crate::query::algorithms::{gjk, gjk::GJKResult, CSOPoint};
 use crate::query::algorithms::{VoronoiSimplex, EPA};
 use crate::query::Contact;
 use crate::shape::SupportMap;
+use na::{RealField, Unit};
 
 /// Contact between support-mapped shapes (`Cuboid`, `ConvexHull`, etc.)
 pub fn contact_support_map_support_map<N, G1: ?Sized, G2: ?Sized>(

@@ -1,7 +1,7 @@
 use crate::math::{Isometry, Point, Vector};
-use na::{self, RealField, Unit};
 use crate::query::{self, Contact};
 use crate::shape::{FeatureId, Shape};
+use na::{self, RealField, Unit};
 
 /// A shape geometry type at the neighborhood of a point.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -196,8 +196,7 @@ impl<N: RealField> ContactKinematic<N> {
         feature: FeatureId,
         point: Point<N>,
         geom: NeighborhoodGeometry<N>,
-    )
-    {
+    ) {
         self.approx1 = LocalShapeApproximation::new(feature, point, geom);
     }
 
@@ -207,8 +206,7 @@ impl<N: RealField> ContactKinematic<N> {
         feature: FeatureId,
         point: Point<N>,
         geom: NeighborhoodGeometry<N>,
-    )
-    {
+    ) {
         self.approx2 = LocalShapeApproximation::new(feature, point, geom);
     }
 
@@ -226,8 +224,7 @@ impl<N: RealField> ContactKinematic<N> {
         s2: &dyn Shape<N>,
         deformations2: Option<&[N]>,
         default_normal1: &Unit<Vector<N>>,
-    ) -> Option<Contact<N>>
-    {
+    ) -> Option<Contact<N>> {
         let normal;
         let mut depth;
 
@@ -254,8 +251,9 @@ impl<N: RealField> ContactKinematic<N> {
                             m2,
                             deformations2,
                             &-n,
-                        ) {
-//                        println!("Is in tangent cone 3.");
+                        )
+                    {
+                        //                        println!("Is in tangent cone 3.");
 
                         depth = d;
                         normal = -n;
@@ -283,8 +281,9 @@ impl<N: RealField> ContactKinematic<N> {
                             m2,
                             deformations2,
                             &-n,
-                        ) {
-//                        println!("Is in tangent cone 4.");
+                        )
+                    {
+                        //                        println!("Is in tangent cone 4.");
 
                         depth = d;
                         normal = -n;
@@ -315,8 +314,9 @@ impl<N: RealField> ContactKinematic<N> {
                             m2,
                             deformations2,
                             &-n,
-                        ) {
-//                        println!("Is in tangent cone 5.");
+                        )
+                    {
+                        //                        println!("Is in tangent cone 5.");
                         depth = d;
                         normal = -n;
                     } else {
@@ -331,12 +331,8 @@ impl<N: RealField> ContactKinematic<N> {
             (NeighborhoodGeometry::Line(dir1), NeighborhoodGeometry::Line(dir2)) => {
                 let world_dir1 = m1 * dir1;
                 let world_dir2 = m2 * dir2;
-                let (pt1, pt2) = query::closest_points_line_line(
-                    &world1,
-                    &world_dir1,
-                    &world2,
-                    &world_dir2,
-                );
+                let (pt1, pt2) =
+                    query::closest_points_line_line(&world1, &world_dir1, &world2, &world_dir2);
 
                 world1 = pt1;
                 world2 = pt2;
@@ -348,8 +344,9 @@ impl<N: RealField> ContactKinematic<N> {
                             m2,
                             deformations2,
                             &-n,
-                        ) {
-//                        println!("Is in tangent cone 6.");
+                        )
+                    {
+                        //                        println!("Is in tangent cone 6.");
 
                         depth = d;
                         normal = -n;
@@ -367,7 +364,7 @@ impl<N: RealField> ContactKinematic<N> {
             }
         }
 
-//        println!("Before margin: {:?}", Contact::new(world1, world2, normal, depth));
+        //        println!("Before margin: {:?}", Contact::new(world1, world2, normal, depth));
         world1 += normal.into_inner() * self.margin1;
         world2 += normal.into_inner() * (-self.margin2);
         depth += self.margin1 + self.margin2;

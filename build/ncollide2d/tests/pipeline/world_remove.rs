@@ -1,6 +1,6 @@
 use na::{Isometry2, Vector2};
+use ncollide2d::pipeline::{CollisionGroups, CollisionWorld, GeometricQueryType};
 use ncollide2d::shape::{Ball, ShapeHandle};
-use ncollide2d::pipeline::{GeometricQueryType, CollisionGroups, CollisionWorld};
 
 #[test]
 fn issue_57_object_remove() {

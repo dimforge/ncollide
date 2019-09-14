@@ -1,7 +1,7 @@
 use crate::math::Isometry;
-use na::RealField;
 use crate::query::Proximity;
 use crate::shape::Shape;
+use na::RealField;
 use std::any::Any;
 
 /// Trait implemented by algorithms that determine if two objects are in close proximity.
@@ -23,5 +23,9 @@ pub type ProximityAlgorithm<N> = Box<dyn ProximityDetector<N>>;
 
 pub trait ProximityDispatcher<N>: Any + Send + Sync {
     /// Allocate a collision algorithm corresponding to the given pair of shapes.
-    fn get_proximity_algorithm(&self, a: &dyn Shape<N>, b: &dyn Shape<N>) -> Option<ProximityAlgorithm<N>>;
+    fn get_proximity_algorithm(
+        &self,
+        a: &dyn Shape<N>,
+        b: &dyn Shape<N>,
+    ) -> Option<ProximityAlgorithm<N>>;
 }

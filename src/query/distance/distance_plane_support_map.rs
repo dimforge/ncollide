@@ -1,7 +1,7 @@
 use crate::math::{Isometry, Point};
-use na::{self, RealField};
 use crate::shape::Plane;
 use crate::shape::SupportMap;
+use na::{self, RealField};
 
 /// Distance between a plane and a support-mapped shape.
 pub fn distance_plane_support_map<N: RealField, G: ?Sized + SupportMap<N>>(
@@ -9,8 +9,7 @@ pub fn distance_plane_support_map<N: RealField, G: ?Sized + SupportMap<N>>(
     plane: &Plane<N>,
     mother: &Isometry<N>,
     other: &G,
-) -> N
-{
+) -> N {
     let plane_normal = mplane * plane.normal();
     let plane_center = Point::from(mplane.translation.vector);
     let deepest = other.support_point_toward(mother, &-plane_normal);
@@ -30,7 +29,6 @@ pub fn distance_support_map_plane<N: RealField, G: ?Sized + SupportMap<N>>(
     other: &G,
     mplane: &Isometry<N>,
     plane: &Plane<N>,
-) -> N
-{
+) -> N {
     distance_plane_support_map(mplane, plane, mother, other)
 }

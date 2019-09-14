@@ -1,13 +1,12 @@
 use alga::general::RealField;
 
+use crate::pipeline::object::{CollisionObject, CollisionObjectRef, CollisionObjectSlabHandle};
 use slab::{Iter, IterMut, Slab};
-use std::ops::{Index, IndexMut};
 use std::hash::Hash;
-use crate::pipeline::object::{CollisionObject, CollisionObjectSlabHandle, CollisionObjectRef};
+use std::ops::{Index, IndexMut};
 
 /// Trait implemented by a handle indentifying a collision object.
-pub trait CollisionObjectHandle: Copy + Hash + PartialEq + Eq + 'static + Send + Sync {
-}
+pub trait CollisionObjectHandle: Copy + Hash + PartialEq + Eq + 'static + Send + Sync {}
 
 impl<T: Copy + Hash + PartialEq + Eq + 'static + Send + Sync> CollisionObjectHandle for T {}
 
@@ -22,7 +21,10 @@ pub trait CollisionObjectSet<N: RealField> {
     type CollisionObjectHandle: CollisionObjectHandle;
 
     /// Gets the collision object identified by the given `handle`.
-    fn collision_object(&self, handle: Self::CollisionObjectHandle) -> Option<&Self::CollisionObject>;
+    fn collision_object(
+        &self,
+        handle: Self::CollisionObjectHandle,
+    ) -> Option<&Self::CollisionObject>;
     /// Applies a closure to every collision object (and their handle) stored into this set.
     fn foreach(&self, f: impl FnMut(Self::CollisionObjectHandle, &Self::CollisionObject));
 }
@@ -31,7 +33,10 @@ impl<N: RealField, T> CollisionObjectSet<N> for CollisionObjectSlab<N, T> {
     type CollisionObject = CollisionObject<N, T>;
     type CollisionObjectHandle = CollisionObjectSlabHandle;
 
-    fn collision_object(&self, handle: Self::CollisionObjectHandle) -> Option<&Self::CollisionObject> {
+    fn collision_object(
+        &self,
+        handle: Self::CollisionObjectHandle,
+    ) -> Option<&Self::CollisionObject> {
         self.get(handle)
     }
 
@@ -77,7 +82,10 @@ impl<N: RealField, T> CollisionObjectSlab<N, T> {
 
     /// If it exists, retrieves a mutable reference to the collision object identified by the given handle.
     #[inline]
-    pub fn get_mut(&mut self, handle: CollisionObjectSlabHandle) -> Option<&mut CollisionObject<N, T>> {
+    pub fn get_mut(
+        &mut self,
+        handle: CollisionObjectSlabHandle,
+    ) -> Option<&mut CollisionObject<N, T>> {
         self.objects.get_mut(handle.0)
     }
 
@@ -85,13 +93,20 @@ impl<N: RealField, T> CollisionObjectSlab<N, T> {
     ///
     /// Panics if both handles are equal.
     #[inline]
-    pub fn get_pair_mut(&mut self,
-                        handle1: CollisionObjectSlabHandle,
-                        handle2: CollisionObjectSlabHandle)
-                        -> (Option<&mut CollisionObject<N, T>>, Option<&mut CollisionObject<N, T>>) {
+    pub fn get_pair_mut(
+        &mut self,
+        handle1: CollisionObjectSlabHandle,
+        handle2: CollisionObjectSlabHandle,
+    ) -> (
+        Option<&mut CollisionObject<N, T>>,
+        Option<&mut CollisionObject<N, T>>,
+    ) {
         assert_ne!(handle1, handle2, "The two handles must not be the same.");
         let a = self.objects.get_mut(handle1.0).map(|o| o as *mut _);
-        (a.map(|a| unsafe { std::mem::transmute(a) }), self.objects.get_mut(handle2.0))
+        (
+            a.map(|a| unsafe { std::mem::transmute(a) }),
+            self.objects.get_mut(handle2.0),
+        )
     }
 
     /// Returns `true` if the specified handle identifies a collision object stored in this collection.
@@ -149,7 +164,9 @@ impl<'a, N: 'a + RealField, T: 'a> Iterator for CollisionObjects<'a, N, T> {
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
-        self.iter.next().map(|obj| ((CollisionObjectSlabHandle(obj.0), obj.1)))
+        self.iter
+            .next()
+            .map(|obj| ((CollisionObjectSlabHandle(obj.0), obj.1)))
     }
 }
 
@@ -163,6 +180,8 @@ impl<'a, N: 'a + RealField, T: 'a> Iterator for CollisionObjectsMut<'a, N, T> {
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
-        self.iter_mut.next().map(|obj| ((CollisionObjectSlabHandle(obj.0), obj.1)))
+        self.iter_mut
+            .next()
+            .map(|obj| ((CollisionObjectSlabHandle(obj.0), obj.1)))
     }
 }

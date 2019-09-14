@@ -1,11 +1,10 @@
 use na::{RealField, Unit};
 
 use crate::math::{Isometry, Vector};
-use crate::query::{self, TOI, TOIStatus};
-use crate::query::algorithms::{VoronoiSimplex, special_support_maps::DilatedShape};
 use crate::query::algorithms::gjk::{self, GJKResult};
+use crate::query::algorithms::{special_support_maps::DilatedShape, VoronoiSimplex};
+use crate::query::{self, TOIStatus, TOI};
 use crate::shape::SupportMap;
-
 
 /// Time of impacts between two support-mapped shapes under translational movement.
 pub fn time_of_impact_support_map_support_map<N, G1: ?Sized, G2: ?Sized>(
@@ -26,8 +25,8 @@ where
     let dvel = vel2 - vel1;
 
     if target_distance.is_zero() {
-        gjk::directional_distance(m1, g1, m2, g2, &dvel, &mut VoronoiSimplex::new())
-            .and_then(|(toi, normal, witness1, witness2)|
+        gjk::directional_distance(m1, g1, m2, g2, &dvel, &mut VoronoiSimplex::new()).and_then(
+            |(toi, normal, witness1, witness2)| {
                 if toi > max_toi {
                     None
                 } else {
@@ -37,18 +36,23 @@ where
                         normal2: Unit::new_unchecked(m2.inverse_transform_vector(&-normal)),
                         witness1: m1.inverse_transform_point(&witness1),
                         witness2: m2.inverse_transform_point(&witness2),
-                        status: if toi.is_zero() { TOIStatus::Penetrating } else { TOIStatus::Converged }, // XXX
+                        status: if toi.is_zero() {
+                            TOIStatus::Penetrating
+                        } else {
+                            TOIStatus::Converged
+                        }, // XXX
                     })
                 }
-            )
+            },
+        )
     } else {
         let dilated1 = DilatedShape {
             shape: g1,
-            radius: target_distance
+            radius: target_distance,
         };
 
         gjk::directional_distance(m1, &dilated1, m2, g2, &dvel, &mut VoronoiSimplex::new())
-            .and_then(|(toi, normal, witness1, witness2)|
+            .and_then(|(toi, normal, witness1, witness2)| {
                 if toi > max_toi {
                     None
                 } else {
@@ -75,19 +79,22 @@ where
                             GJKResult::ClosestPoints(pt1, pt2, _) => {
                                 // Ok, we managed to compute the witness points.
                                 let normal = Unit::new_normalize(pt2 - pt1);
-                                let normal1 = Unit::new_unchecked(m1.inverse_transform_vector(&normal));
+                                let normal1 =
+                                    Unit::new_unchecked(m1.inverse_transform_vector(&normal));
                                 return Some(TOI {
                                     toi,
                                     normal1,
-                                    normal2: Unit::new_unchecked(m2.inverse_transform_vector(&-normal)),
+                                    normal2: Unit::new_unchecked(
+                                        m2.inverse_transform_vector(&-normal),
+                                    ),
                                     witness1: m1.inverse_transform_point(&witness1),
                                     witness2: m2.inverse_transform_point(&witness2),
                                     status: TOIStatus::Converged,
-                                })
-                            },
+                                });
+                            }
                             GJKResult::NoIntersection(_) => {
                                 // This should never happen.
-                            },
+                            }
                             GJKResult::Intersection => status = TOIStatus::Penetrating,
                             GJKResult::Proximity(_) => unreachable!(),
                         }
@@ -98,11 +105,12 @@ where
                         toi,
                         normal1,
                         normal2: Unit::new_unchecked(m2.inverse_transform_vector(&-normal)),
-                        witness1: m1.inverse_transform_point(&witness1) - *normal1 * target_distance,
+                        witness1: m1.inverse_transform_point(&witness1)
+                            - *normal1 * target_distance,
                         witness2: m2.inverse_transform_point(&witness2),
                         status,
                     })
                 }
-            )
+            })
     }
 }

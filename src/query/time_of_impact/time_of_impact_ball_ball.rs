@@ -1,7 +1,7 @@
 use na::{RealField, Unit};
 
 use crate::math::{Point, Vector};
-use crate::query::{self, Ray, TOI, TOIStatus};
+use crate::query::{self, Ray, TOIStatus, TOI};
 use crate::shape::Ball;
 
 /// Time Of Impact of two balls under translational movement.
@@ -15,8 +15,7 @@ pub fn time_of_impact_ball_ball<N: RealField>(
     b2: &Ball<N>,
     max_toi: N,
     target_distance: N,
-) -> Option<TOI<N>>
-{
+) -> Option<TOI<N>> {
     let vel = *vel1 - *vel2;
     let rsum = b1.radius() + b2.radius();
     let radius = rsum + target_distance;

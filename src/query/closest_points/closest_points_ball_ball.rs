@@ -1,7 +1,7 @@
 use crate::math::Point;
-use na::{self, RealField};
 use crate::query::ClosestPoints;
 use crate::shape::Ball;
+use na::{self, RealField};
 
 /// Proximity between balls.
 #[inline]
@@ -11,8 +11,7 @@ pub fn closest_points_ball_ball<N: RealField>(
     center2: &Point<N>,
     b2: &Ball<N>,
     margin: N,
-) -> ClosestPoints<N>
-{
+) -> ClosestPoints<N> {
     assert!(
         margin >= na::zero(),
         "The proximity margin must be positive or null."

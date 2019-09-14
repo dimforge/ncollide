@@ -2,9 +2,9 @@ use std::f32;
 
 use na::{Isometry3, Point3, Translation3, UnitQuaternion, Vector3};
 use ncollide3d::{
+    pipeline::{CollisionGroups, CollisionWorld, GeometricQueryType},
     query::{Ray, RayCast},
     shape::{Ball, ShapeHandle},
-    pipeline::{CollisionGroups, CollisionWorld, GeometricQueryType},
 };
 
 #[test]

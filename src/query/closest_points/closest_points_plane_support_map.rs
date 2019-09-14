@@ -12,8 +12,7 @@ pub fn closest_points_plane_support_map<N: RealField, G: ?Sized + SupportMap<N>>
     mother: &Isometry<N>,
     other: &G,
     margin: N,
-) -> ClosestPoints<N>
-{
+) -> ClosestPoints<N> {
     assert!(
         margin >= na::zero(),
         "The proximity margin must be positive or null."
@@ -44,8 +43,7 @@ pub fn closest_points_support_map_plane<N: RealField, G: ?Sized + SupportMap<N>>
     mplane: &Isometry<N>,
     plane: &Plane<N>,
     margin: N,
-) -> ClosestPoints<N>
-{
+) -> ClosestPoints<N> {
     let mut res = closest_points_plane_support_map(mplane, plane, mother, other, margin);
     res.flip();
     res

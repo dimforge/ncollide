@@ -45,7 +45,8 @@ fn do_toi_test() -> Option<f64> {
         &shape_two,
         std::f64::MAX,
         0.0,
-    ).map(|toi| toi.toi)
+    )
+    .map(|toi| toi.toi)
 }
 
 #[test]

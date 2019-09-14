@@ -1,8 +1,8 @@
 use crate::math::{Point, Vector};
-use na::{self, RealField, Unit};
 use crate::query::ContactKinematic;
-use std::mem;
+use na::{self, RealField, Unit};
 use slotmap::Key;
+use std::mem;
 
 slotmap::new_key_type! {
     /// A contact identifier which is unique within a contact manifold.
@@ -113,7 +113,6 @@ impl<N: RealField> ContactPrediction<N> {
     pub fn linear(&self) -> N {
         self.linear
     }
-
 
     /// Sets linear prediction.
     #[inline]

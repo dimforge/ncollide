@@ -1,8 +1,11 @@
 use crate::math::{Isometry, Point};
-use na::RealField;
 use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
-use crate::query::{self, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry, ContactPreprocessor};
+use crate::query::{
+    self, ContactKinematic, ContactManifold, ContactPrediction, ContactPreprocessor,
+    NeighborhoodGeometry,
+};
 use crate::shape::{Ball, FeatureId, Shape};
+use na::RealField;
 use std::marker::PhantomData;
 
 /// Collision detector between two balls.
@@ -33,18 +36,13 @@ impl<N: RealField> ContactManifoldGenerator<N> for BallBallManifoldGenerator<N> 
         proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         manifold: &mut ContactManifold<N>,
-    ) -> bool
-    {
+    ) -> bool {
         if let (Some(a), Some(b)) = (a.as_shape::<Ball<N>>(), b.as_shape::<Ball<N>>()) {
             let center_a = Point::from(ma.translation.vector);
             let center_b = Point::from(mb.translation.vector);
-            if let Some(contact) = query::contact_ball_ball(
-                &center_a,
-                a,
-                &center_b,
-                b,
-                prediction.linear(),
-            ) {
+            if let Some(contact) =
+                query::contact_ball_ball(&center_a, a, &center_b, b, prediction.linear())
+            {
                 let mut kinematic = ContactKinematic::new();
                 kinematic.set_approx1(
                     FeatureId::Face(0),

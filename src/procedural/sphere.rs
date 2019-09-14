@@ -29,7 +29,9 @@ where
 /// Generates a UV sphere centered at the origin and with a unit diameter.
 #[cfg(feature = "dim3")]
 pub fn unit_sphere<N>(ntheta_subdiv: u32, nphi_subdiv: u32, generate_uvs: bool) -> TriMesh<N>
-where N: RealField {
+where
+    N: RealField,
+{
     if generate_uvs {
         unit_sphere_with_uvs(ntheta_subdiv, nphi_subdiv)
     } else {
@@ -40,7 +42,9 @@ where N: RealField {
 // FIXME: n{theta,phi}_subdiv are not the right names.
 #[cfg(feature = "dim3")]
 fn unit_sphere_without_uvs<N>(ntheta_subdiv: u32, nphi_subdiv: u32) -> TriMesh<N>
-where N: RealField {
+where
+    N: RealField,
+{
     let pi = N::pi();
     let two_pi = N::two_pi();
     let pi_two = N::frac_pi_2();

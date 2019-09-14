@@ -1,10 +1,10 @@
 //! Traits and structure needed to cast rays.
 
 use crate::math::{Isometry, Point, Vector};
+use crate::shape::FeatureId;
 #[cfg(feature = "dim3")]
 use na::Point2;
 use na::RealField;
-use crate::shape::FeatureId;
 
 /// A Ray.
 #[derive(Debug, Clone, Copy)]
@@ -83,7 +83,12 @@ impl<N: RealField> RayIntersection<N> {
     #[inline]
     /// Creates a new `RayIntersection`.
     #[cfg(feature = "dim3")]
-    pub fn new_with_uvs(toi: N, normal: Vector<N>, feature: FeatureId, uvs: Option<Point2<N>>) -> RayIntersection<N> {
+    pub fn new_with_uvs(
+        toi: N,
+        normal: Vector<N>,
+        feature: FeatureId,
+        uvs: Option<Point2<N>>,
+    ) -> RayIntersection<N> {
         RayIntersection {
             toi,
             normal,
@@ -111,7 +116,7 @@ impl<N: RealField> RayIntersection<N> {
         RayIntersection {
             toi,
             normal,
-            feature
+            feature,
         }
     }
 }
@@ -142,8 +147,7 @@ pub trait RayCast<N: RealField> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>>
-    {
+    ) -> Option<RayIntersection<N>> {
         self.toi_and_normal_with_ray(m, ray, solid)
     }
 

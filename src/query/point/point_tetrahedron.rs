@@ -1,7 +1,7 @@
 use crate::math::{Isometry, Point, Vector};
-use na::{self, RealField};
 use crate::query::{PointProjection, PointQuery, PointQueryWithLocation};
 use crate::shape::{FeatureId, Tetrahedron, TetrahedronPointLocation};
+use na::{self, RealField};
 
 impl<N: RealField> PointQuery<N> for Tetrahedron<N> {
     #[inline]
@@ -15,8 +15,7 @@ impl<N: RealField> PointQuery<N> for Tetrahedron<N> {
         &self,
         m: &Isometry<N>,
         pt: &Point<N>,
-    ) -> (PointProjection<N>, FeatureId)
-    {
+    ) -> (PointProjection<N>, FeatureId) {
         let (proj, loc) = self.project_point_with_location(m, pt, false);
         let feature = match loc {
             TetrahedronPointLocation::OnVertex(i) => FeatureId::Vertex(i),
@@ -38,8 +37,7 @@ impl<N: RealField> PointQueryWithLocation<N> for Tetrahedron<N> {
         m: &Isometry<N>,
         pt: &Point<N>,
         solid: bool,
-    ) -> (PointProjection<N>, Self::Location)
-    {
+    ) -> (PointProjection<N>, Self::Location) {
         let p = m.inverse_transform_point(pt);
 
         let ab = *self.b() - *self.a();
@@ -120,8 +118,7 @@ impl<N: RealField> PointQueryWithLocation<N> for Tetrahedron<N> {
             N,
             N,
             Option<(PointProjection<N>, TetrahedronPointLocation<N>)>,
-        )
-        {
+        ) {
             let _0: N = na::zero();
             let _1: N = na::one();
 
@@ -316,8 +313,7 @@ impl<N: RealField> PointQueryWithLocation<N> for Tetrahedron<N> {
             dacb: N,
             /* ap_ab: N, bp_ab: N, cp_ab: N,
             ap_ac: N, bp_ac: N, cp_ac: N, */
-        ) -> Option<(PointProjection<N>, TetrahedronPointLocation<N>)>
-        {
+        ) -> Option<(PointProjection<N>, TetrahedronPointLocation<N>)> {
             let _0: N = na::zero();
             let _1: N = na::one();
 

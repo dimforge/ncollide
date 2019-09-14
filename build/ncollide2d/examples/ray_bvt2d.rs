@@ -1,10 +1,10 @@
 extern crate nalgebra as na;
 extern crate ncollide2d;
 
-use na::{Isometry2, Vector2, Point2};
+use na::{Isometry2, Point2, Vector2};
 use ncollide2d::bounding_volume::{self, BoundingSphere, HasBoundingVolume};
-use ncollide2d::partitioning::{BVT, BVH};
-use ncollide2d::query::{Ray, RayCast, visitors::RayInterferencesCollector};
+use ncollide2d::partitioning::{BVH, BVT};
+use ncollide2d::query::{visitors::RayInterferencesCollector, Ray, RayCast};
 use ncollide2d::shape::{Ball, Cuboid};
 
 /*

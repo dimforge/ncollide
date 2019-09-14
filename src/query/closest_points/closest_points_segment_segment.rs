@@ -1,10 +1,10 @@
 use approx::AbsDiffEq;
 
-use alga::linear::EuclideanSpace;
 use crate::math::Isometry;
-use na::{self, RealField};
 use crate::query::ClosestPoints;
 use crate::shape::{Segment, SegmentPointLocation};
+use alga::linear::EuclideanSpace;
+use na::{self, RealField};
 
 /// Closest points between segments.
 #[inline]
@@ -14,8 +14,7 @@ pub fn closest_points_segment_segment<N: RealField>(
     m2: &Isometry<N>,
     seg2: &Segment<N>,
     margin: N,
-) -> ClosestPoints<N>
-{
+) -> ClosestPoints<N> {
     let (loc1, loc2) = closest_points_segment_segment_with_locations(m1, seg1, m2, seg2);
     let p1 = seg1.point_at(&loc1);
     let p2 = seg2.point_at(&loc2);
@@ -35,8 +34,7 @@ pub fn closest_points_segment_segment_with_locations<N: RealField>(
     seg1: &Segment<N>,
     m2: &Isometry<N>,
     seg2: &Segment<N>,
-) -> (SegmentPointLocation<N>, SegmentPointLocation<N>)
-{
+) -> (SegmentPointLocation<N>, SegmentPointLocation<N>) {
     let seg1 = seg1.transformed(m1);
     let seg2 = seg2.transformed(m2);
 
@@ -49,12 +47,15 @@ pub fn closest_points_segment_segment_with_locations<N: RealField>(
 pub fn closest_points_segment_segment_with_locations_nD<P>(
     seg1: (&P, &P),
     seg2: (&P, &P),
-) -> (SegmentPointLocation<P::RealField>, SegmentPointLocation<P::RealField>)
+) -> (
+    SegmentPointLocation<P::RealField>,
+    SegmentPointLocation<P::RealField>,
+)
 where
     P: EuclideanSpace + Copy,
 {
-    use alga::linear::NormedSpace;
     use alga::linear::FiniteDimVectorSpace;
+    use alga::linear::NormedSpace;
 
     // Inspired by RealField-time collision detection by Christer Ericson.
     let d1 = *seg1.1 - *seg1.0;

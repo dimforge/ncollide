@@ -1,17 +1,19 @@
 use crate::bounding_volume::BoundingVolume;
 use crate::math::Point;
-use na::RealField;
 use crate::partitioning::{DBVTLeaf, DBVTLeafId, BVH, DBVT};
-use crate::pipeline::broad_phase::{BroadPhase, BroadPhaseProxyHandle, BroadPhaseInterferenceHandler};
+use crate::pipeline::broad_phase::{
+    BroadPhase, BroadPhaseInterferenceHandler, BroadPhaseProxyHandle,
+};
 use crate::query::visitors::{
     BoundingVolumeInterferencesCollector, PointInterferencesCollector, RayInterferencesCollector,
 };
 use crate::query::{PointQuery, Ray, RayCast};
+use crate::utils::{DeterministicState, SortedPair};
+use na::RealField;
 use slab::Slab;
 use std::any::Any;
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, VecDeque};
-use crate::utils::{DeterministicState, SortedPair};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 enum ProxyStatus {
@@ -70,9 +72,9 @@ pub struct DBVTBroadPhase<N: RealField, BV, T> {
 }
 
 impl<N, BV, T> DBVTBroadPhase<N, BV, T>
-    where
-        N: RealField,
-        BV: 'static + BoundingVolume<N> + Clone,
+where
+    N: RealField,
+    BV: 'static + BoundingVolume<N> + Clone,
 {
     /// Creates a new broad phase based on a Dynamic Bounding Volume Tree.
     pub fn new(margin: N) -> DBVTBroadPhase<N, BV, T> {
@@ -163,10 +165,10 @@ impl<N, BV, T> DBVTBroadPhase<N, BV, T>
 }
 
 impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
-    where
-        N: RealField,
-        BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
-        T: Any + Send + Sync,
+where
+    N: RealField,
+    BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
+    T: Any + Send + Sync,
 {
     fn update(&mut self, handler: &mut dyn BroadPhaseInterferenceHandler<T>) {
         /*
@@ -261,13 +263,12 @@ impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
         match proxy.status {
             ProxyStatus::OnDynamicTree(id, _) => {
                 Some((&self.tree.get(id)?.bounding_volume, &proxy.data))
-            },
+            }
             ProxyStatus::OnStaticTree(id) => {
                 Some((&self.stree.get(id)?.bounding_volume, &proxy.data))
-            },
-            _ => None
+            }
+            _ => None,
         }
-
     }
 
     fn create_proxy(&mut self, bv: BV, data: T) -> BroadPhaseProxyHandle {
@@ -375,7 +376,8 @@ impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
                 }
             }
 
-            self.proxies_to_update.push_front((BroadPhaseProxyHandle(handle), bv));
+            self.proxies_to_update
+                .push_front((BroadPhaseProxyHandle(handle), bv));
         }
 
         self.purge_all = true;

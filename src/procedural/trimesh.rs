@@ -1,9 +1,9 @@
 use super::utils;
-use alga::linear::Translation;
 use crate::math::{Isometry, Point, Vector};
+use crate::utils::DeterministicState;
+use alga::linear::Translation;
 use na::{self, Point2, Point3, RealField};
 use std::collections::HashMap;
-use crate::utils::DeterministicState;
 
 /// Different representations of the index buffer.
 #[derive(Clone, Debug)]
@@ -59,8 +59,7 @@ impl<N: RealField> TriMesh<N> {
         normals: Option<Vec<Vector<N>>>,
         uvs: Option<Vec<Point2<N>>>,
         indices: Option<IndexBuffer>,
-    ) -> TriMesh<N>
-    {
+    ) -> TriMesh<N> {
         // generate trivial indices
         let idx = indices.unwrap_or_else(|| {
             IndexBuffer::Unified(

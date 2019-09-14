@@ -1,9 +1,9 @@
 use crate::bounding_volume::AABB;
 use crate::math::{Isometry, Point, Vector};
-use na::{self, RealField};
 use crate::partitioning::{BestFirstVisitStatus, BestFirstVisitor};
 use crate::query::{self, PointQuery};
 use crate::shape::{CompositeShape, Shape};
+use na::{self, RealField};
 
 /// Smallest distance between a composite shape and any other shape.
 pub fn distance_composite_shape_shape<N, G1: ?Sized>(
@@ -66,28 +66,34 @@ where
 {
     type Result = N;
 
-    fn visit(&mut self, best: N, bv: &AABB<N>, data: Option<&usize>) -> BestFirstVisitStatus<N, Self::Result> {
+    fn visit(
+        &mut self,
+        best: N,
+        bv: &AABB<N>,
+        data: Option<&usize>,
+    ) -> BestFirstVisitStatus<N, Self::Result> {
         // Compute the minkowski sum of the two AABBs.
         let msum = AABB::new(
             *bv.mins() + self.msum_shift + (-self.msum_margin),
             *bv.maxs() + self.msum_shift + self.msum_margin,
         );
 
-        let dist = msum.distance_to_point(
-            &Isometry::identity(),
-            &Point::origin(),
-            true,
-        );
+        let dist = msum.distance_to_point(&Isometry::identity(), &Point::origin(), true);
 
-        let mut res = BestFirstVisitStatus::Continue { cost: dist, result: None };
+        let mut res = BestFirstVisitStatus::Continue {
+            cost: dist,
+            result: None,
+        };
 
         if let Some(b) = data {
             if dist < best {
-                self.g1
-                    .map_part_at(*b, self.m1, &mut |m1, g1| {
-                        let distance = query::distance(m1, g1, self.m2, self.g2);
-                        res = BestFirstVisitStatus::Continue { cost: distance, result: Some(distance) }
-                    });
+                self.g1.map_part_at(*b, self.m1, &mut |m1, g1| {
+                    let distance = query::distance(m1, g1, self.m2, self.g2);
+                    res = BestFirstVisitStatus::Continue {
+                        cost: distance,
+                        result: Some(distance),
+                    }
+                });
             }
         }
 

@@ -12,8 +12,7 @@ pub fn tetrahedron_volume<N: RealField>(
     p2: &Point<N>,
     p3: &Point<N>,
     p4: &Point<N>,
-) -> N
-{
+) -> N {
     num::abs(tetrahedron_signed_volume(p1, p2, p3, p4))
 }
 
@@ -27,8 +26,7 @@ pub fn tetrahedron_signed_volume<N: RealField>(
     p2: &Point<N>,
     p3: &Point<N>,
     p4: &Point<N>,
-) -> N
-{
+) -> N {
     let p1p2 = *p2 - *p1;
     let p1p3 = *p3 - *p1;
     let p1p4 = *p4 - *p1;
@@ -47,7 +45,6 @@ pub fn tetrahedron_center<N: RealField>(
     p2: &Point<N>,
     p3: &Point<N>,
     p4: &Point<N>,
-) -> Point<N>
-{
+) -> Point<N> {
     utils::center(&[*p1, *p2, *p3, *p4])
 }

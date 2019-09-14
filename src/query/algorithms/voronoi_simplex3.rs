@@ -1,11 +1,11 @@
 use crate::math::{Isometry, Point};
-use na::{self, RealField};
 use crate::query::algorithms::{gjk, CSOPoint};
 use crate::query::{PointQuery, PointQueryWithLocation};
 use crate::shape::{
     Segment, SegmentPointLocation, Tetrahedron, TetrahedronPointLocation, Triangle,
     TrianglePointLocation,
 };
+use na::{self, RealField};
 
 /// A simplex of dimension up to 3 that uses Voronoï regions for computing point projections.
 #[derive(Clone, Debug)]

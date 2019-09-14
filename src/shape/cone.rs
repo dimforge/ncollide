@@ -1,8 +1,8 @@
 //! Support mapping based Cone shape.
 
 use crate::math::{Isometry, Point, Vector};
-use na::{self, RealField};
 use crate::shape::SupportMap;
+use na::{self, RealField};
 
 /// SupportMap description of a cylinder shape with its principal axis aligned with the `y` axis.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]

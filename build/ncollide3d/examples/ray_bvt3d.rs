@@ -1,10 +1,10 @@
 extern crate nalgebra as na;
 extern crate ncollide3d;
 
-use na::{Isometry3, Vector3, Point3};
+use na::{Isometry3, Point3, Vector3};
 use ncollide3d::bounding_volume::{self, BoundingSphere, HasBoundingVolume};
-use ncollide3d::partitioning::{BVT, BVH};
-use ncollide3d::query::{Ray, RayCast, visitors::RayInterferencesCollector};
+use ncollide3d::partitioning::{BVH, BVT};
+use ncollide3d::query::{visitors::RayInterferencesCollector, Ray, RayCast};
 use ncollide3d::shape::{Ball, Capsule, Cone, Cuboid};
 
 /*

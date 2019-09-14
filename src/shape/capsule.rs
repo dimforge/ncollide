@@ -3,9 +3,8 @@
 use na::{self, RealField, Unit};
 
 use crate::math::{Isometry, Point, Vector};
-use crate::shape::{SupportMap, FeatureId, Segment};
-use crate::query::{ContactPreprocessor, Contact, ContactKinematic};
-
+use crate::query::{Contact, ContactKinematic, ContactPreprocessor};
+use crate::shape::{FeatureId, Segment, SupportMap};
 
 /// SupportMap description of a capsule shape with its principal axis aligned with the `y` axis.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
@@ -63,7 +62,7 @@ impl<N: RealField> Capsule<N> {
     #[inline]
     pub fn contact_preprocessor(&self) -> impl ContactPreprocessor<N> {
         CapsuleContactPreprocessor {
-            radius: self.radius
+            radius: self.radius,
         }
     }
 }
@@ -90,17 +89,16 @@ impl<N: RealField> SupportMap<N> for Capsule<N> {
     }
 }
 
-
 struct CapsuleContactPreprocessor<N: RealField> {
-    radius: N
+    radius: N,
 }
 
 impl<N: RealField> CapsuleContactPreprocessor<N> {
-//    pub fn new(radius: N) -> Self {
-//        CapsuleContactPreprocessor {
-//            radius
-//        }
-//    }
+    //    pub fn new(radius: N) -> Self {
+    //        CapsuleContactPreprocessor {
+    //            radius
+    //        }
+    //    }
 }
 
 impl<N: RealField> ContactPreprocessor<N> for CapsuleContactPreprocessor<N> {
@@ -108,9 +106,8 @@ impl<N: RealField> ContactPreprocessor<N> for CapsuleContactPreprocessor<N> {
         &self,
         c: &mut Contact<N>,
         kinematic: &mut ContactKinematic<N>,
-        is_first: bool)
-        -> bool {
-
+        is_first: bool,
+    ) -> bool {
         // Fix the feature ID.
         let feature = if is_first {
             kinematic.feature1()

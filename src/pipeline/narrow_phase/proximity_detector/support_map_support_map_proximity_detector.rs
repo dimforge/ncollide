@@ -1,9 +1,9 @@
 use crate::math::{Isometry, Vector};
-use na::{RealField, Unit};
 use crate::pipeline::narrow_phase::{ProximityDetector, ProximityDispatcher};
 use crate::query::algorithms::VoronoiSimplex;
 use crate::query::{self, Proximity};
 use crate::shape::Shape;
+use na::{RealField, Unit};
 
 /// Persistent proximity detector between two shapes having a support mapping function.
 ///
@@ -37,8 +37,7 @@ impl<N: RealField> ProximityDetector<N> for SupportMapSupportMapProximityDetecto
         mb: &Isometry<N>,
         b: &dyn Shape<N>,
         margin: N,
-    ) -> Option<Proximity>
-    {
+    ) -> Option<Proximity> {
         let sma = a.as_support_map()?;
         let smb = b.as_support_map()?;
 

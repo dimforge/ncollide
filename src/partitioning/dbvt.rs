@@ -1,7 +1,7 @@
 use crate::bounding_volume::BoundingVolume;
 use crate::math::Point;
-use na::{self, RealField};
 use crate::partitioning::BVH;
+use na::{self, RealField};
 use slab::Slab;
 use std::ops::Index;
 
@@ -111,8 +111,7 @@ impl<N: RealField, BV: BoundingVolume<N>> DBVTInternal<N, BV> {
         parent: DBVTInternalId,
         left: DBVTNodeId,
         right: DBVTNodeId,
-    ) -> DBVTInternal<N, BV>
-    {
+    ) -> DBVTInternal<N, BV> {
         DBVTInternal {
             center: bounding_volume.center(),
             bounding_volume: bounding_volume,

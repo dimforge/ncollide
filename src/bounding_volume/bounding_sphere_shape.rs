@@ -1,7 +1,7 @@
 use crate::bounding_volume::{BoundingSphere, HasBoundingVolume};
 use crate::math::Isometry;
-use na::RealField;
 use crate::shape::Shape;
+use na::RealField;
 
 impl<N: RealField> HasBoundingVolume<N, BoundingSphere<N>> for dyn Shape<N> {
     #[inline]

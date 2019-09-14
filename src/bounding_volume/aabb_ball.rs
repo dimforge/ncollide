@@ -1,8 +1,8 @@
-use alga::linear::Translation;
 use crate::bounding_volume::{HasBoundingVolume, AABB};
 use crate::math::{Isometry, Point, Vector};
-use na::RealField;
 use crate::shape::Ball;
+use alga::linear::Translation;
+use na::RealField;
 
 /// Computes the Axis-Aligned Bounding Box of a ball transformed by `center`.
 #[inline]
@@ -24,10 +24,7 @@ pub fn local_ball_aabb<N: RealField>(radius: N) -> AABB<N> {
 impl<N: RealField> HasBoundingVolume<N, AABB<N>> for Ball<N> {
     #[inline]
     fn bounding_volume(&self, m: &Isometry<N>) -> AABB<N> {
-        ball_aabb(
-            &Point::from(m.translation.to_vector()),
-            self.radius(),
-        )
+        ball_aabb(&Point::from(m.translation.to_vector()), self.radius())
     }
 
     #[inline]

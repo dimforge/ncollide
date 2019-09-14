@@ -1,7 +1,7 @@
 use crate::bounding_volume::{BoundingSphere, HasBoundingVolume};
 use crate::math::{Isometry, Point};
-use na::RealField;
 use crate::shape::Capsule;
+use na::RealField;
 
 impl<N: RealField> HasBoundingVolume<N, BoundingSphere<N>> for Capsule<N> {
     #[inline]

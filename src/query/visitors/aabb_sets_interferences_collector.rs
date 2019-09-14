@@ -1,7 +1,7 @@
 use crate::bounding_volume::{BoundingVolume, AABB};
 use crate::math::{Isometry, Matrix, Vector};
-use na::RealField;
 use crate::partitioning::{SimultaneousVisitor, VisitStatus};
+use na::RealField;
 
 /// Spatial partitioning data structure visitor collecting interferences with a given bounding volume.
 pub struct AABBSetsInterferencesCollector<'a, N: 'a + RealField, T: 'a> {
@@ -27,8 +27,7 @@ impl<'a, N: RealField, T> AABBSetsInterferencesCollector<'a, N, T> {
         ls_m2: &'a Isometry<N>,
         ls_m2_abs_rot: &'a Matrix<N>,
         collector: &'a mut Vec<(T, T)>,
-    ) -> AABBSetsInterferencesCollector<'a, N, T>
-    {
+    ) -> AABBSetsInterferencesCollector<'a, N, T> {
         AABBSetsInterferencesCollector {
             tolerence,
             ls_m2,
@@ -48,8 +47,7 @@ impl<'a, N: RealField, T: Clone> SimultaneousVisitor<T, AABB<N>>
         left_data: Option<&T>,
         right_bv: &AABB<N>,
         right_data: Option<&T>,
-    ) -> VisitStatus
-    {
+    ) -> VisitStatus {
         let ls_right_bv = AABB::from_half_extents(
             self.ls_m2 * right_bv.center(),
             self.ls_m2_abs_rot * right_bv.half_extents() + Vector::repeat(self.tolerence),

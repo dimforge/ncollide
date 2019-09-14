@@ -1,6 +1,6 @@
+use crate::procedural::path::PolylineCompatibleCap;
 use alga::general::RealField;
 use na::{Point3, Vector3};
-use crate::procedural::path::PolylineCompatibleCap;
 
 /// A cap that renders nothing.
 pub struct NoCap;
@@ -23,8 +23,7 @@ impl<N: RealField> PolylineCompatibleCap<N> for NoCap {
         _: bool,
         _: &mut Vec<Point3<N>>,
         _: &mut Vec<Point3<u32>>,
-    )
-    {
+    ) {
     }
 
     fn gen_end_cap(
@@ -36,7 +35,6 @@ impl<N: RealField> PolylineCompatibleCap<N> for NoCap {
         _: bool,
         _: &mut Vec<Point3<N>>,
         _: &mut Vec<Point3<u32>>,
-    )
-    {
+    ) {
     }
 }

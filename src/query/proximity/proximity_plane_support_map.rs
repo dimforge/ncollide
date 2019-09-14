@@ -12,8 +12,7 @@ pub fn proximity_plane_support_map<N: RealField, G: ?Sized + SupportMap<N>>(
     mother: &Isometry<N>,
     other: &G,
     margin: N,
-) -> Proximity
-{
+) -> Proximity {
     assert!(
         margin >= na::zero(),
         "The proximity margin must be positive or null."
@@ -43,7 +42,6 @@ pub fn proximity_support_map_plane<N: RealField, G: ?Sized + SupportMap<N>>(
     mplane: &Isometry<N>,
     plane: &Plane<N>,
     margin: N,
-) -> Proximity
-{
+) -> Proximity {
     proximity_plane_support_map(mplane, plane, mother, other, margin)
 }

@@ -5,7 +5,6 @@ use crate::query;
 use crate::shape::{Ball, Plane, Shape};
 use crate::utils::IsometryOps;
 
-
 /// The status of the time-of-impact computation algorithm.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum TOIStatus {
@@ -41,7 +40,7 @@ pub struct TOI<N: RealField> {
     /// The local-space outward normal on the second shape at the time of impact.
     pub normal2: Unit<Vector<N>>,
     /// The way the time-of-impact computation algorithm terminated.
-    pub status: TOIStatus
+    pub status: TOIStatus,
 }
 
 impl<N: RealField> TOI<N> {
@@ -55,7 +54,7 @@ impl<N: RealField> TOI<N> {
             witness2: self.witness1,
             normal1: self.normal2,
             normal2: self.normal1,
-            status: self.status
+            status: self.status,
         }
     }
 }
@@ -73,14 +72,13 @@ pub fn time_of_impact<N: RealField>(
     g2: &dyn Shape<N>,
     max_toi: N,
     target_distance: N,
-) -> Option<TOI<N>>
-{
+) -> Option<TOI<N>> {
     if let (Some(b1), Some(b2)) = (g1.as_shape::<Ball<N>>(), g2.as_shape::<Ball<N>>()) {
         let p1 = Point::from(m1.translation.vector);
         let p2 = Point::from(m2.translation.vector);
 
-        query::time_of_impact_ball_ball(&p1, vel1, b1, &p2, vel2, b2, max_toi, target_distance)
-            .map(|toi| {
+        query::time_of_impact_ball_ball(&p1, vel1, b1, &p2, vel2, b2, max_toi, target_distance).map(
+            |toi| {
                 // We have to transform back the points and vectors in the sphere's local space since
                 // the time_of_impact_ball_ball did not take rotation into account.
                 TOI {
@@ -91,17 +89,63 @@ pub fn time_of_impact<N: RealField>(
                     normal2: m2.inverse_transform_unit_vector(&toi.normal2),
                     status: toi.status,
                 }
-            })
+            },
+        )
     } else if let (Some(p1), Some(s2)) = (g1.as_shape::<Plane<N>>(), g2.as_support_map()) {
-        query::time_of_impact_plane_support_map(m1, vel1, p1, m2, vel2, s2, max_toi, target_distance)
+        query::time_of_impact_plane_support_map(
+            m1,
+            vel1,
+            p1,
+            m2,
+            vel2,
+            s2,
+            max_toi,
+            target_distance,
+        )
     } else if let (Some(s1), Some(p2)) = (g1.as_support_map(), g2.as_shape::<Plane<N>>()) {
-        query::time_of_impact_support_map_plane(m1, vel1, s1, m2, vel2, p2, max_toi, target_distance)
+        query::time_of_impact_support_map_plane(
+            m1,
+            vel1,
+            s1,
+            m2,
+            vel2,
+            p2,
+            max_toi,
+            target_distance,
+        )
     } else if let (Some(s1), Some(s2)) = (g1.as_support_map(), g2.as_support_map()) {
-        query::time_of_impact_support_map_support_map(m1, vel1, s1, m2, vel2, s2, max_toi, target_distance)
+        query::time_of_impact_support_map_support_map(
+            m1,
+            vel1,
+            s1,
+            m2,
+            vel2,
+            s2,
+            max_toi,
+            target_distance,
+        )
     } else if let Some(c1) = g1.as_composite_shape() {
-        query::time_of_impact_composite_shape_shape(m1, vel1, c1, m2, vel2, g2, max_toi, target_distance)
+        query::time_of_impact_composite_shape_shape(
+            m1,
+            vel1,
+            c1,
+            m2,
+            vel2,
+            g2,
+            max_toi,
+            target_distance,
+        )
     } else if let Some(c2) = g2.as_composite_shape() {
-        query::time_of_impact_shape_composite_shape(m1, vel1, g1, m2, vel2, c2, max_toi, target_distance)
+        query::time_of_impact_shape_composite_shape(
+            m1,
+            vel1,
+            g1,
+            m2,
+            vel2,
+            c2,
+            max_toi,
+            target_distance,
+        )
     } else {
         panic!("No algorithm known to compute a contact point between the given pair of shapes.")
     }

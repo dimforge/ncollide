@@ -1,6 +1,6 @@
 use crate::bounding_volume::BoundingVolume;
-use na::RealField;
 use crate::partitioning::{VisitStatus, Visitor};
+use na::RealField;
 use std::marker::PhantomData;
 
 /// Spatial partitioning data structure visitor collecting interferences with a given bounding volume.
@@ -22,8 +22,7 @@ where
     pub fn new(
         bv: &'a BV,
         buffer: &'a mut Vec<T>,
-    ) -> BoundingVolumeInterferencesCollector<'a, N, T, BV>
-    {
+    ) -> BoundingVolumeInterferencesCollector<'a, N, T, BV> {
         BoundingVolumeInterferencesCollector {
             bv: bv,
             collector: buffer,

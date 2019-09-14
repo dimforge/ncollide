@@ -11,9 +11,9 @@ pub fn closest_points_line_line_parameters<N: RealField>(
     dir1: &Vector<N>,
     orig2: &Point<N>,
     dir2: &Vector<N>,
-) -> (N, N)
-{
-    let res = closest_points_line_line_parameters_eps(orig1, dir1, orig2, dir2, N::default_epsilon());
+) -> (N, N) {
+    let res =
+        closest_points_line_line_parameters_eps(orig1, dir1, orig2, dir2, N::default_epsilon());
     (res.0, res.1)
 }
 
@@ -30,8 +30,7 @@ pub fn closest_points_line_line_parameters_eps<N: RealField>(
     orig2: &Point<N>,
     dir2: &Vector<N>,
     eps: N,
-) -> (N, N, bool)
-{
+) -> (N, N, bool) {
     // Inspired by RealField-time collision detection by Christer Ericson.
     let r = *orig1 - *orig2;
 
@@ -41,7 +40,6 @@ pub fn closest_points_line_line_parameters_eps<N: RealField>(
 
     let _0: N = na::zero();
     let _1: N = na::one();
-
 
     if a <= eps && e <= eps {
         (_0, _0, false)
@@ -79,8 +77,7 @@ pub fn closest_points_line_line<N: RealField>(
     dir1: &Vector<N>,
     orig2: &Point<N>,
     dir2: &Vector<N>,
-) -> (Point<N>, Point<N>)
-{
+) -> (Point<N>, Point<N>) {
     let (s, t) = closest_points_line_line_parameters(orig1, dir1, orig2, dir2);
     (*orig1 + *dir1 * s, *orig2 + *dir2 * t)
 }

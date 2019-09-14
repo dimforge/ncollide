@@ -1,6 +1,6 @@
 use crate::math::{Isometry, Point, Vector};
-use na::{RealField, Unit};
 use crate::shape::{ConvexPolygonalFeature, SupportMap};
+use na::{RealField, Unit};
 
 /// An identifier of a feature of a convex polyhedron.
 ///

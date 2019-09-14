@@ -1,8 +1,8 @@
-use na::RealField;
 use crate::partitioning::{
-    BestFirstVisitStatus, BestFirstVisitor, SimultaneousVisitor,
-    VisitStatus, Visitor, BVT, DBVT, BVTNodeId, DBVTNodeId,
+    BVTNodeId, BestFirstVisitStatus, BestFirstVisitor, DBVTNodeId, SimultaneousVisitor,
+    VisitStatus, Visitor, BVT, DBVT,
 };
+use na::RealField;
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 
@@ -143,7 +143,9 @@ pub trait BVH<T, BV> {
                                 queue.push(WeightedValue::new(child, -cost))
                             }
                         }
-                        BestFirstVisitStatus::ExitEarly(result) => return result.map(|res| (child, res)).or(best_result),
+                        BestFirstVisitStatus::ExitEarly(result) => {
+                            return result.map(|res| (child, res)).or(best_result)
+                        }
                         BestFirstVisitStatus::Stop => {}
                     }
                 }
@@ -168,7 +170,7 @@ pub enum BVHNodeId {
     // The Id of a BVT.
     BVTNodeId(BVTNodeId),
     // The Id of a DBVT.
-    DBVTNodeId(DBVTNodeId)
+    DBVTNodeId(DBVTNodeId),
 }
 
 impl<'a, N: RealField, T, BV> BVHImpl<'a, N, T, BV> {
@@ -203,8 +205,7 @@ impl<'a, N: RealField, T, BV> BVHImpl<'a, N, T, BV> {
         self,
         other: BVHImpl<N, T, BV>,
         visitor: &mut impl SimultaneousVisitor<T, BV>,
-    )
-    {
+    ) {
         // Note: the dispatch on each pair is split into two method to avoid
         // having to write a manually a match over each possible pair.
         match other {
@@ -217,8 +218,7 @@ impl<'a, N: RealField, T, BV> BVHImpl<'a, N, T, BV> {
         self,
         bvh2: &impl BVH<T, BV>,
         visitor: &mut impl SimultaneousVisitor<T, BV>,
-    )
-    {
+    ) {
         match self {
             BVHImpl::BVT(bvh1) => bvh1.visit_bvtt(bvh2, visitor),
             BVHImpl::DBVT(bvh1) => bvh1.visit_bvtt(bvh2, visitor),
@@ -230,10 +230,16 @@ impl<'a, N: RealField, T, BV> BVHImpl<'a, N, T, BV> {
     /// Returns the content of the leaf with the smallest associated cost, and a result of
     /// user-defined type.
     pub fn best_first_search<BFS>(self, visitor: &mut BFS) -> Option<(BVHNodeId, BFS::Result)>
-    where BFS: BestFirstVisitor<N, T, BV> {
+    where
+        BFS: BestFirstVisitor<N, T, BV>,
+    {
         match self {
-            BVHImpl::BVT(bvt) => bvt.best_first_search(visitor).map(|res| (BVHNodeId::BVTNodeId(res.0), res.1)),
-            BVHImpl::DBVT(dbvt) => dbvt.best_first_search(visitor).map(|res| (BVHNodeId::DBVTNodeId(res.0), res.1)),
+            BVHImpl::BVT(bvt) => bvt
+                .best_first_search(visitor)
+                .map(|res| (BVHNodeId::BVTNodeId(res.0), res.1)),
+            BVHImpl::DBVT(dbvt) => dbvt
+                .best_first_search(visitor)
+                .map(|res| (BVHNodeId::DBVTNodeId(res.0), res.1)),
         }
     }
 }

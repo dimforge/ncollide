@@ -1,8 +1,8 @@
 use crate::bounding_volume::BoundingSphere;
 use crate::math::Isometry;
-use na::RealField;
 use crate::query::{Ray, RayCast, RayIntersection};
 use crate::shape::Ball;
+use na::RealField;
 
 impl<N: RealField> RayCast<N> for BoundingSphere<N> {
     #[inline]
@@ -18,8 +18,7 @@ impl<N: RealField> RayCast<N> for BoundingSphere<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>>
-    {
+    ) -> Option<RayIntersection<N>> {
         let centered_ray = ray.translate_by(-(m * self.center()).coords);
 
         Ball::new(self.radius()).toi_and_normal_with_ray(
@@ -36,8 +35,7 @@ impl<N: RealField> RayCast<N> for BoundingSphere<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>>
-    {
+    ) -> Option<RayIntersection<N>> {
         let centered_ray = ray.translate_by(-(m * self.center()).coords);
 
         Ball::new(self.radius()).toi_and_normal_and_uv_with_ray(

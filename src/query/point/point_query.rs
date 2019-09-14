@@ -1,6 +1,6 @@
 use crate::math::{Isometry, Point};
-use na::{self, RealField};
 use crate::shape::FeatureId;
+use na::{self, RealField};
 
 /// Description of the projection of a point on a shape.
 #[derive(Copy, Clone, Debug)]

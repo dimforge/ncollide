@@ -1,9 +1,9 @@
 use super::ToTriMesh;
-use alga::general::RealField;
-use na;
 use crate::procedural;
 use crate::procedural::TriMesh;
 use crate::shape::Cone;
+use alga::general::RealField;
+use na;
 
 impl<N: RealField> ToTriMesh<N> for Cone<N> {
     type DiscretizationParameter = u32;
