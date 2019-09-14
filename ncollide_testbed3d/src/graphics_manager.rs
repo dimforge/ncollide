@@ -66,12 +66,9 @@ impl GraphicsManager {
     }
 
     pub fn remove(&mut self, window: &mut Window, handle: CollisionObjectSlabHandle) {
-        match self.handle2sn.get(&handle) {
-            Some(sns) => for sn in sns.iter() {
-                window.remove(&mut sn.scene_node().clone());
-            },
-            None => {}
-        }
+        self.handle2sn.get(&handle).flatten().map(|sn| {
+            window.remove(&mut sn.scene_node().clone());
+        });
 
         self.handle2sn.remove(&handle);
     }
@@ -101,10 +98,10 @@ impl GraphicsManager {
             if !self.handle2sn.contains_key(&object.handle()) {
                 self.add(window, object);
 
-                let visible = match self.handle2visible.get(&object.handle()) {
-                    Some(visible) => *visible,
-                    None => true,
-                };
+                let visible = self
+                    .handle2visible
+                    .get(&object.handle())
+                    .get_or_insert(true);
 
                 if !visible {
                     self.set_visible(object.handle(), false);
@@ -114,10 +111,10 @@ impl GraphicsManager {
     }
 
     pub fn add<T>(&mut self, window: &mut Window, object: &CollisionObject<f32, T>) {
-        let color = match self.handle2color.get(&object.handle()) {
-            Some(c) => *c,
-            None => self.rand.gen(),
-        };
+        let color = self
+            .handle2color
+            .get(&object.handle())
+            .get_or_insert_with(|| self.rand.gen());
 
         self.add_with_color(window, object, color)
     }

@@ -1,8 +1,8 @@
 use crate::math::{Isometry, Vector};
-use na::{self, RealField, Unit};
 use crate::query::algorithms::VoronoiSimplex;
 use crate::query::algorithms::{gjk, gjk::GJKResult, CSOPoint};
 use crate::shape::SupportMap;
+use na::{self, RealField, Unit};
 
 /// Distance between support-mapped shapes.
 pub fn distance_support_map_support_map<N, G1: ?Sized, G2: ?Sized>(
@@ -35,11 +35,8 @@ where
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
-    let dir = match init_dir {
-        // FIXME: or m2.translation - m1.translation ?
-        None => m1.translation.vector - m2.translation.vector,
-        Some(dir) => dir,
-    };
+    // FIXME: or m2.translation - m1.translation ?
+    let dir = init_dir.unwrap_or_else(|| m1.translation.vector - m2.translation.vector);
 
     if let Some(dir) = Unit::try_new(dir, N::default_epsilon()) {
         simplex.reset(CSOPoint::from_shapes(m1, g1, m2, g2, &dir));

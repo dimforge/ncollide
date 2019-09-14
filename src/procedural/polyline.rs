@@ -1,5 +1,5 @@
-use alga::linear::{Rotation, Translation};
 use crate::math::{Isometry, Point, Vector};
+use alga::linear::{Rotation, Translation};
 use na::{self, RealField};
 
 /// Geometric description of a polyline.
@@ -22,10 +22,7 @@ impl<N: RealField> Polyline<N> {
             );
         }
 
-        Polyline {
-            coords,
-            normals,
-        }
+        Polyline { coords, normals }
     }
 }
 
@@ -50,19 +47,13 @@ impl<N: RealField> Polyline<N> {
     /// The normals of this polyline vertices.
     #[inline]
     pub fn normals(&self) -> Option<&[Vector<N>]> {
-        match self.normals {
-            Some(ref ns) => Some(&ns[..]),
-            None => None,
-        }
+        self.normals.as_ref().map(Vec::as_slice)
     }
 
     /// The mutable normals of this polyline vertices.
     #[inline]
     pub fn normals_mut(&mut self) -> Option<&mut [Vector<N>]> {
-        match self.normals {
-            Some(ref mut ns) => Some(&mut ns[..]),
-            None => None,
-        }
+        self.normals.as_mut().map(Vec::as_mut_slice)
     }
 
     /// Translates each vertex of this polyline.

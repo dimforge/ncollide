@@ -1,6 +1,5 @@
 use crate::bounding_volume::{self, BoundingVolume, AABB};
 use crate::math::Isometry;
-use na::{self, Id, Point3, RealField, Translation3, Vector2, Vector3};
 use crate::num::{Bounded, Zero};
 use crate::partitioning::{BVH, BVT};
 use crate::procedural::{IndexBuffer, TriMesh};
@@ -9,20 +8,20 @@ use crate::query::{
     self, visitors::BoundingVolumeInterferencesCollector, Ray, RayCast, RayIntersection,
 };
 use crate::shape::SupportMap;
+use crate::transformation;
+use crate::utils;
+use na::{self, Id, Point3, RealField, Translation3, Vector2, Vector3};
 use std::cmp::Ordering;
 use std::collections::hash_map::Entry;
 use std::collections::{BinaryHeap, HashMap, HashSet};
 use std::mem;
-use crate::transformation;
-use crate::utils;
 
 /// Approximate convex decomposition of a triangle mesh.
 pub fn hacd<N: RealField>(
     mesh: TriMesh<N>,
     error: N,
     min_components: usize,
-) -> (Vec<TriMesh<N>>, Vec<Vec<usize>>)
-{
+) -> (Vec<TriMesh<N>>, Vec<Vec<usize>>) {
     assert!(
         mesh.normals.is_some(),
         "Vertex normals are required to compute the convex decomposition."
@@ -68,17 +67,14 @@ pub fn hacd<N: RealField>(
                     let mut top_cost = -_max;
 
                     loop {
-                        let remove = match edges.peek() {
-                            None => false,
-                            Some(ref e) => {
-                                if !top.is_valid(&dual_graph[..]) {
-                                    true
-                                } else {
-                                    top_cost = e.mcost;
-                                    false
-                                }
+                        let remove = edges.peek().map_or(false, |ref e| {
+                            if !top.is_valid(&dual_graph[..]) {
+                                true
+                            } else {
+                                top_cost = e.mcost;
+                                false
                             }
-                        };
+                        });
 
                         if remove {
                             let _ = edges.pop();
@@ -201,8 +197,7 @@ impl<N: RealField> DualGraphVertex<N> {
         ancestor: usize,
         mesh: &TriMesh<N>,
         raymap: &HashMap<(u32, u32), usize>,
-    ) -> DualGraphVertex<N>
-    {
+    ) -> DualGraphVertex<N> {
         let (idx, ns) = match mesh.indices {
             IndexBuffer::Unified(ref idx) => (idx[ancestor].clone(), idx[ancestor].clone()),
             IndexBuffer::Split(ref idx) => {
@@ -392,8 +387,7 @@ impl<N: RealField> DualGraphEdge<N> {
         dual_graph: &[DualGraphVertex<N>],
         coords: &[Point3<N>],
         max_concavity: N,
-    ) -> DualGraphEdge<N>
-    {
+    ) -> DualGraphEdge<N> {
         let mut v1 = v1;
         let mut v2 = v2;
 
@@ -454,8 +448,7 @@ impl<N: RealField> DualGraphEdge<N> {
         bvt: &BVT<usize, AABB<N>>,
         max_cost: N,
         max_concavity: N,
-    )
-    {
+    ) {
         assert!(self.is_valid(dual_graph));
 
         let v1 = &dual_graph[self.v1];
@@ -480,8 +473,7 @@ impl<N: RealField> DualGraphEdge<N> {
             id: usize,
             concavity: &mut N,
             ancestors: &mut BinaryHeap<VertexWithConcavity<N>>,
-        )
-        {
+        ) {
             let sv = chull.support_point(&Isometry::identity(), &ray.dir);
             let distance = sv.coords.dot(&ray.dir);
 
@@ -733,8 +725,7 @@ fn compute_rays<N: RealField>(mesh: &TriMesh<N>) -> (Vec<Ray<N>>, HashMap<(u32, 
 fn compute_dual_graph<N: RealField>(
     mesh: &TriMesh<N>,
     raymap: &HashMap<(u32, u32), usize>,
-) -> Vec<DualGraphVertex<N>>
-{
+) -> Vec<DualGraphVertex<N>> {
     // XXX Loss of determinism because of the randomized HashMap.
     let mut prim_edges = HashMap::new();
     let mut dual_vertices: Vec<DualGraphVertex<N>> = (0..mesh.num_triangles())
@@ -809,8 +800,7 @@ impl<'a, N: RealField> RayCast<N> for ConvexPair<'a, N> {
         id: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>>
-    {
+    ) -> Option<RayIntersection<N>> {
         query::ray_intersection_with_support_map_with_params(
             id,
             self,

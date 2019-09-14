@@ -1,13 +1,13 @@
 use num::Bounded;
 use std::cmp::Ordering;
 
-use na::{self, Matrix3, Point2, Point3, RealField, Vector3};
 use crate::procedural::{IndexBuffer, TriMesh};
 use crate::transformation::{
     self,
     convex_hull_utils::{denormalize, indexed_support_point_id, normalize, support_point_id},
 };
 use crate::utils;
+use na::{self, Matrix3, Point2, Point3, RealField, Vector3};
 
 /// Computes the convariance matrix of a set of points.
 fn cov<N: RealField>(pts: &[Point3<N>]) -> Matrix3<N> {
@@ -70,56 +70,53 @@ pub fn convex_hull3<N: RealField>(points: &[Point3<N>]) -> TriMesh<N> {
             &triangles[i].visible_points[..],
         );
 
-        match pt_id {
-            Some(point) => {
-                removed_facets.clear();
+        if let Some(point) = pt_id {
+            removed_facets.clear();
 
-                triangles[i].valid = false;
-                removed_facets.push(i);
+            triangles[i].valid = false;
+            removed_facets.push(i);
 
-                for j in 0usize..3 {
-                    compute_silhouette(
-                        triangles[i].adj[j],
-                        triangles[i].indirect_adj_id[j],
-                        point,
-                        &mut horizon_loop_facets,
-                        &mut horizon_loop_ids,
-                        &points[..],
-                        &mut removed_facets,
-                        &mut triangles[..],
-                    );
-                }
-
-                if horizon_loop_facets.is_empty() {
-                    // Due to inaccuracies, the silhouette could not be computed
-                    // (the point seems to be visible from… every triangle).
-                    let mut any_valid = false;
-                    for j in i + 1..triangles.len() {
-                        if triangles[j].valid {
-                            any_valid = true;
-                        }
-                    }
-
-                    if any_valid {
-//                        println!("Warning: exitting an unfinished work.");
-                    }
-
-                    // FIXME: this is verry harsh.
-                    triangles[i].valid = true;
-                    break;
-                }
-
-                attach_and_push_facets3(
-                    &horizon_loop_facets[..],
-                    &horizon_loop_ids[..],
+            for j in 0usize..3 {
+                compute_silhouette(
+                    triangles[i].adj[j],
+                    triangles[i].indirect_adj_id[j],
                     point,
+                    &mut horizon_loop_facets,
+                    &mut horizon_loop_ids,
                     &points[..],
-                    &mut triangles,
-                    &removed_facets[..],
-                    &mut undecidable_points,
+                    &mut removed_facets,
+                    &mut triangles[..],
                 );
             }
-            None => {}
+
+            if horizon_loop_facets.is_empty() {
+                // Due to inaccuracies, the silhouette could not be computed
+                // (the point seems to be visible from… every triangle).
+                let mut any_valid = false;
+                for j in i + 1..triangles.len() {
+                    if triangles[j].valid {
+                        any_valid = true;
+                    }
+                }
+
+                if any_valid {
+                    //                        println!("Warning: exitting an unfinished work.");
+                }
+
+                // FIXME: this is verry harsh.
+                triangles[i].valid = true;
+                break;
+            }
+
+            attach_and_push_facets3(
+                &horizon_loop_facets[..],
+                &horizon_loop_ids[..],
+                point,
+                &points[..],
+                &mut triangles,
+                &removed_facets[..],
+                &mut undecidable_points,
+            );
         }
 
         i = i + 1;
@@ -167,7 +164,10 @@ fn build_degenerate_mesh_point<N: RealField>(point: Point3<N>) -> TriMesh<N> {
     )
 }
 
-fn build_degenerate_mesh_segment<N: RealField>(dir: &Vector3<N>, points: &[Point3<N>]) -> TriMesh<N> {
+fn build_degenerate_mesh_segment<N: RealField>(
+    dir: &Vector3<N>,
+    points: &[Point3<N>],
+) -> TriMesh<N> {
     let a = utils::point_cloud_support_point(dir, points);
     let b = utils::point_cloud_support_point(&-*dir, points);
 
@@ -185,8 +185,7 @@ fn build_degenerate_mesh_segment<N: RealField>(dir: &Vector3<N>, points: &[Point
 fn get_initial_mesh<N: RealField>(
     points: &mut [Point3<N>],
     undecidable: &mut Vec<usize>,
-) -> InitialMesh<N>
-{
+) -> InitialMesh<N> {
     /*
      * Compute the eigenvectors to see if the input datas live on a subspace.
      */
@@ -366,8 +365,7 @@ fn compute_silhouette<N: RealField>(
     points: &[Point3<N>],
     removed_facets: &mut Vec<usize>,
     triangles: &mut [TriangleFacet<N>],
-)
-{
+) {
     if triangles[facet].valid {
         if !triangles[facet].can_be_seen_by_or_is_affinely_dependent_with_contour(
             point,
@@ -428,8 +426,7 @@ fn attach_and_push_facets3<N: RealField>(
     triangles: &mut Vec<TriangleFacet<N>>,
     removed_facets: &[usize],
     undecidable: &mut Vec<usize>,
-)
-{
+) {
     // The horizon is built to be in CCW order.
     let mut new_facets = Vec::with_capacity(horizon_loop_facets.len());
 
@@ -589,8 +586,7 @@ impl<N: RealField> TriangleFacet<N> {
         id_adj1: usize,
         id_adj2: usize,
         id_adj3: usize,
-    )
-    {
+    ) {
         self.indirect_adj_id[0] = id_adj1;
         self.indirect_adj_id[1] = id_adj2;
         self.indirect_adj_id[2] = id_adj3;
@@ -627,8 +623,7 @@ impl<N: RealField> TriangleFacet<N> {
         point: usize,
         points: &[Point3<N>],
         edge: usize,
-    ) -> bool
-    {
+    ) -> bool {
         let p0 = &points[self.first_point_from_edge(edge)];
         let p1 = &points[self.second_point_from_edge(edge)];
         let pt = &points[point];
@@ -646,11 +641,11 @@ impl<N: RealField> TriangleFacet<N> {
 
 #[cfg(test)]
 mod test {
-    #[cfg(feature = "dim2")]
-    use na::Point2;
     #[cfg(feature = "dim3")]
     use crate::procedural;
     use crate::transformation;
+    #[cfg(feature = "dim2")]
+    use na::Point2;
 
     #[cfg(feature = "dim2")]
     #[test]

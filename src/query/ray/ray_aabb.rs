@@ -6,9 +6,9 @@ use na::Point2;
 use na::{self, RealField};
 
 use crate::bounding_volume::AABB;
-use crate::shape::{FeatureId, Segment};
-use crate::math::{Isometry, Vector, Point};
+use crate::math::{Isometry, Point, Vector};
 use crate::query::{Ray, RayCast, RayIntersection};
+use crate::shape::{FeatureId, Segment};
 
 impl<N: RealField> RayCast<N> for AABB<N> {
     fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, solid: bool) -> Option<N> {
@@ -56,8 +56,7 @@ impl<N: RealField> RayCast<N> for AABB<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>>
-    {
+    ) -> Option<RayIntersection<N>> {
         let ls_ray = ray.inverse_transform_by(m);
 
         ray_aabb(self, &ls_ray, solid).map(|(t, n, i)| {
@@ -77,8 +76,7 @@ impl<N: RealField> RayCast<N> for AABB<N> {
         m: &Isometry<N>,
         ray: &Ray<N>,
         solid: bool,
-    ) -> Option<RayIntersection<N>>
-    {
+    ) -> Option<RayIntersection<N>> {
         do_toi_and_normal_and_uv_with_ray(m, self, ray, solid)
     }
 }
@@ -98,9 +96,8 @@ impl<N: RealField> AABB<N> {
     /// Returns `None` if there is no intersection.
     #[inline]
     pub fn clip_line(&self, orig: &Point<N>, dir: &Vector<N>) -> Option<Segment<N>> {
-        clip_line(self, orig, dir).map(|clip| {
-            Segment::new(orig + dir * (clip.0).0, orig + dir * (clip.1).0)
-        })
+        clip_line(self, orig, dir)
+            .map(|clip| Segment::new(orig + dir * (clip.0).0, orig + dir * (clip.1).0))
     }
 
     /// Computes the parameters of the two intersection points between a ray and this AABB.
@@ -109,8 +106,8 @@ impl<N: RealField> AABB<N> {
     /// Returns `None` if there is no intersection.
     #[inline]
     pub fn clip_ray_parameters(&self, ray: &Ray<N>) -> Option<(N, N)> {
-        match self.clip_line_parameters(&ray.origin, &ray.dir) {
-            Some(clip) => {
+        self.clip_line_parameters(&ray.origin, &ray.dir)
+            .and_then(|clip| {
                 let t0 = clip.0;
                 let t1 = clip.1;
 
@@ -119,9 +116,7 @@ impl<N: RealField> AABB<N> {
                 } else {
                     Some((na::sup(&t0, &N::zero()), t1))
                 }
-            }
-            None => None
-        }
+            })
     }
 
     /// Computes the intersection segment between a ray and this AABB.
@@ -129,9 +124,8 @@ impl<N: RealField> AABB<N> {
     /// Returns `None` if there is no intersection.
     #[inline]
     pub fn clip_ray(&self, ray: &Ray<N>) -> Option<Segment<N>> {
-        self.clip_ray_parameters(ray).map(|clip| {
-            Segment::new(ray.point_at(clip.0), ray.point_at(clip.1))
-        })
+        self.clip_ray_parameters(ray)
+            .map(|clip| Segment::new(ray.point_at(clip.0), ray.point_at(clip.1)))
     }
 }
 
@@ -141,8 +135,7 @@ fn do_toi_and_normal_and_uv_with_ray<N: RealField>(
     aabb: &AABB<N>,
     ray: &Ray<N>,
     solid: bool,
-) -> Option<RayIntersection<N>>
-{
+) -> Option<RayIntersection<N>> {
     if na::dimension::<Vector<N>>() != 3 {
         aabb.toi_and_normal_with_ray(m, ray, solid)
     } else {
@@ -186,7 +179,11 @@ fn do_toi_and_normal_and_uv_with_ray<N: RealField>(
     }
 }
 
-fn clip_line<N: RealField>(aabb: &AABB<N>, origin: &Point<N>, dir: &Vector<N>) -> Option<((N, Vector<N>, isize), (N, Vector<N>, isize))> {
+fn clip_line<N: RealField>(
+    aabb: &AABB<N>,
+    origin: &Point<N>,
+    dir: &Vector<N>,
+) -> Option<((N, Vector<N>, isize), (N, Vector<N>, isize))> {
     // NOTE: we don't start with tmin = 0 so we can return the correct normal
     // when the ray starts exactly on the object contour.
 
@@ -277,18 +274,20 @@ fn clip_line<N: RealField>(aabb: &AABB<N>, origin: &Point<N>, dir: &Vector<N>) -
     Some((near, far))
 }
 
-fn ray_aabb<N: RealField>(aabb: &AABB<N>, ray: &Ray<N>, solid: bool) -> Option<(N, Vector<N>, isize)> {
-    if let Some((near, far)) = clip_line(aabb, &ray.origin, &ray.dir) {
+fn ray_aabb<N: RealField>(
+    aabb: &AABB<N>,
+    ray: &Ray<N>,
+    solid: bool,
+) -> Option<(N, Vector<N>, isize)> {
+    clip_line(aabb, &ray.origin, &ray.dir).map(|(near, far)| {
         if near.0 < N::zero() {
             if solid {
-                Some((na::zero(), na::zero(), far.2))
+                (na::zero(), na::zero(), far.2)
             } else {
-                Some(far)
+                far
             }
         } else {
-            Some(near)
+            near
         }
-    } else {
-        None
-    }
+    })
 }
