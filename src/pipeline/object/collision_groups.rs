@@ -23,11 +23,13 @@ const NO_GROUP: u32 = 0;
 ///    * It is part of the groups 1, 3, and 6.
 ///    * It whitelists the groups 6 and 7.
 ///    * It blacklists the group 1.
-/// Let the object B be such that:
+///
+/// Let there be an object B such that:
 ///    * It is part of the groups 1, 3, and 7.
 ///    * It whitelists the groups 3 and 7.
 ///    * It does not blacklist anything.
-/// For example if the object C is such that:
+///
+/// and an object C such that:
 ///    * It is part of the groups 6 and 9.
 ///    * It whitelists the groups 3 and 7.
 ///    * It does not blacklist anything.
