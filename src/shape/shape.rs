@@ -3,7 +3,6 @@ use crate::bounding_volume::{BoundingSphere, AABB};
 use crate::math::{Isometry, Vector};
 use crate::query::{PointQuery, RayCast};
 use crate::shape::{CompositeShape, ConvexPolyhedron, DeformableShape, FeatureId, SupportMap};
-use crate::sampling::SurfaceSampling;
 use downcast_rs::Downcast;
 use na::{self, RealField, Unit};
 use std::ops::Deref;
@@ -65,12 +64,6 @@ pub trait Shape<N: RealField>: Send + Sync + Downcast + ShapeClone<N> {
     /// If several subshape contains the same feature, any one is returned.
     fn subshape_containing_feature(&self, _i: FeatureId) -> usize {
         0
-    }
-
-    /// The `SurfaceSampling` implementation of `self`.
-    #[inline]
-    fn as_surface_sampling(&self) -> Option<&dyn SurfaceSampling<N>> {
-        None
     }
 
     /// The `RayCast` implementation of `self`.

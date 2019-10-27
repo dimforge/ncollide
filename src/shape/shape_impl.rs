@@ -10,7 +10,6 @@ use crate::shape::{
 #[cfg(feature = "dim3")]
 use crate::shape::{ConvexHull, TriMesh, Triangle};
 use crate::utils::IsometryOps;
-use crate::sampling::SurfaceSampling;
 use na::{RealField, Unit};
 
 macro_rules! impl_as_convex_polyhedron (
@@ -28,16 +27,6 @@ macro_rules! impl_as_convex_polyhedron (
         #[inline]
         fn tangent_cone_contains_dir(&self, feature: FeatureId, m: &Isometry<N>, _: Option<&[N]>, dir: &Unit<Vector<N>>) -> bool {
             self.tangent_cone_contains_dir(feature, m, dir)
-        }
-    }
-);
-
-
-macro_rules! impl_as_surface_sampling (
-    () => {
-        #[inline]
-        fn as_surface_sampling(&self) -> Option<&dyn SurfaceSampling<N>> {
-            Some(self)
         }
     }
 );
@@ -153,7 +142,6 @@ impl<N: RealField> Shape<N> for Cuboid<N> {
     impl_shape_common!();
     impl_as_support_map!();
     impl_as_convex_polyhedron!();
-    impl_as_surface_sampling!();
 }
 
 impl<N: RealField> Shape<N> for Capsule<N> {

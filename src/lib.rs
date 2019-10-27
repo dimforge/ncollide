@@ -91,7 +91,6 @@ pub mod query;
 pub mod shape;
 pub mod transformation;
 pub mod utils;
-pub mod sampling;
 
 /// Compilation flags dependent aliases for mathematical types.
 #[cfg(feature = "dim3")]
