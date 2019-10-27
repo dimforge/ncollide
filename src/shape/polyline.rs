@@ -261,6 +261,25 @@ impl<N: RealField> Polyline<N> {
         }
     }
 
+    /// Converts a segment FeatureId to a polyline FeatureId.
+    #[inline]
+    pub fn segment_feature_to_polyline_feature(&self, edge_id: usize, feature: FeatureId) -> FeatureId {
+        let edge = &self.edges[edge_id];
+        match feature {
+            FeatureId::Vertex(i) => FeatureId::Vertex(edge.indices[i]),
+            #[cfg(feature = "dim3")]
+            FeatureId::Edge(_) => FeatureId::Edge(edge_id),
+            FeatureId::Face(i) => {
+                if i == 0 {
+                    FeatureId::Face(edge_id)
+                } else {
+                    FeatureId::Face(edge_id + self.edges.len())
+                }
+            }
+            FeatureId::Unknown => FeatureId::Unknown,
+        }
+    }
+
     /// The segment of the `i`-th edge on this polyline.
     #[inline]
     pub fn edge_segment(&self, i: usize) -> Segment<N> {

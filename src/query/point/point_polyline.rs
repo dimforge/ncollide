@@ -17,10 +17,21 @@ impl<N: RealField> PointQuery<N> for Polyline<N> {
     #[inline]
     fn project_point_with_feature(
         &self,
-        _: &Isometry<N>,
-        _: &Point<N>,
+        m: &Isometry<N>,
+        point: &Point<N>,
     ) -> (PointProjection<N>, FeatureId) {
-        unimplemented!()
+        let (proj, loc) = self.project_point_with_location(m, point, false);
+        let segment_feature = match loc.1 {
+            SegmentPointLocation::OnVertex(i) => FeatureId::Vertex(i),
+            #[cfg(feature = "dim3")]
+            SegmentPointLocation::OnEdge(_) => FeatureId::Edge(0),
+            #[cfg(feature = "dim2")]
+            SegmentPointLocation::OnEdge(_) => FeatureId::Face(0),
+        };
+
+        let polyline_feature = self.segment_feature_to_polyline_feature(loc.0, segment_feature);
+
+        (proj, polyline_feature)
     }
 
     // FIXME: implement distance_to_point too?
