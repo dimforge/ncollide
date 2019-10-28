@@ -263,7 +263,11 @@ impl<N: RealField> Polyline<N> {
 
     /// Converts a segment FeatureId to a polyline FeatureId.
     #[inline]
-    pub fn segment_feature_to_polyline_feature(&self, edge_id: usize, feature: FeatureId) -> FeatureId {
+    pub fn segment_feature_to_polyline_feature(
+        &self,
+        edge_id: usize,
+        feature: FeatureId,
+    ) -> FeatureId {
         let edge = &self.edges[edge_id];
         match feature {
             FeatureId::Vertex(i) => FeatureId::Vertex(edge.indices[i]),

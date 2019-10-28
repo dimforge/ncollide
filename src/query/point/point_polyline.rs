@@ -123,5 +123,14 @@ macro_rules! gen_visitor(
     }
 );
 
-gen_visitor!(PolylinePointProjVisitor, SegmentPointLocation<N>, project_point_with_location, true);
-gen_visitor!(PolylinePointProjWithFeatureVisitor, FeatureId, project_point_with_feature);
+gen_visitor!(
+    PolylinePointProjVisitor,
+    SegmentPointLocation<N>,
+    project_point_with_location,
+    true
+);
+gen_visitor!(
+    PolylinePointProjWithFeatureVisitor,
+    FeatureId,
+    project_point_with_feature
+);

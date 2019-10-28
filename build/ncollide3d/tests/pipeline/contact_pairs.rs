@@ -1,7 +1,7 @@
-use nalgebra::{Isometry3, Translation, Vector3, zero};
+use nalgebra::{zero, Isometry3, Translation, Vector3};
 use ncollide3d::{
-    shape::{Cuboid, ShapeHandle},
     pipeline::{CollisionGroups, CollisionWorld, GeometricQueryType},
+    shape::{Cuboid, ShapeHandle},
 };
 use std::collections::HashMap;
 
@@ -34,8 +34,10 @@ fn two_colliding_cuboids() {
                 continue;
             }
 
-            let contact = &manifold.deepest_contact()
-                .expect("No penetration in contact").contact;
+            let contact = &manifold
+                .deepest_contact()
+                .expect("No penetration in contact")
+                .contact;
 
             if contact.depth == 0.0 {
                 continue;
@@ -67,7 +69,9 @@ fn two_colliding_cuboids() {
 
         // Need to perform movements after releasing the borrow on world.
         for (handle, push_v) in move_actions.iter() {
-            let move_obj = world.objects.get_mut(*handle)
+            let move_obj = world
+                .objects
+                .get_mut(*handle)
                 .expect("Collision object does not exist for handle");
             let mut pos = move_obj.position().clone();
             pos.append_translation_mut(&Translation::from(*push_v));
