@@ -16,8 +16,7 @@ impl<N: RealField> PointQuery<N> for Ball<N> {
         if inside && solid {
             PointProjection::new(true, *pt)
         } else {
-            let ls_proj = Point::origin() + ls_pt.coords / distance_squared.sqrt();
-
+            let ls_proj = Point::from(ls_pt.coords * (self.radius() / distance_squared.sqrt()));
             PointProjection::new(inside, m * ls_proj)
         }
     }

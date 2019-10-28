@@ -148,14 +148,7 @@ impl<N: RealField> PointQuery<N> for AABB<N> {
 
     #[inline]
     fn contains_point(&self, m: &Isometry<N>, pt: &Point<N>) -> bool {
-        let ls_pt = m.inverse_transform_point(pt).coords;
-
-        for i in 0..DIM {
-            if ls_pt[i] < self.mins()[i] || ls_pt[i] > self.maxs()[i] {
-                return false;
-            }
-        }
-
-        true
+        let ls_pt = m.inverse_transform_point(pt);
+        self.contains_local_point(&ls_pt)
     }
 }

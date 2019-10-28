@@ -17,10 +17,21 @@ impl<N: RealField> PointQuery<N> for Polyline<N> {
     #[inline]
     fn project_point_with_feature(
         &self,
-        _: &Isometry<N>,
-        _: &Point<N>,
+        m: &Isometry<N>,
+        point: &Point<N>,
     ) -> (PointProjection<N>, FeatureId) {
-        unimplemented!()
+        let ls_pt = m.inverse_transform_point(point);
+        let mut visitor = PolylinePointProjWithFeatureVisitor {
+            polyline: self,
+            point: &ls_pt,
+        };
+
+        let (mut proj, (id, feature)) = self.bvt().best_first_search(&mut visitor).unwrap().1;
+        proj.point = m * proj.point;
+
+        let polyline_feature = self.segment_feature_to_polyline_feature(id, feature);
+
+        (proj, polyline_feature)
     }
 
     // FIXME: implement distance_to_point too?
@@ -66,44 +77,60 @@ impl<N: RealField> PointQueryWithLocation<N> for Polyline<N> {
 /*
  * Visitors
  */
-struct PolylinePointProjVisitor<'a, N: 'a + RealField> {
-    polyline: &'a Polyline<N>,
-    point: &'a Point<N>,
-}
-
-impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for PolylinePointProjVisitor<'a, N> {
-    type Result = (PointProjection<N>, (usize, SegmentPointLocation<N>));
-
-    #[inline]
-    fn visit(
-        &mut self,
-        best: N,
-        aabb: &AABB<N>,
-        data: Option<&usize>,
-    ) -> BestFirstVisitStatus<N, Self::Result> {
-        let dist = aabb.distance_to_point(&Isometry::identity(), self.point, true);
-
-        let mut res = BestFirstVisitStatus::Continue {
-            cost: dist,
-            result: None,
-        };
-
-        if let Some(b) = data {
-            if dist < best {
-                let (proj, extra_info) = self.polyline.segment_at(*b).project_point_with_location(
-                    &Isometry::identity(),
-                    self.point,
-                    true,
-                );
-
-                let extra_info = (*b, extra_info);
-                res = BestFirstVisitStatus::Continue {
-                    cost: na::distance(self.point, &proj.point),
-                    result: Some((proj, extra_info)),
-                };
-            }
+macro_rules! gen_visitor(
+    ($Visitor: ident, $Location: ty, $project: ident $(, $args: ident)*) => {
+        struct $Visitor<'a, N: 'a + RealField> {
+            polyline: &'a Polyline<N>,
+            point: &'a Point<N>,
         }
 
-        res
+        impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for $Visitor<'a, N> {
+            type Result = (PointProjection<N>, (usize, $Location));
+
+            #[inline]
+            fn visit(
+                &mut self,
+                best: N,
+                aabb: &AABB<N>,
+                data: Option<&usize>,
+            ) -> BestFirstVisitStatus<N, Self::Result> {
+                let dist = aabb.distance_to_point(&Isometry::identity(), self.point, true);
+
+                let mut res = BestFirstVisitStatus::Continue {
+                    cost: dist,
+                    result: None,
+                };
+
+                if let Some(b) = data {
+                    if dist < best {
+                        let (proj, extra_info) = self.polyline.segment_at(*b).$project(
+                            &Isometry::identity(),
+                            self.point
+                            $(, $args)*
+                        );
+
+                        let extra_info = (*b, extra_info);
+                        res = BestFirstVisitStatus::Continue {
+                            cost: na::distance(self.point, &proj.point),
+                            result: Some((proj, extra_info)),
+                        };
+                    }
+                }
+
+                res
+            }
+        }
     }
-}
+);
+
+gen_visitor!(
+    PolylinePointProjVisitor,
+    SegmentPointLocation<N>,
+    project_point_with_location,
+    true
+);
+gen_visitor!(
+    PolylinePointProjWithFeatureVisitor,
+    FeatureId,
+    project_point_with_feature
+);
