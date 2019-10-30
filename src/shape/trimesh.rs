@@ -530,7 +530,7 @@ impl<N: RealField> TriMesh<N> {
         let e = &self.edges[i];
 
         if let Some(coords) = deformations {
-            for adj_face in [e.adj_faces.0.face_id, e.adj_faces.1.face_id].into_iter() {
+            for adj_face in [e.adj_faces.0.face_id, e.adj_faces.1.face_id].iter() {
                 let indices = self.faces[*adj_face].indices * DIM;
                 let tri = Triangle::new(
                     Point::from_slice(&coords[indices.x..indices.x + DIM]),
@@ -543,7 +543,7 @@ impl<N: RealField> TriMesh<N> {
                 }
             }
         } else {
-            for adj_face in [e.adj_faces.0.face_id, e.adj_faces.1.face_id].into_iter() {
+            for adj_face in [e.adj_faces.0.face_id, e.adj_faces.1.face_id].iter() {
                 let face = &self.faces[*adj_face];
 
                 if let Some(ref n) = face.normal {
