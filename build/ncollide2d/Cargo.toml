@@ -1,6 +1,6 @@
 [package]
 name    = "ncollide2d"
-version = "0.21.0"
+version = "0.21.1"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "2 and 3-dimensional collision detection library in Rust."
