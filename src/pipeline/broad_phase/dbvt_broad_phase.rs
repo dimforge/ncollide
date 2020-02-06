@@ -5,15 +5,17 @@ use crate::pipeline::broad_phase::{
     BroadPhase, BroadPhaseInterferenceHandler, BroadPhaseProxyHandle,
 };
 use crate::query::visitors::{
-    BoundingVolumeInterferencesCollector, PointInterferencesCollector, RayInterferencesCollector,
+    BoundingVolumeInterferencesCollector, PointInterferencesCollector, RayInterferencesCollector, FirstRayInterferenceVisitor
 };
-use crate::query::{PointQuery, Ray, RayCast};
+use crate::query::{PointQuery, Ray, RayCast, RayIntersection};
 use crate::utils::{DeterministicState, SortedPair};
 use na::RealField;
 use slab::Slab;
 use std::any::Any;
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, VecDeque};
+
+use crate::pipeline::object::{CollisionObjectSet};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 enum ProxyStatus {
@@ -74,7 +76,7 @@ pub struct DBVTBroadPhase<N: RealField, BV, T> {
 impl<N, BV, T> DBVTBroadPhase<N, BV, T>
 where
     N: RealField,
-    BV: 'static + BoundingVolume<N> + Clone,
+    BV: 'static + BoundingVolume<N> + Clone + RayCast<N>,
 {
     /// Creates a new broad phase based on a Dynamic Bounding Volume Tree.
     pub fn new(margin: N) -> DBVTBroadPhase<N, BV, T> {
@@ -162,6 +164,33 @@ where
             }
         }
     }
+
+
+    pub fn first_interference_with_ray<'a, 'b, Objects>(&'a self, ray: &'b Ray<N>, narrow_phase: &'a dyn Fn(T, &'b Ray<N>) -> Option<(
+            Objects::CollisionObjectHandle,
+        &'a Objects::CollisionObject,
+        RayIntersection<N>)>) -> Option<(        Objects::CollisionObjectHandle,
+        &'a Objects::CollisionObject,
+        RayIntersection<N>)>
+where
+    Objects: CollisionObjectSet<N>,
+    {
+
+        let res = {
+            let mut visitor = FirstRayInterferenceVisitor::<'a, 'b, N, T, BV, Objects>::new(ray, true, self, narrow_phase);
+
+            let _ = self.tree.best_first_search(&mut visitor);
+            self.stree.best_first_search(&mut visitor)
+        };
+
+        if let Some((node, res)) = res {
+            Some(res)
+        } else {
+            None
+        }
+
+    }
+
 }
 
 impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>

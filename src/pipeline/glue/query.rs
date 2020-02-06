@@ -3,7 +3,7 @@ use std::vec::IntoIter;
 
 use crate::bounding_volume::AABB;
 use crate::math::Point;
-use crate::pipeline::broad_phase::BroadPhase;
+use crate::pipeline::broad_phase::{BroadPhase, DBVTBroadPhase};
 use crate::pipeline::object::{CollisionGroups, CollisionObjectRef, CollisionObjectSet};
 use crate::query::{PointQuery, Ray, RayCast, RayIntersection};
 
@@ -172,4 +172,41 @@ impl<'a, 'b, N: RealField, Objects: CollisionObjectSet<N>> Iterator
 
         None
     }
+}
+
+
+/// Returns an the closest collision object intersecting with the given ray.
+///
+/// The result will only include collision objects in a group that can interact with the given `groups`.
+pub fn first_interference_with_ray<'a, 'b, N, Objects>(
+    objects: &'a Objects,
+    broad_phase: &'a Box<DBVTBroadPhase<N, AABB<N>, Objects::CollisionObjectHandle>>,
+    ray: &'a Ray<N>,
+    groups: &'a CollisionGroups,
+) -> Option<(
+        Objects::CollisionObjectHandle,
+        &'a Objects::CollisionObject,
+        RayIntersection<N>,
+)>
+where
+    N: RealField,
+    Objects: CollisionObjectSet<N>,
+{
+    // Narrow phase
+    let narrow_phase = |handle: Objects::CollisionObjectHandle, ray:  &Ray<N>| {
+        if let Some(co) = objects.collision_object(handle) {
+            if co.collision_groups().can_interact_with_groups(groups) {
+                let inter = co
+                    .shape()
+                    .toi_and_normal_with_ray(&co.position(), ray, true);
+
+                if let Some(inter) = inter {
+                    return Some((handle, co, inter));
+                }
+            }
+        }
+        None
+    };
+
+    broad_phase.first_interference_with_ray::<Objects>(ray, &narrow_phase)
 }
