@@ -76,7 +76,7 @@ pub struct DBVTBroadPhase<N: RealField, BV, T> {
 impl<N, BV, T> DBVTBroadPhase<N, BV, T>
 where
     N: RealField,
-    BV: 'static + BoundingVolume<N> + Clone + RayCast<N>,
+    BV: 'static + BoundingVolume<N> + Clone,
 {
     /// Creates a new broad phase based on a Dynamic Bounding Volume Tree.
     pub fn new(margin: N) -> DBVTBroadPhase<N, BV, T> {
@@ -164,33 +164,6 @@ where
             }
         }
     }
-
-
-    pub fn first_interference_with_ray<'a, 'b, Objects>(&'a self, ray: &'b Ray<N>, narrow_phase: &'a dyn Fn(T, &'b Ray<N>) -> Option<(
-            Objects::CollisionObjectHandle,
-        &'a Objects::CollisionObject,
-        RayIntersection<N>)>) -> Option<(        Objects::CollisionObjectHandle,
-        &'a Objects::CollisionObject,
-        RayIntersection<N>)>
-where
-    Objects: CollisionObjectSet<N>,
-    {
-
-        let res = {
-            let mut visitor = FirstRayInterferenceVisitor::<'a, 'b, N, T, BV, Objects>::new(ray, true, self, narrow_phase);
-
-            let _ = self.tree.best_first_search(&mut visitor);
-            self.stree.best_first_search(&mut visitor)
-        };
-
-        if let Some((node, res)) = res {
-            Some(res)
-        } else {
-            None
-        }
-
-    }
-
 }
 
 impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
@@ -455,5 +428,35 @@ where
         for l in collector.into_iter() {
             out.push(&self.proxies[l.uid()].data)
         }
+    }
+}
+
+impl<N, BV, T> DBVTBroadPhase<N, BV, T>
+where
+    N: RealField,
+    BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
+    T: Any + Send + Sync + Clone,
+{
+    /// Returns the first object that interferes with a ray
+    pub fn first_interference_with_ray<'a, 'b, Objects>(&'a self, ray: &'b Ray<N>, narrow_phase: &'a dyn Fn(T, &'b Ray<N>) -> Option<(
+            Objects::CollisionObjectHandle,
+        RayIntersection<N>)>) -> Option<(        Objects::CollisionObjectHandle,
+        RayIntersection<N>)>
+where
+    Objects: CollisionObjectSet<N>,
+    {
+        let res = {
+            let mut visitor = FirstRayInterferenceVisitor::<'a, 'b, N, T, BV, Objects>::new(ray, true, self, narrow_phase);
+
+            let _ = self.tree.best_first_search(&mut visitor);
+            self.stree.best_first_search(&mut visitor)
+        };
+
+        if let Some((_node, res)) = res {
+            Some(res)
+        } else {
+            None
+        }
+
     }
 }

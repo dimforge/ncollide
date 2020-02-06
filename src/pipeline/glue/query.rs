@@ -193,7 +193,7 @@ where
     Objects: CollisionObjectSet<N>,
 {
     // Narrow phase
-    let narrow_phase = |handle: Objects::CollisionObjectHandle, ray:  &Ray<N>| {
+    let narrow_phase = move |handle: Objects::CollisionObjectHandle, ray:  &Ray<N>| {
         if let Some(co) = objects.collision_object(handle) {
             if co.collision_groups().can_interact_with_groups(groups) {
                 let inter = co
@@ -201,12 +201,20 @@ where
                     .toi_and_normal_with_ray(&co.position(), ray, true);
 
                 if let Some(inter) = inter {
-                    return Some((handle, co, inter));
+                    return Some((handle, inter));
                 }
             }
         }
         None
     };
 
-    broad_phase.first_interference_with_ray::<Objects>(ray, &narrow_phase)
+    let mut res = None;
+
+    if let Some((handle, inter)) = broad_phase.first_interference_with_ray::<Objects>(ray, &narrow_phase) {
+        if let Some(co) = objects.collision_object(handle) {
+            res = Some((handle, co, inter));
+        }
+    }
+
+    res
 }

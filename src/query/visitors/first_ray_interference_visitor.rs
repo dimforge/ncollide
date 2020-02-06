@@ -1,9 +1,11 @@
 use crate::math::Isometry;
 use crate::partitioning::{BestFirstVisitor, BestFirstVisitStatus};
-use crate::query::{Ray, RayCast, RayIntersection};
+use crate::query::{Ray, RayCast, RayIntersection, PointQuery};
 use na::RealField;
+use crate::bounding_volume::BoundingVolume;
+use std::any::Any;
 
-use crate::pipeline::{DBVTBroadPhase, BroadPhaseProxyHandle};
+use crate::pipeline::{DBVTBroadPhase, BroadPhaseProxyHandle, BroadPhase};
 use crate::pipeline::object::{CollisionObjectSet};
 
 
@@ -11,6 +13,8 @@ use crate::pipeline::object::{CollisionObjectSet};
 pub struct FirstRayInterferenceVisitor<'a, 'b, N: 'a + RealField, T, BV, Objects>
 where
     Objects: CollisionObjectSet<N>,
+    BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
+    T: Any + Send + Sync,
 {
     /// Ray to be tested.
     ray: &'b Ray<N>,
@@ -18,7 +22,6 @@ where
     handles: &'a DBVTBroadPhase<N, BV, T>,
     narrow_phase: &'a dyn Fn(T, &'b Ray<N>) -> Option<(
         Objects::CollisionObjectHandle,
-        &'a Objects::CollisionObject,
         RayIntersection<N>,
     )>,
 }
@@ -26,13 +29,13 @@ where
 impl<'a, 'b, N: RealField, T, BV, Objects> FirstRayInterferenceVisitor<'a, 'b, N, T, BV, Objects>
 where
     Objects: CollisionObjectSet<N>,
-    BV: RayCast<N>,
+    BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
+    T: Any + Send + Sync,
 {
     /// Creates a new `FirstRayInterferenceVisitor`.
     #[inline]
     pub fn new(ray: &'b Ray<N>, solid: bool, handles: &'a DBVTBroadPhase<N, BV, T>, narrow_phase: &'a dyn Fn(T, &'b Ray<N>) -> Option<(
         Objects::CollisionObjectHandle,
-        &'a Objects::CollisionObject,
         RayIntersection<N>,
     )> ) ->
     FirstRayInterferenceVisitor<'a, 'b, N, T, BV, Objects> {
@@ -49,12 +52,12 @@ where
 impl<'a, 'b, N, BV, T, Objects> BestFirstVisitor<N, BroadPhaseProxyHandle, BV> for FirstRayInterferenceVisitor<'a, 'b, N, T, BV, Objects>
 where
     N: RealField,
-    BV: RayCast<N>,
     Objects: CollisionObjectSet<N>,
+    BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
+    T: Any + Send + Sync + Clone,
 {
     type Result = (
         Objects::CollisionObjectHandle,
-        &'a Objects::CollisionObject,
         RayIntersection<N>,
     );
 
@@ -71,14 +74,13 @@ where
 
             if rough_toi < best_cost_so_far {
                 if let Some(handle) = value {
-                    if let Some((_, narrow_handle)) = self.handles.proxy(handle) {
-                        if let Some(result) = (self.narrow_phase)(narrow_handle, self.ray) {
-                            res = BestFirstVisitStatus::Continue {cost: result.2.toi, result: Some(result)};
+                    if let Some((_, narrow_handle)) = self.handles.proxy(*handle) {
+                        if let Some(result) = (self.narrow_phase)(narrow_handle.clone(), self.ray) {
+                            res = BestFirstVisitStatus::Continue {cost: result.1.toi, result: Some(result)};
                         }
                     }
                 };
             }
-
         }
 
         res
