@@ -3,7 +3,7 @@ use std::vec::IntoIter;
 
 use crate::bounding_volume::AABB;
 use crate::math::Point;
-use crate::pipeline::broad_phase::{BroadPhase, DBVTBroadPhase};
+use crate::pipeline::broad_phase::BroadPhase;
 use crate::pipeline::object::{CollisionGroups, CollisionObjectRef, CollisionObjectSet};
 use crate::query::{PointQuery, Ray, RayCast, RayIntersection};
 
@@ -174,26 +174,39 @@ impl<'a, 'b, N: RealField, Objects: CollisionObjectSet<N>> Iterator
     }
 }
 
+/// Return structure for `first_interference_with_ray`
+///
+/// Contains the handle of the closest object along the ray along with its
+/// intersection details
+#[derive(Debug)]
+pub struct FirstInterferenceWithRay<'a, N, Objects>
+where
+    N: RealField,
+    Objects: CollisionObjectSet<N>,
+{
+    /// Handle to the object the ray collided with.
+    pub handle: Objects::CollisionObjectHandle,
+    /// Reference to the object the ray collided with.
+    pub co: &'a Objects::CollisionObject,
+    /// Intersection details
+    pub inter: RayIntersection<N>,
+}
 
 /// Returns an the closest collision object intersecting with the given ray.
 ///
 /// The result will only include collision objects in a group that can interact with the given `groups`.
 pub fn first_interference_with_ray<'a, 'b, N, Objects>(
     objects: &'a Objects,
-    broad_phase: &'a Box<DBVTBroadPhase<N, AABB<N>, Objects::CollisionObjectHandle>>,
-    ray: &'a Ray<N>,
-    groups: &'a CollisionGroups,
-) -> Option<(
-        Objects::CollisionObjectHandle,
-        &'a Objects::CollisionObject,
-        RayIntersection<N>,
-)>
+    broad_phase: &'a (impl BroadPhase<N, AABB<N>, Objects::CollisionObjectHandle> + ?Sized),
+    ray: &'b Ray<N>,
+    groups: &'b CollisionGroups,
+) -> Option<FirstInterferenceWithRay<'a, N, Objects>>
 where
     N: RealField,
     Objects: CollisionObjectSet<N>,
 {
     // Narrow phase
-    let narrow_phase = move |handle: Objects::CollisionObjectHandle, ray:  &Ray<N>| {
+    let narrow_phase = move |handle: Objects::CollisionObjectHandle, ray: &Ray<N>| {
         if let Some(co) = objects.collision_object(handle) {
             if co.collision_groups().can_interact_with_groups(groups) {
                 let inter = co
@@ -210,9 +223,9 @@ where
 
     let mut res = None;
 
-    if let Some((handle, inter)) = broad_phase.first_interference_with_ray::<Objects>(ray, &narrow_phase) {
+    if let Some((handle, inter)) = broad_phase.interference_cost_fn_with_ray(ray, &narrow_phase) {
         if let Some(co) = objects.collision_object(handle) {
-            res = Some((handle, co, inter));
+            res = Some(FirstInterferenceWithRay { handle, co, inter });
         }
     }
 
