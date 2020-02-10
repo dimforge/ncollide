@@ -437,10 +437,18 @@ where
     ) -> Option<(T, RayIntersection<N>)> {
         let res = {
             let mut visitor =
-                FirstRayInterferenceVisitor::<'a, 'b, N, T, BV>::new(ray, true, self, cost_fn);
+                FirstRayInterferenceVisitor::<'a, 'b, N, T, BV>::new(ray, self, cost_fn);
 
-            let _ = self.tree.best_first_search(&mut visitor);
-            self.stree.best_first_search(&mut visitor)
+            let dynamic_hit = self.tree.best_first_search(&mut visitor);
+            let static_hit = self.stree.best_first_search(&mut visitor);
+
+            // The static hit must be better than the dynamic hit as it uses the
+            // same visitor so give it priority
+            if static_hit.is_some() {
+                static_hit
+            } else {
+                dynamic_hit
+            }
         };
 
         if let Some((_node, res)) = res {

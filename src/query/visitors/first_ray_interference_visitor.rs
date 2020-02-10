@@ -5,7 +5,6 @@ use crate::query::{PointQuery, Ray, RayCast, RayIntersection};
 use na::RealField;
 use std::any::Any;
 
-use crate::pipeline::object::CollisionObjectSet;
 use crate::pipeline::{BroadPhase, BroadPhaseProxyHandle, DBVTBroadPhase};
 
 /// Bounding Volume Tree visitor collecting interferences with a given ray.
@@ -16,7 +15,6 @@ where
 {
     /// Ray to be tested.
     ray: &'b Ray<N>,
-    solid: bool,
     handles: &'a DBVTBroadPhase<N, BV, T>,
     narrow_phase: &'a dyn Fn(T, &'b Ray<N>) -> Option<(T, RayIntersection<N>)>,
 }
@@ -30,13 +28,11 @@ where
     #[inline]
     pub fn new(
         ray: &'b Ray<N>,
-        solid: bool,
         handles: &'a DBVTBroadPhase<N, BV, T>,
         narrow_phase: &'a dyn Fn(T, &'b Ray<N>) -> Option<(T, RayIntersection<N>)>,
     ) -> FirstRayInterferenceVisitor<'a, 'b, N, T, BV> {
         FirstRayInterferenceVisitor {
             ray,
-            solid,
             handles,
             narrow_phase,
         }
@@ -59,15 +55,14 @@ where
         bv: &BV,
         value: Option<&BroadPhaseProxyHandle>,
     ) -> BestFirstVisitStatus<N, Self::Result> {
-        let mut res = BestFirstVisitStatus::Stop;
-        if let Some(rough_toi) = bv.toi_with_ray(&Isometry::identity(), self.ray, self.solid) {
-            res = BestFirstVisitStatus::Continue {
+        if let Some(rough_toi) = bv.toi_with_ray(&Isometry::identity(), self.ray, true) {
+            let mut res = BestFirstVisitStatus::Continue {
                 cost: rough_toi,
                 result: None,
             };
 
-            if rough_toi < best_cost_so_far {
-                if let Some(handle) = value {
+            if let Some(handle) = value {
+                if rough_toi < best_cost_so_far {
                     if let Some((_, narrow_handle)) = self.handles.proxy(*handle) {
                         if let Some(result) = (self.narrow_phase)(narrow_handle.clone(), self.ray) {
                             res = BestFirstVisitStatus::Continue {
@@ -78,8 +73,10 @@ where
                     }
                 };
             }
-        }
 
-        res
+            res
+        } else {
+            BestFirstVisitStatus::Stop
+        }
     }
 }
