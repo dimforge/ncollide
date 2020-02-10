@@ -5,42 +5,49 @@ use crate::query::{PointQuery, Ray, RayCast, RayIntersection};
 use na::RealField;
 use std::any::Any;
 
-use crate::pipeline::{BroadPhase, BroadPhaseProxyHandle, DBVTBroadPhase};
+use crate::pipeline::{BroadPhase, BroadPhaseProxyHandle};
 
 /// Bounding Volume Tree visitor collecting interferences with a given ray.
-pub struct FirstRayInterferenceVisitor<'a, 'b, N: 'a + RealField, T, BV>
+pub struct RayIntersectionCostFnVisitor<'a, 'b, N: 'a + RealField, T, BV>
 where
     BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
     T: Any + Send + Sync,
 {
     /// Ray to be tested.
     ray: &'b Ray<N>,
-    handles: &'a DBVTBroadPhase<N, BV, T>,
-    narrow_phase: &'a dyn Fn(T, &'b Ray<N>) -> Option<(T, RayIntersection<N>)>,
+
+    /// Used as a lookup to get the underlying data of the tree (uses `.query()`)
+    /// This is required as the broad phase stores the data in a separate
+    /// structure to the tree.
+    /// TODO: Can this be made more generic?
+    broad_phase: &'a dyn BroadPhase<N, BV, T>,
+
+    /// The cost function to apply to each leaf nodes data.
+    cost_fn: &'a dyn Fn(T, &'b Ray<N>) -> Option<(T, RayIntersection<N>)>,
 }
 
-impl<'a, 'b, N: RealField, T, BV> FirstRayInterferenceVisitor<'a, 'b, N, T, BV>
+impl<'a, 'b, N: RealField, T, BV> RayIntersectionCostFnVisitor<'a, 'b, N, T, BV>
 where
     BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
     T: Any + Send + Sync,
 {
-    /// Creates a new `FirstRayInterferenceVisitor`.
+    /// Creates a new `RayIntersectionCostFnVisitor`.
     #[inline]
     pub fn new(
         ray: &'b Ray<N>,
-        handles: &'a DBVTBroadPhase<N, BV, T>,
-        narrow_phase: &'a dyn Fn(T, &'b Ray<N>) -> Option<(T, RayIntersection<N>)>,
-    ) -> FirstRayInterferenceVisitor<'a, 'b, N, T, BV> {
-        FirstRayInterferenceVisitor {
+        broad_phase: &'a dyn BroadPhase<N, BV, T>,
+        cost_fn: &'a dyn Fn(T, &'b Ray<N>) -> Option<(T, RayIntersection<N>)>,
+    ) -> RayIntersectionCostFnVisitor<'a, 'b, N, T, BV> {
+        RayIntersectionCostFnVisitor {
             ray,
-            handles,
-            narrow_phase,
+            broad_phase,
+            cost_fn,
         }
     }
 }
 
 impl<'a, 'b, N, BV, T> BestFirstVisitor<N, BroadPhaseProxyHandle, BV>
-    for FirstRayInterferenceVisitor<'a, 'b, N, T, BV>
+    for RayIntersectionCostFnVisitor<'a, 'b, N, T, BV>
 where
     N: RealField,
     BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
@@ -53,7 +60,7 @@ where
         &mut self,
         best_cost_so_far: N,
         bv: &BV,
-        value: Option<&BroadPhaseProxyHandle>,
+        data: Option<&BroadPhaseProxyHandle>,
     ) -> BestFirstVisitStatus<N, Self::Result> {
         if let Some(rough_toi) = bv.toi_with_ray(&Isometry::identity(), self.ray, true) {
             let mut res = BestFirstVisitStatus::Continue {
@@ -61,10 +68,16 @@ where
                 result: None,
             };
 
-            if let Some(handle) = value {
+            // If the node has data then it is a leaf
+            if let Some(data_handle) = data {
                 if rough_toi < best_cost_so_far {
-                    if let Some((_, narrow_handle)) = self.handles.proxy(*handle) {
-                        if let Some(result) = (self.narrow_phase)(narrow_handle.clone(), self.ray) {
+
+                    // Possibly the best. Look up underlying data of the node...
+                    // TODO: Should this be `.expect()`?
+                    if let Some((_, leaf_data)) = self.broad_phase.proxy(*data_handle) {
+
+                        // and then run the cost function with the nodes data
+                        if let Some(result) = (self.cost_fn)(leaf_data.clone(), self.ray) {
                             res = BestFirstVisitStatus::Continue {
                                 cost: result.1.toi,
                                 result: Some(result),
@@ -76,6 +89,7 @@ where
 
             res
         } else {
+            // No intersection
             BestFirstVisitStatus::Stop
         }
     }

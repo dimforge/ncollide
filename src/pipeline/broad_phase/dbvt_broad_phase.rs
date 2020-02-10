@@ -5,7 +5,7 @@ use crate::pipeline::broad_phase::{
     BroadPhase, BroadPhaseInterferenceHandler, BroadPhaseProxyHandle,
 };
 use crate::query::visitors::{
-    BoundingVolumeInterferencesCollector, FirstRayInterferenceVisitor, PointInterferencesCollector,
+    BoundingVolumeInterferencesCollector, RayIntersectionCostFnVisitor, PointInterferencesCollector,
     RayInterferencesCollector,
 };
 use crate::query::{PointQuery, Ray, RayCast, RayIntersection};
@@ -437,7 +437,7 @@ where
     ) -> Option<(T, RayIntersection<N>)> {
         let res = {
             let mut visitor =
-                FirstRayInterferenceVisitor::<'a, 'b, N, T, BV>::new(ray, self, cost_fn);
+                RayIntersectionCostFnVisitor::<'a, 'b, N, T, BV>::new(ray, self, cost_fn);
 
             let dynamic_hit = self.tree.best_first_search(&mut visitor);
             let static_hit = self.stree.best_first_search(&mut visitor);
