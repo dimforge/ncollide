@@ -26,7 +26,8 @@ impl<N: RealField> AABB<N> {
         } else {
             let _max: N = Bounded::max_value();
             let mut best = -_max;
-            let mut best_id = 0isize;
+            let mut is_mins = false;
+            let mut best_id = 0;
 
             for i in 0..DIM {
                 let mins_pt_i = mins_pt[i];
@@ -34,21 +35,23 @@ impl<N: RealField> AABB<N> {
 
                 if mins_pt_i < pt_maxs_i {
                     if pt_maxs[i] > best {
-                        best_id = i as isize;
+                        best_id = i;
+                        is_mins = false;
                         best = pt_maxs_i
                     }
                 } else if mins_pt_i > best {
-                    best_id = -(i as isize);
+                    best_id = i;
+                    is_mins = true;
                     best = mins_pt_i
                 }
             }
 
             let mut shift: Vector<N> = na::zero();
 
-            if best_id < 0 {
-                shift[(-best_id) as usize] = best;
+            if is_mins {
+                shift[best_id] = best;
             } else {
-                shift[best_id as usize] = -best;
+                shift[best_id] = -best;
             }
 
             (inside, ls_pt + shift, shift)
