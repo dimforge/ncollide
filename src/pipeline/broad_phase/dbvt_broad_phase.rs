@@ -5,8 +5,8 @@ use crate::pipeline::broad_phase::{
     BroadPhase, BroadPhaseInterferenceHandler, BroadPhaseProxyHandle,
 };
 use crate::query::visitors::{
-    BoundingVolumeInterferencesCollector, RayIntersectionCostFnVisitor, PointInterferencesCollector,
-    RayInterferencesCollector,
+    BoundingVolumeInterferencesCollector, PointInterferencesCollector, RayInterferencesCollector,
+    RayIntersectionCostFnVisitor,
 };
 use crate::query::{PointQuery, Ray, RayCast, RayIntersection};
 use crate::utils::{DeterministicState, SortedPair};

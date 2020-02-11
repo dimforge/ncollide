@@ -70,15 +70,12 @@ where
 
             // If the node has data then it is a leaf
             if let Some(data_handle) = data {
-
                 // all objects within the tree must be further away than the
                 // bounding volume (TODO: is this true?)
                 if rough_toi < best_cost_so_far {
-
                     // Possibly the best. Look up underlying data of the node...
                     // TODO: Should this be `.expect()`?
                     if let Some((_, leaf_data)) = self.broad_phase.proxy(*data_handle) {
-
                         // and then run the cost function with the nodes data
                         if let Some(result) = (self.cost_fn)(leaf_data.clone(), self.ray) {
                             res = BestFirstVisitStatus::Continue {
