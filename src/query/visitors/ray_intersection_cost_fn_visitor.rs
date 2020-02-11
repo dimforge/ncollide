@@ -70,6 +70,9 @@ where
 
             // If the node has data then it is a leaf
             if let Some(data_handle) = data {
+
+                // all objects within the tree must be further away than the
+                // bounding volume (TODO: is this true?)
                 if rough_toi < best_cost_so_far {
 
                     // Possibly the best. Look up underlying data of the node...
@@ -89,7 +92,7 @@ where
 
             res
         } else {
-            // No intersection
+            // No intersection so we can ignore all children
             BestFirstVisitStatus::Stop
         }
     }

@@ -179,10 +179,7 @@ impl<'a, 'b, N: RealField, Objects: CollisionObjectSet<N>> Iterator
 /// Contains the handle of the closest object along the ray along with its
 /// intersection details
 #[derive(Debug)]
-pub struct FirstInterferenceWithRay<'a, N, Objects>
-where
-    N: RealField,
-    Objects: CollisionObjectSet<N>,
+pub struct FirstInterferenceWithRay<'a, N: RealField, Objects: CollisionObjectSet<N>>
 {
     /// Handle to the object the ray collided with.
     pub handle: Objects::CollisionObjectHandle,
@@ -195,15 +192,12 @@ where
 /// Returns an the closest collision object intersecting with the given ray.
 ///
 /// The result will only include collision objects in a group that can interact with the given `groups`.
-pub fn first_interference_with_ray<'a, 'b, N, Objects>(
+pub fn first_interference_with_ray<'a, 'b, N: RealField, Objects: CollisionObjectSet<N>>(
     objects: &'a Objects,
     broad_phase: &'a (impl BroadPhase<N, AABB<N>, Objects::CollisionObjectHandle> + ?Sized),
     ray: &'b Ray<N>,
     groups: &'b CollisionGroups,
 ) -> Option<FirstInterferenceWithRay<'a, N, Objects>>
-where
-    N: RealField,
-    Objects: CollisionObjectSet<N>,
 {
     // Narrow phase
     let narrow_phase = move |handle: Objects::CollisionObjectHandle, ray: &Ray<N>| {

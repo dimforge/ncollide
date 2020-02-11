@@ -36,6 +36,7 @@ fn main() {
         world.add(*pos, shape.clone(), collision_group, query_type, ());
     }
 
+    // Need to run update so all of the deferred functions are run (including adding shapes)
     world.update();
 
     let ray_hit = Ray::<f32>::new(Point2::origin(), Vector2::x());
@@ -46,15 +47,9 @@ fn main() {
         .expect("Hit missed");
     let miss = world.first_interference_with_ray(&ray_miss, &collision_group);
 
-    // println!("Hit: {:#?}", hit);
-    // println!("Miss: {:#?}", miss);
-
     println!("Hit: {:?}", hit.inter);
 
+    // First object is a circle with radius 0.5 centered at (1.0, 0.0)
     assert!(hit.inter.toi == 0.5);
     assert!(miss.is_none());
-
-    // First object is a circle with radius 0.5 centered at (1.0, 0.0)
-    // assert!(hit_toi == 0.5);
-    // assert!(collector_miss.len() == 0);
 }
