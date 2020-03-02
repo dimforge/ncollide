@@ -43,9 +43,9 @@ fn main() {
     let ray_miss = Ray::<f32>::new(Point2::origin(), -Vector2::x());
 
     let hit = world
-        .first_interference_with_ray(&ray_hit, &collision_group)
+        .first_interference_with_ray(&ray_hit, std::f32::MAX, &collision_group)
         .expect("Hit missed");
-    let miss = world.first_interference_with_ray(&ray_miss, &collision_group);
+    let miss = world.first_interference_with_ray(&ray_miss, std::f32::MAX, &collision_group);
 
     println!("Hit: {:?}", hit.inter);
 

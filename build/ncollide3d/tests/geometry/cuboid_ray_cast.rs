@@ -20,7 +20,7 @@ where
         let isometry = Isometry3::from_parts(Translation3::identity(), rotation);
 
         let intersection = shape
-            .toi_and_normal_with_ray(&isometry, &ray, true)
+            .toi_and_normal_with_ray(&isometry, &ray, std::f32::MAX, true)
             .expect(&format!(
                 "Ray {:?} did not hit Shape {} rotated with {:?}",
                 ray, name, rotation
@@ -54,7 +54,7 @@ where
 
         assert!(
             shape
-                .toi_and_normal_with_ray(&isometry, &new_ray, true)
+                .toi_and_normal_with_ray(&isometry, &new_ray, std::f32::MAX, true)
                 .is_none(),
             format!(
                 "Ray {:#?} from outside Shape {} rotated with {:#?} did hit at t={}",
@@ -62,7 +62,7 @@ where
                 name,
                 rotation,
                 shape
-                    .toi_and_normal_with_ray(&isometry, &new_ray, true)
+                    .toi_and_normal_with_ray(&isometry, &new_ray, std::f32::MAX, true)
                     .expect("recurring ray cast produced a different answer")
                     .toi
             )

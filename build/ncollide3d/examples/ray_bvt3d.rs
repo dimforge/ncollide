@@ -65,8 +65,10 @@ fn main() {
 
     // We need a new scope here to avoid borrowing issues.
     {
-        let mut visitor_hit = RayInterferencesCollector::new(&ray_hit, &mut collector_hit);
-        let mut visitor_miss = RayInterferencesCollector::new(&ray_miss, &mut collector_miss);
+        let mut visitor_hit =
+            RayInterferencesCollector::new(&ray_hit, std::f64::MAX, &mut collector_hit);
+        let mut visitor_miss =
+            RayInterferencesCollector::new(&ray_miss, std::f64::MAX, &mut collector_miss);
 
         bvt.visit(&mut visitor_hit);
         bvt.visit(&mut visitor_miss);
