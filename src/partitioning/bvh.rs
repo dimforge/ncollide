@@ -94,7 +94,7 @@ pub trait BVH<T, BV> {
         }
     }
 
-    /// Performs a best-fist-search on the BVH.
+    /// Performs a best-first-search on the BVH.
     ///
     /// Returns the content of the leaf with the smallest associated cost, and a result of
     /// user-defined type.

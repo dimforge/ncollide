@@ -6,7 +6,8 @@ use crate::bounding_volume::{BoundingVolume, AABB};
 use crate::math::{Isometry, Point, Rotation, Translation, Vector};
 use crate::pipeline::broad_phase::{BroadPhase, BroadPhasePairFilter, DBVTBroadPhase};
 use crate::pipeline::glue::{
-    self, InterferencesWithAABB, InterferencesWithPoint, InterferencesWithRay,
+    self, FirstInterferenceWithRay, InterferencesWithAABB, InterferencesWithPoint,
+    InterferencesWithRay,
 };
 use crate::pipeline::narrow_phase::{
     ContactAlgorithm, ContactEvents, DefaultContactDispatcher, DefaultProximityDispatcher,
@@ -341,6 +342,16 @@ impl<N: RealField, T> CollisionWorld<N, T> {
         groups: &'b CollisionGroups,
     ) -> InterferencesWithRay<'a, 'b, N, CollisionObjectSlab<N, T>> {
         glue::interferences_with_ray(&self.objects, &*self.broad_phase, ray, groups)
+    }
+
+    /// Computes the interferences between every rigid bodies on this world and a ray.
+    #[inline]
+    pub fn first_interference_with_ray<'a, 'b>(
+        &'a self,
+        ray: &'b Ray<N>,
+        groups: &'b CollisionGroups,
+    ) -> Option<FirstInterferenceWithRay<'a, N, CollisionObjectSlab<N, T>>> {
+        glue::first_interference_with_ray(&self.objects, &*self.broad_phase, ray, groups)
     }
 
     /// Computes the interferences between every rigid bodies of a given broad phase, and a point.

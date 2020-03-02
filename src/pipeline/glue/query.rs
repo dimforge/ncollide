@@ -173,3 +173,53 @@ impl<'a, 'b, N: RealField, Objects: CollisionObjectSet<N>> Iterator
         None
     }
 }
+
+/// Return structure for `first_interference_with_ray`
+///
+/// Contains the handle of the closest object along the ray along with its
+/// intersection details
+#[derive(Debug)]
+pub struct FirstInterferenceWithRay<'a, N: RealField, Objects: CollisionObjectSet<N>> {
+    /// Handle to the object the ray collided with.
+    pub handle: Objects::CollisionObjectHandle,
+    /// Reference to the object the ray collided with.
+    pub co: &'a Objects::CollisionObject,
+    /// Intersection details
+    pub inter: RayIntersection<N>,
+}
+
+/// Returns an the closest collision object intersecting with the given ray.
+///
+/// The result will only include collision objects in a group that can interact with the given `groups`.
+pub fn first_interference_with_ray<'a, 'b, N: RealField, Objects: CollisionObjectSet<N>>(
+    objects: &'a Objects,
+    broad_phase: &'a (impl BroadPhase<N, AABB<N>, Objects::CollisionObjectHandle> + ?Sized),
+    ray: &'b Ray<N>,
+    groups: &'b CollisionGroups,
+) -> Option<FirstInterferenceWithRay<'a, N, Objects>> {
+    // Narrow phase
+    let narrow_phase = move |handle: Objects::CollisionObjectHandle, ray: &Ray<N>| {
+        if let Some(co) = objects.collision_object(handle) {
+            if co.collision_groups().can_interact_with_groups(groups) {
+                let inter = co
+                    .shape()
+                    .toi_and_normal_with_ray(&co.position(), ray, true);
+
+                if let Some(inter) = inter {
+                    return Some((handle, inter));
+                }
+            }
+        }
+        None
+    };
+
+    let mut res = None;
+
+    if let Some((handle, inter)) = broad_phase.interference_cost_fn_with_ray(ray, &narrow_phase) {
+        if let Some(co) = objects.collision_object(handle) {
+            res = Some(FirstInterferenceWithRay { handle, co, inter });
+        }
+    }
+
+    res
+}

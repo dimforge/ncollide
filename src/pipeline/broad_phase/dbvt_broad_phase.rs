@@ -6,8 +6,9 @@ use crate::pipeline::broad_phase::{
 };
 use crate::query::visitors::{
     BoundingVolumeInterferencesCollector, PointInterferencesCollector, RayInterferencesCollector,
+    RayIntersectionCostFnVisitor,
 };
-use crate::query::{PointQuery, Ray, RayCast};
+use crate::query::{PointQuery, Ray, RayCast, RayIntersection};
 use crate::utils::{DeterministicState, SortedPair};
 use na::RealField;
 use slab::Slab;
@@ -168,7 +169,7 @@ impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
 where
     N: RealField,
     BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
-    T: Any + Send + Sync,
+    T: Any + Send + Sync + Clone,
 {
     fn update(&mut self, handler: &mut dyn BroadPhaseInterferenceHandler<T>) {
         /*
@@ -425,6 +426,35 @@ where
 
         for l in collector.into_iter() {
             out.push(&self.proxies[l.uid()].data)
+        }
+    }
+
+    /// Returns the first object that interferes with a ray
+    fn interference_cost_fn_with_ray<'a, 'b>(
+        &'a self,
+        ray: &'b Ray<N>,
+        cost_fn: &'a dyn Fn(T, &'b Ray<N>) -> Option<(T, RayIntersection<N>)>,
+    ) -> Option<(T, RayIntersection<N>)> {
+        let res = {
+            let mut visitor =
+                RayIntersectionCostFnVisitor::<'a, 'b, N, T, BV>::new(ray, self, cost_fn);
+
+            let dynamic_hit = self.tree.best_first_search(&mut visitor);
+            let static_hit = self.stree.best_first_search(&mut visitor);
+
+            // The static hit must be better than the dynamic hit as it uses the
+            // same visitor so give it priority
+            if static_hit.is_some() {
+                static_hit
+            } else {
+                dynamic_hit
+            }
+        };
+
+        if let Some((_node, res)) = res {
+            Some(res)
+        } else {
+            None
         }
     }
 }

@@ -2,7 +2,7 @@ use na::RealField;
 use std::any::Any;
 
 use crate::math::Point;
-use crate::query::Ray;
+use crate::query::{Ray, RayIntersection};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct BroadPhaseProxyHandle(pub usize);
@@ -76,4 +76,10 @@ pub trait BroadPhase<N: RealField, BV, T>: Any + Sync + Send {
 
     /// Collects every object which might contain a given point.
     fn interferences_with_point<'a>(&'a self, point: &Point<N>, out: &mut Vec<&'a T>);
+
+    fn interference_cost_fn_with_ray<'a, 'b>(
+        &'a self,
+        ray: &'b Ray<N>,
+        cost_fn: &'a dyn Fn(T, &'b Ray<N>) -> Option<(T, RayIntersection<N>)>,
+    ) -> Option<(T, RayIntersection<N>)>;
 }
