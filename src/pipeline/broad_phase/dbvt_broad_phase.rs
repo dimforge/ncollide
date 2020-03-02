@@ -399,11 +399,11 @@ where
         }
     }
 
-    fn interferences_with_ray<'a>(&'a self, ray: &Ray<N>, out: &mut Vec<&'a T>) {
+    fn interferences_with_ray<'a>(&'a self, ray: &Ray<N>, max_toi: N, out: &mut Vec<&'a T>) {
         let mut collector = Vec::new();
 
         {
-            let mut visitor = RayInterferencesCollector::new(ray, &mut collector);
+            let mut visitor = RayInterferencesCollector::new(ray, max_toi, &mut collector);
 
             self.tree.visit(&mut visitor);
             self.stree.visit(&mut visitor);
@@ -429,15 +429,16 @@ where
         }
     }
 
-    /// Returns the first object that interferes with a ray
-    fn interference_cost_fn_with_ray<'a, 'b>(
+    /// Returns the first object that interferes with a ray.
+    fn first_interference_with_ray<'a, 'b>(
         &'a self,
         ray: &'b Ray<N>,
-        cost_fn: &'a dyn Fn(T, &'b Ray<N>) -> Option<(T, RayIntersection<N>)>,
+        max_toi: N,
+        cost_fn: &'a dyn Fn(T, &'b Ray<N>, N) -> Option<(T, RayIntersection<N>)>,
     ) -> Option<(T, RayIntersection<N>)> {
         let res = {
             let mut visitor =
-                RayIntersectionCostFnVisitor::<'a, 'b, N, T, BV>::new(ray, self, cost_fn);
+                RayIntersectionCostFnVisitor::<'a, 'b, N, T, BV>::new(ray, max_toi, self, cost_fn);
 
             let dynamic_hit = self.tree.best_first_search(&mut visitor);
             let static_hit = self.stree.best_first_search(&mut visitor);

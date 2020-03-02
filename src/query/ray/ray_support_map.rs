@@ -17,6 +17,7 @@ pub fn ray_intersection_with_support_map_with_params<N, G: ?Sized>(
     shape: &G,
     simplex: &mut VoronoiSimplex<N>,
     ray: &Ray<N>,
+    max_toi: N,
     solid: bool,
 ) -> Option<RayIntersection<N>>
 where
@@ -26,7 +27,7 @@ where
     let supp = shape.support_point(m, &-ray.dir);
     simplex.reset(CSOPoint::single_point(supp - ray.origin.coords));
 
-    let inter = gjk::cast_ray(m, shape, simplex, ray);
+    let inter = gjk::cast_ray(m, shape, simplex, ray, max_toi);
 
     if !solid {
         inter.and_then(|(toi, normal)| {
@@ -34,14 +35,20 @@ where
                 // the ray is inside of the shape.
                 let ndir = ray.dir.normalize();
                 let supp = shape.support_point(m, &ndir);
-                let shift = (supp - ray.origin).dot(&ndir) + na::convert(0.001f64);
+                let eps = na::convert(0.001f64);
+                let shift = (supp - ray.origin).dot(&ndir) + eps;
                 let new_ray = Ray::new(ray.origin + ndir * shift, -ray.dir);
 
                 // FIXME: replace by? : simplex.translate_by(&(ray.origin - new_ray.origin));
                 simplex.reset(CSOPoint::single_point(supp - new_ray.origin.coords));
 
-                gjk::cast_ray(m, shape, simplex, &new_ray).map(|(toi, normal)| {
-                    RayIntersection::new(shift - toi, normal, FeatureId::Unknown)
+                gjk::cast_ray(m, shape, simplex, &new_ray, shift + eps).and_then(|(toi, normal)| {
+                    let toi = shift - toi;
+                    if toi <= max_toi {
+                        Some(RayIntersection::new(toi, normal, FeatureId::Unknown))
+                    } else {
+                        None
+                    }
                 })
             } else {
                 Some(RayIntersection::new(toi, normal, FeatureId::Unknown))
@@ -58,6 +65,7 @@ impl<N: RealField> RayCast<N> for Cylinder<N> {
         &self,
         m: &Isometry<N>,
         ray: &Ray<N>,
+        max_toi: N,
         solid: bool,
     ) -> Option<RayIntersection<N>> {
         let ls_ray = ray.inverse_transform_by(m);
@@ -67,6 +75,7 @@ impl<N: RealField> RayCast<N> for Cylinder<N> {
             self,
             &mut VoronoiSimplex::new(),
             &ls_ray,
+            max_toi,
             solid,
         )
         .map(|mut res| {
@@ -82,6 +91,7 @@ impl<N: RealField> RayCast<N> for Cone<N> {
         &self,
         m: &Isometry<N>,
         ray: &Ray<N>,
+        max_toi: N,
         solid: bool,
     ) -> Option<RayIntersection<N>> {
         let ls_ray = ray.inverse_transform_by(m);
@@ -91,6 +101,7 @@ impl<N: RealField> RayCast<N> for Cone<N> {
             self,
             &mut VoronoiSimplex::new(),
             &ls_ray,
+            max_toi,
             solid,
         )
         .map(|mut res| {
@@ -105,6 +116,7 @@ impl<N: RealField> RayCast<N> for Capsule<N> {
         &self,
         m: &Isometry<N>,
         ray: &Ray<N>,
+        max_toi: N,
         solid: bool,
     ) -> Option<RayIntersection<N>> {
         let ls_ray = ray.inverse_transform_by(m);
@@ -114,6 +126,7 @@ impl<N: RealField> RayCast<N> for Capsule<N> {
             self,
             &mut VoronoiSimplex::new(),
             &ls_ray,
+            max_toi,
             solid,
         )
         .map(|mut res| {
@@ -129,6 +142,7 @@ impl<N: RealField> RayCast<N> for ConvexHull<N> {
         &self,
         m: &Isometry<N>,
         ray: &Ray<N>,
+        max_toi: N,
         solid: bool,
     ) -> Option<RayIntersection<N>> {
         let ls_ray = ray.inverse_transform_by(m);
@@ -138,6 +152,7 @@ impl<N: RealField> RayCast<N> for ConvexHull<N> {
             self,
             &mut VoronoiSimplex::new(),
             &ls_ray,
+            max_toi,
             solid,
         )
         .map(|mut res| {
@@ -153,6 +168,7 @@ impl<N: RealField> RayCast<N> for ConvexPolygon<N> {
         &self,
         m: &Isometry<N>,
         ray: &Ray<N>,
+        max_toi: N,
         solid: bool,
     ) -> Option<RayIntersection<N>> {
         let ls_ray = ray.inverse_transform_by(m);
@@ -162,6 +178,7 @@ impl<N: RealField> RayCast<N> for ConvexPolygon<N> {
             self,
             &mut VoronoiSimplex::new(),
             &ls_ray,
+            max_toi,
             solid,
         )
         .map(|mut res| {
@@ -177,6 +194,7 @@ impl<N: RealField> RayCast<N> for Segment<N> {
         &self,
         m: &Isometry<N>,
         ray: &Ray<N>,
+        max_toi: N,
         solid: bool,
     ) -> Option<RayIntersection<N>> {
         #[cfg(feature = "dim2")]
@@ -256,6 +274,7 @@ impl<N: RealField> RayCast<N> for Segment<N> {
                 self,
                 &mut VoronoiSimplex::new(),
                 &ls_ray,
+                max_toi,
                 solid,
             )
             .map(|mut res| {

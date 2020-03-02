@@ -6,10 +6,10 @@ use na::RealField;
 
 impl<N: RealField> RayCast<N> for BoundingSphere<N> {
     #[inline]
-    fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, solid: bool) -> Option<N> {
+    fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, max_toi: N, solid: bool) -> Option<N> {
         let centered_ray = ray.translate_by(-(m * self.center()).coords);
 
-        Ball::new(self.radius()).toi_with_ray(m, &centered_ray, solid)
+        Ball::new(self.radius()).toi_with_ray(m, &centered_ray, max_toi, solid)
     }
 
     #[inline]
@@ -17,6 +17,7 @@ impl<N: RealField> RayCast<N> for BoundingSphere<N> {
         &self,
         m: &Isometry<N>,
         ray: &Ray<N>,
+        max_toi: N,
         solid: bool,
     ) -> Option<RayIntersection<N>> {
         let centered_ray = ray.translate_by(-(m * self.center()).coords);
@@ -24,6 +25,7 @@ impl<N: RealField> RayCast<N> for BoundingSphere<N> {
         Ball::new(self.radius()).toi_and_normal_with_ray(
             &Isometry::identity(),
             &centered_ray,
+            max_toi,
             solid,
         )
     }
@@ -34,6 +36,7 @@ impl<N: RealField> RayCast<N> for BoundingSphere<N> {
         &self,
         m: &Isometry<N>,
         ray: &Ray<N>,
+        max_toi: N,
         solid: bool,
     ) -> Option<RayIntersection<N>> {
         let centered_ray = ray.translate_by(-(m * self.center()).coords);
@@ -41,14 +44,15 @@ impl<N: RealField> RayCast<N> for BoundingSphere<N> {
         Ball::new(self.radius()).toi_and_normal_and_uv_with_ray(
             &Isometry::identity(),
             &centered_ray,
+            max_toi,
             solid,
         )
     }
 
     #[inline]
-    fn intersects_ray(&self, m: &Isometry<N>, ray: &Ray<N>) -> bool {
+    fn intersects_ray(&self, m: &Isometry<N>, ray: &Ray<N>, max_toi: N) -> bool {
         let centered_ray = ray.translate_by(-(m * self.center()).coords);
 
-        Ball::new(self.radius()).intersects_ray(&Isometry::identity(), &centered_ray)
+        Ball::new(self.radius()).intersects_ray(&Isometry::identity(), &centered_ray, max_toi)
     }
 }

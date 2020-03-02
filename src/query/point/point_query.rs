@@ -25,7 +25,6 @@ impl<N: RealField> PointProjection<N> {
 /// Trait of objects that can be tested for point inclusion and projection.
 pub trait PointQuery<N: RealField> {
     /// Projects a point on `self` transformed by `m`.
-    #[inline]
     fn project_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> PointProjection<N>;
 
     /// Computes the minimal distance between a point and `self` transformed by `m`.
@@ -43,7 +42,6 @@ pub trait PointQuery<N: RealField> {
 
     /// Projects a point on the boundary of `self` transformed by `m` and retuns the id of the
     /// feature the point was projected on.
-    #[inline]
     fn project_point_with_feature(
         &self,
         m: &Isometry<N>,
@@ -81,7 +79,6 @@ pub trait PointQueryWithLocation<N: RealField> {
     type Location;
 
     /// Projects a point on `self` transformed by `m`.
-    #[inline]
     fn project_point_with_location(
         &self,
         m: &Isometry<N>,

@@ -14,6 +14,7 @@ pub fn interferences_with_ray<'a, 'b, N, Objects>(
     objects: &'a Objects,
     broad_phase: &'a (impl BroadPhase<N, AABB<N>, Objects::CollisionObjectHandle> + ?Sized),
     ray: &'b Ray<N>,
+    max_toi: N,
     groups: &'b CollisionGroups,
 ) -> InterferencesWithRay<'a, 'b, N, Objects>
 where
@@ -21,10 +22,11 @@ where
     Objects: CollisionObjectSet<N>,
 {
     let mut handles = Vec::new();
-    broad_phase.interferences_with_ray(ray, &mut handles);
+    broad_phase.interferences_with_ray(ray, max_toi, &mut handles);
 
     InterferencesWithRay {
         ray,
+        max_toi,
         groups,
         objects,
         handles: handles.into_iter(),
@@ -34,6 +36,7 @@ where
 /// Iterator through all the objects on the world that intersect a specific ray.
 pub struct InterferencesWithRay<'a, 'b, N: RealField, Objects: CollisionObjectSet<N>> {
     ray: &'b Ray<N>,
+    max_toi: N,
     objects: &'a Objects,
     groups: &'b CollisionGroups,
     handles: IntoIter<&'a Objects::CollisionObjectHandle>,
@@ -55,9 +58,12 @@ where
         while let Some(handle) = self.handles.next() {
             if let Some(co) = self.objects.collision_object(*handle) {
                 if co.collision_groups().can_interact_with_groups(self.groups) {
-                    let inter = co
-                        .shape()
-                        .toi_and_normal_with_ray(&co.position(), self.ray, true);
+                    let inter = co.shape().toi_and_normal_with_ray(
+                        &co.position(),
+                        self.ray,
+                        self.max_toi,
+                        true,
+                    );
 
                     if let Some(inter) = inter {
                         return Some((*handle, co, inter));
@@ -195,31 +201,24 @@ pub fn first_interference_with_ray<'a, 'b, N: RealField, Objects: CollisionObjec
     objects: &'a Objects,
     broad_phase: &'a (impl BroadPhase<N, AABB<N>, Objects::CollisionObjectHandle> + ?Sized),
     ray: &'b Ray<N>,
+    max_toi: N,
     groups: &'b CollisionGroups,
 ) -> Option<FirstInterferenceWithRay<'a, N, Objects>> {
     // Narrow phase
-    let narrow_phase = move |handle: Objects::CollisionObjectHandle, ray: &Ray<N>| {
-        if let Some(co) = objects.collision_object(handle) {
-            if co.collision_groups().can_interact_with_groups(groups) {
-                let inter = co
-                    .shape()
-                    .toi_and_normal_with_ray(&co.position(), ray, true);
+    let narrow_phase = move |handle: Objects::CollisionObjectHandle, ray: &Ray<N>, max_toi: N| {
+        let co = objects.collision_object(handle)?;
+        if co.collision_groups().can_interact_with_groups(groups) {
+            let inter = co
+                .shape()
+                .toi_and_normal_with_ray(&co.position(), ray, max_toi, true);
 
-                if let Some(inter) = inter {
-                    return Some((handle, inter));
-                }
-            }
+            inter.map(|inter| (handle, inter))
+        } else {
+            None
         }
-        None
     };
 
-    let mut res = None;
-
-    if let Some((handle, inter)) = broad_phase.interference_cost_fn_with_ray(ray, &narrow_phase) {
-        if let Some(co) = objects.collision_object(handle) {
-            res = Some(FirstInterferenceWithRay { handle, co, inter });
-        }
-    }
-
-    res
+    let (handle, inter) = broad_phase.first_interference_with_ray(ray, max_toi, &narrow_phase)?;
+    let co = objects.collision_object(handle)?;
+    Some(FirstInterferenceWithRay { handle, co, inter })
 }

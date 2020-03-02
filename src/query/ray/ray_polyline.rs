@@ -7,12 +7,13 @@ use na::RealField;
 
 impl<N: RealField> RayCast<N> for Polyline<N> {
     #[inline]
-    fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, _: bool) -> Option<N> {
+    fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, max_toi: N, _: bool) -> Option<N> {
         let ls_ray = ray.inverse_transform_by(m);
 
         let mut visitor = PolylineRayToiVisitor {
             polyline: self,
             ray: &ls_ray,
+            max_toi,
         };
 
         self.bvt().best_first_search(&mut visitor).map(|res| res.1)
@@ -23,6 +24,7 @@ impl<N: RealField> RayCast<N> for Polyline<N> {
         &self,
         m: &Isometry<N>,
         ray: &Ray<N>,
+        max_toi: N,
         _: bool,
     ) -> Option<RayIntersection<N>> {
         let ls_ray = ray.inverse_transform_by(m);
@@ -30,6 +32,7 @@ impl<N: RealField> RayCast<N> for Polyline<N> {
         let mut visitor = PolylineRayToiAndNormalVisitor {
             polyline: self,
             ray: &ls_ray,
+            max_toi,
         };
 
         self.bvt()
@@ -53,6 +56,7 @@ impl<N: RealField> RayCast<N> for Polyline<N> {
 struct PolylineRayToiVisitor<'a, N: 'a + RealField> {
     polyline: &'a Polyline<N>,
     ray: &'a Ray<N>,
+    max_toi: N,
 }
 
 impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for PolylineRayToiVisitor<'a, N> {
@@ -65,7 +69,7 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for PolylineRayToiVis
         aabb: &AABB<N>,
         data: Option<&usize>,
     ) -> BestFirstVisitStatus<N, Self::Result> {
-        if let Some(toi) = aabb.toi_with_ray(&Isometry::identity(), self.ray, true) {
+        if let Some(toi) = aabb.toi_with_ray(&Isometry::identity(), self.ray, self.max_toi, true) {
             let mut res = BestFirstVisitStatus::Continue {
                 cost: toi,
                 result: None,
@@ -75,7 +79,9 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for PolylineRayToiVis
                 if toi < best {
                     // FIXME: optimize this by not using Isometry identity.
                     let segment = self.polyline.segment_at(*b);
-                    if let Some(toi) = segment.toi_with_ray(&Isometry::identity(), self.ray, true) {
+                    if let Some(toi) =
+                        segment.toi_with_ray(&Isometry::identity(), self.ray, self.max_toi, true)
+                    {
                         res = BestFirstVisitStatus::Continue {
                             cost: toi,
                             result: Some(toi),
@@ -94,6 +100,7 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for PolylineRayToiVis
 struct PolylineRayToiAndNormalVisitor<'a, N: 'a + RealField> {
     polyline: &'a Polyline<N>,
     ray: &'a Ray<N>,
+    max_toi: N,
 }
 
 impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>>
@@ -108,7 +115,7 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>>
         aabb: &AABB<N>,
         data: Option<&usize>,
     ) -> BestFirstVisitStatus<N, Self::Result> {
-        if let Some(toi) = aabb.toi_with_ray(&Isometry::identity(), self.ray, true) {
+        if let Some(toi) = aabb.toi_with_ray(&Isometry::identity(), self.ray, self.max_toi, true) {
             let mut res = BestFirstVisitStatus::Continue {
                 cost: toi,
                 result: None,
@@ -118,9 +125,12 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>>
                 if toi < best {
                     // FIXME: optimize this by not using Isometry identity.
                     let segment = self.polyline.segment_at(*b);
-                    if let Some(toi) =
-                        segment.toi_and_normal_with_ray(&Isometry::identity(), self.ray, true)
-                    {
+                    if let Some(toi) = segment.toi_and_normal_with_ray(
+                        &Isometry::identity(),
+                        self.ray,
+                        self.max_toi,
+                        true,
+                    ) {
                         res = BestFirstVisitStatus::Continue {
                             cost: toi.toi,
                             result: Some((*b, toi)),

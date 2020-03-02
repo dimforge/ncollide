@@ -11,11 +11,11 @@ use crate::query::{Ray, RayCast, RayIntersection};
 use crate::shape::{FeatureId, Segment};
 
 impl<N: RealField> RayCast<N> for AABB<N> {
-    fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, solid: bool) -> Option<N> {
+    fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, max_toi: N, solid: bool) -> Option<N> {
         let ls_ray = ray.inverse_transform_by(m);
 
         let mut tmin: N = na::zero();
-        let mut tmax: N = Bounded::max_value();
+        let mut tmax: N = max_toi;
 
         for i in 0usize..na::dimension::<Vector<N>>() {
             if ls_ray.dir[i].is_zero() {
@@ -55,11 +55,12 @@ impl<N: RealField> RayCast<N> for AABB<N> {
         &self,
         m: &Isometry<N>,
         ray: &Ray<N>,
+        max_toi: N,
         solid: bool,
     ) -> Option<RayIntersection<N>> {
         let ls_ray = ray.inverse_transform_by(m);
 
-        ray_aabb(self, &ls_ray, solid).map(|(t, n, i)| {
+        ray_aabb(self, &ls_ray, max_toi, solid).map(|(t, n, i)| {
             let feature = if i < 0 {
                 FeatureId::Face(-i as usize - 1 + 3)
             } else {
@@ -75,9 +76,10 @@ impl<N: RealField> RayCast<N> for AABB<N> {
         &self,
         m: &Isometry<N>,
         ray: &Ray<N>,
+        max_toi: N,
         solid: bool,
     ) -> Option<RayIntersection<N>> {
-        do_toi_and_normal_and_uv_with_ray(m, self, ray, solid)
+        do_toi_and_normal_and_uv_with_ray(m, self, ray, max_toi, solid)
     }
 }
 
@@ -134,14 +136,15 @@ fn do_toi_and_normal_and_uv_with_ray<N: RealField>(
     m: &Isometry<N>,
     aabb: &AABB<N>,
     ray: &Ray<N>,
+    max_toi: N,
     solid: bool,
 ) -> Option<RayIntersection<N>> {
     if na::dimension::<Vector<N>>() != 3 {
-        aabb.toi_and_normal_with_ray(m, ray, solid)
+        aabb.toi_and_normal_with_ray(m, ray, max_toi, solid)
     } else {
         let ls_ray = ray.inverse_transform_by(m);
 
-        ray_aabb(aabb, &ls_ray, solid).map(|(t, n, s)| {
+        ray_aabb(aabb, &ls_ray, max_toi, solid).map(|(t, n, s)| {
             let pt = ls_ray.origin + ls_ray.dir * t;
             let dpt = pt - *aabb.mins();
             let scale = *aabb.maxs() - *aabb.mins();
@@ -277,17 +280,22 @@ fn clip_line<N: RealField>(
 fn ray_aabb<N: RealField>(
     aabb: &AABB<N>,
     ray: &Ray<N>,
+    max_toi: N,
     solid: bool,
 ) -> Option<(N, Vector<N>, isize)> {
-    clip_line(aabb, &ray.origin, &ray.dir).map(|(near, far)| {
+    clip_line(aabb, &ray.origin, &ray.dir).and_then(|(near, far)| {
         if near.0 < N::zero() {
             if solid {
-                (na::zero(), na::zero(), far.2)
+                Some((na::zero(), na::zero(), far.2))
+            } else if far.0 <= max_toi {
+                Some(far)
             } else {
-                far
+                None
             }
+        } else if near.0 <= max_toi {
+            Some(near)
         } else {
-            near
+            None
         }
     })
 }

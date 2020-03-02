@@ -8,7 +8,7 @@ fn issue_178_parallel_raycast() {
     let ray = Ray::new(Point2::new(0.0, 0.0), Vector2::new(0.0, 1.0));
     let seg = Segment::new(Point2::new(2.0, 1.0), Point2::new(2.0, 0.0));
 
-    let cast = seg.toi_with_ray(&m1, &ray, true);
+    let cast = seg.toi_with_ray(&m1, &ray, std::f32::MAX, true);
     assert!(cast.is_none());
 }
 
@@ -18,7 +18,7 @@ fn parallel_raycast() {
     let ray = Ray::new(Point2::new(0.0, 0.0), Vector2::new(0.0, 1.0));
     let seg = Segment::new(Point2::new(2.0, 1.0), Point2::new(2.0, -1.0));
 
-    let cast = seg.toi_with_ray(&m1, &ray, true);
+    let cast = seg.toi_with_ray(&m1, &ray, std::f32::MAX, true);
     assert!(cast.is_none());
 }
 
@@ -28,7 +28,7 @@ fn collinear_raycast_starting_on_segment() {
     let ray = Ray::new(Point2::new(0.0, 0.0), Vector2::new(0.0, 1.0));
     let seg = Segment::new(Point2::new(0.0, 1.0), Point2::new(0.0, -1.0));
 
-    let cast = seg.toi_with_ray(&m1, &ray, true);
+    let cast = seg.toi_with_ray(&m1, &ray, std::f32::MAX, true);
     assert_eq!(cast, Some(0.0));
 }
 
@@ -38,7 +38,7 @@ fn collinear_raycast_starting_bellow_segment() {
     let ray = Ray::new(Point2::new(0.0, -2.0), Vector2::new(0.0, 1.0));
     let seg = Segment::new(Point2::new(0.0, 1.0), Point2::new(0.0, -1.0));
 
-    let cast = seg.toi_with_ray(&m1, &ray, true);
+    let cast = seg.toi_with_ray(&m1, &ray, std::f32::MAX, true);
     assert_eq!(cast, Some(1.0));
 }
 
@@ -48,7 +48,7 @@ fn collinear_raycast_starting_above_segment() {
     let ray = Ray::new(Point2::new(0.0, 2.0), Vector2::new(0.0, 1.0));
     let seg = Segment::new(Point2::new(0.0, 1.0), Point2::new(0.0, -1.0));
 
-    let cast = seg.toi_with_ray(&m1, &ray, true);
+    let cast = seg.toi_with_ray(&m1, &ray, std::f32::MAX, true);
     assert_eq!(cast, None);
 }
 
@@ -56,14 +56,14 @@ fn collinear_raycast_starting_above_segment() {
 fn perpendicular_raycast_starting_behind_sement() {
     let segment = Segment::new(Point2::new(0.0f32, -10.0), Point2::new(0.0, 10.0));
     let ray = Ray::new(Point2::new(-1.0, 0.0), Vector2::new(1.0, 0.0));
-    assert!(segment.intersects_ray(&na::one(), &ray));
+    assert!(segment.intersects_ray(&na::one(), &ray, std::f32::MAX));
 }
 
 #[test]
 fn perpendicular_raycast_starting_in_front_of_sement() {
     let segment = Segment::new(Point2::new(0.0f32, -10.0), Point2::new(0.0, 10.0));
     let ray = Ray::new(Point2::new(1.0, 0.0), Vector2::new(1.0, 0.0));
-    assert!(!segment.intersects_ray(&na::one(), &ray));
+    assert!(!segment.intersects_ray(&na::one(), &ray, std::f32::MAX));
 }
 
 #[test]
@@ -71,7 +71,7 @@ fn perpendicular_raycast_starting_on_segment() {
     let segment = Segment::new(Point2::new(0.0f32, -10.0), Point2::new(0.0, 10.0));
     let ray = Ray::new(Point2::new(0.0, 3.0), Vector2::new(1.0, 0.0));
 
-    let cast = segment.toi_with_ray(&na::one(), &ray, true);
+    let cast = segment.toi_with_ray(&na::one(), &ray, std::f32::MAX, true);
     assert_eq!(cast, Some(0.0));
 }
 
@@ -79,14 +79,14 @@ fn perpendicular_raycast_starting_on_segment() {
 fn perpendicular_raycast_starting_above_segment() {
     let segment = Segment::new(Point2::new(0.0f32, -10.0), Point2::new(0.0, 10.0));
     let ray = Ray::new(Point2::new(0.0, 11.0), Vector2::new(1.0, 0.0));
-    assert!(!segment.intersects_ray(&na::one(), &ray));
+    assert!(!segment.intersects_ray(&na::one(), &ray, std::f32::MAX));
 }
 
 #[test]
 fn perpendicular_raycast_starting_bellow_segment() {
     let segment = Segment::new(Point2::new(0.0f32, -10.0), Point2::new(0.0, 10.0));
     let ray = Ray::new(Point2::new(0.0, -11.0), Vector2::new(1.0, 0.0));
-    assert!(!segment.intersects_ray(&na::one(), &ray));
+    assert!(!segment.intersects_ray(&na::one(), &ray, std::f32::MAX));
 }
 
 ///    Ray Target
@@ -116,6 +116,7 @@ fn convexpoly_raycast_fuzz() {
         raycaster.toi_with_ray(
             &Isometry2::identity(),
             &Ray::new(ray_origin, ray_angle.normalize()),
+            std::f64::MAX,
             true,
         )
     };

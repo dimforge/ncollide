@@ -21,7 +21,7 @@ fn interferences_with_ray() {
 
     let ray = Ray::new(Point3::new(0.0, 0.0, 0.0), Vector3::new(1.0, 1.0, 1.0));
 
-    assert!(ball.toi_with_ray(&iso, &ray, true,).is_some());
+    assert!(ball.toi_with_ray(&iso, &ray, std::f32::MAX, true).is_some());
 
     let shape = ShapeHandle::new(ball);
     world.add(iso, shape.clone(), groups, query, ());
@@ -38,7 +38,7 @@ fn interferences_with_ray() {
         num_collision_objects,
     );
 
-    let interferences = world.interferences_with_ray(&ray, &groups);
+    let interferences = world.interferences_with_ray(&ray, std::f32::MAX, &groups);
     let num_collisions = interferences.into_iter().collect::<Vec<_>>().len();
     assert_eq!(
         num_collisions, 1,

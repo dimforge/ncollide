@@ -484,6 +484,7 @@ impl<N: RealField> DualGraphEdge<N> {
                 match chull.toi_with_ray(
                     &Isometry::identity(),
                     &Ray::new(outside_point, -ray.dir),
+                    N::max_value(),
                     true,
                 ) {
                     None => ancestors.push(VertexWithConcavity::new(id, na::zero())),
@@ -552,7 +553,7 @@ impl<N: RealField> DualGraphEdge<N> {
 
                     // We determine if the point is inside of the convex hull or not.
                     // XXX: use a point-in-implicit test instead of a ray-cast!
-                    match chull.toi_with_ray(&Isometry::identity(), ray, true) {
+                    match chull.toi_with_ray(&Isometry::identity(), ray, N::max_value(), true) {
                         None => continue,
                         Some(inter) => {
                             if inter.is_zero() {
@@ -799,6 +800,7 @@ impl<'a, N: RealField> RayCast<N> for ConvexPair<'a, N> {
         &self,
         id: &Isometry<N>,
         ray: &Ray<N>,
+        max_toi: N,
         solid: bool,
     ) -> Option<RayIntersection<N>> {
         query::ray_intersection_with_support_map_with_params(
@@ -806,6 +808,7 @@ impl<'a, N: RealField> RayCast<N> for ConvexPair<'a, N> {
             self,
             &mut VoronoiSimplex::new(),
             ray,
+            max_toi,
             solid,
         )
     }

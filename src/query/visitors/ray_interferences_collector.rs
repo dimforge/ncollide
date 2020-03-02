@@ -7,6 +7,8 @@ use na::RealField;
 pub struct RayInterferencesCollector<'a, N: 'a + RealField, T: 'a> {
     /// Ray to be tested.
     pub ray: &'a Ray<N>,
+    /// The maximum allowed time of impact.
+    pub max_toi: N,
     /// The data contained by the nodes which bounding volume intersects `self.ray`.
     pub collector: &'a mut Vec<T>,
 }
@@ -14,9 +16,14 @@ pub struct RayInterferencesCollector<'a, N: 'a + RealField, T: 'a> {
 impl<'a, N: RealField, T> RayInterferencesCollector<'a, N, T> {
     /// Creates a new `RayInterferencesCollector`.
     #[inline]
-    pub fn new(ray: &'a Ray<N>, buffer: &'a mut Vec<T>) -> RayInterferencesCollector<'a, N, T> {
+    pub fn new(
+        ray: &'a Ray<N>,
+        max_toi: N,
+        buffer: &'a mut Vec<T>,
+    ) -> RayInterferencesCollector<'a, N, T> {
         RayInterferencesCollector {
-            ray: ray,
+            ray,
+            max_toi,
             collector: buffer,
         }
     }
@@ -30,7 +37,7 @@ where
 {
     #[inline]
     fn visit(&mut self, bv: &BV, t: Option<&T>) -> VisitStatus {
-        if bv.intersects_ray(&Isometry::identity(), self.ray) {
+        if bv.intersects_ray(&Isometry::identity(), self.ray, self.max_toi) {
             if let Some(t) = t {
                 self.collector.push(t.clone())
             }
