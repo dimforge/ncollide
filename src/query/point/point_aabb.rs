@@ -17,7 +17,7 @@ impl<N: RealField> AABB<N> {
         let pt_maxs = ls_pt - *self.maxs();
         let shift = na::sup(&na::zero(), &mins_pt) - na::sup(&na::zero(), &pt_maxs);
 
-        let inside = shift == na::zero();
+        let inside = shift.is_zero();
 
         if !inside {
             (false, ls_pt + shift, shift)
