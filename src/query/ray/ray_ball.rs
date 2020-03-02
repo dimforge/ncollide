@@ -30,7 +30,8 @@ impl<N: RealField> RayCast<N> for Ball<N> {
             ray,
             solid,
         )
-        .1.filter(|toi| *toi <= max_toi)
+        .1
+        .filter(|toi| *toi <= max_toi)
     }
 
     #[inline]
@@ -47,7 +48,8 @@ impl<N: RealField> RayCast<N> for Ball<N> {
             ray,
             solid,
         )
-        .1.filter(|int| int.toi <= max_toi)
+        .1
+        .filter(|int| int.toi <= max_toi)
     }
 
     #[cfg(feature = "dim3")]
@@ -64,16 +66,16 @@ impl<N: RealField> RayCast<N> for Ball<N> {
         inter = inter.filter(|toi| *toi <= max_toi);
 
         inter.map(|n| {
-                let pos = ray.origin + ray.dir * n - center;
-                let normal = pos.normalize();
-                let uv = ball_uv(&normal);
+            let pos = ray.origin + ray.dir * n - center;
+            let normal = pos.normalize();
+            let uv = ball_uv(&normal);
 
-                RayIntersection::new_with_uvs(
-                    n,
-                    if inside { -normal } else { normal },
-                    FeatureId::Face(0),
-                    Some(uv),
-                )
+            RayIntersection::new_with_uvs(
+                n,
+                if inside { -normal } else { normal },
+                FeatureId::Face(0),
+                Some(uv),
+            )
         })
     }
 }

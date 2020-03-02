@@ -67,7 +67,9 @@ where
         bv: &BV,
         data: Option<&BroadPhaseProxyHandle>,
     ) -> BestFirstVisitStatus<N, Self::Result> {
-        if let Some(rough_toi) = bv.toi_with_ray(&Isometry::identity(), self.ray, self.max_toi, true) {
+        if let Some(rough_toi) =
+            bv.toi_with_ray(&Isometry::identity(), self.ray, self.max_toi, true)
+        {
             let mut res = BestFirstVisitStatus::Continue {
                 cost: rough_toi,
                 result: None,
@@ -82,7 +84,9 @@ where
                     // TODO: Should this be `.expect()`?
                     if let Some((_, leaf_data)) = self.broad_phase.proxy(*data_handle) {
                         // and then run the cost function with the nodes data
-                        if let Some(result) = (self.cost_fn)(leaf_data.clone(), self.ray, self.max_toi) {
+                        if let Some(result) =
+                            (self.cost_fn)(leaf_data.clone(), self.ray, self.max_toi)
+                        {
                             res = BestFirstVisitStatus::Continue {
                                 cost: result.1.toi,
                                 result: Some(result),

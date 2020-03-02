@@ -58,9 +58,12 @@ where
         while let Some(handle) = self.handles.next() {
             if let Some(co) = self.objects.collision_object(*handle) {
                 if co.collision_groups().can_interact_with_groups(self.groups) {
-                    let inter = co
-                        .shape()
-                        .toi_and_normal_with_ray(&co.position(), self.ray, self.max_toi, true);
+                    let inter = co.shape().toi_and_normal_with_ray(
+                        &co.position(),
+                        self.ray,
+                        self.max_toi,
+                        true,
+                    );
 
                     if let Some(inter) = inter {
                         return Some((*handle, co, inter));

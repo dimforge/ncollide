@@ -123,7 +123,8 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for TriMeshRayToiVisi
                 if toi < best {
                     // FIXME: optimize this by not using Isometry identity.
                     let triangle = self.mesh.triangle_at(*b);
-                    if let Some(toi) = triangle.toi_with_ray(&Isometry::identity(), self.ray, self.max_toi, true)
+                    if let Some(toi) =
+                        triangle.toi_with_ray(&Isometry::identity(), self.ray, self.max_toi, true)
                     {
                         res = BestFirstVisitStatus::Continue {
                             cost: toi,
@@ -168,9 +169,12 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>>
                 if toi < best {
                     // FIXME: optimize this by not using Isometry identity.
                     let triangle = self.mesh.triangle_at(*b);
-                    if let Some(toi) =
-                        triangle.toi_and_normal_with_ray(&Isometry::identity(), self.ray, self.max_toi, true)
-                    {
+                    if let Some(toi) = triangle.toi_and_normal_with_ray(
+                        &Isometry::identity(),
+                        self.ray,
+                        self.max_toi,
+                        true,
+                    ) {
                         res = BestFirstVisitStatus::Continue {
                             cost: toi.toi,
                             result: Some((*b, toi)),

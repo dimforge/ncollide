@@ -16,7 +16,11 @@ pub struct RayInterferencesCollector<'a, N: 'a + RealField, T: 'a> {
 impl<'a, N: RealField, T> RayInterferencesCollector<'a, N, T> {
     /// Creates a new `RayInterferencesCollector`.
     #[inline]
-    pub fn new(ray: &'a Ray<N>, max_toi: N, buffer: &'a mut Vec<T>) -> RayInterferencesCollector<'a, N, T> {
+    pub fn new(
+        ray: &'a Ray<N>,
+        max_toi: N,
+        buffer: &'a mut Vec<T>,
+    ) -> RayInterferencesCollector<'a, N, T> {
         RayInterferencesCollector {
             ray,
             max_toi,

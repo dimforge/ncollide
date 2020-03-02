@@ -79,7 +79,9 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for PolylineRayToiVis
                 if toi < best {
                     // FIXME: optimize this by not using Isometry identity.
                     let segment = self.polyline.segment_at(*b);
-                    if let Some(toi) = segment.toi_with_ray(&Isometry::identity(), self.ray, self.max_toi, true) {
+                    if let Some(toi) =
+                        segment.toi_with_ray(&Isometry::identity(), self.ray, self.max_toi, true)
+                    {
                         res = BestFirstVisitStatus::Continue {
                             cost: toi,
                             result: Some(toi),
@@ -123,9 +125,12 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>>
                 if toi < best {
                     // FIXME: optimize this by not using Isometry identity.
                     let segment = self.polyline.segment_at(*b);
-                    if let Some(toi) =
-                        segment.toi_and_normal_with_ray(&Isometry::identity(), self.ray, self.max_toi, true)
-                    {
+                    if let Some(toi) = segment.toi_and_normal_with_ray(
+                        &Isometry::identity(),
+                        self.ray,
+                        self.max_toi,
+                        true,
+                    ) {
                         res = BestFirstVisitStatus::Continue {
                             cost: toi.toi,
                             result: Some((*b, toi)),
