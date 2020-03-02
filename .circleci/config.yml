@@ -45,10 +45,10 @@ jobs:
           command: cargo install -f cargo-web;
       - run:
           name: build ncollide2d
-          command: cargo web build --verbose --target wasm32-unknown-unknown -p ncollide2d;
+          command: cd build/ncollide2d && cargo web build --verbose --target wasm32-unknown-unknown;
       - run:
           name: build ncollide3d
-          command: cargo web build --verbose --target wasm32-unknown-unknown -p ncollide3d;
+          command: cd build/ncollide3d && cargo web build --verbose --target wasm32-unknown-unknown;
   bench-native:
     executor: rust-nightly-executor
     steps:
