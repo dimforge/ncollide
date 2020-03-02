@@ -290,7 +290,7 @@ impl<N: RealField> EPA<N> {
                 Face::new(&self.vertices, pts2),
             ];
 
-            for f in new_faces.into_iter() {
+            for f in new_faces.iter() {
                 if f.1 {
                     let dist = f.0.normal.dot(&f.0.proj.coords);
                     if dist < curr_dist {

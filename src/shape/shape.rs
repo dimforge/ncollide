@@ -24,7 +24,6 @@ impl<N: RealField, T: 'static + Shape<N> + Clone> ShapeClone<N> for T {
 /// This allows dynamic inspection of the shape capabilities.
 pub trait Shape<N: RealField>: Send + Sync + Downcast + ShapeClone<N> {
     /// The AABB of `self` transformed by `m`.
-    #[inline]
     fn aabb(&self, m: &Isometry<N>) -> AABB<N>;
 
     /// The AABB of `self`.
@@ -50,7 +49,6 @@ pub trait Shape<N: RealField>: Send + Sync + Downcast + ShapeClone<N> {
     /// Check if if the feature `_feature` of the `i-th` subshape of `self` transformed by `m` has a tangent
     /// cone that contains `dir` at the point `pt`.
     // NOTE: for the moment, we assume the tangent cone is the same for the whole feature.
-    #[inline]
     fn tangent_cone_contains_dir(
         &self,
         _feature: FeatureId,

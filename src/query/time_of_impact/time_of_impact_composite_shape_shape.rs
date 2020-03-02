@@ -127,7 +127,7 @@ where
         );
 
         // Compute the TOI.
-        if let Some(toi) = msum.toi_with_ray(&Isometry::identity(), &self.ray, true) {
+        if let Some(toi) = msum.toi_with_ray(&Isometry::identity(), &self.ray, self.max_toi, true) {
             if toi > self.max_toi {
                 return BestFirstVisitStatus::Stop;
             }

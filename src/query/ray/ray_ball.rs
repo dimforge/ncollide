@@ -23,14 +23,14 @@ fn ball_uv<N: RealField>(normal: &Vector<N>) -> Point2<N> {
 
 impl<N: RealField> RayCast<N> for Ball<N> {
     #[inline]
-    fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, solid: bool) -> Option<N> {
+    fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, max_toi: N, solid: bool) -> Option<N> {
         ray_toi_with_ball(
             &Point::from(m.translation.vector),
             self.radius(),
             ray,
             solid,
         )
-        .1
+        .1.filter(|toi| *toi <= max_toi)
     }
 
     #[inline]
@@ -38,6 +38,7 @@ impl<N: RealField> RayCast<N> for Ball<N> {
         &self,
         m: &Isometry<N>,
         ray: &Ray<N>,
+        max_toi: N,
         solid: bool,
     ) -> Option<RayIntersection<N>> {
         ray_toi_and_normal_with_ball(
@@ -46,7 +47,7 @@ impl<N: RealField> RayCast<N> for Ball<N> {
             ray,
             solid,
         )
-        .1
+        .1.filter(|int| int.toi <= max_toi)
     }
 
     #[cfg(feature = "dim3")]
@@ -55,22 +56,24 @@ impl<N: RealField> RayCast<N> for Ball<N> {
         &self,
         m: &Isometry<N>,
         ray: &Ray<N>,
+        max_toi: N,
         solid: bool,
     ) -> Option<RayIntersection<N>> {
         let center = Point::from(m.translation.vector);
-        let (inside, inter) = ray_toi_with_ball(&center, self.radius(), ray, solid);
+        let (inside, mut inter) = ray_toi_with_ball(&center, self.radius(), ray, solid);
+        inter = inter.filter(|toi| *toi <= max_toi);
 
         inter.map(|n| {
-            let pos = ray.origin + ray.dir * n - center;
-            let normal = pos.normalize();
-            let uv = ball_uv(&normal);
+                let pos = ray.origin + ray.dir * n - center;
+                let normal = pos.normalize();
+                let uv = ball_uv(&normal);
 
-            RayIntersection::new_with_uvs(
-                n,
-                if inside { -normal } else { normal },
-                FeatureId::Face(0),
-                Some(uv),
-            )
+                RayIntersection::new_with_uvs(
+                    n,
+                    if inside { -normal } else { normal },
+                    FeatureId::Face(0),
+                    Some(uv),
+                )
         })
     }
 }

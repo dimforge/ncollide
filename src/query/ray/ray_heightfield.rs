@@ -14,12 +14,20 @@ impl<N: RealField> RayCast<N> for HeightField<N> {
         &self,
         m: &Isometry<N>,
         ray: &Ray<N>,
+        max_toi: N,
         _: bool,
     ) -> Option<RayIntersection<N>> {
         let aabb = self.aabb();
         let ls_ray = ray.inverse_transform_by(m);
-        let (min_t, max_t) = aabb.clip_ray_parameters(&ls_ray)?;
-        let (clip_ray_a, _clip_ray_b) = (ls_ray.point_at(min_t), ls_ray.point_at(max_t));
+        let (min_t, mut max_t) = aabb.clip_ray_parameters(&ls_ray)?;
+
+        if min_t > max_toi {
+            return None;
+        }
+
+        max_t = max_t.min(max_toi);
+
+        let clip_ray_a = ls_ray.point_at(min_t);
 
         // None may happen due to slight numerical errors.
         let mut curr = self.cell_at_point(&clip_ray_a).unwrap_or_else(|| {
@@ -92,7 +100,8 @@ impl<N: RealField> RayCast<N> for HeightField<N> {
                     seg.a(),
                     &seg.scaled_direction(),
                 );
-                if t >= N::zero() && t <= N::one() {
+
+                if t >= N::zero() && t <= N::one() && s <= max_toi {
                     let n = seg.normal().unwrap().into_inner();
                     let fid = if n.dot(&ls_ray.dir) > N::zero() {
                         // The ray hit the back face.
@@ -117,13 +126,14 @@ impl<N: RealField> RayCast<N> for HeightField<N> {
         &self,
         m: &Isometry<N>,
         ray: &Ray<N>,
+        max_toi: N,
         solid: bool,
     ) -> Option<RayIntersection<N>> {
         let aabb = self.aabb();
         let ls_ray = ray.inverse_transform_by(m);
-        let (min_t, max_t) = aabb.clip_ray_parameters(&ls_ray)?;
-        // FIXME: take _clip_ray_b into account to stop the loop bellow.
-        let (clip_ray_a, _clip_ray_b) = (ls_ray.point_at(min_t), ls_ray.point_at(max_t));
+        let (min_t, mut max_t) = aabb.clip_ray_parameters(&ls_ray)?;
+        max_t = max_t.min(max_toi);
+        let clip_ray_a = ls_ray.point_at(min_t);
         let mut cell = match self.cell_at_point(&clip_ray_a) {
             Some(cell) => cell,
             // None may happen due to slight numerical errors.
@@ -148,10 +158,10 @@ impl<N: RealField> RayCast<N> for HeightField<N> {
             let tris = self.triangles_at(cell.0, cell.1);
             let inter1 = tris
                 .0
-                .and_then(|tri| tri.toi_and_normal_with_ray(m, ray, solid));
+                .and_then(|tri| tri.toi_and_normal_with_ray(m, ray, max_toi, solid));
             let inter2 = tris
                 .1
-                .and_then(|tri| tri.toi_and_normal_with_ray(m, ray, solid));
+                .and_then(|tri| tri.toi_and_normal_with_ray(m, ray, max_toi, solid));
 
             match (inter1, inter2) {
                 (Some(mut inter1), Some(mut inter2)) => {
@@ -201,7 +211,7 @@ impl<N: RealField> RayCast<N> for HeightField<N> {
                 (N::max_value(), false)
             };
 
-            if toi_x == N::max_value() && toi_z == N::max_value() {
+            if toi_x > max_t && toi_z > max_t {
                 break;
             }
 

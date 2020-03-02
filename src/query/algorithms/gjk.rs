@@ -175,6 +175,7 @@ pub fn cast_ray<N, G: ?Sized>(
     shape: &G,
     simplex: &mut VoronoiSimplex<N>,
     ray: &Ray<N>,
+    max_toi: N,
 ) -> Option<(N, Vector<N>)>
 where
     N: RealField,
@@ -182,7 +183,7 @@ where
 {
     let m2 = Isometry::identity();
     let g2 = ConstantOrigin;
-    minkowski_ray_cast(m, shape, &m2, &g2, ray, simplex)
+    minkowski_ray_cast(m, shape, &m2, &g2, ray, max_toi, simplex)
 }
 
 /// Compute the normal and the distance that can travel `g1` along the direction
@@ -201,7 +202,7 @@ where
     G2: SupportMap<N>,
 {
     let ray = Ray::new(Point::origin(), *dir);
-    minkowski_ray_cast(m1, g1, m2, g2, &ray, simplex).map(|(toi, normal)| {
+    minkowski_ray_cast(m1, g1, m2, g2, &ray, N::max_value(), simplex).map(|(toi, normal)| {
         let witnesses = if !toi.is_zero() {
             result(simplex, simplex.dimension() == DIM)
         } else {
@@ -221,6 +222,7 @@ fn minkowski_ray_cast<N, G1: ?Sized, G2: ?Sized>(
     m2: &Isometry<N>,
     g2: &G2,
     ray: &Ray<N>,
+    max_toi: N,
     simplex: &mut VoronoiSimplex<N>,
 ) -> Option<(N, Vector<N>)>
 where
@@ -240,6 +242,7 @@ where
 
     let mut ltoi = N::zero();
     let mut curr_ray = Ray::new(ray.origin, ray.dir / ray_length);
+    let max_toi = max_toi * ray_length;
     let dir = -curr_ray.dir;
     let mut ldir = dir;
 
@@ -291,6 +294,11 @@ where
                     // new lower bound
                     ldir = *dir;
                     ltoi += t;
+
+                    if ltoi > max_toi {
+                        return None;
+                    }
+
                     let shift = curr_ray.dir * t;
                     curr_ray.origin += shift;
                     max_bound = N::max_value();

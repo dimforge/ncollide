@@ -72,14 +72,15 @@ pub trait BroadPhase<N: RealField, BV, T>: Any + Sync + Send {
     fn interferences_with_bounding_volume<'a>(&'a self, bv: &BV, out: &mut Vec<&'a T>);
 
     /// Collects every object which might intersect a given ray.
-    fn interferences_with_ray<'a>(&'a self, ray: &Ray<N>, out: &mut Vec<&'a T>);
+    fn interferences_with_ray<'a>(&'a self, ray: &Ray<N>, max_toi: N, out: &mut Vec<&'a T>);
 
     /// Collects every object which might contain a given point.
     fn interferences_with_point<'a>(&'a self, point: &Point<N>, out: &mut Vec<&'a T>);
 
-    fn interference_cost_fn_with_ray<'a, 'b>(
+    fn first_interference_with_ray<'a, 'b>(
         &'a self,
         ray: &'b Ray<N>,
-        cost_fn: &'a dyn Fn(T, &'b Ray<N>) -> Option<(T, RayIntersection<N>)>,
+        max_toi: N,
+        cost_fn: &'a dyn Fn(T, &'b Ray<N>, N) -> Option<(T, RayIntersection<N>)>,
     ) -> Option<(T, RayIntersection<N>)>;
 }

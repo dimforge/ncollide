@@ -124,17 +124,17 @@ impl<N: RealField> RayIntersection<N> {
 /// Traits of objects which can be transformed and tested for intersection with a ray.
 pub trait RayCast<N: RealField> {
     /// Computes the time of impact between this transform shape and a ray.
-    fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, solid: bool) -> Option<N> {
-        self.toi_and_normal_with_ray(m, ray, solid)
+    fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, max_toi: N, solid: bool) -> Option<N> {
+        self.toi_and_normal_with_ray(m, ray, max_toi, solid)
             .map(|inter| inter.toi)
     }
 
     /// Computes the time of impact, and normal between this transformed shape and a ray.
-    #[inline]
     fn toi_and_normal_with_ray(
         &self,
         m: &Isometry<N>,
         ray: &Ray<N>,
+        max_toi: N,
         solid: bool,
     ) -> Option<RayIntersection<N>>;
 
@@ -146,14 +146,15 @@ pub trait RayCast<N: RealField> {
         &self,
         m: &Isometry<N>,
         ray: &Ray<N>,
+        max_toi: N,
         solid: bool,
     ) -> Option<RayIntersection<N>> {
-        self.toi_and_normal_with_ray(m, ray, solid)
+        self.toi_and_normal_with_ray(m, ray, max_toi, solid)
     }
 
     /// Tests whether a ray intersects this transformed shape.
     #[inline]
-    fn intersects_ray(&self, m: &Isometry<N>, ray: &Ray<N>) -> bool {
-        self.toi_with_ray(m, ray, true).is_some()
+    fn intersects_ray(&self, m: &Isometry<N>, ray: &Ray<N>, max_toi: N) -> bool {
+        self.toi_with_ray(m, ray, max_toi, true).is_some()
     }
 }

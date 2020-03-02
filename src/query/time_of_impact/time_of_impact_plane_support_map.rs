@@ -28,7 +28,7 @@ where
     let closest_point = support_point - *plane_normal * target_distance;
     let ray = Ray::new(closest_point, vel);
 
-    if let Some(toi) = plane.toi_with_ray(mplane, &ray, true) {
+    if let Some(toi) = plane.toi_with_ray(mplane, &ray, max_toi, true) {
         if toi > max_toi {
             return None;
         }

@@ -7,12 +7,13 @@ use na::{Point2, RealField, Vector3};
 
 impl<N: RealField> RayCast<N> for TriMesh<N> {
     #[inline]
-    fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, _: bool) -> Option<N> {
+    fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, max_toi: N, _: bool) -> Option<N> {
         let ls_ray = ray.inverse_transform_by(m);
 
         let mut visitor = TriMeshRayToiVisitor {
             mesh: self,
             ray: &ls_ray,
+            max_toi,
         };
 
         self.bvh().best_first_search(&mut visitor).map(|res| res.1)
@@ -23,6 +24,7 @@ impl<N: RealField> RayCast<N> for TriMesh<N> {
         &self,
         m: &Isometry<N>,
         ray: &Ray<N>,
+        max_toi: N,
         _: bool,
     ) -> Option<RayIntersection<N>> {
         let ls_ray = ray.inverse_transform_by(m);
@@ -30,6 +32,7 @@ impl<N: RealField> RayCast<N> for TriMesh<N> {
         let mut visitor = TriMeshRayToiAndNormalVisitor {
             mesh: self,
             ray: &ls_ray,
+            max_toi,
         };
 
         self.bvh()
@@ -50,10 +53,11 @@ impl<N: RealField> RayCast<N> for TriMesh<N> {
         &self,
         m: &Isometry<N>,
         ray: &Ray<N>,
+        max_toi: N,
         solid: bool,
     ) -> Option<RayIntersection<N>> {
         if self.uvs().is_none() {
-            return self.toi_and_normal_with_ray(m, ray, solid);
+            return self.toi_and_normal_with_ray(m, ray, max_toi, solid);
         }
 
         let ls_ray = ray.inverse_transform_by(m);
@@ -61,6 +65,7 @@ impl<N: RealField> RayCast<N> for TriMesh<N> {
         let mut visitor = TriMeshRayToiAndNormalAndUVsVisitor {
             mesh: self,
             ray: &ls_ray,
+            max_toi,
         };
         let cast = self.bvh().best_first_search(&mut visitor);
 
@@ -95,6 +100,7 @@ impl<N: RealField> RayCast<N> for TriMesh<N> {
 struct TriMeshRayToiVisitor<'a, N: 'a + RealField> {
     mesh: &'a TriMesh<N>,
     ray: &'a Ray<N>,
+    max_toi: N,
 }
 
 impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for TriMeshRayToiVisitor<'a, N> {
@@ -107,7 +113,7 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for TriMeshRayToiVisi
         aabb: &AABB<N>,
         data: Option<&usize>,
     ) -> BestFirstVisitStatus<N, Self::Result> {
-        if let Some(toi) = aabb.toi_with_ray(&Isometry::identity(), self.ray, true) {
+        if let Some(toi) = aabb.toi_with_ray(&Isometry::identity(), self.ray, self.max_toi, true) {
             let mut res = BestFirstVisitStatus::Continue {
                 cost: toi,
                 result: None,
@@ -117,7 +123,7 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for TriMeshRayToiVisi
                 if toi < best {
                     // FIXME: optimize this by not using Isometry identity.
                     let triangle = self.mesh.triangle_at(*b);
-                    if let Some(toi) = triangle.toi_with_ray(&Isometry::identity(), self.ray, true)
+                    if let Some(toi) = triangle.toi_with_ray(&Isometry::identity(), self.ray, self.max_toi, true)
                     {
                         res = BestFirstVisitStatus::Continue {
                             cost: toi,
@@ -137,6 +143,7 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for TriMeshRayToiVisi
 struct TriMeshRayToiAndNormalVisitor<'a, N: 'a + RealField> {
     mesh: &'a TriMesh<N>,
     ray: &'a Ray<N>,
+    max_toi: N,
 }
 
 impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>>
@@ -151,7 +158,7 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>>
         aabb: &AABB<N>,
         data: Option<&usize>,
     ) -> BestFirstVisitStatus<N, Self::Result> {
-        if let Some(toi) = aabb.toi_with_ray(&Isometry::identity(), self.ray, true) {
+        if let Some(toi) = aabb.toi_with_ray(&Isometry::identity(), self.ray, self.max_toi, true) {
             let mut res = BestFirstVisitStatus::Continue {
                 cost: toi,
                 result: None,
@@ -162,7 +169,7 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>>
                     // FIXME: optimize this by not using Isometry identity.
                     let triangle = self.mesh.triangle_at(*b);
                     if let Some(toi) =
-                        triangle.toi_and_normal_with_ray(&Isometry::identity(), self.ray, true)
+                        triangle.toi_and_normal_with_ray(&Isometry::identity(), self.ray, self.max_toi, true)
                     {
                         res = BestFirstVisitStatus::Continue {
                             cost: toi.toi,
@@ -182,6 +189,7 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>>
 struct TriMeshRayToiAndNormalAndUVsVisitor<'a, N: 'a + RealField> {
     mesh: &'a TriMesh<N>,
     ray: &'a Ray<N>,
+    max_toi: N,
 }
 
 impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>>
@@ -196,7 +204,7 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>>
         aabb: &AABB<N>,
         data: Option<&usize>,
     ) -> BestFirstVisitStatus<N, Self::Result> {
-        if let Some(toi) = aabb.toi_with_ray(&Isometry::identity(), self.ray, true) {
+        if let Some(toi) = aabb.toi_with_ray(&Isometry::identity(), self.ray, self.max_toi, true) {
             let mut res = BestFirstVisitStatus::Continue {
                 cost: toi,
                 result: None,
@@ -212,10 +220,12 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>>
                     let c = &vs[idx[2]];
 
                     if let Some(inter) = query::ray_intersection_with_triangle(a, b, c, self.ray) {
-                        res = BestFirstVisitStatus::Continue {
-                            cost: inter.0.toi,
-                            result: Some((*i, inter.0, inter.1)),
-                        };
+                        if inter.0.toi <= self.max_toi {
+                            res = BestFirstVisitStatus::Continue {
+                                cost: inter.0.toi,
+                                result: Some((*i, inter.0, inter.1)),
+                            };
+                        }
                     }
                 }
             }

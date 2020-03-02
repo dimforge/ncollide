@@ -44,6 +44,7 @@ impl<N: RealField> RayCast<N> for Plane<N> {
         &self,
         m: &Isometry<N>,
         ray: &Ray<N>,
+        max_toi: N,
         solid: bool,
     ) -> Option<RayIntersection<N>> {
         let ls_ray = ray.inverse_transform_by(m);
@@ -63,7 +64,7 @@ impl<N: RealField> RayCast<N> for Plane<N> {
 
         let t = dot_normal_dpos / self.normal().dot(&ls_ray.dir);
 
-        if t >= na::zero() {
+        if t >= na::zero() && t <= max_toi {
             let n = if dot_normal_dpos > na::zero() {
                 -*self.normal()
             } else {

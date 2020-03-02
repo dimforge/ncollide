@@ -16,6 +16,9 @@ where
     /// Ray to be tested.
     ray: &'b Ray<N>,
 
+    /// Maximum time-of-impact of the ray with the objects.
+    max_toi: N,
+
     /// Used as a lookup to get the underlying data of the tree (uses `.query()`)
     /// This is required as the broad phase stores the data in a separate
     /// structure to the tree.
@@ -23,7 +26,7 @@ where
     broad_phase: &'a dyn BroadPhase<N, BV, T>,
 
     /// The cost function to apply to each leaf nodes data.
-    cost_fn: &'a dyn Fn(T, &'b Ray<N>) -> Option<(T, RayIntersection<N>)>,
+    cost_fn: &'a dyn Fn(T, &'b Ray<N>, N) -> Option<(T, RayIntersection<N>)>,
 }
 
 impl<'a, 'b, N: RealField, T, BV> RayIntersectionCostFnVisitor<'a, 'b, N, T, BV>
@@ -35,11 +38,13 @@ where
     #[inline]
     pub fn new(
         ray: &'b Ray<N>,
+        max_toi: N,
         broad_phase: &'a dyn BroadPhase<N, BV, T>,
-        cost_fn: &'a dyn Fn(T, &'b Ray<N>) -> Option<(T, RayIntersection<N>)>,
+        cost_fn: &'a dyn Fn(T, &'b Ray<N>, N) -> Option<(T, RayIntersection<N>)>,
     ) -> RayIntersectionCostFnVisitor<'a, 'b, N, T, BV> {
         RayIntersectionCostFnVisitor {
             ray,
+            max_toi,
             broad_phase,
             cost_fn,
         }
@@ -62,7 +67,7 @@ where
         bv: &BV,
         data: Option<&BroadPhaseProxyHandle>,
     ) -> BestFirstVisitStatus<N, Self::Result> {
-        if let Some(rough_toi) = bv.toi_with_ray(&Isometry::identity(), self.ray, true) {
+        if let Some(rough_toi) = bv.toi_with_ray(&Isometry::identity(), self.ray, self.max_toi, true) {
             let mut res = BestFirstVisitStatus::Continue {
                 cost: rough_toi,
                 result: None,
@@ -77,7 +82,7 @@ where
                     // TODO: Should this be `.expect()`?
                     if let Some((_, leaf_data)) = self.broad_phase.proxy(*data_handle) {
                         // and then run the cost function with the nodes data
-                        if let Some(result) = (self.cost_fn)(leaf_data.clone(), self.ray) {
+                        if let Some(result) = (self.cost_fn)(leaf_data.clone(), self.ray, self.max_toi) {
                             res = BestFirstVisitStatus::Continue {
                                 cost: result.1.toi,
                                 result: Some(result),

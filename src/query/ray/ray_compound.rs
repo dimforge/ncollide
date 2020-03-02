@@ -7,12 +7,13 @@ use na::RealField;
 
 // XXX: if solid == false, this might return internal intersection.
 impl<N: RealField> RayCast<N> for Compound<N> {
-    fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, solid: bool) -> Option<N> {
+    fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, max_toi: N, solid: bool) -> Option<N> {
         let ls_ray = ray.inverse_transform_by(m);
 
         let mut visitor = CompoundRayToiVisitor {
             compound: self,
             ray: &ls_ray,
+            max_toi,
             solid: solid,
         };
 
@@ -23,6 +24,7 @@ impl<N: RealField> RayCast<N> for Compound<N> {
         &self,
         m: &Isometry<N>,
         ray: &Ray<N>,
+        max_toi: N,
         solid: bool,
     ) -> Option<RayIntersection<N>> {
         let ls_ray = ray.inverse_transform_by(m);
@@ -30,7 +32,8 @@ impl<N: RealField> RayCast<N> for Compound<N> {
         let mut visitor = CompoundRayToiAndNormalVisitor {
             compound: self,
             ray: &ls_ray,
-            solid: solid,
+            max_toi,
+            solid,
         };
 
         self.bvt()
@@ -51,6 +54,7 @@ impl<N: RealField> RayCast<N> for Compound<N> {
 struct CompoundRayToiVisitor<'a, N: 'a + RealField> {
     compound: &'a Compound<N>,
     ray: &'a Ray<N>,
+    max_toi: N,
     solid: bool,
 }
 
@@ -64,7 +68,7 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for CompoundRayToiVis
         aabb: &AABB<N>,
         data: Option<&usize>,
     ) -> BestFirstVisitStatus<N, Self::Result> {
-        if let Some(toi) = aabb.toi_with_ray(&Isometry::identity(), self.ray, true) {
+        if let Some(toi) = aabb.toi_with_ray(&Isometry::identity(), self.ray, self.max_toi, true) {
             let mut res = BestFirstVisitStatus::Continue {
                 cost: toi,
                 result: None,
@@ -73,7 +77,7 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for CompoundRayToiVis
             if let Some(b) = data {
                 if toi < best {
                     let elt = &self.compound.shapes()[*b];
-                    if let Some(toi) = elt.1.toi_with_ray(&elt.0, self.ray, self.solid) {
+                    if let Some(toi) = elt.1.toi_with_ray(&elt.0, self.ray, self.max_toi, self.solid) {
                         res = BestFirstVisitStatus::Continue {
                             cost: toi,
                             result: Some(toi),
@@ -92,6 +96,7 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for CompoundRayToiVis
 struct CompoundRayToiAndNormalVisitor<'a, N: 'a + RealField> {
     compound: &'a Compound<N>,
     ray: &'a Ray<N>,
+    max_toi: N,
     solid: bool,
 }
 
@@ -107,7 +112,7 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>>
         aabb: &AABB<N>,
         data: Option<&usize>,
     ) -> BestFirstVisitStatus<N, Self::Result> {
-        if let Some(toi) = aabb.toi_with_ray(&Isometry::identity(), self.ray, true) {
+        if let Some(toi) = aabb.toi_with_ray(&Isometry::identity(), self.ray, self.max_toi, true) {
             let mut res = BestFirstVisitStatus::Continue {
                 cost: toi,
                 result: None,
@@ -116,7 +121,7 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>>
             if let Some(b) = data {
                 if toi < best {
                     let elt = &self.compound.shapes()[*b];
-                    if let Some(toi) = elt.1.toi_and_normal_with_ray(&elt.0, self.ray, self.solid) {
+                    if let Some(toi) = elt.1.toi_and_normal_with_ray(&elt.0, self.ray, self.max_toi, self.solid) {
                         res = BestFirstVisitStatus::Continue {
                             cost: toi.toi,
                             result: Some(toi),

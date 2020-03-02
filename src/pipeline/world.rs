@@ -339,19 +339,21 @@ impl<N: RealField, T> CollisionWorld<N, T> {
     pub fn interferences_with_ray<'a, 'b>(
         &'a self,
         ray: &'b Ray<N>,
+        max_toi: N,
         groups: &'b CollisionGroups,
     ) -> InterferencesWithRay<'a, 'b, N, CollisionObjectSlab<N, T>> {
-        glue::interferences_with_ray(&self.objects, &*self.broad_phase, ray, groups)
+        glue::interferences_with_ray(&self.objects, &*self.broad_phase, ray, max_toi, groups)
     }
 
-    /// Computes the interferences between every rigid bodies on this world and a ray.
+    /// Computes the first interference with `ray` and
     #[inline]
     pub fn first_interference_with_ray<'a, 'b>(
         &'a self,
         ray: &'b Ray<N>,
+        max_toi: N,
         groups: &'b CollisionGroups,
     ) -> Option<FirstInterferenceWithRay<'a, N, CollisionObjectSlab<N, T>>> {
-        glue::first_interference_with_ray(&self.objects, &*self.broad_phase, ray, groups)
+        glue::first_interference_with_ray(&self.objects, &*self.broad_phase, ray, max_toi, groups)
     }
 
     /// Computes the interferences between every rigid bodies of a given broad phase, and a point.
