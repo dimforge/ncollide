@@ -23,16 +23,16 @@ path = "../../src/lib.rs"
 required-features = [ "dim2" ]
 
 [dependencies]
-either          = "1.0"
-bitflags        = "1.0"
-downcast-rs     = "1.0"
+either          = "1"
+bitflags        = "1"
+downcast-rs     = "1"
 num-traits      = { version = "0.2", default-features = false }
-smallvec        = "0.6"
+smallvec        = "1"
 slab            = "0.4"
 slotmap         = "0.4"
-petgraph        = "0.4"
+petgraph        = "0.5"
 alga            = "0.9"
-nalgebra        = "0.19"
+nalgebra        = "0.20"
 approx          = { version = "0.3", default-features = false }
 serde           = { version = "1.0", optional = true, features = ["derive"]}
 
