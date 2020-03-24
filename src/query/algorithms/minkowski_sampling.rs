@@ -2,8 +2,6 @@
 
 use num::{Bounded, Zero};
 
-use alga::general::Id;
-use alga::linear::{NormedSpace, Translation};
 use na::{self, Unit};
 
 use crate::shape::{AnnotatedPoint, MinkowskiSum, Reflection};

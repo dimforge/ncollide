@@ -1,7 +1,7 @@
 use crate::procedural::path::PolylineCompatibleCap;
 use crate::procedural::utils;
-use alga::general::RealField;
 use na::{self, Isometry3, Point3, Vector3};
+use simba::scalar::RealField;
 
 /// A cap that looks like an arrow.
 pub struct ArrowheadCap<N> {

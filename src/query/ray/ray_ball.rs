@@ -1,7 +1,7 @@
-use alga::general::RealField;
 use na;
 #[cfg(feature = "dim3")]
 use na::Point2;
+use simba::scalar::RealField;
 
 #[cfg(feature = "dim3")]
 use crate::math::Vector;

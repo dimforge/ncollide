@@ -1,10 +1,9 @@
-use approx::AbsDiffEq;
-
 use crate::math::Isometry;
 use crate::query::ClosestPoints;
 use crate::shape::{Segment, SegmentPointLocation};
-use alga::linear::EuclideanSpace;
-use na::{self, RealField};
+use na::allocator::Allocator;
+use na::base::{DefaultAllocator, DimName};
+use na::{self, Point, RealField};
 
 /// Closest points between segments.
 #[inline]
@@ -44,35 +43,31 @@ pub fn closest_points_segment_segment_with_locations<N: RealField>(
 /// Segment-segment closest points computation in an arbitrary dimension.
 #[allow(non_snake_case)]
 #[inline]
-pub fn closest_points_segment_segment_with_locations_nD<P>(
-    seg1: (&P, &P),
-    seg2: (&P, &P),
-) -> (
-    SegmentPointLocation<P::RealField>,
-    SegmentPointLocation<P::RealField>,
-)
+pub fn closest_points_segment_segment_with_locations_nD<N, D>(
+    seg1: (&Point<N, D>, &Point<N, D>),
+    seg2: (&Point<N, D>, &Point<N, D>),
+) -> (SegmentPointLocation<N>, SegmentPointLocation<N>)
 where
-    P: EuclideanSpace + Copy,
+    N: RealField,
+    D: DimName,
+    DefaultAllocator: Allocator<N, D>,
 {
-    use alga::linear::FiniteDimVectorSpace;
-    use alga::linear::NormedSpace;
-
     // Inspired by RealField-time collision detection by Christer Ericson.
-    let d1 = *seg1.1 - *seg1.0;
-    let d2 = *seg2.1 - *seg2.0;
-    let r = *seg1.0 - *seg2.0;
+    let d1 = seg1.1 - seg1.0;
+    let d2 = seg2.1 - seg2.0;
+    let r = seg1.0 - seg2.0;
 
     let a = d1.norm_squared();
     let e = d2.norm_squared();
     let f = d2.dot(&r);
 
-    let _0: P::RealField = na::zero();
-    let _1: P::RealField = na::one();
+    let _0: N = na::zero();
+    let _1: N = na::one();
 
     let mut s;
     let mut t;
 
-    let _eps = P::RealField::default_epsilon();
+    let _eps = N::default_epsilon();
     if a <= _eps && e <= _eps {
         s = _0;
         t = _0;

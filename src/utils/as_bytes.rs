@@ -1,8 +1,8 @@
 use std::mem;
 use std::slice;
 
-use alga::general::RealField;
 use na::{Point2, Point3, Vector2, Vector3};
+use simba::scalar::RealField;
 
 /// Trait that transforms thing to a slice of u8.
 pub trait AsBytes {

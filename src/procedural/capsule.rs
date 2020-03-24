@@ -1,7 +1,7 @@
 use super::{sphere, utils};
 use super::{IndexBuffer, TriMesh};
-use alga::general::RealField;
 use na;
+use simba::scalar::RealField;
 
 /// Generates a capsule.
 pub fn capsule<N>(

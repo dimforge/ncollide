@@ -1,6 +1,6 @@
 use crate::procedural::path::PolylineCompatibleCap;
-use alga::general::RealField;
 use na::{Point3, Vector3};
+use simba::scalar::RealField;
 
 /// A cap that renders nothing.
 pub struct NoCap;

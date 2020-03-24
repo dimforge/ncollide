@@ -5,7 +5,7 @@ use crate::pipeline::narrow_phase::CollisionObjectGraphIndex;
 use crate::pipeline::object::CollisionGroups;
 use crate::pipeline::object::GeometricQueryType;
 use crate::shape::{Shape, ShapeHandle};
-use alga::general::RealField;
+use simba::scalar::RealField;
 
 bitflags! {
     #[derive(Default)]

@@ -6,7 +6,7 @@ use na::Point2;
 use na::{self, RealField};
 
 use crate::bounding_volume::AABB;
-use crate::math::{Isometry, Point, Vector};
+use crate::math::{Isometry, Point, Vector, DIM};
 use crate::query::{Ray, RayCast, RayIntersection};
 use crate::shape::{FeatureId, Segment};
 
@@ -17,7 +17,7 @@ impl<N: RealField> RayCast<N> for AABB<N> {
         let mut tmin: N = na::zero();
         let mut tmax: N = max_toi;
 
-        for i in 0usize..na::dimension::<Vector<N>>() {
+        for i in 0usize..DIM {
             if ls_ray.dir[i].is_zero() {
                 if ls_ray.origin[i] < self.mins()[i] || ls_ray.origin[i] > self.maxs()[i] {
                     return None;
@@ -116,7 +116,7 @@ impl<N: RealField> AABB<N> {
                 if t1 < N::zero() {
                     None
                 } else {
-                    Some((na::sup(&t0, &N::zero()), t1))
+                    Some((t0.max(N::zero()), t1))
                 }
             })
     }
@@ -139,7 +139,7 @@ fn do_toi_and_normal_and_uv_with_ray<N: RealField>(
     max_toi: N,
     solid: bool,
 ) -> Option<RayIntersection<N>> {
-    if na::dimension::<Vector<N>>() != 3 {
+    if DIM != 3 {
         aabb.toi_and_normal_with_ray(m, ray, max_toi, solid)
     } else {
         let ls_ray = ray.inverse_transform_by(m);
@@ -197,7 +197,7 @@ fn clip_line<N: RealField>(
     let mut near_diag = false;
     let mut far_diag = false;
 
-    for i in 0usize..na::dimension::<Vector<N>>() {
+    for i in 0usize..DIM {
         if dir[i].is_zero() {
             if origin[i] < aabb.mins()[i] || origin[i] > aabb.maxs()[i] {
                 return None;

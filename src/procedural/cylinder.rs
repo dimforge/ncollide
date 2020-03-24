@@ -1,8 +1,8 @@
 use super::utils;
 use super::{IndexBuffer, TriMesh};
-use alga::general::RealField;
 use na;
 use na::{Point2, Vector3};
+use simba::scalar::RealField;
 
 /// Generates a cylinder with a given height and diameter.
 pub fn cylinder<N: RealField>(diameter: N, height: N, nsubdiv: u32) -> TriMesh<N> {

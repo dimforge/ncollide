@@ -97,7 +97,7 @@ impl<N: RealField> HeightField<N> {
             N::zero(),
             na::convert((num_cells - 1) as f64),
         );
-        unsafe { na::convert_unchecked::<N, f64>(i) as usize }
+        na::convert_unchecked::<N, f64>(i) as usize
     }
 
     fn quantize_ceil(&self, val: N, cell_size: N, num_cells: usize) -> usize {
@@ -107,7 +107,7 @@ impl<N: RealField> HeightField<N> {
             N::zero(),
             na::convert(num_cells as f64),
         );
-        unsafe { na::convert_unchecked::<N, f64>(i) as usize }
+        na::convert_unchecked::<N, f64>(i) as usize
     }
 
     /// The pair of index of the cell containing the vertical projection of the given point.

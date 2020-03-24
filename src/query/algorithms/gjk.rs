@@ -1,7 +1,7 @@
 //! The Gilbert–Johnson–Keerthi distance algorithm.
 
-use alga::general::RealField;
 use na::{self, Unit};
+use simba::scalar::RealField;
 
 use crate::query::algorithms::{special_support_maps::ConstantOrigin, CSOPoint, VoronoiSimplex};
 use crate::shape::SupportMap;

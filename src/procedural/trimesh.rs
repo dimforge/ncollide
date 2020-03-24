@@ -1,7 +1,6 @@
 use super::utils;
-use crate::math::{Isometry, Point, Vector};
+use crate::math::{Isometry, Point, Translation, Vector, DIM};
 use crate::utils::DeterministicState;
-use alga::linear::Translation;
 use na::{self, Point2, Point3, RealField};
 use std::collections::HashMap;
 
@@ -91,9 +90,9 @@ impl<N: RealField> TriMesh<N> {
 
     /// Translates each vertex of this mesh.
     #[inline]
-    pub fn translate_by<T: Translation<Point<N>>>(&mut self, t: &T) {
+    pub fn translate_by(&mut self, t: &Translation<N>) {
         for c in self.coords.iter_mut() {
-            *c = t.transform_point(c);
+            *c = t * &*c;
         }
     }
 
@@ -204,7 +203,7 @@ impl<N: RealField> TriMesh<N> {
     #[inline]
     pub fn scale_by(&mut self, s: &Vector<N>) {
         for c in self.coords.iter_mut() {
-            for i in 0..na::dimension::<Vector<N>>() {
+            for i in 0..DIM {
                 c[i] = (*c)[i] * s[i];
             }
         }

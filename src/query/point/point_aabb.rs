@@ -15,7 +15,7 @@ impl<N: RealField> AABB<N> {
         let ls_pt = m.inverse_transform_point(pt);
         let mins_pt = *self.mins() - ls_pt;
         let pt_maxs = ls_pt - *self.maxs();
-        let shift = na::sup(&na::zero(), &mins_pt) - na::sup(&na::zero(), &pt_maxs);
+        let shift = mins_pt.sup(&na::zero()) - pt_maxs.sup(&na::zero());
 
         let inside = shift.is_zero();
 
@@ -139,7 +139,7 @@ impl<N: RealField> PointQuery<N> for AABB<N> {
         let ls_pt = m.inverse_transform_point(pt);
         let mins_pt = *self.mins() - ls_pt;
         let pt_maxs = ls_pt - *self.maxs();
-        let shift = na::sup(&na::zero(), &na::sup(&mins_pt, &pt_maxs));
+        let shift = mins_pt.sup(&pt_maxs).sup(&na::zero());
 
         if solid || !shift.is_zero() {
             shift.norm()

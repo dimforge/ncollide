@@ -6,7 +6,6 @@ use crate::query::algorithms::{gjk, CSOPoint, VoronoiSimplex};
 use crate::query::PointQueryWithLocation;
 use crate::shape::{SupportMap, Triangle, TrianglePointLocation};
 use crate::utils;
-use alga::linear::FiniteDimInnerSpace;
 use na::{self, RealField, Unit};
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;

@@ -50,7 +50,6 @@ And various traits for collision detectors and broad phase collision detection.
 #[cfg(feature = "serde")]
 #[macro_use]
 extern crate serde;
-extern crate alga;
 #[macro_use]
 extern crate approx;
 #[macro_use]

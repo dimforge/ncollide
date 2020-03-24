@@ -141,15 +141,15 @@ impl<N: RealField> BoundingVolume<N> for AABB<N> {
 
     #[inline]
     fn merge(&mut self, other: &AABB<N>) {
-        self.mins = na::inf(&self.mins, &other.mins);
-        self.maxs = na::sup(&self.maxs, &other.maxs);
+        self.mins = self.mins.inf(&other.mins);
+        self.maxs = self.maxs.sup(&other.maxs);
     }
 
     #[inline]
     fn merged(&self, other: &AABB<N>) -> AABB<N> {
         AABB {
-            mins: na::inf(&self.mins, &other.mins),
-            maxs: na::sup(&self.maxs, &other.maxs),
+            mins: self.mins.inf(&other.mins),
+            maxs: self.maxs.sup(&other.maxs),
         }
     }
 

@@ -1,4 +1,4 @@
-use alga::general::RealField;
+use simba::scalar::RealField;
 
 use crate::pipeline::object::{CollisionObject, CollisionObjectRef, CollisionObjectSlabHandle};
 use slab::{Iter, IterMut, Slab};
