@@ -32,7 +32,7 @@ slab       = "0.4"
 slotmap    = "0.4"
 petgraph   = "0.5"
 simba      = "0.1"
-nalgebra   = "0.20"
+nalgebra   = "0.21"
 approx     = { version = "0.3", default-features = false }
 serde      = { version = "1.0", optional = true, features = ["derive", "rc"]}
 
