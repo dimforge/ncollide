@@ -16,6 +16,8 @@ pub mod epa2;
 #[cfg(feature = "dim3")]
 pub mod epa3;
 pub mod gjk;
+/// Special support map function like constants and Minkowski sums.
+pub mod special_support_maps;
 #[cfg(feature = "dim2")]
 mod voronoi_simplex2;
 #[cfg(feature = "dim3")]

@@ -10,7 +10,6 @@ pub fn sort2<'a, N: PartialOrd>(a: &'a N, b: &'a N) -> (&'a N, &'a N) {
     }
 }
 
-
 /// Sorts a set of three values in increasing order.
 #[inline]
 pub fn sort3<'a, N: PartialOrd>(a: &'a N, b: &'a N, c: &'a N) -> (&'a N, &'a N, &'a N) {

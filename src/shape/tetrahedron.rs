@@ -1,12 +1,13 @@
 //! Definition of the tetrahedron shape.
 
-use crate::math::{Point, Matrix};
-use na::RealField;
+use crate::math::{Matrix, Point};
 use crate::shape::{Segment, Triangle};
+use na::RealField;
 use std::mem;
 
 /// A tetrahedron with 4 vertices.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[repr(C)]
 #[derive(Copy, Clone, Debug)]
 pub struct Tetrahedron<N: RealField> {
     a: Point<N>,
@@ -201,15 +202,16 @@ impl<N: RealField> Tetrahedron<N> {
         let ab = self.b - self.a;
         let ac = self.c - self.a;
         let ad = self.d - self.a;
-        let m = Matrix::new(
-            ab.x, ac.x, ad.x,
-            ab.y, ac.y, ad.y,
-            ab.z, ac.z, ad.z,
-        );
+        let m = Matrix::new(ab.x, ac.x, ad.x, ab.y, ac.y, ad.y, ab.z, ac.z, ad.z);
 
         m.try_inverse().map(|im| {
             let bcoords = im * (p - self.a);
-            [ N::one() - bcoords.x - bcoords.y - bcoords.z, bcoords.x, bcoords.y, bcoords.z ]
+            [
+                N::one() - bcoords.x - bcoords.y - bcoords.z,
+                bcoords.x,
+                bcoords.y,
+                bcoords.z,
+            ]
         })
     }
 }

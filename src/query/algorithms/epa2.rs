@@ -7,8 +7,10 @@ use alga::general::RealField;
 use na::{self, Unit};
 
 use crate::math::{Isometry, Point, Vector};
-use crate::query::algorithms::{gjk, CSOPoint, VoronoiSimplex};
-use crate::shape::{ConstantOrigin, SupportMap};
+use crate::query::algorithms::{
+    gjk, special_support_maps::ConstantOrigin, CSOPoint, VoronoiSimplex,
+};
+use crate::shape::SupportMap;
 use crate::utils;
 
 #[derive(Copy, Clone, PartialEq)]
@@ -20,11 +22,11 @@ struct FaceId<N: RealField> {
 impl<N: RealField> FaceId<N> {
     fn new(id: usize, neg_dist: N) -> Option<Self> {
         if neg_dist > gjk::eps_tol() {
-//            println!(
-//                "EPA: the origin was outside of the CSO: {} > tolerence ({})",
-//                neg_dist,
-//                gjk::eps_tol::<N>()
-//            );
+            //            println!(
+            //                "EPA: the origin was outside of the CSO: {} > tolerence ({})",
+            //                neg_dist,
+            //                gjk::eps_tol::<N>()
+            //            );
             None
         } else {
             Some(FaceId { id, neg_dist })
@@ -82,8 +84,7 @@ impl<N: RealField> Face<N> {
         proj: Point<N>,
         bcoords: [N; 2],
         pts: [usize; 2],
-    ) -> Self
-    {
+    ) -> Self {
         let normal;
         let deleted;
 
@@ -289,7 +290,7 @@ impl<N: RealField> EPA<N> {
                 Face::new(&self.vertices, pts2),
             ];
 
-            for f in new_faces.into_iter() {
+            for f in new_faces.iter() {
                 if f.1 {
                     let dist = f.0.normal.dot(&f.0.proj.coords);
                     if dist < curr_dist {
@@ -309,7 +310,7 @@ impl<N: RealField> EPA<N> {
 
             niter += 1;
             if niter > 10000 {
-//                println!("EPA did not converge after 1000 iterations… stopping the iterations.");
+                //                println!("EPA did not converge after 1000 iterations… stopping the iterations.");
                 return None;
             }
         }

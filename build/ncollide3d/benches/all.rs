@@ -6,7 +6,7 @@ extern crate ncollide3d;
 extern crate rand;
 extern crate test;
 
-mod query;
-mod common;
 mod bounding_volume;
+mod common;
+mod query;
 mod support_map;

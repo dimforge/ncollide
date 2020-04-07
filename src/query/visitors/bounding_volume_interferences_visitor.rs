@@ -1,10 +1,16 @@
 use crate::bounding_volume::BoundingVolume;
-use na::RealField;
 use crate::partitioning::{VisitStatus, Visitor};
+use na::RealField;
 use std::marker::PhantomData;
 
 /// Spatial partitioning data structure visitor visiting interferences with a given bounding volume.
-pub struct BoundingVolumeInterferencesVisitor<'a, N: 'a, T: 'a, BV: 'a, Visitor: FnMut(&T) -> VisitStatus> {
+pub struct BoundingVolumeInterferencesVisitor<
+    'a,
+    N: 'a,
+    T: 'a,
+    BV: 'a,
+    Visitor: FnMut(&T) -> VisitStatus,
+> {
     /// The bounding volume used for interference tests.
     pub bv: &'a BV,
     /// Visitor function.
@@ -12,7 +18,8 @@ pub struct BoundingVolumeInterferencesVisitor<'a, N: 'a, T: 'a, BV: 'a, Visitor:
     _data: PhantomData<(N, &'a T)>,
 }
 
-impl<'a, N, T, BV, Visitor: FnMut(&T) -> VisitStatus> BoundingVolumeInterferencesVisitor<'a, N, T, BV, Visitor>
+impl<'a, N, T, BV, Visitor: FnMut(&T) -> VisitStatus>
+    BoundingVolumeInterferencesVisitor<'a, N, T, BV, Visitor>
 where
     N: RealField,
     BV: BoundingVolume<N>,
@@ -22,9 +29,8 @@ where
     pub fn new(
         bv: &'a BV,
         visitor: Visitor,
-    ) -> Self
-    {
-        Self {
+    ) -> BoundingVolumeInterferencesVisitor<'a, N, T, BV, Visitor> {
+        BoundingVolumeInterferencesVisitor {
             bv,
             visitor,
             _data: PhantomData,
@@ -32,7 +38,8 @@ where
     }
 }
 
-impl<'a, N, T, BV, VisitorFn: FnMut(&T) -> VisitStatus> Visitor<T, BV> for BoundingVolumeInterferencesVisitor<'a, N, T, BV, VisitorFn>
+impl<'a, N, T, BV, VisitorFn: FnMut(&T) -> VisitStatus> Visitor<T, BV>
+    for BoundingVolumeInterferencesVisitor<'a, N, T, BV, VisitorFn>
 where
     N: RealField,
     BV: BoundingVolume<N>,

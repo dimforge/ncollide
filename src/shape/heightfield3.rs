@@ -1,9 +1,9 @@
-use na::{DMatrix, RealField, Point3};
+use na::{DMatrix, Point3, RealField};
 
 use crate::bounding_volume::AABB;
-use crate::query::{ContactPreprocessor, Contact, ContactKinematic};
-use crate::shape::{Triangle, FeatureId};
 use crate::math::Vector;
+use crate::query::{Contact, ContactKinematic, ContactPreprocessor};
+use crate::shape::{FeatureId, Triangle};
 
 bitflags! {
     #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
@@ -35,19 +35,30 @@ pub struct HeightField<N: RealField> {
 impl<N: RealField> HeightField<N> {
     /// Initializes a new heightfield with the given heights and a scaling factor.
     pub fn new(heights: DMatrix<N>, scale: Vector<N>) -> Self {
-        assert!(heights.nrows() > 1 && heights.ncols() > 1, "A heightfield heights must have at least 2 rows and columns.");
+        assert!(
+            heights.nrows() > 1 && heights.ncols() > 1,
+            "A heightfield heights must have at least 2 rows and columns."
+        );
         let max = heights.max();
         let min = heights.min();
         let hscale = scale * na::convert::<_, N>(0.5);
         let aabb = AABB::new(
             Point3::new(-hscale.x, min * scale.y, -hscale.z),
-            Point3::new(hscale.x, max * scale.y, hscale.z)
+            Point3::new(hscale.x, max * scale.y, hscale.z),
         );
         let num_triangles = (heights.nrows() - 1) * (heights.ncols() - 1) * 2;
-        let status = DMatrix::repeat(heights.nrows() - 1, heights.ncols() - 1, HeightFieldCellStatus::default());
+        let status = DMatrix::repeat(
+            heights.nrows() - 1,
+            heights.ncols() - 1,
+            HeightFieldCellStatus::default(),
+        );
 
         HeightField {
-            heights, scale, aabb, num_triangles, status
+            heights,
+            scale,
+            aabb,
+            num_triangles,
+            status,
         }
     }
 
@@ -81,13 +92,21 @@ impl<N: RealField> HeightField<N> {
 
     fn quantize_floor(&self, val: N, cell_size: N, num_cells: usize) -> usize {
         let _0_5: N = na::convert(0.5);
-        let i = na::clamp(((val + _0_5) / cell_size).floor(), N::zero(), na::convert((num_cells - 1) as f64));
+        let i = na::clamp(
+            ((val + _0_5) / cell_size).floor(),
+            N::zero(),
+            na::convert((num_cells - 1) as f64),
+        );
         unsafe { na::convert_unchecked::<N, f64>(i) as usize }
     }
 
     fn quantize_ceil(&self, val: N, cell_size: N, num_cells: usize) -> usize {
         let _0_5: N = na::convert(0.5);
-        let i = na::clamp(((val + _0_5) / cell_size).ceil(), N::zero(), na::convert(num_cells as f64));
+        let i = na::clamp(
+            ((val + _0_5) / cell_size).ceil(),
+            N::zero(),
+            na::convert(num_cells as f64),
+        );
         unsafe { na::convert_unchecked::<N, f64>(i) as usize }
     }
 
@@ -127,7 +146,7 @@ impl<N: RealField> HeightField<N> {
         HeightfieldTriangles {
             heightfield: self,
             curr: (0, 0),
-            tris: self.triangles_at(0, 0)
+            tris: self.triangles_at(0, 0),
         }
     }
 
@@ -138,7 +157,10 @@ impl<N: RealField> HeightField<N> {
     pub fn triangles_at(&self, i: usize, j: usize) -> (Option<Triangle<N>>, Option<Triangle<N>>) {
         let status = self.status[(i, j)];
 
-        if status.contains(HeightFieldCellStatus::LEFT_TRIANGLE_REMOVED | HeightFieldCellStatus::RIGHT_TRIANGLE_REMOVED) {
+        if status.contains(
+            HeightFieldCellStatus::LEFT_TRIANGLE_REMOVED
+                | HeightFieldCellStatus::RIGHT_TRIANGLE_REMOVED,
+        ) {
             return (None, None);
         }
 
@@ -254,10 +276,15 @@ impl<N: RealField> HeightField<N> {
         &self.aabb
     }
 
-
     /// Converts the FeatureID of the left or right triangle at the cell `(i, j)` into a FeatureId
     /// of the whole heightfield.
-    pub fn convert_triangle_feature_id(&self, i: usize, j: usize, left: bool, fid: FeatureId) -> FeatureId {
+    pub fn convert_triangle_feature_id(
+        &self,
+        i: usize,
+        j: usize,
+        left: bool,
+        fid: FeatureId,
+    ) -> FeatureId {
         match fid {
             FeatureId::Vertex(ivertex) => {
                 let nrows = self.heights.nrows();
@@ -329,19 +356,23 @@ impl<N: RealField> HeightField<N> {
                     FeatureId::Face(self.face_id(i, j, left, false))
                 }
             }
-            FeatureId::Unknown => FeatureId::Unknown
+            FeatureId::Unknown => FeatureId::Unknown,
         }
     }
 
     /// Applies the function `f` to all the triangles of this heightfield intersecting the given AABB.
-    pub fn map_elements_in_local_aabb(&self, aabb: &AABB<N>, f: &mut impl FnMut(usize, &Triangle<N>, &ContactPreprocessor<N>)) {
+    pub fn map_elements_in_local_aabb(
+        &self,
+        aabb: &AABB<N>,
+        f: &mut impl FnMut(usize, &Triangle<N>, &dyn ContactPreprocessor<N>),
+    ) {
         let _0_5: N = na::convert(0.5);
         let ncells_x = self.ncols();
         let ncells_z = self.nrows();
 
         let ref_mins = aabb.mins().coords.component_div(&self.scale);
         let ref_maxs = aabb.maxs().coords.component_div(&self.scale);
-        let cell_width  = self.unit_cell_width();
+        let cell_width = self.unit_cell_width();
         let cell_height = self.unit_cell_height();
 
         if ref_maxs.x <= -_0_5 || ref_maxs.z <= -_0_5 || ref_mins.x >= _0_5 || ref_mins.z >= _0_5 {
@@ -376,8 +407,12 @@ impl<N: RealField> HeightField<N> {
                 let y01 = self.heights[(i + 0, j + 1)];
                 let y11 = self.heights[(i + 1, j + 1)];
 
-                if (y00 > ref_maxs.y && y10 > ref_maxs.y && y01 > ref_maxs.y && y11 > ref_maxs.y) ||
-                    (y00 < ref_mins.y && y10 < ref_mins.y && y01 < ref_mins.y && y11 < ref_mins.y) {
+                if (y00 > ref_maxs.y && y10 > ref_maxs.y && y01 > ref_maxs.y && y11 > ref_maxs.y)
+                    || (y00 < ref_mins.y
+                        && y10 < ref_mins.y
+                        && y01 < ref_mins.y
+                        && y11 < ref_mins.y)
+                {
                     continue;
                 }
 
@@ -420,30 +455,28 @@ impl<N: RealField> HeightField<N> {
     }
 }
 
-
 #[allow(dead_code)]
 pub struct HeightFieldTriangleContactPreprocessor<'a, N: RealField> {
     heightfield: &'a HeightField<N>,
-    triangle: usize
+    triangle: usize,
 }
 
 impl<'a, N: RealField> HeightFieldTriangleContactPreprocessor<'a, N> {
     pub fn new(heightfield: &'a HeightField<N>, triangle: usize) -> Self {
         HeightFieldTriangleContactPreprocessor {
             heightfield,
-            triangle
+            triangle,
         }
     }
 }
-
 
 impl<'a, N: RealField> ContactPreprocessor<N> for HeightFieldTriangleContactPreprocessor<'a, N> {
     fn process_contact(
         &self,
         _c: &mut Contact<N>,
         _kinematic: &mut ContactKinematic<N>,
-        _is_first: bool)
-        -> bool {
+        _is_first: bool,
+    ) -> bool {
         /*
         // Fix the feature ID.
         let feature = if is_first {
@@ -487,7 +520,7 @@ impl<'a, N: RealField> ContactPreprocessor<N> for HeightFieldTriangleContactPrep
 struct HeightfieldTriangles<'a, N: RealField> {
     heightfield: &'a HeightField<N>,
     curr: (usize, usize),
-    tris: (Option<Triangle<N>>, Option<Triangle<N>>)
+    tris: (Option<Triangle<N>>, Option<Triangle<N>>),
 }
 
 impl<'a, N: RealField> Iterator for HeightfieldTriangles<'a, N> {

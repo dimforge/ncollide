@@ -1,7 +1,7 @@
-use alga::general::RealField;
 use crate::math::Point;
-use na;
 use crate::utils;
+use alga::general::RealField;
+use na;
 
 /// Computes the area of a triangle.
 #[inline]
@@ -78,8 +78,7 @@ pub fn is_affinely_dependent_triangle<N: RealField>(
     p1: &Point<N>,
     p2: &Point<N>,
     p3: &Point<N>,
-) -> bool
-{
+) -> bool {
     let p1p2 = *p2 - *p1;
     let p1p3 = *p3 - *p1;
 
@@ -100,8 +99,7 @@ pub fn is_point_in_triangle<N: RealField>(
     p1: &Point<N>,
     p2: &Point<N>,
     p3: &Point<N>,
-) -> bool
-{
+) -> bool {
     let p1p2 = *p2 - *p1;
     let p2p3 = *p3 - *p2;
     let p3p1 = *p1 - *p3;

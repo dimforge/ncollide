@@ -1,5 +1,5 @@
 [workspace]
-members = [ "build/ncollide2d", "build/ncollide3d" ] #, "ncollide_testbed2d", "ncollide_testbed3d" ]
+members = [ "build/ncollide2d", "build/ncollide3d" ]
 
 [patch.crates-io]
 ncollide2d = { path = "./build/ncollide2d" }

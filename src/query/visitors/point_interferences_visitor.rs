@@ -1,13 +1,18 @@
 use crate::math::{Isometry, Point};
-use na::RealField;
 use crate::partitioning::{VisitStatus, Visitor};
 use crate::query::PointQuery;
+use na::RealField;
 use std::marker::PhantomData;
 
 // FIXME: add a point cost fn.
 
 /// Spatial partitioning structure visiting nodes that may contain a given point.
-pub struct PointInterferencesVisitor<'a, N: RealField, T, Visitor: FnMut(&T) -> VisitStatus> {
+pub struct PointInterferencesVisitor<
+    'a,
+    N: 'a + RealField,
+    T: 'a,
+    Visitor: FnMut(&T) -> VisitStatus,
+> {
     /// Point to be tested.
     pub point: &'a Point<N>,
     /// Visitor function.
@@ -15,23 +20,25 @@ pub struct PointInterferencesVisitor<'a, N: RealField, T, Visitor: FnMut(&T) -> 
     _data: PhantomData<&'a T>,
 }
 
-impl<'a, N: RealField, T, Visitor: FnMut(&T) -> VisitStatus> PointInterferencesVisitor<'a, N, T, Visitor> {
+impl<'a, N: RealField, T, Visitor: FnMut(&T) -> VisitStatus>
+    PointInterferencesVisitor<'a, N, T, Visitor>
+{
     /// Creates a new `PointInterferencesVisitor`.
     #[inline]
     pub fn new(
         point: &'a Point<N>,
         visitor: Visitor,
-    ) -> Self
-    {
-        Self {
+    ) -> PointInterferencesVisitor<'a, N, T, Visitor> {
+        PointInterferencesVisitor {
             point,
             visitor,
-            _data: PhantomData
+            _data: PhantomData,
         }
     }
 }
 
-impl<'a, N, T, VisitorFn: FnMut(&T) -> VisitStatus, BV> Visitor<T, BV> for PointInterferencesVisitor<'a, N, T, VisitorFn>
+impl<'a, N, T, VisitorFn: FnMut(&T) -> VisitStatus, BV> Visitor<T, BV>
+    for PointInterferencesVisitor<'a, N, T, VisitorFn>
 where
     N: RealField,
     BV: PointQuery<N>,

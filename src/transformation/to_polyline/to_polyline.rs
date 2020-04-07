@@ -1,5 +1,5 @@
-use na::RealField;
 use crate::procedural::Polyline;
+use na::RealField;
 
 /// Trait implemented by shapes that can be approximated by a triangle mesh.
 pub trait ToPolyline<N: RealField> {

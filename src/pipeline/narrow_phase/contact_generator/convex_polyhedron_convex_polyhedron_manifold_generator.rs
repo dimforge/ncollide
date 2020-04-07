@@ -1,15 +1,13 @@
 use crate::math::{Isometry, Vector};
-use na::{self, RealField, Unit};
 use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 use crate::query::algorithms::gjk::GJKResult;
 use crate::query::algorithms::VoronoiSimplex;
-use crate::query::contacts_internal;
-use crate::query::{Contact, ContactManifold, ContactPrediction, ContactPreprocessor};
+use crate::query::{self, Contact, ContactManifold, ContactPrediction, ContactPreprocessor};
 #[cfg(feature = "dim3")]
 use crate::shape::ClippingCache;
 use crate::shape::ConvexPolygonalFeature;
 use crate::shape::{FeatureId, Shape};
-use crate::utils::IdAllocator;
+use na::{self, RealField, Unit};
 
 #[cfg(feature = "dim2")]
 #[derive(Clone)]
@@ -79,23 +77,23 @@ impl<N: RealField> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
     }
 }
 
-impl<N: RealField> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
+impl<N: RealField> ContactManifoldGenerator<N>
+    for ConvexPolyhedronConvexPolyhedronManifoldGenerator<N>
+{
     fn generate_contacts(
         &mut self,
-        _: &ContactDispatcher<N>,
+        _: &dyn ContactDispatcher<N>,
         ma: &Isometry<N>,
-        a: &Shape<N>,
-        proc1: Option<&ContactPreprocessor<N>>,
+        a: &dyn Shape<N>,
+        proc1: Option<&dyn ContactPreprocessor<N>>,
         mb: &Isometry<N>,
-        b: &Shape<N>,
-        proc2: Option<&ContactPreprocessor<N>>,
+        b: &dyn Shape<N>,
+        proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
-    ) -> bool
-    {
+    ) -> bool {
         if let (Some(cpa), Some(cpb)) = (a.as_convex_polyhedron(), b.as_convex_polyhedron()) {
-            let contact = contacts_internal::support_map_against_support_map_with_params(
+            let contact = query::contact_support_map_support_map_with_params(
                 ma,
                 cpa,
                 mb,
@@ -158,7 +156,6 @@ impl<N: RealField> ContactManifoldGenerator<N> for ConvexPolyhedronConvexPolyhed
                     mb,
                     f2,
                     proc2,
-                    id_alloc,
                     manifold,
                 )
             }

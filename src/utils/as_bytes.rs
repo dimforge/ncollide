@@ -6,7 +6,7 @@ use na::{Point2, Point3, Vector2, Vector3};
 
 /// Trait that transforms thing to a slice of u8.
 pub trait AsBytes {
-    fn as_bytes<'a>(&'a self) -> &'a [u8];
+    fn as_bytes(&self) -> &[u8];
 }
 
 macro_rules! generic_as_bytes_impl(

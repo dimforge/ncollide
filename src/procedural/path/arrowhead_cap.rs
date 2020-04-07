@@ -1,7 +1,7 @@
-use alga::general::RealField;
-use na::{self, Isometry3, Point3, Vector3};
 use crate::procedural::path::PolylineCompatibleCap;
 use crate::procedural::utils;
+use alga::general::RealField;
+use na::{self, Isometry3, Point3, Vector3};
 
 /// A cap that looks like an arrow.
 pub struct ArrowheadCap<N> {
@@ -35,8 +35,7 @@ impl<N: RealField> ArrowheadCap<N> {
         negative_shifts: bool,
         coords: &mut Vec<Point3<N>>,
         indices: &mut Vec<Point3<u32>>,
-    )
-    {
+    ) {
         let front_dist_to_head = if negative_shifts {
             -self.front_dist_to_head
         } else {
@@ -63,17 +62,11 @@ impl<N: RealField> ArrowheadCap<N> {
 
             if dir.x.is_zero() && dir.z.is_zero() {
                 // FIXME: this might not be enough to avoid singularities.
-                transform = Isometry3::face_towards(
-                    &(*pt - back_shift),
-                    &(*pt + *dir),
-                    &Vector3::x(),
-                );
+                transform =
+                    Isometry3::face_towards(&(*pt - back_shift), &(*pt + *dir), &Vector3::x());
             } else {
-                transform = Isometry3::face_towards(
-                    &(*pt - back_shift),
-                    &(*pt + *dir),
-                    &Vector3::y(),
-                );
+                transform =
+                    Isometry3::face_towards(&(*pt - back_shift), &(*pt + *dir), &Vector3::y());
             }
 
             for p in &mut new_pattern {
@@ -116,8 +109,7 @@ impl<N: RealField> PolylineCompatibleCap<N> for ArrowheadCap<N> {
         closed: bool,
         coords: &mut Vec<Point3<N>>,
         indices: &mut Vec<Point3<u32>>,
-    )
-    {
+    ) {
         let start_indices_id = indices.len();
 
         self.do_gen_cap(attach_id, pattern, pt, dir, closed, false, coords, indices);
@@ -133,8 +125,7 @@ impl<N: RealField> PolylineCompatibleCap<N> for ArrowheadCap<N> {
         closed: bool,
         coords: &mut Vec<Point3<N>>,
         indices: &mut Vec<Point3<u32>>,
-    )
-    {
+    ) {
         self.do_gen_cap(attach_id, pattern, pt, dir, closed, true, coords, indices)
     }
 }

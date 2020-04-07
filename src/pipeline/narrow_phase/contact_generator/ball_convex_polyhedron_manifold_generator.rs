@@ -1,10 +1,13 @@
 use crate::math::{Isometry, Point};
-use na::{RealField, Unit};
 use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
-use crate::query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry, ContactPreprocessor};
+use crate::query::{
+    Contact, ContactKinematic, ContactManifold, ContactPrediction, ContactPreprocessor,
+    NeighborhoodGeometry,
+};
 use crate::shape::{Ball, FeatureId, Shape};
+use crate::utils::IsometryOps;
+use na::{RealField, Unit};
 use std::marker::PhantomData;
-use crate::utils::{IdAllocator, IsometryOps};
 
 /// Collision detector between two balls.
 #[derive(Clone)]
@@ -26,16 +29,14 @@ impl<N: RealField> BallConvexPolyhedronManifoldGenerator<N> {
     fn do_generate(
         &mut self,
         m1: &Isometry<N>,
-        a: &Shape<N>,
-        proc1: Option<&ContactPreprocessor<N>>,
+        a: &dyn Shape<N>,
+        proc1: Option<&dyn ContactPreprocessor<N>>,
         m2: &Isometry<N>,
-        b: &Shape<N>,
-        proc2: Option<&ContactPreprocessor<N>>,
+        b: &dyn Shape<N>,
+        proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
-    ) -> bool
-    {
+    ) -> bool {
         // NOTE: we use an underscore to silence a warning
         // for _cp2 because it is used in 3D but not in 2D.
         if let (Some(ball), Some(pq2), Some(cp2)) = (
@@ -77,19 +78,11 @@ impl<N: RealField> BallConvexPolyhedronManifoldGenerator<N> {
 
                 if !self.flip {
                     contact = Contact::new(world1, world2, normal, depth);
-                    kinematic.set_approx1(
-                        f1,
-                        Point::origin(),
-                        NeighborhoodGeometry::Point,
-                    );
+                    kinematic.set_approx1(f1, Point::origin(), NeighborhoodGeometry::Point);
                     kinematic.set_dilation1(ball.radius());
                 } else {
                     contact = Contact::new(world2, world1, -normal, depth);
-                    kinematic.set_approx2(
-                        f1,
-                        Point::origin(),
-                        NeighborhoodGeometry::Point,
-                    );
+                    kinematic.set_approx2(f1, Point::origin(), NeighborhoodGeometry::Point);
                     kinematic.set_dilation2(ball.radius());
                 }
 
@@ -115,10 +108,10 @@ impl<N: RealField> BallConvexPolyhedronManifoldGenerator<N> {
 
                 if !self.flip {
                     kinematic.set_approx2(f2, local2, geom2);
-                    let _ = manifold.push(contact, kinematic, Point::origin(), proc1, proc2, id_alloc);
+                    let _ = manifold.push(contact, kinematic, Point::origin(), proc1, proc2);
                 } else {
                     kinematic.set_approx1(f2, local2, geom2);
-                    let _ = manifold.push(contact, kinematic, Point::origin(), proc2, proc1, id_alloc);
+                    let _ = manifold.push(contact, kinematic, Point::origin(), proc2, proc1);
                 }
             }
 
@@ -132,22 +125,20 @@ impl<N: RealField> BallConvexPolyhedronManifoldGenerator<N> {
 impl<N: RealField> ContactManifoldGenerator<N> for BallConvexPolyhedronManifoldGenerator<N> {
     fn generate_contacts(
         &mut self,
-        _: &ContactDispatcher<N>,
+        _: &dyn ContactDispatcher<N>,
         m1: &Isometry<N>,
-        a: &Shape<N>,
-        proc1: Option<&ContactPreprocessor<N>>,
+        a: &dyn Shape<N>,
+        proc1: Option<&dyn ContactPreprocessor<N>>,
         m2: &Isometry<N>,
-        b: &Shape<N>,
-        proc2: Option<&ContactPreprocessor<N>>,
+        b: &dyn Shape<N>,
+        proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
-    ) -> bool
-    {
+    ) -> bool {
         if !self.flip {
-            self.do_generate(m1, a, proc1, m2, b, proc2, prediction, id_alloc, manifold)
+            self.do_generate(m1, a, proc1, m2, b, proc2, prediction, manifold)
         } else {
-            self.do_generate(m2, b, proc2, m1, a, proc1, prediction, id_alloc, manifold)
+            self.do_generate(m2, b, proc2, m1, a, proc1, prediction, manifold)
         }
     }
 }

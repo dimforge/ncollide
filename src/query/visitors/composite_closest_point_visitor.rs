@@ -1,11 +1,11 @@
 use crate::bounding_volume::AABB;
 use crate::math::{Isometry, Point};
-use na::{self, RealField};
-use crate::partitioning::{BestFirstBVVisitStatus, BestFirstDataVisitStatus, BestFirstVisitor};
+use crate::partitioning::{BestFirstVisitStatus, BestFirstVisitor};
 use crate::query::{PointProjection, PointQuery};
 use crate::shape::CompositeShape;
+use na::{self, RealField};
 
-/// Best-fisrt traversal visitor for computin the point closest to a composite shape.
+/// Best-first traversal visitor for computing the point closest to a composite shape.
 pub struct CompositeClosestPointVisitor<'a, N: 'a + RealField, S: 'a + CompositeShape<N>> {
     shape: &'a S,
     point: &'a Point<N>,
@@ -28,24 +28,33 @@ impl<'a, N: RealField, S: CompositeShape<N> + PointQuery<N>> BestFirstVisitor<N,
 {
     type Result = PointProjection<N>;
 
-    fn visit_bv(&mut self, aabb: &AABB<N>) -> BestFirstBVVisitStatus<N> {
-        BestFirstBVVisitStatus::ContinueWithCost(aabb.distance_to_point(
-            &Isometry::identity(),
-            self.point,
-            true,
-        ))
-    }
+    #[inline]
+    fn visit(
+        &mut self,
+        best: N,
+        aabb: &AABB<N>,
+        data: Option<&usize>,
+    ) -> BestFirstVisitStatus<N, Self::Result> {
+        let dist = aabb.distance_to_point(&Isometry::identity(), self.point, true);
 
-    fn visit_data(&mut self, b: &usize) -> BestFirstDataVisitStatus<N, PointProjection<N>> {
-        let mut res = BestFirstDataVisitStatus::Continue;
+        let mut res = BestFirstVisitStatus::Continue {
+            cost: dist,
+            result: None,
+        };
 
-        self.shape.map_part_at(*b, &Isometry::identity(), &mut |objm, obj| {
-            let proj = obj.project_point(objm, self.point, self.solid);
-            res = BestFirstDataVisitStatus::ContinueWithResult(
-                na::distance(self.point, &proj.point),
-                proj,
-            );
-        });
+        if let Some(b) = data {
+            if dist < best {
+                self.shape
+                    .map_part_at(*b, &Isometry::identity(), &mut |objm, obj| {
+                        let proj = obj.project_point(objm, self.point, self.solid);
+
+                        res = BestFirstVisitStatus::Continue {
+                            cost: na::distance(self.point, &proj.point),
+                            result: Some(proj),
+                        };
+                    });
+            }
+        }
 
         res
     }

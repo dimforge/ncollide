@@ -1,7 +1,7 @@
 use crate::bounding_volume::{BoundingSphere, HasBoundingVolume};
 use crate::math::{Isometry, Point};
-use na::{self, RealField};
 use crate::shape::Cuboid;
+use na::{self, RealField};
 
 impl<N: RealField> HasBoundingVolume<N, BoundingSphere<N>> for Cuboid<N> {
     #[inline]

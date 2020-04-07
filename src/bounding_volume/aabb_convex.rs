@@ -1,8 +1,8 @@
 use crate::bounding_volume::aabb_utils;
 use crate::bounding_volume::{HasBoundingVolume, AABB};
 use crate::math::Isometry;
-use na::RealField;
 use crate::shape::ConvexHull;
+use na::RealField;
 
 impl<N: RealField> HasBoundingVolume<N, AABB<N>> for ConvexHull<N> {
     #[inline]

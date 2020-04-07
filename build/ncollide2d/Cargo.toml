@@ -1,6 +1,6 @@
 [package]
 name    = "ncollide2d"
-version = "0.19.2"
+version = "0.22.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "2 and 3-dimensional collision detection library in Rust."
@@ -23,15 +23,18 @@ path = "../../src/lib.rs"
 required-features = [ "dim2" ]
 
 [dependencies]
-either          = "1.0"
-bitflags        = "1.0"
-downcast-rs     = "1.0"
+either          = "1"
+bitflags        = "1"
+downcast-rs     = "1"
 num-traits      = { version = "0.2", default-features = false }
-smallvec        = "0.6"
+smallvec        = "1"
 slab            = "0.4"
-petgraph        = "0.4"
+slotmap         = "0.4"
+petgraph        = "0.5"
 alga            = "0.9"
-nalgebra        = "0.18"
+nalgebra        = "0.20"
 approx          = { version = "0.3", default-features = false }
-rand            = { version = "0.6", default-features = false }
 serde           = { version = "1.0", optional = true, features = ["derive"]}
+
+[dev-dependencies]
+rand            = { version = "0.7", default-features = false }

@@ -1,8 +1,8 @@
 use crate::math::{Isometry, Point};
-use na::{self, RealField};
-use crate::query::algorithms::CSOPoint;
+use crate::query::algorithms::{gjk, CSOPoint};
 use crate::query::{PointQuery, PointQueryWithLocation};
 use crate::shape::{Segment, SegmentPointLocation, Triangle, TrianglePointLocation};
+use na::{self, RealField};
 
 /// A simplex of dimension up to 2 using Voronoï regions for computing point projections.
 #[derive(Clone, Debug)]
@@ -49,7 +49,7 @@ impl<N: RealField> VoronoiSimplex<N> {
         self.prev_vertices = [0, 1, 2];
 
         for i in 0..self.dim + 1 {
-            if self.vertices[i].point == pt.point {
+            if (self.vertices[i].point - pt.point).norm_squared() < gjk::eps_tol() {
                 return false;
             }
         }
@@ -213,7 +213,7 @@ impl<N: RealField> VoronoiSimplex<N> {
     }
 
     /// Apply a function to all the vertices of this simplex.
-    pub fn modify_pnts(&mut self, f: &Fn(&mut CSOPoint<N>)) {
+    pub fn modify_pnts(&mut self, f: &dyn Fn(&mut CSOPoint<N>)) {
         for i in 0..self.dim + 1 {
             f(&mut self.vertices[i])
         }

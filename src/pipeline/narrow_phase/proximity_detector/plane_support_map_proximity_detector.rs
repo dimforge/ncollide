@@ -1,24 +1,19 @@
 use crate::math::Isometry;
-use na::RealField;
 use crate::pipeline::narrow_phase::{ProximityDetector, ProximityDispatcher};
-use crate::query::proximity_internal;
-use crate::query::Proximity;
+use crate::query::{self, Proximity};
 use crate::shape::{Plane, Shape};
+use na::RealField;
 
 /// Proximity detector between a plane and a shape implementing the `SupportMap` trait.
 #[derive(Clone)]
-pub struct PlaneSupportMapProximityDetector {
-    proximity: Proximity,
-}
+pub struct PlaneSupportMapProximityDetector {}
 
 impl PlaneSupportMapProximityDetector {
     /// Creates a new persistent proximity detector between a plane and a shape with a support
     /// mapping function.
     #[inline]
     pub fn new() -> PlaneSupportMapProximityDetector {
-        PlaneSupportMapProximityDetector {
-            proximity: Proximity::Disjoint,
-        }
+        PlaneSupportMapProximityDetector {}
     }
 }
 
@@ -43,26 +38,16 @@ impl<N: RealField> ProximityDetector<N> for PlaneSupportMapProximityDetector {
     #[inline]
     fn update(
         &mut self,
-        _: &ProximityDispatcher<N>,
+        _: &dyn ProximityDispatcher<N>,
         ma: &Isometry<N>,
-        plane: &Shape<N>,
+        plane: &dyn Shape<N>,
         mb: &Isometry<N>,
-        b: &Shape<N>,
+        b: &dyn Shape<N>,
         margin: N,
-    ) -> bool
-    {
-        if let (Some(p), Some(sm)) = (plane.as_shape::<Plane<N>>(), b.as_support_map()) {
-            self.proximity = proximity_internal::plane_against_support_map(ma, p, mb, sm, margin);
-
-            true
-        } else {
-            false
-        }
-    }
-
-    #[inline]
-    fn proximity(&self) -> Proximity {
-        self.proximity
+    ) -> Option<Proximity> {
+        let p = plane.as_shape::<Plane<N>>()?;
+        let sm = b.as_support_map()?;
+        Some(query::proximity_plane_support_map(ma, p, mb, sm, margin))
     }
 }
 
@@ -70,19 +55,13 @@ impl<N: RealField> ProximityDetector<N> for SupportMapPlaneProximityDetector {
     #[inline]
     fn update(
         &mut self,
-        disp: &ProximityDispatcher<N>,
+        disp: &dyn ProximityDispatcher<N>,
         ma: &Isometry<N>,
-        a: &Shape<N>,
+        a: &dyn Shape<N>,
         mb: &Isometry<N>,
-        b: &Shape<N>,
+        b: &dyn Shape<N>,
         margin: N,
-    ) -> bool
-    {
+    ) -> Option<Proximity> {
         self.subdetector.update(disp, mb, b, ma, a, margin)
-    }
-
-    #[inline]
-    fn proximity(&self) -> Proximity {
-        ProximityDetector::<N>::proximity(&self.subdetector)
     }
 }

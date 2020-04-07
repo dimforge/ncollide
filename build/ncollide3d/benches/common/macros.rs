@@ -19,7 +19,7 @@ macro_rules! bench_free_fn_gen (
         fn $name(bh: &mut Bencher) {
             const LEN: usize = 1 << 7;
 
-            let mut rng = IsaacRng::new_from_u64(0);
+            let mut rng: IsaacRng = SeedableRng::seed_from_u64(0);
 
             $(let $args: Vec<$types> = (0usize .. LEN).map(|_| $gens(&mut rng)).collect();)*
             let mut i = 0;
@@ -41,7 +41,7 @@ macro_rules! bench_method_gen (
         fn $name(bh: &mut Bencher) {
             const LEN: usize = 1 << 7;
 
-            let mut rng = IsaacRng::new_from_u64(0);
+            let mut rng: IsaacRng = SeedableRng::seed_from_u64(0);
 
             let $arg: Vec<$typ> = (0usize .. LEN).map(|_| $gen(&mut rng)).collect();
             $(let $args: Vec<$types> = (0usize .. LEN).map(|_| $gens(&mut rng)).collect();)*
@@ -61,7 +61,7 @@ macro_rules! bench_method_gen (
         fn $name(bh: &mut Bencher) {
             const LEN: usize = 1 << 7;
 
-            let mut rng = IsaacRng::new_from_u64(0);
+            let mut rng: IsaacRng = SeedableRng::seed_from_u64(0);
 
             let $arg: Vec<$typ> = (0usize .. LEN).map(|_| $gen(&mut rng)).collect();
             $(let $args: Vec<$types> = (0usize .. LEN).map(|_| $gens(&mut rng)).collect();)*

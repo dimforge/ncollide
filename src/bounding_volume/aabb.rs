@@ -1,7 +1,7 @@
 //! Axis Aligned Bounding Box.
 
-use crate::bounding_volume::{BoundingVolume, HasBoundingVolume, BoundingSphere};
-use crate::math::{Isometry, Point, Vector};
+use crate::bounding_volume::{BoundingSphere, BoundingVolume, HasBoundingVolume};
+use crate::math::{Isometry, Point, Vector, DIM};
 use crate::utils::IsometryOps;
 use na::{self, RealField};
 
@@ -109,6 +109,17 @@ impl<N: RealField> AABB<N> {
         let rad = na::distance(self.mins(), self.maxs());
 
         BoundingSphere::new(center, rad)
+    }
+
+    #[inline]
+    pub fn contains_local_point(&self, point: &Point<N>) -> bool {
+        for i in 0..DIM {
+            if point[i] < self.mins[i] || point[i] > self.maxs[i] {
+                return false;
+            }
+        }
+
+        true
     }
 }
 

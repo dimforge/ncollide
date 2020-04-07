@@ -1,10 +1,10 @@
 extern crate nalgebra as na;
 extern crate ncollide2d;
 
-use na::{Isometry2, Vector2};
+use na::{Isometry2, Point2, Vector2};
 use ncollide2d::bounding_volume::{self, BoundingSphere, HasBoundingVolume};
-use ncollide2d::partitioning::{BVT, BVH, VisitStatus};
-use ncollide2d::query::{Ray, RayCast, visitors::RayInterferencesVisitor};
+use ncollide2d::partitioning::{VisitStatus, BVH, BVT};
+use ncollide2d::query::{visitors::RayInterferencesVisitor, Ray, RayCast};
 use ncollide2d::shape::{Ball, Cuboid};
 
 /*
@@ -21,10 +21,10 @@ fn main() {
     let cube2 = Cuboid::new(Vector2::new(1.0, 0.5));
 
     let shapes = [
-        &ball1 as &Shape,
-        &ball2 as &Shape,
-        &cube1 as &Shape,
-        &cube2 as &Shape,
+        &ball1 as &dyn Shape,
+        &ball2 as &dyn Shape,
+        &cube1 as &dyn Shape,
+        &cube2 as &dyn Shape,
     ];
 
     let poss = [
@@ -55,8 +55,8 @@ fn main() {
     ];
 
     let bvt = BVT::new_balanced(idx_and_bounding_spheres);
-    let ray_hit = Ray::new(na::origin(), Vector2::x());
-    let ray_miss = Ray::new(na::origin(), -Vector2::x());
+    let ray_hit = Ray::new(Point2::origin(), Vector2::x());
+    let ray_miss = Ray::new(Point2::origin(), -Vector2::x());
 
     /*
      * Collecting all objects with bounding volumes intersecting the ray.
@@ -66,8 +66,14 @@ fn main() {
 
     // We need a new scope here to avoid borrowing issues.
     {
-        let mut visitor_hit = RayInterferencesVisitor::new(&ray_hit, |_| { hit_count += 1; VisitStatus::Continue });
-        let mut visitor_miss = RayInterferencesVisitor::new(&ray_miss, |_| { miss_count += 1; VisitStatus::Continue });
+        let mut visitor_hit = RayInterferencesVisitor::new(&ray_hit, std::f64::MAX, |_| {
+            hit_count += 1;
+            VisitStatus::Continue
+        });
+        let mut visitor_miss = RayInterferencesVisitor::new(&ray_miss, std::f64::MAX, |_| {
+            miss_count += 1;
+            VisitStatus::Continue
+        });
 
         bvt.visit(&mut visitor_hit);
         bvt.visit(&mut visitor_miss);

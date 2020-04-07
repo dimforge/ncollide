@@ -1,7 +1,7 @@
 use super::ToPolyline;
-use alga::general::RealField;
 use crate::procedural::Polyline;
 use crate::shape::Triangle;
+use alga::general::RealField;
 
 impl<N: RealField> ToPolyline<N> for Triangle<N> {
     type DiscretizationParameter = ();

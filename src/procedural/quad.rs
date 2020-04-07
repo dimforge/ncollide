@@ -42,8 +42,7 @@ pub fn quad_with_vertices<N: RealField>(
     vertices: &[Point<N>],
     nhpoints: usize,
     nvpoints: usize,
-) -> TriMesh<N>
-{
+) -> TriMesh<N> {
     assert!(
         nhpoints > 1 && nvpoints > 1,
         "The number of points must be at least 2 in each dimension."

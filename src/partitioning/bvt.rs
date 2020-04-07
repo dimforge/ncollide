@@ -1,13 +1,13 @@
 //! A read-only Bounding Volume Tree.
 
-use alga::general::RealField;
 use crate::bounding_volume::BoundingVolume;
 use crate::math::{Point, DIM};
 use crate::partitioning::BVH;
+use crate::utils;
+use alga::general::RealField;
 use std::collections::VecDeque;
 use std::iter;
 use std::usize;
-use crate::utils;
 
 /// A Bounding Volume Tree.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
@@ -86,8 +86,7 @@ impl<T, BV> BVT<T, BV> {
     pub fn new_with_partitioning<F: FnMut(usize, Vec<(T, BV)>) -> (BV, BinaryPartition<T, BV>)>(
         elements: Vec<(T, BV)>,
         partitioning: &mut F,
-    ) -> BVT<T, BV>
-    {
+    ) -> BVT<T, BV> {
         Self::from_partitioning(elements, partitioning)
     }
 
@@ -96,8 +95,7 @@ impl<T, BV> BVT<T, BV> {
     pub fn from_partitioning(
         elements: Vec<(T, BV)>,
         partitioning: &mut impl FnMut(usize, Vec<(T, BV)>) -> (BV, BinaryPartition<T, BV>),
-    ) -> BVT<T, BV>
-    {
+    ) -> BVT<T, BV> {
         if elements.len() == 0 {
             BVT {
                 root: BVTNodeId::Leaf(0),
@@ -158,7 +156,9 @@ impl<T, BV> BVT<T, BV> {
     /// `.refit()` method is called. This is useful to refit the tree only once after
     /// several leaf bounding volume modifications.
     pub fn set_leaf_bounding_volume<N: RealField>(&mut self, i: usize, bv: BV, refit_now: bool)
-    where BV: BoundingVolume<N> {
+    where
+        BV: BoundingVolume<N>,
+    {
         self.init_deformation_infos();
         self.leaves[i].bounding_volume = bv;
 
@@ -200,7 +200,9 @@ impl<T, BV> BVT<T, BV> {
     /// future updates will be necessary.
     /// Setting a margin equal to 0.0 is allowed.
     pub fn refit<N: RealField>(&mut self, margin: N)
-    where BV: BoundingVolume<N> {
+    where
+        BV: BoundingVolume<N>,
+    {
         assert!(margin >= N::zero(), "Cannot set a negative margin.");
 
         self.deformation_timestamp += 1;
@@ -361,8 +363,7 @@ impl<T, BV> BVT<T, BV> {
         out_internals: &mut Vec<BVTInternal<BV>>,
         out_leaves: &mut Vec<BVTLeaf<T, BV>>,
         partitioning: &mut F,
-    ) -> BVTNodeId
-    {
+    ) -> BVTNodeId {
         let (bv, partitions) = partitioning(depth, leaves);
 
         match partitions {

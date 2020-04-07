@@ -1,11 +1,16 @@
 use crate::bounding_volume::{BoundingVolume, AABB};
 use crate::math::{Isometry, Matrix, Vector};
-use na::RealField;
 use crate::partitioning::{SimultaneousVisitor, VisitStatus};
+use na::RealField;
 use std::marker::PhantomData;
 
 /// Spatial partitioning data structure visitor collecting interferences with a given bounding volume.
-pub struct AABBSetsInterferencesVisitor<'a, N: RealField, T, Visitor: FnMut(&T, &T) -> VisitStatus> {
+pub struct AABBSetsInterferencesVisitor<
+    'a,
+    N: 'a + RealField,
+    T: 'a,
+    Visitor: FnMut(&T, &T) -> VisitStatus,
+> {
     /// The transform from the local-space of the second bounding volumes to the local space of the first.
     pub ls_m2: &'a Isometry<N>,
     /// The absolute value of the rotation matrix representing `ls_m2.rotation`.
@@ -21,7 +26,9 @@ pub struct AABBSetsInterferencesVisitor<'a, N: RealField, T, Visitor: FnMut(&T, 
     _data: PhantomData<&'a T>,
 }
 
-impl<'a, N: RealField, T, Visitor: FnMut(&T, &T) -> VisitStatus> AABBSetsInterferencesVisitor<'a, N, T, Visitor> {
+impl<'a, N: RealField, T, Visitor: FnMut(&T, &T) -> VisitStatus>
+    AABBSetsInterferencesVisitor<'a, N, T, Visitor>
+{
     /// Creates a new `AABBSetsInterferencesVisitor`.
     #[inline]
     pub fn new(
@@ -29,14 +36,13 @@ impl<'a, N: RealField, T, Visitor: FnMut(&T, &T) -> VisitStatus> AABBSetsInterfe
         ls_m2: &'a Isometry<N>,
         ls_m2_abs_rot: &'a Matrix<N>,
         visitor: Visitor,
-    ) -> Self
-    {
-        Self {
+    ) -> AABBSetsInterferencesVisitor<'a, N, T, Visitor> {
+        AABBSetsInterferencesVisitor {
             tolerence,
             ls_m2,
             ls_m2_abs_rot,
             visitor,
-            _data: PhantomData
+            _data: PhantomData,
         }
     }
 }
@@ -51,8 +57,7 @@ impl<'a, N: RealField, T, Visitor: FnMut(&T, &T) -> VisitStatus> SimultaneousVis
         left_data: Option<&T>,
         right_bv: &AABB<N>,
         right_data: Option<&T>,
-    ) -> VisitStatus
-    {
+    ) -> VisitStatus {
         let ls_right_bv = AABB::from_half_extents(
             self.ls_m2 * right_bv.center(),
             self.ls_m2_abs_rot * right_bv.half_extents() + Vector::repeat(self.tolerence),

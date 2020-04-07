@@ -1,18 +1,20 @@
 use crate::bounding_volume::BoundingVolume;
 use crate::math::Point;
-use na::RealField;
-use crate::partitioning::{DBVTLeaf, DBVTLeafId, BVH, DBVT, VisitStatus};
-use crate::pipeline::broad_phase::{BroadPhase, ProxyHandle, BroadPhaseInterferenceHandler};
+use crate::partitioning::{DBVTLeaf, DBVTLeafId, VisitStatus, BVH, DBVT};
+use crate::pipeline::broad_phase::{
+    BroadPhase, BroadPhaseInterferenceHandler, BroadPhaseProxyHandle,
+};
 use crate::query::visitors::{
     BoundingVolumeInterferencesVisitor, PointInterferencesVisitor, RayInterferencesVisitor,
+    RayIntersectionCostFnVisitor,
 };
-use crate::query::{PointQuery, Ray, RayCast};
+use crate::query::{PointQuery, Ray, RayCast, RayIntersection};
+use crate::utils::{DeterministicState, SortedPair};
+use na::RealField;
 use slab::Slab;
 use std::any::Any;
 use std::collections::hash_map::Entry;
-use std::collections::HashMap;
-use std::mem;
-use crate::utils::{DeterministicState, SortedPair};
+use std::collections::{HashMap, VecDeque};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 enum ProxyStatus {
@@ -32,7 +34,7 @@ struct DBVTBroadPhaseProxy<T> {
 impl<T> DBVTBroadPhaseProxy<T> {
     fn new(data: T) -> DBVTBroadPhaseProxy<T> {
         DBVTBroadPhaseProxy {
-            data: data,
+            data,
             status: ProxyStatus::Detached(None),
             updated: true,
         }
@@ -55,24 +57,24 @@ const DEACTIVATION_THRESHOLD: usize = 100;
 pub struct DBVTBroadPhase<N: RealField, BV, T> {
     proxies: Slab<DBVTBroadPhaseProxy<T>>,
     // DBVT for moving objects.
-    tree: DBVT<N, ProxyHandle, BV>,
+    tree: DBVT<N, BroadPhaseProxyHandle, BV>,
     // DBVT for static objects.
-    stree: DBVT<N, ProxyHandle, BV>,
+    stree: DBVT<N, BroadPhaseProxyHandle, BV>,
     // Pairs detected.
-    pairs: HashMap<SortedPair<ProxyHandle>, bool, DeterministicState>,
+    pairs: HashMap<SortedPair<BroadPhaseProxyHandle>, bool, DeterministicState>,
     // The margin added to each bounding volume.
     margin: N,
     purge_all: bool,
 
     // Just to avoid dynamic allocations.
-    leaves_to_update: Vec<DBVTLeaf<N, ProxyHandle, BV>>,
-    proxies_to_update: Vec<(ProxyHandle, BV)>,
+    leaves_to_update: Vec<DBVTLeaf<N, BroadPhaseProxyHandle, BV>>,
+    proxies_to_update: VecDeque<(BroadPhaseProxyHandle, BV)>,
 }
 
 impl<N, BV, T> DBVTBroadPhase<N, BV, T>
-    where
-        N: RealField,
-        BV: 'static + BoundingVolume<N> + Clone,
+where
+    N: RealField,
+    BV: 'static + BoundingVolume<N> + Clone,
 {
     /// Creates a new broad phase based on a Dynamic Bounding Volume Tree.
     pub fn new(margin: N) -> DBVTBroadPhase<N, BV, T> {
@@ -83,8 +85,8 @@ impl<N, BV, T> DBVTBroadPhase<N, BV, T>
             pairs: HashMap::with_hasher(DeterministicState::new()),
             purge_all: false,
             leaves_to_update: Vec::new(),
-            proxies_to_update: Vec::new(),
-            margin: margin,
+            proxies_to_update: VecDeque::new(),
+            margin,
         }
     }
 
@@ -94,7 +96,7 @@ impl<N, BV, T> DBVTBroadPhase<N, BV, T>
         self.pairs.len()
     }
 
-    fn purge_some_contact_pairs(&mut self, handler: &mut BroadPhaseInterferenceHandler<T>) {
+    fn purge_some_contact_pairs(&mut self, handler: &mut dyn BroadPhaseInterferenceHandler<T>) {
         let purge_all = self.purge_all;
         let proxies = &self.proxies;
         let stree = &self.stree;
@@ -130,6 +132,9 @@ impl<N, BV, T> DBVTBroadPhase<N, BV, T>
                             handler.interference_stopped(&proxy1.data, &proxy2.data);
                             retain = false;
                         }
+                    } else {
+                        handler.interference_stopped(&proxy1.data, &proxy2.data);
+                        retain = false;
                     }
                 }
             }
@@ -159,12 +164,12 @@ impl<N, BV, T> DBVTBroadPhase<N, BV, T>
 }
 
 impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
-    where
-        N: RealField,
-        BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
-        T: Any + Send + Sync,
+where
+    N: RealField,
+    BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
+    T: Any + Send + Sync + Clone,
 {
-    fn update(&mut self, mut handler: &mut BroadPhaseInterferenceHandler<T>) {
+    fn update(&mut self, mut handler: &mut dyn BroadPhaseInterferenceHandler<T>) {
         /*
          * Remove from the trees all nodes that have been deleted or modified.
          */
@@ -218,7 +223,7 @@ impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
                     let leaf = &leaf;
                     BoundingVolumeInterferencesVisitor::new(
                         &leaf.bounding_volume,
-                        move |proxy_key2: &ProxyHandle| {
+                        move |proxy_key2: &BroadPhaseProxyHandle| {
                             // Event generation.
                             let proxy2 = &proxies[proxy_key2.uid()];
 
@@ -233,7 +238,7 @@ impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
                             }
 
                             VisitStatus::Continue
-                        }
+                        },
                     )
                 };
 
@@ -253,14 +258,28 @@ impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
         self.update_activation_states();
     }
 
-    fn create_proxy(&mut self, bv: BV, data: T) -> ProxyHandle {
+    /// Retrieves the bounding volume and data associated to the given proxy.
+    fn proxy(&self, handle: BroadPhaseProxyHandle) -> Option<(&BV, &T)> {
+        let proxy = self.proxies.get(handle.uid())?;
+        match proxy.status {
+            ProxyStatus::OnDynamicTree(id, _) => {
+                Some((&self.tree.get(id)?.bounding_volume, &proxy.data))
+            }
+            ProxyStatus::OnStaticTree(id) => {
+                Some((&self.stree.get(id)?.bounding_volume, &proxy.data))
+            }
+            _ => None,
+        }
+    }
+
+    fn create_proxy(&mut self, bv: BV, data: T) -> BroadPhaseProxyHandle {
         let proxy = DBVTBroadPhaseProxy::new(data);
-        let handle = ProxyHandle(self.proxies.insert(proxy));
-        self.proxies_to_update.push((handle, bv));
+        let handle = BroadPhaseProxyHandle(self.proxies.insert(proxy));
+        self.proxies_to_update.push_back((handle, bv));
         handle
     }
 
-    fn remove(&mut self, handles: &[ProxyHandle], handler: &mut FnMut(&T, &T)) {
+    fn remove(&mut self, handles: &[BroadPhaseProxyHandle], handler: &mut dyn FnMut(&T, &T)) {
         for handle in handles {
             if let Some(proxy) = self.proxies.get_mut(handle.uid()) {
                 match proxy.status {
@@ -303,7 +322,7 @@ impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
         }
     }
 
-    fn deferred_set_bounding_volume(&mut self, handle: ProxyHandle, bounding_volume: BV) {
+    fn deferred_set_bounding_volume(&mut self, handle: BroadPhaseProxyHandle, bounding_volume: BV) {
         if let Some(proxy) = self.proxies.get(handle.uid()) {
             let needs_update = match proxy.status {
                 ProxyStatus::OnStaticTree(leaf) => {
@@ -320,14 +339,14 @@ impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
 
             if needs_update {
                 let new_bv = bounding_volume.loosened(self.margin);
-                self.proxies_to_update.push((handle, new_bv));
+                self.proxies_to_update.push_back((handle, new_bv));
             }
         } else {
             panic!("Attempting to set the bounding volume of an object that does not exist.");
         }
     }
 
-    fn deferred_recompute_all_proximities_with(&mut self, handle: ProxyHandle) {
+    fn deferred_recompute_all_proximities_with(&mut self, handle: BroadPhaseProxyHandle) {
         if let Some(proxy) = self.proxies.get(handle.uid()) {
             let bv = match proxy.status {
                 ProxyStatus::OnStaticTree(leaf) => self.stree[leaf].bounding_volume.clone(),
@@ -338,13 +357,11 @@ impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
                 }
             };
 
-            self.proxies_to_update.push((handle, bv));
+            self.proxies_to_update.push_front((handle, bv));
         }
     }
 
     fn deferred_recompute_all_proximities(&mut self) {
-        let mut user_updates = mem::replace(&mut self.proxies_to_update, Vec::new());
-
         for (handle, proxy) in self.proxies.iter() {
             let bv;
             match proxy.status {
@@ -360,40 +377,73 @@ impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
                 }
             }
 
-            self.proxies_to_update.push((ProxyHandle(handle), bv));
+            self.proxies_to_update
+                .push_front((BroadPhaseProxyHandle(handle), bv));
         }
 
-        self.proxies_to_update.append(&mut user_updates);
         self.purge_all = true;
     }
 
     fn interferences_with_bounding_volume<'a>(&'a self, bv: &BV, out: &mut Vec<&'a T>) {
-        let mut visitor = BoundingVolumeInterferencesVisitor::new(bv, |handle: &ProxyHandle| {
-            out.push(&self.proxies[handle.uid()].data);
-            VisitStatus::Continue
-        });
+        let mut visitor =
+            BoundingVolumeInterferencesVisitor::new(bv, |handle: &BroadPhaseProxyHandle| {
+                out.push(&self.proxies[handle.uid()].data);
+                VisitStatus::Continue
+            });
 
         self.tree.visit(&mut visitor);
         self.stree.visit(&mut visitor);
     }
 
-    fn interferences_with_ray<'a>(&'a self, ray: &Ray<N>, out: &mut Vec<&'a T>) {
-        let mut visitor = RayInterferencesVisitor::new(ray, |handle: &ProxyHandle| {
-            out.push(&self.proxies[handle.uid()].data);
-            VisitStatus::Continue
-        });
+    fn interferences_with_ray<'a>(&'a self, ray: &Ray<N>, max_toi: N, out: &mut Vec<&'a T>) {
+        let mut visitor =
+            RayInterferencesVisitor::new(ray, max_toi, |handle: &BroadPhaseProxyHandle| {
+                out.push(&self.proxies[handle.uid()].data);
+                VisitStatus::Continue
+            });
 
         self.tree.visit(&mut visitor);
         self.stree.visit(&mut visitor);
     }
 
     fn interferences_with_point<'a>(&'a self, point: &Point<N>, out: &mut Vec<&'a T>) {
-        let mut visitor = PointInterferencesVisitor::new(point, |handle: &ProxyHandle| {
-            out.push(&self.proxies[handle.uid()].data);
-            VisitStatus::Continue
-        });
+        let mut visitor =
+            PointInterferencesVisitor::new(point, |handle: &BroadPhaseProxyHandle| {
+                out.push(&self.proxies[handle.uid()].data);
+                VisitStatus::Continue
+            });
 
         self.tree.visit(&mut visitor);
         self.stree.visit(&mut visitor);
+    }
+
+    /// Returns the first object that interferes with a ray.
+    fn first_interference_with_ray<'a, 'b>(
+        &'a self,
+        ray: &'b Ray<N>,
+        max_toi: N,
+        cost_fn: &'a dyn Fn(T, &'b Ray<N>, N) -> Option<(T, RayIntersection<N>)>,
+    ) -> Option<(T, RayIntersection<N>)> {
+        let res = {
+            let mut visitor =
+                RayIntersectionCostFnVisitor::<'a, 'b, N, T, BV>::new(ray, max_toi, self, cost_fn);
+
+            let dynamic_hit = self.tree.best_first_search(&mut visitor);
+            let static_hit = self.stree.best_first_search(&mut visitor);
+
+            // The static hit must be better than the dynamic hit as it uses the
+            // same visitor so give it priority
+            if static_hit.is_some() {
+                static_hit
+            } else {
+                dynamic_hit
+            }
+        };
+
+        if let Some((_node, res)) = res {
+            Some(res)
+        } else {
+            None
+        }
     }
 }

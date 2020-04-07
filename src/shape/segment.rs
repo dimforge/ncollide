@@ -1,16 +1,17 @@
 //! Definition of the segment shape.
 
 use crate::math::{Isometry, Point, Vector};
-use na::{self, RealField, Unit};
 use crate::shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
-use std::f64;
-use std::mem;
 #[cfg(feature = "dim2")]
 use crate::utils;
 use crate::utils::IsometryOps;
+use na::{self, RealField, Unit};
+use std::f64;
+use std::mem;
 
 /// A segment shape.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[repr(C)]
 #[derive(PartialEq, Debug, Clone)]
 pub struct Segment<N: RealField> {
     a: Point<N>,
@@ -137,8 +138,7 @@ impl<N: RealField> Segment<N> {
         feature: FeatureId,
         m: &Isometry<N>,
         dir: &Unit<Vector<N>>,
-    ) -> bool
-    {
+    ) -> bool {
         let ls_dir = m.inverse_transform_unit_vector(dir);
 
         if let Some(direction) = self.direction() {
@@ -275,8 +275,7 @@ impl<N: RealField> ConvexPolyhedron<N> for Segment<N> {
         m: &Isometry<N>,
         dir: &Unit<Vector<N>>,
         face: &mut ConvexPolygonalFeature<N>,
-    )
-    {
+    ) {
         let seg_dir = self.scaled_direction();
 
         if dir.perp(&seg_dir) >= na::zero() {
@@ -293,8 +292,8 @@ impl<N: RealField> ConvexPolyhedron<N> for Segment<N> {
         m: &Isometry<N>,
         _: &Unit<Vector<N>>,
         face: &mut ConvexPolygonalFeature<N>,
-    )
-    {
+    ) {
+        face.clear();
         face.push(self.a, FeatureId::Vertex(0));
         face.push(self.b, FeatureId::Vertex(1));
         face.push_edge_feature_id(FeatureId::Edge(0));
@@ -308,8 +307,7 @@ impl<N: RealField> ConvexPolyhedron<N> for Segment<N> {
         dir: &Unit<Vector<N>>,
         eps: N,
         face: &mut ConvexPolygonalFeature<N>,
-    )
-    {
+    ) {
         face.clear();
         let seg = self.transformed(transform);
         let ceps = eps.sin();
@@ -324,13 +322,15 @@ impl<N: RealField> ConvexPolyhedron<N> for Segment<N> {
                 face.set_feature_id(FeatureId::Vertex(0));
                 face.push(seg.a, FeatureId::Vertex(0));
             } else {
-                #[cfg(feature = "dim3")] {
+                #[cfg(feature = "dim3")]
+                {
                     face.push(seg.a, FeatureId::Vertex(0));
                     face.push(seg.b, FeatureId::Vertex(1));
                     face.push_edge_feature_id(FeatureId::Edge(0));
                     face.set_feature_id(FeatureId::Edge(0));
                 }
-                #[cfg(feature = "dim2")] {
+                #[cfg(feature = "dim2")]
+                {
                     if dir.perp(&seg_dir) >= na::zero() {
                         seg.face(FeatureId::Face(0), face);
                     } else {
@@ -349,17 +349,17 @@ impl<N: RealField> ConvexPolyhedron<N> for Segment<N> {
 
             if dot <= seps {
                 #[cfg(feature = "dim2")]
-                    {
-                        if local_dir.perp(seg_dir.as_ref()) >= na::zero() {
-                            FeatureId::Face(0)
-                        } else {
-                            FeatureId::Face(1)
-                        }
+                {
+                    if local_dir.perp(seg_dir.as_ref()) >= na::zero() {
+                        FeatureId::Face(0)
+                    } else {
+                        FeatureId::Face(1)
                     }
+                }
                 #[cfg(feature = "dim3")]
-                    {
-                        FeatureId::Edge(0)
-                    }
+                {
+                    FeatureId::Edge(0)
+                }
             } else if dot >= na::zero() {
                 FeatureId::Vertex(1)
             } else {

@@ -43,7 +43,10 @@ fn do_toi_test() -> Option<f64> {
         &transform_two,
         &vel_two,
         &shape_two,
+        std::f64::MAX,
+        0.0,
     )
+    .map(|toi| toi.toi)
 }
 
 #[test]

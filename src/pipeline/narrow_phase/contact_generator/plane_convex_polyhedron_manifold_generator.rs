@@ -1,9 +1,11 @@
 use crate::math::{Isometry, Point};
-use na::{self, RealField};
 use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
-use crate::query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry, ContactPreprocessor};
+use crate::query::{
+    Contact, ContactKinematic, ContactManifold, ContactPrediction, ContactPreprocessor,
+    NeighborhoodGeometry,
+};
 use crate::shape::{ConvexPolygonalFeature, FeatureId, Plane, Shape};
-use crate::utils::IdAllocator;
+use na::{self, RealField};
 
 /// Collision detector between g1 plane and g1 shape implementing the `SupportMap` trait.
 #[derive(Clone)]
@@ -26,18 +28,16 @@ impl<N: RealField> PlaneConvexPolyhedronManifoldGenerator<N> {
     #[inline]
     fn do_update_to(
         m1: &Isometry<N>,
-        g1: &Shape<N>,
-        proc1: Option<&ContactPreprocessor<N>>,
+        g1: &dyn Shape<N>,
+        proc1: Option<&dyn ContactPreprocessor<N>>,
         m2: &Isometry<N>,
-        g2: &Shape<N>,
-        proc2: Option<&ContactPreprocessor<N>>,
+        g2: &dyn Shape<N>,
+        proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         poly_feature: &mut ConvexPolygonalFeature<N>,
-        id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
         flip: bool,
-    ) -> bool
-    {
+    ) -> bool {
         if let (Some(plane), Some(cp)) = (g1.as_shape::<Plane<N>>(), g2.as_convex_polyhedron()) {
             let plane_normal = m1 * plane.normal();
             let plane_center = Point::from(m1.translation.vector);
@@ -64,12 +64,12 @@ impl<N: RealField> PlaneConvexPolyhedronManifoldGenerator<N> {
                         contact = Contact::new(world1, *world2, plane_normal, -dist);
                         kinematic.set_approx1(f1, local1, approx_plane);
                         kinematic.set_approx2(f2, local2, approx2);
-                        let _ = manifold.push(contact, kinematic, local2, proc1, proc2, id_alloc);
+                        let _ = manifold.push(contact, kinematic, local2, proc1, proc2);
                     } else {
                         contact = Contact::new(*world2, world1, -plane_normal, -dist);
                         kinematic.set_approx1(f2, local2, approx2);
                         kinematic.set_approx2(f1, local1, approx_plane);
-                        let _ = manifold.push(contact, kinematic, local2, proc2, proc1, id_alloc);
+                        let _ = manifold.push(contact, kinematic, local2, proc2, proc1);
                     }
                 }
             }
@@ -84,18 +84,16 @@ impl<N: RealField> PlaneConvexPolyhedronManifoldGenerator<N> {
 impl<N: RealField> ContactManifoldGenerator<N> for PlaneConvexPolyhedronManifoldGenerator<N> {
     fn generate_contacts(
         &mut self,
-        _: &ContactDispatcher<N>,
+        _: &dyn ContactDispatcher<N>,
         m1: &Isometry<N>,
-        g1: &Shape<N>,
-        proc1: Option<&ContactPreprocessor<N>>,
+        g1: &dyn Shape<N>,
+        proc1: Option<&dyn ContactPreprocessor<N>>,
         m2: &Isometry<N>,
-        g2: &Shape<N>,
-        proc2: Option<&ContactPreprocessor<N>>,
+        g2: &dyn Shape<N>,
+        proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
-    ) -> bool
-    {
+    ) -> bool {
         if !self.flip {
             Self::do_update_to(
                 m1,
@@ -106,7 +104,6 @@ impl<N: RealField> ContactManifoldGenerator<N> for PlaneConvexPolyhedronManifold
                 proc2,
                 prediction,
                 &mut self.feature,
-                id_alloc,
                 manifold,
                 false,
             )
@@ -120,7 +117,6 @@ impl<N: RealField> ContactManifoldGenerator<N> for PlaneConvexPolyhedronManifold
                 proc1,
                 prediction,
                 &mut self.feature,
-                id_alloc,
                 manifold,
                 true,
             )

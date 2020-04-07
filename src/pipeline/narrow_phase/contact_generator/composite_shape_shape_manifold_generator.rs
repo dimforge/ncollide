@@ -1,20 +1,23 @@
 use crate::bounding_volume::{self, BoundingVolume};
 use crate::math::Isometry;
-use na::{self, RealField};
 use crate::partitioning::VisitStatus;
-use crate::pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
-use crate::query::{visitors::BoundingVolumeInterferencesVisitor, ContactManifold, ContactPrediction,
-                   ContactPreprocessor, ContactTrackingMode};
+use crate::pipeline::narrow_phase::{
+    ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator,
+};
+use crate::query::{
+    visitors::BoundingVolumeInterferencesVisitor, ContactManifold, ContactPrediction,
+    ContactPreprocessor, ContactTrackingMode,
+};
 use crate::shape::{CompositeShape, Shape};
-use std::collections::{hash_map::Entry, HashMap};
 use crate::utils::DeterministicState;
-use crate::utils::IdAllocator;
+use na::{self, RealField};
+use std::collections::{hash_map::Entry, HashMap};
 
 /// Collision detector between a concave shape and another shape.
 pub struct CompositeShapeShapeManifoldGenerator<N: RealField> {
     sub_detectors: HashMap<usize, (ContactAlgorithm<N>, usize), DeterministicState>,
     flip: bool,
-    timestamp: usize
+    timestamp: usize,
 }
 
 impl<N: RealField> CompositeShapeShapeManifoldGenerator<N> {
@@ -23,39 +26,35 @@ impl<N: RealField> CompositeShapeShapeManifoldGenerator<N> {
         CompositeShapeShapeManifoldGenerator {
             sub_detectors: HashMap::with_hasher(DeterministicState),
             flip,
-            timestamp: 0
+            timestamp: 0,
         }
     }
 
     fn do_update(
         &mut self,
-        dispatcher: &ContactDispatcher<N>,
+        dispatcher: &dyn ContactDispatcher<N>,
         m1: &Isometry<N>,
-        g1: &CompositeShape<N>,
-        proc1: Option<&ContactPreprocessor<N>>,
+        g1: &dyn CompositeShape<N>,
+        proc1: Option<&dyn ContactPreprocessor<N>>,
         m2: &Isometry<N>,
-        g2: &Shape<N>,
-        proc2: Option<&ContactPreprocessor<N>>,
+        g2: &dyn Shape<N>,
+        proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
         flip: bool,
-    )
-    {
+    ) {
         self.timestamp += 1;
 
         // Find new collisions
         let ls_m2 = m1.inverse() * m2.clone();
         let ls_aabb2 = bounding_volume::aabb(g2, &ls_m2).loosened(prediction.linear());
-        let mut visitor = BoundingVolumeInterferencesVisitor::new(&ls_aabb2, |i| {
-            match self.sub_detectors.entry(*i) {
-                Entry::Occupied(mut entry) => {
-                    entry.get_mut().1 = self.timestamp
-                }
+        let mut visitor = BoundingVolumeInterferencesVisitor::new(&ls_aabb2, |&i| {
+            match self.sub_detectors.entry(i) {
+                Entry::Occupied(mut entry) => entry.get_mut().1 = self.timestamp,
                 Entry::Vacant(entry) => {
                     let mut new_detector = None;
 
-                    g1.map_part_at(*i, &Isometry::identity(), &mut |_, g1| {
+                    g1.map_part_at(i, &Isometry::identity(), &mut |_, g1| {
                         if flip {
                             new_detector = dispatcher.get_contact_algorithm(g2, g1)
                         } else {
@@ -93,8 +92,7 @@ impl<N: RealField> CompositeShapeShapeManifoldGenerator<N> {
                             g1,
                             Some(&(proc1, part_proc1)),
                             prediction,
-                            id_alloc,
-                            manifold
+                            manifold,
                         )
                     } else {
                         detector.0.generate_contacts(
@@ -106,8 +104,7 @@ impl<N: RealField> CompositeShapeShapeManifoldGenerator<N> {
                             g2,
                             proc2,
                             prediction,
-                            id_alloc,
-                            manifold
+                            manifold,
                         )
                     }
                 });
@@ -121,30 +118,28 @@ impl<N: RealField> CompositeShapeShapeManifoldGenerator<N> {
 impl<N: RealField> ContactManifoldGenerator<N> for CompositeShapeShapeManifoldGenerator<N> {
     fn generate_contacts(
         &mut self,
-        d: &ContactDispatcher<N>,
+        d: &dyn ContactDispatcher<N>,
         ma: &Isometry<N>,
-        a: &Shape<N>,
-        proc1: Option<&ContactPreprocessor<N>>,
+        a: &dyn Shape<N>,
+        proc1: Option<&dyn ContactPreprocessor<N>>,
         mb: &Isometry<N>,
-        b: &Shape<N>,
-        proc2: Option<&ContactPreprocessor<N>>,
+        b: &dyn Shape<N>,
+        proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
-    ) -> bool
-    {
+    ) -> bool {
         if !self.flip {
             if let Some(cs) = a.as_composite_shape() {
-                self.do_update(d, ma, cs, proc1, mb, b, proc2, prediction, id_alloc, manifold, false);
+                self.do_update(d, ma, cs, proc1, mb, b, proc2, prediction, manifold, false);
                 return true;
             }
         } else {
             if let Some(cs) = b.as_composite_shape() {
-                self.do_update(d, mb, cs, proc2, ma, a, proc1, prediction, id_alloc, manifold, true);
+                self.do_update(d, mb, cs, proc2, ma, a, proc1, prediction, manifold, true);
                 return true;
             }
         }
-        
+
         return false;
     }
 

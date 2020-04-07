@@ -1,6 +1,6 @@
 use na::{zero, Isometry3, Point3, Vector3};
+use ncollide3d::pipeline::{CollisionGroups, CollisionWorld, GeometricQueryType};
 use ncollide3d::shape::*;
-use ncollide3d::world::{CollisionGroups, CollisionWorld, GeometricQueryType};
 
 // Issue #188.
 #[test]

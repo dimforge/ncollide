@@ -2,13 +2,13 @@
 //! Shape composed from the union of primitives.
 //!
 
-use std::mem;
 use crate::bounding_volume::{BoundingVolume, AABB};
 use crate::math::Isometry;
-use na::{self, RealField};
 use crate::partitioning::{BVHImpl, BVT};
-use crate::shape::{CompositeShape, Shape, ShapeHandle, FeatureId};
-use crate::query::{ContactPrediction, ContactPreprocessor, Contact, ContactKinematic};
+use crate::query::{Contact, ContactKinematic, ContactPrediction, ContactPreprocessor};
+use crate::shape::{CompositeShape, FeatureId, Shape, ShapeHandle};
+use na::{self, RealField};
+use std::mem;
 
 /// A compound shape with an aabb bounding volume.
 ///
@@ -20,7 +20,7 @@ pub struct Compound<N: RealField> {
     shapes: Vec<(Isometry<N>, ShapeHandle<N>)>,
     bvt: BVT<usize, AABB<N>>,
     bvs: Vec<AABB<N>>,
-    nbits: usize
+    nbits: usize,
 }
 
 impl<N: RealField> Compound<N> {
@@ -69,7 +69,8 @@ impl<N: RealField> Compound<N> {
     /// The AABB of this compound in its local-space.
     #[inline]
     pub fn aabb(&self) -> &AABB<N> {
-        self.bvt().root_bounding_volume()
+        self.bvt()
+            .root_bounding_volume()
             .expect("An empty Compound has no AABB.")
     }
 
@@ -89,11 +90,20 @@ impl<N: RealField> Compound<N> {
     /// containing this feature, and the corresponding FeatureId on this subshape.
     pub fn subshape_feature_id(&self, fid: FeatureId) -> (usize, FeatureId) {
         match fid {
-            FeatureId::Face(i) => ((i & !(usize::max_value() << self.nbits)), FeatureId::Face(i >> self.nbits)),
+            FeatureId::Face(i) => (
+                (i & !(usize::max_value() << self.nbits)),
+                FeatureId::Face(i >> self.nbits),
+            ),
             #[cfg(feature = "dim3")]
-            FeatureId::Edge(i) => ((i & !(usize::max_value() << self.nbits)), FeatureId::Edge(i >> self.nbits)),
-            FeatureId::Vertex(i) => ((i & !(usize::max_value() << self.nbits)), FeatureId::Vertex(i >> self.nbits)),
-            FeatureId::Unknown => (0, FeatureId::Unknown)
+            FeatureId::Edge(i) => (
+                (i & !(usize::max_value() << self.nbits)),
+                FeatureId::Edge(i >> self.nbits),
+            ),
+            FeatureId::Vertex(i) => (
+                (i & !(usize::max_value() << self.nbits)),
+                FeatureId::Vertex(i >> self.nbits),
+            ),
+            FeatureId::Unknown => (0, FeatureId::Unknown),
         }
     }
 }
@@ -109,9 +119,8 @@ impl<N: RealField> CompositeShape<N> for Compound<N> {
         &self,
         i: usize,
         m: &Isometry<N>,
-        f: &mut FnMut(&Isometry<N>, &Shape<N>),
-    )
-    {
+        f: &mut dyn FnMut(&Isometry<N>, &dyn Shape<N>),
+    ) {
         let elt = &self.shapes()[i];
         let pos = m * elt.0;
 
@@ -123,7 +132,7 @@ impl<N: RealField> CompositeShape<N> for Compound<N> {
         i: usize,
         m: &Isometry<N>,
         _prediction: &ContactPrediction<N>,
-        f: &mut FnMut(&Isometry<N>, &Shape<N>, &ContactPreprocessor<N>),
+        f: &mut dyn FnMut(&Isometry<N>, &dyn Shape<N>, &dyn ContactPreprocessor<N>),
     ) {
         let elt = &self.shapes()[i];
         let pos = m * elt.0;
@@ -143,17 +152,18 @@ impl<N: RealField> CompositeShape<N> for Compound<N> {
     }
 }
 
-
 struct CompoundContactProcessor<'a, N: RealField> {
     part_pos: &'a Isometry<N>,
     part_id: usize,
-    nbits: usize
+    nbits: usize,
 }
 
 impl<'a, N: RealField> CompoundContactProcessor<'a, N> {
     pub fn new(part_pos: &'a Isometry<N>, part_id: usize, nbits: usize) -> Self {
         CompoundContactProcessor {
-            part_pos, part_id, nbits
+            part_pos,
+            part_id,
+            nbits,
         }
     }
 }
@@ -163,8 +173,8 @@ impl<'a, N: RealField> ContactPreprocessor<N> for CompoundContactProcessor<'a, N
         &self,
         _c: &mut Contact<N>,
         kinematic: &mut ContactKinematic<N>,
-        is_first: bool)
-        -> bool {
+        is_first: bool,
+    ) -> bool {
         // Fix the feature ID.
         let feature = if is_first {
             kinematic.feature1()

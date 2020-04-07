@@ -1,6 +1,6 @@
 extern crate ncollide3d;
 
-use ncollide3d::world::CollisionGroups;
+use ncollide3d::pipeline::CollisionGroups;
 
 fn main() {
     let a = CollisionGroups::new()

@@ -1,9 +1,8 @@
 use crate::math::Isometry;
-use na::{self, RealField};
-use crate::pipeline::narrow_phase::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
+use crate::pipeline::{ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator};
 use crate::query::{ContactManifold, ContactPrediction, ContactPreprocessor};
 use crate::shape::{Capsule, Shape};
-use crate::utils::IdAllocator;
+use na::{self, RealField};
 
 /// Collision detector between a concave shape and another shape.
 pub struct CapsuleShapeManifoldGenerator<N: RealField> {
@@ -22,19 +21,17 @@ impl<N: RealField> CapsuleShapeManifoldGenerator<N> {
 
     fn do_update(
         &mut self,
-        dispatcher: &ContactDispatcher<N>,
+        dispatcher: &dyn ContactDispatcher<N>,
         m1: &Isometry<N>,
         g1: &Capsule<N>,
-        proc1: Option<&ContactPreprocessor<N>>,
+        proc1: Option<&dyn ContactPreprocessor<N>>,
         m2: &Isometry<N>,
-        g2: &Shape<N>,
-        proc2: Option<&ContactPreprocessor<N>>,
+        g2: &dyn Shape<N>,
+        proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
         flip: bool,
-    ) -> bool
-    {
+    ) -> bool {
         let segment = g1.segment();
         let mut prediction = prediction.clone();
         let new_linear_prediction = prediction.linear() + g1.radius();
@@ -59,8 +56,7 @@ impl<N: RealField> CapsuleShapeManifoldGenerator<N> {
                 &segment,
                 Some(&(proc1, &g1.contact_preprocessor())),
                 &prediction,
-                id_alloc,
-                manifold
+                manifold,
             )
         } else {
             self.sub_detector.as_mut().unwrap().generate_contacts(
@@ -72,8 +68,7 @@ impl<N: RealField> CapsuleShapeManifoldGenerator<N> {
                 g2,
                 proc2,
                 &prediction,
-                id_alloc,
-                manifold
+                manifold,
             )
         }
     }
@@ -82,25 +77,23 @@ impl<N: RealField> CapsuleShapeManifoldGenerator<N> {
 impl<N: RealField> ContactManifoldGenerator<N> for CapsuleShapeManifoldGenerator<N> {
     fn generate_contacts(
         &mut self,
-        d: &ContactDispatcher<N>,
+        d: &dyn ContactDispatcher<N>,
         ma: &Isometry<N>,
-        a: &Shape<N>,
-        proc1: Option<&ContactPreprocessor<N>>,
+        a: &dyn Shape<N>,
+        proc1: Option<&dyn ContactPreprocessor<N>>,
         mb: &Isometry<N>,
-        b: &Shape<N>,
-        proc2: Option<&ContactPreprocessor<N>>,
+        b: &dyn Shape<N>,
+        proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
-        id_alloc: &mut IdAllocator,
         manifold: &mut ContactManifold<N>,
-    ) -> bool
-    {
+    ) -> bool {
         if !self.flip {
             if let Some(cs) = a.as_shape::<Capsule<N>>() {
-                return self.do_update(d, ma, cs, proc1, mb, b, proc2, prediction, id_alloc, manifold, false);
+                return self.do_update(d, ma, cs, proc1, mb, b, proc2, prediction, manifold, false);
             }
         } else {
             if let Some(cs) = b.as_shape::<Capsule<N>>() {
-                return self.do_update(d, mb, cs, proc2, ma, a, proc1, prediction, id_alloc, manifold, true);
+                return self.do_update(d, mb, cs, proc2, ma, a, proc1, prediction, manifold, true);
             }
         }
 

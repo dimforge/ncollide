@@ -16,7 +16,7 @@ pub trait HasBoundingVolume<N: RealField, BV> {
 /// Bounding volumes are coarse approximations of shapes. It usually have constant time
 /// intersection, inclusion test. Two bounding volume must also be mergeable into a bigger bounding
 /// volume.
-pub trait BoundingVolume<N: RealField> {
+pub trait BoundingVolume<N: RealField>: std::fmt::Debug {
     // FIXME: keep that ? What about non-spacial bounding volumes (e.g. bounding cones, curvature
     // bounds, etc.) ?
     /// Returns a point inside of this bounding volume. This is ideally its center.

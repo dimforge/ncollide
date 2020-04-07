@@ -1,5 +1,5 @@
-use na::RealField;
 use crate::query::LocalShapeApproximation;
+use na::RealField;
 
 /// The type of elements used to describe a deformation on a collision object.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
@@ -27,9 +27,5 @@ pub trait DeformableShape<N: RealField> {
     fn set_deformations(&mut self, coords: &[N]);
 
     /// Updates the given local approximation of this shape.
-    fn update_local_approximation(
-        &self,
-        coords: &[N],
-        approx: &mut LocalShapeApproximation<N>,
-    );
+    fn update_local_approximation(&self, coords: &[N], approx: &mut LocalShapeApproximation<N>);
 }

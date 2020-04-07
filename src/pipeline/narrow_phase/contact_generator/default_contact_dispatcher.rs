@@ -1,16 +1,17 @@
-use na::RealField;
-use crate::pipeline::narrow_phase::{
-    BallBallManifoldGenerator, BallConvexPolyhedronManifoldGenerator,
-    CompositeShapeCompositeShapeManifoldGenerator, CompositeShapeShapeManifoldGenerator,
-    ContactAlgorithm, ContactDispatcher, ConvexPolyhedronConvexPolyhedronManifoldGenerator,
-    PlaneBallManifoldGenerator, PlaneConvexPolyhedronManifoldGenerator, CapsuleShapeManifoldGenerator,
-    CapsuleCapsuleManifoldGenerator, HeightFieldShapeManifoldGenerator
-};
 #[cfg(feature = "dim3")]
 use crate::pipeline::narrow_phase::TriMeshTriMeshManifoldGenerator;
+use crate::pipeline::{
+    BallBallManifoldGenerator, BallConvexPolyhedronManifoldGenerator,
+    CapsuleCapsuleManifoldGenerator, CapsuleShapeManifoldGenerator,
+    CompositeShapeCompositeShapeManifoldGenerator, CompositeShapeShapeManifoldGenerator,
+    ContactAlgorithm, ContactDispatcher, ConvexPolyhedronConvexPolyhedronManifoldGenerator,
+    HeightFieldShapeManifoldGenerator, PlaneBallManifoldGenerator,
+    PlaneConvexPolyhedronManifoldGenerator,
+};
 #[cfg(feature = "dim3")]
 use crate::shape::TriMesh;
-use crate::shape::{Ball, Plane, Shape, Capsule, HeightField};
+use crate::shape::{Ball, Capsule, HeightField, Plane, Shape};
+use na::RealField;
 
 /// Collision dispatcher for shapes defined by `ncollide_entities`.
 pub struct DefaultContactDispatcher {}
@@ -23,7 +24,11 @@ impl DefaultContactDispatcher {
 }
 
 impl<N: RealField> ContactDispatcher<N> for DefaultContactDispatcher {
-    fn get_contact_algorithm(&self, a: &Shape<N>, b: &Shape<N>) -> Option<ContactAlgorithm<N>> {
+    fn get_contact_algorithm(
+        &self,
+        a: &dyn Shape<N>,
+        b: &dyn Shape<N>,
+    ) -> Option<ContactAlgorithm<N>> {
         let a_is_ball = a.is_shape::<Ball<N>>();
         let b_is_ball = b.is_shape::<Ball<N>>();
         let a_is_plane = a.is_shape::<Plane<N>>();
@@ -43,17 +48,16 @@ impl<N: RealField> ContactDispatcher<N> for DefaultContactDispatcher {
             }
         }
 
-        {
-        }
-
-
-
         if a_is_heightfield || b_is_heightfield {
-            return Some(Box::new(HeightFieldShapeManifoldGenerator::<N>::new(b_is_heightfield)));
+            return Some(Box::new(HeightFieldShapeManifoldGenerator::<N>::new(
+                b_is_heightfield,
+            )));
         } else if a_is_capsule && b_is_capsule {
             Some(Box::new(CapsuleCapsuleManifoldGenerator::<N>::new()))
         } else if a_is_capsule || b_is_capsule {
-            Some(Box::new(CapsuleShapeManifoldGenerator::<N>::new(b_is_capsule)))
+            Some(Box::new(CapsuleShapeManifoldGenerator::<N>::new(
+                b_is_capsule,
+            )))
         } else if a_is_ball && b_is_ball {
             Some(Box::new(BallBallManifoldGenerator::<N>::new()))
         } else if a_is_plane && b_is_ball {

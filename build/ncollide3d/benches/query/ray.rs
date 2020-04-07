@@ -1,24 +1,26 @@
-use common::{generate, generate_trimesh_around_origin, unref};
+use crate::common::{generate, generate_trimesh_around_origin, unref};
 use na::Isometry3;
-use ncollide3d::bounding_volume::{AABB, BoundingSphere};
+use ncollide3d::bounding_volume::{BoundingSphere, AABB};
 use ncollide3d::query::{Ray, RayCast};
-use ncollide3d::shape::{Ball, Capsule, Cone, ConvexHull, Cuboid, Cylinder, Segment, Triangle,
-                        TriMesh};
-use rand::IsaacRng;
-use test;
+use ncollide3d::shape::{
+    Ball, Capsule, Cone, ConvexHull, Cuboid, Cylinder, Segment, TriMesh, Triangle,
+};
+use rand::SeedableRng;
+use rand_isaac::IsaacRng;
 use test::Bencher;
 
 #[path = "../common/macros.rs"]
 #[macro_use]
 mod macros;
 
-// FIXME: will the randomness of `solid` affect too much the benchmark?
+// FIXME: will the randomness of `solid` and `max_toi` affect too much the benchmark?
 bench_method!(
     bench_ray_against_ball,
     toi_with_ray,
     b: Ball<f32>,
     pos: Isometry3<f32>,
     ray: Ray<f32>,
+    max_toi: f32,
     solid: bool
 );
 
@@ -28,6 +30,7 @@ bench_method!(
     c: Cuboid<f32>,
     pos: Isometry3<f32>,
     ray: Ray<f32>,
+    max_toi: f32,
     solid: bool
 );
 
@@ -37,6 +40,7 @@ bench_method!(
     c: Capsule<f32>,
     pos: Isometry3<f32>,
     ray: Ray<f32>,
+    max_toi: f32,
     solid: bool
 );
 
@@ -46,6 +50,7 @@ bench_method!(
     c: Cone<f32>,
     pos: Isometry3<f32>,
     ray: Ray<f32>,
+    max_toi: f32,
     solid: bool
 );
 
@@ -55,6 +60,7 @@ bench_method!(
     c: Cylinder<f32>,
     pos: Isometry3<f32>,
     ray: Ray<f32>,
+    max_toi: f32,
     solid: bool
 );
 
@@ -64,6 +70,7 @@ bench_method!(
     a: AABB<f32>,
     pos: Isometry3<f32>,
     ray: Ray<f32>,
+    max_toi: f32,
     solid: bool
 );
 
@@ -73,6 +80,7 @@ bench_method!(
     b: BoundingSphere<f32>,
     pos: Isometry3<f32>,
     ray: Ray<f32>,
+    max_toi: f32,
     solid: bool
 );
 
@@ -82,6 +90,7 @@ bench_method!(
     b: Ball<f32>,
     pos: Isometry3<f32>,
     ray: Ray<f32>,
+    max_toi: f32,
     solid: bool
 );
 
@@ -91,6 +100,7 @@ bench_method!(
     c: Cuboid<f32>,
     pos: Isometry3<f32>,
     ray: Ray<f32>,
+    max_toi: f32,
     solid: bool
 );
 
@@ -100,6 +110,7 @@ bench_method!(
     c: Capsule<f32>,
     pos: Isometry3<f32>,
     ray: Ray<f32>,
+    max_toi: f32,
     solid: bool
 );
 
@@ -109,6 +120,7 @@ bench_method!(
     c: Cone<f32>,
     pos: Isometry3<f32>,
     ray: Ray<f32>,
+    max_toi: f32,
     solid: bool
 );
 
@@ -118,6 +130,7 @@ bench_method!(
     c: Cylinder<f32>,
     pos: Isometry3<f32>,
     ray: Ray<f32>,
+    max_toi: f32,
     solid: bool
 );
 
@@ -127,6 +140,7 @@ bench_method!(
     c: Segment<f32>,
     pos: Isometry3<f32>,
     ray: Ray<f32>,
+    max_toi: f32,
     solid: bool
 );
 
@@ -136,6 +150,7 @@ bench_method!(
     c: Triangle<f32>,
     pos: Isometry3<f32>,
     ray: Ray<f32>,
+    max_toi: f32,
     solid: bool
 );
 
@@ -145,6 +160,7 @@ bench_method!(
     c: ConvexHull<f32>,
     pos: Isometry3<f32>,
     ray: Ray<f32>,
+    max_toi: f32,
     solid: bool
 );
 
@@ -154,5 +170,6 @@ bench_method_gen!(
     m: TriMesh<f32> = generate_trimesh_around_origin,
     pos: Isometry3<f32> = generate,
     ray: Ray<f32> = generate,
+    max_toi: f32 = generate,
     solid: bool = generate
 );

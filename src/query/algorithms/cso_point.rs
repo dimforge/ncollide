@@ -1,6 +1,6 @@
 use crate::math::{Isometry, Point, Vector};
-use na::{RealField, Unit};
 use crate::shape::SupportMap;
+use na::{RealField, Unit};
 use std::ops::Sub;
 
 /// A point of a Configuration-Space Obstacle.
@@ -11,7 +11,8 @@ use std::ops::Sub;
 /// to a different solid.
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct CSOPoint<N: RealField> {
-    /// The point on the CSO. This is equal to `self.orig1 - self.orig2`.
+    /// The point on the CSO. This is equal to `self.orig1 - self.orig2`, unless this CSOPoint
+    /// has been translated with self.translate.
     pub point: Point<N>,
     /// The original point on the first shape used to compute `self.point`.
     pub orig1: Point<N>,
@@ -83,35 +84,14 @@ impl<N: RealField> CSOPoint<N> {
         CSOPoint::new(sp1, sp2)
     }
 
-    /// Translate the first original point of this CSO point.
-    ///
-    /// This will apply the same translation to `self.point`.
-    pub fn translate1(&self, dir: &Vector<N>) -> Self {
-        CSOPoint::new_with_point(self.point + dir, self.orig1 + dir, self.orig2)
+    /// Translate the CSO point.
+    pub fn translate(&self, dir: &Vector<N>) -> Self {
+        CSOPoint::new_with_point(self.point + dir, self.orig1, self.orig2)
     }
 
-    /// Translate the second original point of this CSO point.
-    ///
-    /// This will apply the opposite translation to `self.point`.
-    pub fn translate2(&self, dir: &Vector<N>) -> Self {
-        CSOPoint::new_with_point(self.point - dir, self.orig1, self.orig2 + dir)
-    }
-
-
-    /// Translate in-place the first original point of this CSO point.
-    ///
-    /// This will apply the same translation to `self.point`.
-    pub fn translate1_mut(&mut self, dir: &Vector<N>) {
+    /// Translate in-place the CSO point.
+    pub fn translate_mut(&mut self, dir: &Vector<N>) {
         self.point += dir;
-        self.orig1 += dir;
-    }
-
-    /// Translate in-place the second original point of this CSO point.
-    ///
-    /// This will apply the opposite translation to `self.point`.
-    pub fn translate2_mut(&mut self, dir: &Vector<N>) {
-        self.point -= dir;
-        self.orig2 += dir;
     }
 }
 

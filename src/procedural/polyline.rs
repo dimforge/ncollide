@@ -1,5 +1,5 @@
-use alga::linear::{Rotation, Translation};
 use crate::math::{Isometry, Point, Vector};
+use alga::linear::{Rotation, Translation};
 use na::{self, RealField};
 
 /// Geometric description of a polyline.
@@ -22,10 +22,7 @@ impl<N: RealField> Polyline<N> {
             );
         }
 
-        Polyline {
-            coords: coords,
-            normals: normals,
-        }
+        Polyline { coords, normals }
     }
 }
 
@@ -50,19 +47,13 @@ impl<N: RealField> Polyline<N> {
     /// The normals of this polyline vertices.
     #[inline]
     pub fn normals(&self) -> Option<&[Vector<N>]> {
-        match self.normals {
-            Some(ref ns) => Some(&ns[..]),
-            None => None,
-        }
+        self.normals.as_ref().map(Vec::as_slice)
     }
 
     /// The mutable normals of this polyline vertices.
     #[inline]
     pub fn normals_mut(&mut self) -> Option<&mut [Vector<N>]> {
-        match self.normals {
-            Some(ref mut ns) => Some(&mut ns[..]),
-            None => None,
-        }
+        self.normals.as_mut().map(Vec::as_mut_slice)
     }
 
     /// Translates each vertex of this polyline.
@@ -98,6 +89,13 @@ impl<N: RealField> Polyline<N> {
         }
     }
 
+    /// Apply a transformation to every vertex and normal of this polyline and returns it.
+    #[inline]
+    pub fn transformed(mut self, t: &Isometry<N>) -> Self {
+        self.transform_by(t);
+        self
+    }
+
     /// Scales each vertex of this polyline.
     pub fn scale_by_scalar(&mut self, s: &N) {
         for c in self.coords.iter_mut() {
@@ -105,9 +103,7 @@ impl<N: RealField> Polyline<N> {
         }
         // FIXME: do something for the normals?
     }
-}
 
-impl<N: RealField> Polyline<N> {
     /// Scales each vertex of this mesh.
     #[inline]
     pub fn scale_by(&mut self, s: &Vector<N>) {
@@ -117,5 +113,12 @@ impl<N: RealField> Polyline<N> {
             }
         }
         // FIXME: do something for the normals?
+    }
+
+    /// Apply a scaling to every vertex and normal of this polyline and returns it.
+    #[inline]
+    pub fn scaled(mut self, s: &Vector<N>) -> Self {
+        self.scale_by(s);
+        self
     }
 }

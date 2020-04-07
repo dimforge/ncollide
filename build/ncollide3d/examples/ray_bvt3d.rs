@@ -1,10 +1,10 @@
 extern crate nalgebra as na;
 extern crate ncollide3d;
 
-use na::{Isometry3, Vector3};
+use na::{Isometry3, Point3, Vector3};
 use ncollide3d::bounding_volume::{self, BoundingSphere, HasBoundingVolume};
-use ncollide3d::partitioning::{BVT, BVH, VisitStatus};
-use ncollide3d::query::{Ray, RayCast, visitors::RayInterferencesVisitor};
+use ncollide3d::partitioning::{VisitStatus, BVH, BVT};
+use ncollide3d::query::{visitors::RayInterferencesVisitor, Ray, RayCast};
 use ncollide3d::shape::{Ball, Capsule, Cone, Cuboid};
 
 /*
@@ -21,10 +21,10 @@ fn main() {
     let cube = Cuboid::new(Vector3::new(1.0, 0.5, 1.0));
 
     let shapes = [
-        &ball as &Shape3,
-        &caps as &Shape3,
-        &cone as &Shape3,
-        &cube as &Shape3,
+        &ball as &dyn Shape3,
+        &caps as &dyn Shape3,
+        &cone as &dyn Shape3,
+        &cube as &dyn Shape3,
     ];
 
     let poss = [
@@ -54,8 +54,8 @@ fn main() {
     ];
 
     let bvt = BVT::new_balanced(idx_and_bounding_spheres);
-    let ray_hit = Ray::new(na::origin(), Vector3::z());
-    let ray_miss = Ray::new(na::origin(), -Vector3::z());
+    let ray_hit = Ray::new(Point3::origin(), Vector3::z());
+    let ray_miss = Ray::new(Point3::origin(), -Vector3::z());
 
     /*
      * Ray cast using a visitor.
@@ -65,8 +65,14 @@ fn main() {
 
     // We need a new scope here to avoid borrowing issues.
     {
-        let mut visitor_hit = RayInterferencesVisitor::new(&ray_hit, |_| { hit_count += 1; VisitStatus::Continue });
-        let mut visitor_miss = RayInterferencesVisitor::new(&ray_miss, |_| { miss_count += 1; VisitStatus::Continue });
+        let mut visitor_hit = RayInterferencesVisitor::new(&ray_hit, std::f64::MAX, |_| {
+            hit_count += 1;
+            VisitStatus::Continue
+        });
+        let mut visitor_miss = RayInterferencesVisitor::new(&ray_miss, std::f64::MAX, |_| {
+            miss_count += 1;
+            VisitStatus::Continue
+        });
 
         bvt.visit(&mut visitor_hit);
         bvt.visit(&mut visitor_miss);

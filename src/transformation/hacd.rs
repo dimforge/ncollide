@@ -1,28 +1,27 @@
 use crate::bounding_volume::{self, BoundingVolume, AABB};
 use crate::math::Isometry;
-use na::{self, Id, Point3, RealField, Translation3, Vector2, Vector3};
 use crate::num::{Bounded, Zero};
-use crate::partitioning::{BVH, BVT, VisitStatus};
+use crate::partitioning::{VisitStatus, BVH, BVT};
 use crate::procedural::{IndexBuffer, TriMesh};
 use crate::query::algorithms::VoronoiSimplex;
 use crate::query::{
-    ray_internal, visitors::BoundingVolumeInterferencesVisitor, Ray, RayCast, RayIntersection,
+    self, visitors::BoundingVolumeInterferencesVisitor, Ray, RayCast, RayIntersection,
 };
 use crate::shape::SupportMap;
+use crate::transformation;
+use crate::utils;
+use na::{self, Id, Point3, RealField, Translation3, Vector2, Vector3};
 use std::cmp::Ordering;
 use std::collections::hash_map::Entry;
 use std::collections::{BinaryHeap, HashMap, HashSet};
 use std::mem;
-use crate::transformation;
-use crate::utils;
 
 /// Approximate convex decomposition of a triangle mesh.
 pub fn hacd<N: RealField>(
     mesh: TriMesh<N>,
     error: N,
     min_components: usize,
-) -> (Vec<TriMesh<N>>, Vec<Vec<usize>>)
-{
+) -> (Vec<TriMesh<N>>, Vec<Vec<usize>>) {
     assert!(
         mesh.normals.is_some(),
         "Vertex normals are required to compute the convex decomposition."
@@ -68,17 +67,14 @@ pub fn hacd<N: RealField>(
                     let mut top_cost = -_max;
 
                     loop {
-                        let remove = match edges.peek() {
-                            None => false,
-                            Some(ref e) => {
-                                if !top.is_valid(&dual_graph[..]) {
-                                    true
-                                } else {
-                                    top_cost = e.mcost;
-                                    false
-                                }
+                        let remove = edges.peek().map_or(false, |ref e| {
+                            if !top.is_valid(&dual_graph[..]) {
+                                true
+                            } else {
+                                top_cost = e.mcost;
+                                false
                             }
-                        };
+                        });
 
                         if remove {
                             let _ = edges.pop();
@@ -201,8 +197,7 @@ impl<N: RealField> DualGraphVertex<N> {
         ancestor: usize,
         mesh: &TriMesh<N>,
         raymap: &HashMap<(u32, u32), usize>,
-    ) -> DualGraphVertex<N>
-    {
+    ) -> DualGraphVertex<N> {
         let (idx, ns) = match mesh.indices {
             IndexBuffer::Unified(ref idx) => (idx[ancestor].clone(), idx[ancestor].clone()),
             IndexBuffer::Split(ref idx) => {
@@ -392,8 +387,7 @@ impl<N: RealField> DualGraphEdge<N> {
         dual_graph: &[DualGraphVertex<N>],
         coords: &[Point3<N>],
         max_concavity: N,
-    ) -> DualGraphEdge<N>
-    {
+    ) -> DualGraphEdge<N> {
         let mut v1 = v1;
         let mut v2 = v2;
 
@@ -454,8 +448,7 @@ impl<N: RealField> DualGraphEdge<N> {
         bvt: &BVT<usize, AABB<N>>,
         max_cost: N,
         max_concavity: N,
-    )
-    {
+    ) {
         assert!(self.is_valid(dual_graph));
 
         let v1 = &dual_graph[self.v1];
@@ -480,8 +473,7 @@ impl<N: RealField> DualGraphEdge<N> {
             id: usize,
             concavity: &mut N,
             ancestors: &mut BinaryHeap<VertexWithConcavity<N>>,
-        )
-        {
+        ) {
             let sv = chull.support_point(&Isometry::identity(), &ray.dir);
             let distance = sv.coords.dot(&ray.dir);
 
@@ -492,6 +484,7 @@ impl<N: RealField> DualGraphEdge<N> {
                 match chull.toi_with_ray(
                     &Isometry::identity(),
                     &Ray::new(outside_point, -ray.dir),
+                    N::max_value(),
                     true,
                 ) {
                     None => ancestors.push(VertexWithConcavity::new(id, na::zero())),
@@ -543,18 +536,22 @@ impl<N: RealField> DualGraphEdge<N> {
                 BoundingVolumeInterferencesVisitor::new(&aabb, |ray_id| {
                     let ray = &rays[*ray_id];
 
-                    if uancestors_v1.contains(ray_id) || uancestors_v2.contains(ray_id) &&
+                    if uancestors_v1.contains(ray_id)
+                        || uancestors_v2.contains(ray_id) &&
                        // XXX: we could just remove the zero-dir rays from the ancestors list!
                        // The ray was set to zero if it was invalid.
-                       ray.dir.is_zero() {
+                       ray.dir.is_zero()
+                    {
                         return VisitStatus::Continue;
                     }
 
                     // We determine if the point is inside of the convex hull or not.
                     // XXX: use a point-in-implicit test instead of a ray-cast!
-                    if let Some(inter) = chull.toi_with_ray(&Isometry::identity(), ray, true) {
+                    if let Some(inter) =
+                        chull.toi_with_ray(&Isometry::identity(), ray, N::max_value(), true)
+                    {
                         if inter.is_zero() {
-                            // ok, the point is inside, perform the real ray-cast.
+                            // ok, the point is inside, performe the real ray-cast.
                             cast_ray(
                                 &chull,
                                 ray,
@@ -726,8 +723,7 @@ fn compute_rays<N: RealField>(mesh: &TriMesh<N>) -> (Vec<Ray<N>>, HashMap<(u32, 
 fn compute_dual_graph<N: RealField>(
     mesh: &TriMesh<N>,
     raymap: &HashMap<(u32, u32), usize>,
-) -> Vec<DualGraphVertex<N>>
-{
+) -> Vec<DualGraphVertex<N>> {
     // XXX Loss of determinism because of the randomized HashMap.
     let mut prim_edges = HashMap::new();
     let mut dual_vertices: Vec<DualGraphVertex<N>> = (0..mesh.num_triangles())
@@ -801,14 +797,15 @@ impl<'a, N: RealField> RayCast<N> for ConvexPair<'a, N> {
         &self,
         id: &Isometry<N>,
         ray: &Ray<N>,
+        max_toi: N,
         solid: bool,
-    ) -> Option<RayIntersection<N>>
-    {
-        ray_internal::implicit_toi_and_normal_with_ray(
+    ) -> Option<RayIntersection<N>> {
+        query::ray_intersection_with_support_map_with_params(
             id,
             self,
             &mut VoronoiSimplex::new(),
             ray,
+            max_toi,
             solid,
         )
     }

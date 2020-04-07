@@ -5,8 +5,8 @@ use ncollide3d::query::{PointQuery, Ray, RayCast};
 use ncollide3d::shape::{Ball, Cuboid, Shape};
 
 fn run_test<S>(name: &str, shape: S)
-    where
-        S: Shape<f32> + RayCast<f32> + PointQuery<f32>,
+where
+    S: Shape<f32> + RayCast<f32> + PointQuery<f32>,
 {
     for _ in 0..1000 {
         let ray_origin = Point3::from(rand::random::<Vector3<f32>>().normalize() * 5.0);
@@ -20,7 +20,7 @@ fn run_test<S>(name: &str, shape: S)
         let isometry = Isometry3::from_parts(Translation3::identity(), rotation);
 
         let intersection = shape
-            .toi_and_normal_with_ray(&isometry, &ray, true)
+            .toi_and_normal_with_ray(&isometry, &ray, std::f32::MAX, true)
             .expect(&format!(
                 "Ray {:?} did not hit Shape {} rotated with {:?}",
                 ray, name, rotation
@@ -54,7 +54,7 @@ fn run_test<S>(name: &str, shape: S)
 
         assert!(
             shape
-                .toi_and_normal_with_ray(&isometry, &new_ray, true)
+                .toi_and_normal_with_ray(&isometry, &new_ray, std::f32::MAX, true)
                 .is_none(),
             format!(
                 "Ray {:#?} from outside Shape {} rotated with {:#?} did hit at t={}",
@@ -62,7 +62,7 @@ fn run_test<S>(name: &str, shape: S)
                 name,
                 rotation,
                 shape
-                    .toi_and_normal_with_ray(&isometry, &new_ray, true)
+                    .toi_and_normal_with_ray(&isometry, &new_ray, std::f32::MAX, true)
                     .expect("recurring ray cast produced a different answer")
                     .toi
             )

@@ -2,18 +2,21 @@
 
 use crate::bounding_volume::{self, BoundingVolume, AABB};
 use crate::math::{Isometry, Point, Vector, DIM};
-use na::{self, Id, Point2, Point3, RealField, Unit};
 use crate::partitioning::{BVHImpl, BVT};
 use crate::procedural;
-use crate::query::{LocalShapeApproximation, NeighborhoodGeometry, ContactPrediction, ContactPreprocessor, Contact, ContactKinematic};
+use crate::query::{
+    Contact, ContactKinematic, ContactPrediction, ContactPreprocessor, LocalShapeApproximation,
+    NeighborhoodGeometry,
+};
 use crate::shape::{
     CompositeShape, DeformableShape, DeformationsType, FeatureId, Segment, Shape, Triangle,
 };
+use crate::utils::{DeterministicState, IsometryOps};
+use na::{self, Id, Point2, Point3, RealField, Unit};
 use std::collections::{hash_map::Entry, HashMap};
 use std::iter;
 use std::ops::Range;
 use std::slice;
-use crate::utils::{DeterministicState, IsometryOps};
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
@@ -98,8 +101,7 @@ impl<N: RealField> TriMesh<N> {
         points: Vec<Point<N>>,
         indices: Vec<Point3<usize>>,
         uvs: Option<Vec<Point2<N>>>,
-    ) -> TriMesh<N>
-    {
+    ) -> TriMesh<N> {
         let mut leaves = Vec::with_capacity(indices.len());
         let mut vertices: Vec<TriMeshVertex> = iter::repeat(TriMeshVertex {
             adj_faces: 0..0,
@@ -154,13 +156,19 @@ impl<N: RealField> TriMesh<N> {
             for k1 in 0..3 {
                 let k2 = (k1 + 1) % 3;
 
-                if (faces[fid1].indices[k1] == e.indices.x && faces[fid1].indices[k2] == e.indices.y) ||
-                    (faces[fid1].indices[k1] == e.indices.y && faces[fid1].indices[k2] == e.indices.x) {
+                if (faces[fid1].indices[k1] == e.indices.x
+                    && faces[fid1].indices[k2] == e.indices.y)
+                    || (faces[fid1].indices[k1] == e.indices.y
+                        && faces[fid1].indices[k2] == e.indices.x)
+                {
                     faces[fid1].edges[k1] = i;
                 }
 
-                if (faces[fid2].indices[k1] == e.indices.x && faces[fid2].indices[k2] == e.indices.y) ||
-                    (faces[fid2].indices[k1] == e.indices.y && faces[fid2].indices[k2] == e.indices.x) {
+                if (faces[fid2].indices[k1] == e.indices.x
+                    && faces[fid2].indices[k2] == e.indices.y)
+                    || (faces[fid2].indices[k1] == e.indices.y
+                        && faces[fid2].indices[k2] == e.indices.x)
+                {
                     faces[fid2].edges[k1] = i;
                 }
             }
@@ -352,18 +360,30 @@ impl<N: RealField> TriMesh<N> {
         &self.vertices
     }
 
-    /// Applies a transformation to this triangle mesh.
+    /// Applies in-place a transformation to this triangle mesh.
     pub fn transform_by(&mut self, transform: &Isometry<N>) {
         for pt in &mut self.points {
             *pt = transform * *pt
         }
     }
 
-    /// Applies a non-uniform scale to this triangle mesh.
+    /// Applies a transformation to this triangle mesh.
+    pub fn transformed(mut self, transform: &Isometry<N>) -> Self {
+        self.transform_by(transform);
+        self
+    }
+
+    /// Applies in-place a non-uniform scale to this triangle mesh.
     pub fn scale_by(&mut self, scale: &Vector<N>) {
         for pt in &mut self.points {
             pt.coords.component_mul_assign(scale)
         }
+    }
+
+    /// Applies a non-uniform scale to this triangle mesh.
+    pub fn scaled(mut self, scale: &Vector<N>) -> Self {
+        self.scale_by(scale);
+        self
     }
 
     /// Whether this trimesh is considered is oriented or not.
@@ -438,8 +458,7 @@ impl<N: RealField> TriMesh<N> {
         i: usize,
         deformations: Option<&[N]>,
         dir: &Unit<Vector<N>>,
-    ) -> bool
-    {
+    ) -> bool {
         if !self.oriented {
             return false;
         }
@@ -481,8 +500,7 @@ impl<N: RealField> TriMesh<N> {
         i: usize,
         dir: &Unit<Vector<N>>,
         sin_ang_tol: N,
-    ) -> bool
-    {
+    ) -> bool {
         let v = &self.vertices[i];
 
         for adj_vtx in &self.adj_vertex_list[v.adj_vertices.clone()] {
@@ -504,8 +522,7 @@ impl<N: RealField> TriMesh<N> {
         i: usize,
         deformations: Option<&[N]>,
         dir: &Unit<Vector<N>>,
-    ) -> bool
-    {
+    ) -> bool {
         if !self.oriented {
             return false;
         }
@@ -513,7 +530,7 @@ impl<N: RealField> TriMesh<N> {
         let e = &self.edges[i];
 
         if let Some(coords) = deformations {
-            for adj_face in [e.adj_faces.0.face_id, e.adj_faces.1.face_id].into_iter() {
+            for adj_face in [e.adj_faces.0.face_id, e.adj_faces.1.face_id].iter() {
                 let indices = self.faces[*adj_face].indices * DIM;
                 let tri = Triangle::new(
                     Point::from_slice(&coords[indices.x..indices.x + DIM]),
@@ -526,7 +543,7 @@ impl<N: RealField> TriMesh<N> {
                 }
             }
         } else {
-            for adj_face in [e.adj_faces.0.face_id, e.adj_faces.1.face_id].into_iter() {
+            for adj_face in [e.adj_faces.0.face_id, e.adj_faces.1.face_id].iter() {
                 let face = &self.faces[*adj_face];
 
                 if let Some(ref n) = face.normal {
@@ -549,8 +566,7 @@ impl<N: RealField> TriMesh<N> {
         i: usize,
         dir: &Unit<Vector<N>>,
         sin_ang_tol: N,
-    ) -> bool
-    {
+    ) -> bool {
         let e = &self.edges[i];
         let f1 = &self.faces[e.adj_faces.0.face_id];
         let f2 = &self.faces[e.adj_faces.1.face_id];
@@ -584,13 +600,12 @@ impl<N: RealField> TriMesh<N> {
         dir: &Unit<Vector<N>>,
         sin_ang_tol: N,
         _cos_ang_tol: N,
-    ) -> bool
-    {
+    ) -> bool {
         let e = &self.edges[i];
         let edge_dir = self.points[e.indices.y] - self.points[e.indices.x];
 
-        edge_dir.dot(dir).abs() <= sin_ang_tol * edge_dir.norm() &&
-            self.edge_tangent_cone_polar_contains_orthogonal_dir(i, dir, sin_ang_tol)
+        edge_dir.dot(dir).abs() <= sin_ang_tol * edge_dir.norm()
+            && self.edge_tangent_cone_polar_contains_orthogonal_dir(i, dir, sin_ang_tol)
     }
 
     /// Tests that the given `dir` is on the tangent cone of the `i`th face
@@ -600,8 +615,7 @@ impl<N: RealField> TriMesh<N> {
         i: usize,
         deformations: Option<&[N]>,
         dir: &Unit<Vector<N>>,
-    ) -> bool
-    {
+    ) -> bool {
         if !self.oriented {
             return false;
         }
@@ -641,7 +655,10 @@ impl<N: RealField> TriMesh<N> {
     /// Checks if the polar of the tangent cone of the `i`-th face of this triangle mesh contains
     /// the specified direction within an angular tolerence.
     pub fn face_tangent_cone_polar_contains_dir(
-        &self, i: usize, dir: &Unit<Vector<N>>, cos_ang_tol: N
+        &self,
+        i: usize,
+        dir: &Unit<Vector<N>>,
+        cos_ang_tol: N,
     ) -> bool {
         let normal;
 
@@ -662,14 +679,22 @@ impl<N: RealField> TriMesh<N> {
 
     /// Checks if the polar of the tangent cone of the specified feature of this triangle mesh contains
     /// the specified direction within an angular tolerence.
-    pub fn tangent_cone_polar_contains_dir(&self, feature: FeatureId, dir: &Unit<Vector<N>>, sin_ang_tol: N, cos_ang_tol: N) -> bool {
+    pub fn tangent_cone_polar_contains_dir(
+        &self,
+        feature: FeatureId,
+        dir: &Unit<Vector<N>>,
+        sin_ang_tol: N,
+        cos_ang_tol: N,
+    ) -> bool {
         match feature {
-            FeatureId::Face(i) => {
-                self.face_tangent_cone_polar_contains_dir(i, dir, cos_ang_tol)
-            },
-            FeatureId::Edge(i) => self.edge_tangent_cone_polar_contains_dir(i, dir, sin_ang_tol, cos_ang_tol),
-            FeatureId::Vertex(i) => self.vertex_tangent_cone_polar_contains_dir(i, dir, sin_ang_tol),
-            FeatureId::Unknown => false
+            FeatureId::Face(i) => self.face_tangent_cone_polar_contains_dir(i, dir, cos_ang_tol),
+            FeatureId::Edge(i) => {
+                self.edge_tangent_cone_polar_contains_dir(i, dir, sin_ang_tol, cos_ang_tol)
+            }
+            FeatureId::Vertex(i) => {
+                self.vertex_tangent_cone_polar_contains_dir(i, dir, sin_ang_tol)
+            }
+            FeatureId::Unknown => false,
         }
     }
 
@@ -695,9 +720,8 @@ impl<N: RealField> CompositeShape<N> for TriMesh<N> {
         &self,
         i: usize,
         m: &Isometry<N>,
-        f: &mut FnMut(&Isometry<N>, &Shape<N>),
-    )
-    {
+        f: &mut dyn FnMut(&Isometry<N>, &dyn Shape<N>),
+    ) {
         let element = self.triangle_at(i);
         f(m, &element)
     }
@@ -707,7 +731,7 @@ impl<N: RealField> CompositeShape<N> for TriMesh<N> {
         i: usize,
         m: &Isometry<N>,
         prediction: &ContactPrediction<N>,
-        f: &mut FnMut(&Isometry<N>, &Shape<N>, &ContactPreprocessor<N>),
+        f: &mut dyn FnMut(&Isometry<N>, &dyn Shape<N>, &dyn ContactPreprocessor<N>),
     ) {
         let element = self.triangle_at(i);
         let preprocessor = TriMeshContactProcessor::new(self, m, i, prediction);
@@ -735,7 +759,10 @@ impl<N: RealField> DeformableShape<N> for TriMesh<N> {
 
     /// Updates all the degrees of freedom of this shape.
     fn set_deformations(&mut self, coords: &[N]) {
-        assert!(coords.len() >= self.points.len() * DIM, "Set deformations error: dimension mismatch.");
+        assert!(
+            coords.len() >= self.points.len() * DIM,
+            "Set deformations error: dimension mismatch."
+        );
 
         let is_first_init = self.init_deformation_infos();
         self.deformations.curr_timestamp += 1;
@@ -806,12 +833,7 @@ impl<N: RealField> DeformableShape<N> for TriMesh<N> {
         self.bvt.refit(N::zero())
     }
 
-    fn update_local_approximation(
-        &self,
-        coords: &[N],
-        approx: &mut LocalShapeApproximation<N>,
-    )
-    {
+    fn update_local_approximation(&self, coords: &[N], approx: &mut LocalShapeApproximation<N>) {
         match approx.feature {
             FeatureId::Vertex(i) => {
                 approx.point = Point::from_slice(&coords[i * DIM..(i + 1) * DIM]);
@@ -880,18 +902,25 @@ impl<N: RealField> From<procedural::TriMesh<N>> for TriMesh<N> {
     }
 }
 
-
 struct TriMeshContactProcessor<'a, N: RealField> {
     mesh: &'a TriMesh<N>,
     pos: &'a Isometry<N>,
     face_id: usize,
-    prediction: &'a ContactPrediction<N>
+    prediction: &'a ContactPrediction<N>,
 }
 
 impl<'a, N: RealField> TriMeshContactProcessor<'a, N> {
-    pub fn new(mesh: &'a TriMesh<N>, pos: &'a Isometry<N>, face_id: usize, prediction: &'a ContactPrediction<N>) -> Self {
+    pub fn new(
+        mesh: &'a TriMesh<N>,
+        pos: &'a Isometry<N>,
+        face_id: usize,
+        prediction: &'a ContactPrediction<N>,
+    ) -> Self {
         TriMeshContactProcessor {
-            mesh, pos, face_id, prediction
+            mesh,
+            pos,
+            face_id,
+            prediction,
         }
     }
 }
@@ -901,8 +930,8 @@ impl<'a, N: RealField> ContactPreprocessor<N> for TriMeshContactProcessor<'a, N>
         &self,
         c: &mut Contact<N>,
         kinematic: &mut ContactKinematic<N>,
-        is_first: bool)
-        -> bool {
+        is_first: bool,
+    ) -> bool {
         // Fix the feature ID.
         let feature = if is_first {
             kinematic.feature1()
@@ -937,9 +966,19 @@ impl<'a, N: RealField> ContactPreprocessor<N> for TriMeshContactProcessor<'a, N>
             let local_dir = self.pos.inverse_transform_unit_vector(&c.normal);
 
             if is_first {
-                self.mesh.tangent_cone_polar_contains_dir(actual_feature, &local_dir, self.prediction.sin_angular1(), self.prediction.cos_angular1())
+                self.mesh.tangent_cone_polar_contains_dir(
+                    actual_feature,
+                    &local_dir,
+                    self.prediction.sin_angular1(),
+                    self.prediction.cos_angular1(),
+                )
             } else {
-                self.mesh.tangent_cone_polar_contains_dir(actual_feature, &-local_dir, self.prediction.sin_angular2(), self.prediction.cos_angular2())
+                self.mesh.tangent_cone_polar_contains_dir(
+                    actual_feature,
+                    &-local_dir,
+                    self.prediction.sin_angular2(),
+                    self.prediction.cos_angular2(),
+                )
             }
         }
     }

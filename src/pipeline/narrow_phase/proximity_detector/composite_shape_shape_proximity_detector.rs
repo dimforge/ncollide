@@ -1,16 +1,15 @@
 use crate::bounding_volume::{self, BoundingVolume};
 use crate::math::Isometry;
-use na::{self, RealField};
 use crate::partitioning::VisitStatus;
 use crate::pipeline::narrow_phase::{ProximityAlgorithm, ProximityDetector, ProximityDispatcher};
 use crate::query::{visitors::BoundingVolumeInterferencesVisitor, Proximity};
 use crate::shape::{CompositeShape, Shape};
-use std::collections::{hash_map::Entry, HashMap};
 use crate::utils::DeterministicState;
+use na::{self, RealField};
+use std::collections::{hash_map::Entry, HashMap};
 
 /// Proximity detector between a concave shape and another shape.
 pub struct CompositeShapeShapeProximityDetector<N> {
-    proximity: Proximity,
     sub_detectors: HashMap<usize, ProximityAlgorithm<N>, DeterministicState>,
     to_delete: Vec<usize>,
     intersecting_key: usize,
@@ -21,7 +20,6 @@ impl<N> CompositeShapeShapeProximityDetector<N> {
     /// Creates a new proximity detector between a concave shape and another shape.
     pub fn new(flip: bool) -> CompositeShapeShapeProximityDetector<N> {
         CompositeShapeShapeProximityDetector {
-            proximity: Proximity::Disjoint,
             sub_detectors: HashMap::with_hasher(DeterministicState),
             to_delete: Vec::new(),
             intersecting_key: usize::max_value(),
@@ -33,15 +31,16 @@ impl<N> CompositeShapeShapeProximityDetector<N> {
 impl<N: RealField> CompositeShapeShapeProximityDetector<N> {
     fn do_update(
         &mut self,
-        dispatcher: &ProximityDispatcher<N>,
+        dispatcher: &dyn ProximityDispatcher<N>,
         m1: &Isometry<N>,
-        g1: &CompositeShape<N>,
+        g1: &dyn CompositeShape<N>,
         m2: &Isometry<N>,
-        g2: &Shape<N>,
+        g2: &dyn Shape<N>,
         margin: N,
         flip: bool,
-    )
-    {
+    ) -> Option<Proximity> {
+        let mut result = Proximity::Disjoint;
+
         // Remove outdated sub detectors.
         for key in self.to_delete.iter() {
             let _ = self.sub_detectors.remove(key);
@@ -50,23 +49,19 @@ impl<N: RealField> CompositeShapeShapeProximityDetector<N> {
         self.to_delete.clear();
 
         // First, test if the previously intersecting shapes are still intersecting.
-        if self.proximity == Proximity::Intersecting {
+        if self.intersecting_key != usize::max_value() {
             let detector = self.sub_detectors.get_mut(&self.intersecting_key).unwrap();
+            let mut prox = None;
             g1.map_part_at(self.intersecting_key, m1, &mut |m1, g1| {
-                assert!(
-                    detector.update(dispatcher, m1, g1, m2, g2, margin),
-                    "The shape was no longer valid."
-                );
+                prox = detector.update(dispatcher, m1, g1, m2, g2, margin)
             });
 
-            match detector.proximity() {
-                Proximity::Intersecting => return, // Early return.
-                Proximity::WithinMargin => self.proximity = Proximity::WithinMargin,
+            match prox? {
+                Proximity::Intersecting => return Some(Proximity::Intersecting), // Early return.
+                Proximity::WithinMargin => result = Proximity::WithinMargin,
                 Proximity::Disjoint => {}
             }
         }
-
-        self.proximity = Proximity::Disjoint;
 
         let m12 = m1.inverse() * m2.clone();
         let ls_aabb2 = bounding_volume::aabb(g2, &m12).loosened(margin);
@@ -81,20 +76,18 @@ impl<N: RealField> CompositeShapeShapeProximityDetector<N> {
             }
 
             if ls_aabb2.intersects(&g1.aabb_at(key)) {
+                let mut prox = None;
+
                 g1.map_part_at(key, m1, &mut |m1, g1| {
-                    assert!(
-                        detector.1.update(dispatcher, m1, g1, m2, g2, margin),
-                        "The shape was no longer valid."
-                    );
+                    prox = detector.1.update(dispatcher, m1, g1, m2, g2, margin)
                 });
 
-                match detector.1.proximity() {
+                match prox? {
                     Proximity::Intersecting => {
-                        self.proximity = Proximity::Intersecting;
                         self.intersecting_key = *detector.0;
-                        return; // No need to search any further.
+                        return Some(Proximity::Intersecting); // No need to search any further.
                     }
-                    Proximity::WithinMargin => self.proximity = Proximity::WithinMargin,
+                    Proximity::WithinMargin => result = Proximity::WithinMargin,
                     Proximity::Disjoint => {}
                 }
             } else {
@@ -103,6 +96,7 @@ impl<N: RealField> CompositeShapeShapeProximityDetector<N> {
             }
         }
 
+        let mut result = Some(result);
         // Find new proximities.
         let mut visitor = BoundingVolumeInterferencesVisitor::new(&ls_aabb2, |key| {
             let entry = self.sub_detectors.entry(*key);
@@ -128,22 +122,29 @@ impl<N: RealField> CompositeShapeShapeProximityDetector<N> {
             };
 
             if let Some(sub_detector) = detector {
+                let mut prox = None;
+
                 g1.map_part_at(*key, m1, &mut |m1, g1| {
                     if flip {
-                        let _ = sub_detector.update(dispatcher, m2, g2, m1, g1, margin);
+                        prox = sub_detector.update(dispatcher, m2, g2, m1, g1, margin);
                     } else {
-                        let _ = sub_detector.update(dispatcher, m1, g1, m2, g2, margin);
+                        prox = sub_detector.update(dispatcher, m1, g1, m2, g2, margin);
                     }
                 });
 
-                match sub_detector.proximity() {
-                    Proximity::Intersecting => {
-                        self.proximity = Proximity::Intersecting;
-                        self.intersecting_key = *key;
-                        return VisitStatus::ExitEarly; // No need to search further.
+                if let Some(prox) = prox {
+                    match prox {
+                        Proximity::Intersecting => {
+                            self.intersecting_key = *key;
+                            result = Some(Proximity::Intersecting);
+                            return VisitStatus::ExitEarly; // No need to search further.
+                        }
+                        Proximity::WithinMargin => result = Some(Proximity::WithinMargin),
+                        Proximity::Disjoint => {}
                     }
-                    Proximity::WithinMargin => self.proximity = Proximity::WithinMargin,
-                    Proximity::Disjoint => {}
+                } else {
+                    result = None;
+                    return VisitStatus::ExitEarly;
                 }
             }
 
@@ -151,37 +152,30 @@ impl<N: RealField> CompositeShapeShapeProximityDetector<N> {
         });
         g1.bvh().visit(&mut visitor);
 
-        // Totally disjoints.
-        self.intersecting_key = usize::max_value()
+        if result == Some(Proximity::Intersecting) {
+            // Disjoints or within margin.
+            self.intersecting_key = usize::max_value();
+        }
+        result
     }
 }
 
 impl<N: RealField> ProximityDetector<N> for CompositeShapeShapeProximityDetector<N> {
     fn update(
         &mut self,
-        dispatcher: &ProximityDispatcher<N>,
+        dispatcher: &dyn ProximityDispatcher<N>,
         m1: &Isometry<N>,
-        g1: &Shape<N>,
+        g1: &dyn Shape<N>,
         m2: &Isometry<N>,
-        g2: &Shape<N>,
+        g2: &dyn Shape<N>,
         margin: N,
-    ) -> bool {
+    ) -> Option<Proximity> {
         if !self.flip {
-            if let Some(cs) = g1.as_composite_shape() {
-                self.do_update(dispatcher, m1, cs, m2, g2, margin, false);
-                return true;
-            }
+            let cs = g1.as_composite_shape()?;
+            self.do_update(dispatcher, m1, cs, m2, g2, margin, false)
         } else {
-            if let Some(cs) = g2.as_composite_shape() {
-                self.do_update(dispatcher, m2, cs, m1, g1, margin, true);
-                return true;
-            }
+            let cs = g2.as_composite_shape()?;
+            self.do_update(dispatcher, m2, cs, m1, g1, margin, true)
         }
-
-        return false;
-    }
-
-    fn proximity(&self) -> Proximity {
-        self.proximity
     }
 }

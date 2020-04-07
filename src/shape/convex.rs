@@ -1,11 +1,11 @@
 use crate::math::{Isometry, Point, Vector};
-use na::{self, Point2, Point3, RealField, Unit};
 use crate::shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
+use crate::transformation;
+use crate::utils::{self, IsometryOps, SortedPair};
+use na::{self, Point2, Point3, RealField, Unit};
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::f64;
-use crate::transformation;
-use crate::utils::{self, IsometryOps, SortedPair};
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Copy, Clone)]
@@ -356,8 +356,7 @@ impl<N: RealField> ConvexHull<N> {
         feature: FeatureId,
         m: &Isometry<N>,
         dir: &Unit<Vector<N>>,
-    ) -> bool
-    {
+    ) -> bool {
         let ls_dir = m.inverse_transform_unit_vector(dir);
 
         match feature {
@@ -383,7 +382,6 @@ impl<N: RealField> ConvexHull<N> {
             FeatureId::Unknown => false,
         }
     }
-
 
     fn support_feature_id_toward_eps(&self, local_dir: &Unit<Vector<N>>, eps: N) -> FeatureId {
         let (seps, ceps) = eps.sin_cos();
@@ -467,7 +465,9 @@ impl<N: RealField> ConvexPolyhedron<N> for ConvexHull<N> {
             FeatureId::Face(id) => self.faces[id].normal,
             FeatureId::Edge(id) => {
                 let edge = &self.edges[id];
-                Unit::new_normalize(*self.faces[edge.faces[0]].normal + *self.faces[edge.faces[1]].normal)
+                Unit::new_normalize(
+                    *self.faces[edge.faces[0]].normal + *self.faces[edge.faces[1]].normal,
+                )
             }
             FeatureId::Vertex(id) => {
                 let vertex = &self.vertices[id];
@@ -481,7 +481,7 @@ impl<N: RealField> ConvexPolyhedron<N> for ConvexHull<N> {
 
                 Unit::new_normalize(normal)
             }
-            FeatureId::Unknown => panic!("Invalid feature ID: {:?}", feature)
+            FeatureId::Unknown => panic!("Invalid feature ID: {:?}", feature),
         }
     }
 
@@ -490,8 +490,7 @@ impl<N: RealField> ConvexPolyhedron<N> for ConvexHull<N> {
         m: &Isometry<N>,
         dir: &Unit<Vector<N>>,
         out: &mut ConvexPolygonalFeature<N>,
-    )
-    {
+    ) {
         let ls_dir = m.inverse_transform_vector(dir);
         let mut best_face = 0;
         let mut max_dot = self.faces[0].normal.dot(&ls_dir);
@@ -516,8 +515,7 @@ impl<N: RealField> ConvexPolyhedron<N> for ConvexHull<N> {
         dir: &Unit<Vector<N>>,
         angle: N,
         out: &mut ConvexPolygonalFeature<N>,
-    )
-    {
+    ) {
         out.clear();
         let local_dir = transform.inverse_transform_unit_vector(dir);
         let fid = self.support_feature_id_toward_eps(&local_dir, angle);
@@ -536,7 +534,7 @@ impl<N: RealField> ConvexPolyhedron<N> for ConvexHull<N> {
                 out.push_edge_feature_id(fid);
             }
             FeatureId::Face(_) => self.face(fid, out),
-            FeatureId::Unknown => unreachable!()
+            FeatureId::Unknown => unreachable!(),
         }
 
         out.transform_by(transform);

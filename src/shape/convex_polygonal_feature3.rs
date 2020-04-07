@@ -3,12 +3,12 @@ use na::{self, Point2, RealField, Unit};
 use std::iter;
 
 use crate::math::{Isometry, Point, Vector};
-use crate::query::closest_points_internal;
-use crate::query::ray_internal;
-use crate::query::{Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry};
-use crate::shape::{FeatureId, Segment, SegmentPointLocation};
 use crate::query::ContactPreprocessor;
-use crate::utils::{self, IdAllocator, IsometryOps};
+use crate::query::{
+    self, Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry,
+};
+use crate::shape::{FeatureId, Segment, SegmentPointLocation};
+use crate::utils::{self, IsometryOps};
 
 /// A cache used for polygonal clipping.
 #[derive(Clone)]
@@ -222,8 +222,7 @@ impl<N: RealField> ConvexPolygonalFeature<N> {
         prediction: &ContactPrediction<N>,
         cache: &mut ClippingCache<N>,
         out: &mut Vec<(Contact<N>, FeatureId, FeatureId)>,
-    )
-    {
+    ) {
         // FIXME: don't compute contacts further than the prediction.
 
         cache.clear();
@@ -267,7 +266,7 @@ impl<N: RealField> ConvexPolygonalFeature<N> {
                     let n2 = other.normal.as_ref().unwrap().into_inner();
                     let p2 = &other.vertices[0];
                     if let Some(toi2) =
-                        ray_internal::plane_toi_with_line(p2, &n2, &origin, &normal.into_inner())
+                        query::line_toi_with_plane(p2, &n2, &origin, &normal.into_inner())
                     {
                         let world2 = origin + normal.into_inner() * toi2;
                         let world1 = self.vertices[i];
@@ -293,7 +292,7 @@ impl<N: RealField> ConvexPolygonalFeature<N> {
                     let n1 = self.normal.as_ref().unwrap().into_inner();
                     let p1 = &self.vertices[0];
                     if let Some(toi1) =
-                        ray_internal::plane_toi_with_line(p1, &n1, &origin, &normal.into_inner())
+                        query::line_toi_with_plane(p1, &n1, &origin, &normal.into_inner())
                     {
                         let world1 = origin + normal.into_inner() * toi1;
                         let world2 = other.vertices[i];
@@ -321,7 +320,7 @@ impl<N: RealField> ConvexPolygonalFeature<N> {
                 let seg2 = (&cache.poly2[i2], &cache.poly2[j2]);
 
                 if let (SegmentPointLocation::OnEdge(e1), SegmentPointLocation::OnEdge(e2)) =
-                    closest_points_internal::segment_against_segment_with_locations_nD(seg1, seg2)
+                    query::closest_points_segment_segment_with_locations_nD(seg1, seg2)
                 {
                     let original1 = Segment::new(self.vertices[i1], self.vertices[j1]);
                     let original2 = Segment::new(other.vertices[i2], other.vertices[j2]);
@@ -346,14 +345,12 @@ impl<N: RealField> ConvexPolygonalFeature<N> {
         c: Contact<N>,
         m1: &Isometry<N>,
         f1: FeatureId,
-        proc1: Option<&ContactPreprocessor<N>>,
+        proc1: Option<&dyn ContactPreprocessor<N>>,
         m2: &Isometry<N>,
         f2: FeatureId,
-        proc2: Option<&ContactPreprocessor<N>>,
-        ids: &mut IdAllocator,
+        proc2: Option<&dyn ContactPreprocessor<N>>,
         manifold: &mut ContactManifold<N>,
-    )
-    {
+    ) {
         let mut kinematic = ContactKinematic::new();
         let local1 = m1.inverse_transform_point(&c.world1);
         let local2 = m2.inverse_transform_point(&c.world2);
@@ -376,9 +373,7 @@ impl<N: RealField> ConvexPolygonalFeature<N> {
                     return;
                 }
             }
-            FeatureId::Vertex(..) => {
-                kinematic.set_approx1(f1, local1, NeighborhoodGeometry::Point)
-            }
+            FeatureId::Vertex(..) => kinematic.set_approx1(f1, local1, NeighborhoodGeometry::Point),
             FeatureId::Unknown => return,
         }
 
@@ -399,14 +394,12 @@ impl<N: RealField> ConvexPolygonalFeature<N> {
                     return;
                 }
             }
-            FeatureId::Vertex(..) => {
-                kinematic.set_approx2(f2, local2, NeighborhoodGeometry::Point)
-            }
+            FeatureId::Vertex(..) => kinematic.set_approx2(f2, local2, NeighborhoodGeometry::Point),
             FeatureId::Unknown => return,
         }
 
-//        println!("Accepted contact: {:?}", c);
-//        println!("Accepted kinematic: {:?}", kinematic);
-        let _ = manifold.push(c, kinematic, local1, proc1, proc2, ids);
+        //        println!("Accepted contact: {:?}", c);
+        //        println!("Accepted kinematic: {:?}", kinematic);
+        let _ = manifold.push(c, kinematic, local1, proc1, proc2);
     }
 }
