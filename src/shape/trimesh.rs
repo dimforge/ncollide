@@ -380,12 +380,14 @@ impl<N: RealField> TriMesh<N> {
         }
         //Recalculate aabb, method taken from constructor
         let mut leaves = Vec::with_capacity(self.faces.len());
-        for (i, face) in self.faces.iter().enumerate()
-        {
-            let triangle = Triangle::new(self.points[face.indices[0]], self.points[face.indices[1]], self.points[face.indices[2]]);
+        for (i, face) in self.faces.iter().enumerate() {
+            let triangle = Triangle::new(
+                self.points[face.indices[0]],
+                self.points[face.indices[1]],
+                self.points[face.indices[2]],
+            );
             let bv = triangle.local_aabb();
             leaves.push((i, bv.clone()));
-           
         }
         self.bvt = BVT::new_balanced(leaves);
 
