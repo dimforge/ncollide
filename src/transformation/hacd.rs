@@ -10,7 +10,7 @@ use crate::query::{
 use crate::shape::SupportMap;
 use crate::transformation;
 use crate::utils;
-use na::{self, Id, Point3, RealField, Translation3, Vector2, Vector3};
+use na::{self, Point3, RealField, Translation3, Vector2, Vector3};
 use std::cmp::Ordering;
 use std::collections::hash_map::Entry;
 use std::collections::{BinaryHeap, HashMap, HashSet};
@@ -216,7 +216,7 @@ impl<N: RealField> DualGraphVertex<N> {
         ];
 
         let area = utils::triangle_area(&triangle[0], &triangle[1], &triangle[2]);
-        let aabb = bounding_volume::point_cloud_aabb(&Id::new(), &triangle[..]);
+        let aabb = bounding_volume::local_point_cloud_aabb(&triangle[..]);
 
         let chull = TriMesh::new(triangle, None, None, None);
 

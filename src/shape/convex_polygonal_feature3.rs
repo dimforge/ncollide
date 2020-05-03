@@ -1,4 +1,3 @@
-use alga::linear::FiniteDimInnerSpace;
 use na::{self, Point2, RealField, Unit};
 use std::iter;
 

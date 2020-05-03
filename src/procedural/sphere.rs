@@ -3,10 +3,10 @@ use super::utils;
 use super::Polyline;
 #[cfg(feature = "dim3")]
 use super::{IndexBuffer, TriMesh};
-use alga::general::RealField;
 use na;
 #[cfg(feature = "dim3")]
 use na::{Point2, Point3, Vector3};
+use simba::scalar::RealField;
 
 /// Generates a UV sphere.
 #[cfg(feature = "dim3")]

@@ -1,4 +1,4 @@
-use alga::general::RealField;
+use simba::scalar::RealField;
 
 use crate::bounding_volume::{BoundingSphere, HasBoundingVolume};
 use crate::math::{Isometry, Point};

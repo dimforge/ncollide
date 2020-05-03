@@ -3,10 +3,10 @@ use super::Polyline;
 #[cfg(feature = "dim3")]
 use super::{IndexBuffer, TriMesh};
 use crate::math::{Point, Vector};
-use alga::general::RealField;
 use na;
 #[cfg(feature = "dim3")]
 use na::Point2;
+use simba::scalar::RealField;
 
 /**
  * Generates a cuboid shape with a split index buffer.

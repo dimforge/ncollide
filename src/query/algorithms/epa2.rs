@@ -3,8 +3,8 @@
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 
-use alga::general::RealField;
 use na::{self, Unit};
+use simba::scalar::RealField;
 
 use crate::math::{Isometry, Point, Vector};
 use crate::query::algorithms::{

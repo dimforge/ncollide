@@ -1,7 +1,7 @@
 use super::ToPolyline;
 use crate::procedural::Polyline;
 use crate::shape::Segment;
-use alga::general::RealField;
+use simba::scalar::RealField;
 
 impl<N: RealField> ToPolyline<N> for Segment<N> {
     type DiscretizationParameter = ();

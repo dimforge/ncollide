@@ -50,18 +50,17 @@ And various traits for collision detectors and broad phase collision detection.
 #[cfg(feature = "serde")]
 #[macro_use]
 extern crate serde;
-extern crate alga;
 #[macro_use]
 extern crate approx;
 #[macro_use]
 extern crate downcast_rs;
 #[macro_use]
 extern crate bitflags;
-extern crate either;
 extern crate nalgebra as na;
 extern crate num_traits as num;
-extern crate slab;
-extern crate smallvec;
+
+pub use nalgebra;
+pub use simba;
 
 macro_rules! try_ret {
     ($val: expr) => {

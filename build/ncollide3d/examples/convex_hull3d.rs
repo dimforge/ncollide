@@ -1,6 +1,4 @@
 extern crate nalgebra as na;
-extern crate ncollide3d;
-extern crate rand;
 
 use na::Point3;
 use ncollide3d::transformation;

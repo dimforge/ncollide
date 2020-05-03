@@ -3,7 +3,6 @@ use std::iter::IntoIterator;
 use crate::bounding_volume::AABB;
 use crate::math::{Isometry, Point, Vector, DIM};
 use crate::shape::SupportMap;
-use alga::linear::Transformation;
 use na::{self, RealField};
 
 /// Computes the AABB of an support mapped shape.
@@ -32,7 +31,7 @@ where
 }
 
 /// Computes the AABB of a set of points transformed by `m`.
-pub fn point_cloud_aabb<'a, N: RealField, M: Transformation<Point<N>>, I>(m: &M, pts: I) -> AABB<N>
+pub fn point_cloud_aabb<'a, N: RealField, I>(m: &Isometry<N>, pts: I) -> AABB<N>
 where
     I: IntoIterator<Item = &'a Point<N>>,
 {
@@ -46,9 +45,9 @@ where
     let mut max: Point<N> = wp0;
 
     for pt in it {
-        let wpt = m.transform_point(pt);
-        min = na::inf(&min, &wpt);
-        max = na::sup(&max, &wpt);
+        let wpt = m * pt;
+        min = min.inf(&wpt);
+        max = max.sup(&wpt);
     }
 
     AABB::new(min, max)
@@ -68,8 +67,8 @@ where
     let mut max: Point<N> = *p0;
 
     for pt in it {
-        min = na::inf(&min, &pt);
-        max = na::sup(&max, &pt);
+        min = min.inf(&pt);
+        max = max.sup(&pt);
     }
 
     AABB::new(min, max)

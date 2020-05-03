@@ -1,7 +1,7 @@
 use crate::math::Point;
 use crate::utils;
-use alga::general::RealField;
 use na;
+use simba::scalar::RealField;
 
 /// Computes the area of a triangle.
 #[inline]

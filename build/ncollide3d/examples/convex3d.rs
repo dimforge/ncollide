@@ -1,5 +1,4 @@
 extern crate nalgebra as na;
-extern crate ncollide3d;
 
 use na::Point3;
 use ncollide3d::shape::ConvexHull;

@@ -1,5 +1,4 @@
 extern crate nalgebra as na;
-extern crate ncollide2d;
 
 use na::Vector2;
 use ncollide2d::shape::Cuboid;

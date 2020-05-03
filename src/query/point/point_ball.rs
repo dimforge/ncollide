@@ -1,5 +1,5 @@
-use alga::general::RealField;
 use na;
+use simba::scalar::RealField;
 
 use crate::math::{Isometry, Point};
 use crate::query::{PointProjection, PointQuery};

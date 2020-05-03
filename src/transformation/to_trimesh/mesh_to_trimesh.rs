@@ -1,9 +1,9 @@
-use alga::general::RealField;
+use super::ToTriMesh;
+use crate::procedural::{IndexBuffer, TriMesh, TriMesh3};
+use crate::shape;
 use na;
 use na::Point3;
-use crate::shape;
-use crate::procedural::{IndexBuffer, TriMesh, TriMesh3};
-use super::ToTriMesh;
+use simba::scalar::RealField;
 
 impl<N: RealField> ToTriMesh<Point3<N>, ()> for shape::TriMesh3<N> {
     fn to_trimesh(&self, _: ()) -> TriMesh3<N> {

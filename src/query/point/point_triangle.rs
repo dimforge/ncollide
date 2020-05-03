@@ -1,4 +1,4 @@
-use crate::math::{Isometry, Point, Vector};
+use crate::math::{Isometry, Point, Vector, DIM};
 use crate::query::{PointProjection, PointQuery, PointQueryWithLocation};
 use crate::shape::{FeatureId, Triangle, TrianglePointLocation};
 use na::{self, RealField};
@@ -31,7 +31,7 @@ impl<N: RealField> PointQuery<N> for Triangle<N> {
         m: &Isometry<N>,
         pt: &Point<N>,
     ) -> (PointProjection<N>, FeatureId) {
-        let (proj, loc) = if na::dimension::<Vector<N>>() == 2 {
+        let (proj, loc) = if DIM == 2 {
             self.project_point_with_location(m, pt, false)
         } else {
             self.project_point_with_location(m, pt, true)
@@ -218,7 +218,7 @@ impl<N: RealField> PointQueryWithLocation<N> for Triangle<N> {
             }
             ProjectionInfo::OnFace(face_side, va, vb, vc) => {
                 // Voronoï region of the face.
-                if na::dimension::<Vector<N>>() != 2 {
+                if DIM != 2 {
                     let denom = _1 / (va + vb + vc);
                     let v = vb * denom;
                     let w = vc * denom;
