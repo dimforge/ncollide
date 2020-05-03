@@ -19,8 +19,8 @@ Simply add the following to your `Cargo.toml` file:
 
 ```.ignore
 [dependencies]
-ncollide2d = "0.22" # For 2D collision detection.
-ncollide3d = "0.22" # For 3D collision detection.
+ncollide2d = "0.23" # For 2D collision detection.
+ncollide3d = "0.23" # For 3D collision detection.
 ```
 
 
