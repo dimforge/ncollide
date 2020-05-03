@@ -1,5 +1,4 @@
 extern crate nalgebra as na;
-extern crate ncollide2d;
 
 use na::{Isometry2, Point2, Vector2};
 use ncollide2d::bounding_volume::{self, BoundingSphere, HasBoundingVolume};

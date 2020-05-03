@@ -1,7 +1,5 @@
 /*
 extern crate nalgebra as na;
-extern crate ncollide2d;
-extern crate ncollide3d; // Needed here only for path generation.
 
 use na::Point3;
 use ncollide3d::procedural;
