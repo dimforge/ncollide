@@ -138,6 +138,68 @@ impl CollisionGroups {
         }
     }
 
+    #[inline]
+    fn add_mask(cur_mask: u32, new_mask: u32) -> u32 {
+        assert!(
+            new_mask <= ALL_GROUPS,
+            "There are at most 30 groups indexed from 0 to 29 (included)."
+        );
+
+        cur_mask | new_mask
+    }
+
+    #[inline]
+    fn remove_mask(cur_mask: u32, new_mask: u32) -> u32 {
+        assert!(
+            new_mask <= ALL_GROUPS,
+            "There are at most 30 groups indexed from 0 to 29 (included)."
+        );
+
+        cur_mask & !new_mask
+    }
+
+    #[inline]
+    /// adds this entity to the given group by a mask of bits where each bit index represent a group
+    pub fn add_membership_by_mask(mut self, group_mask: u32) -> CollisionGroups {
+        self.membership = Self::add_mask(self.membership, group_mask);
+        self
+    }
+
+    #[inline]
+    /// removes this entity from the given group by a mask of bits where each bit index represent a group
+    pub fn remove_membership_by_mask(mut self, group_mask: u32) -> CollisionGroups {
+        self.membership = Self::remove_mask(self.membership, group_mask);
+        self
+    }
+
+    #[inline]
+    /// adds this entity to this entity whitelist by a mask of bits where each bit index represent a group
+    pub fn add_whitelist_by_mask(mut self, group_mask: u32) -> CollisionGroups {
+        self.whitelist = Self::add_mask(self.whitelist, group_mask);
+        self
+    }
+
+    #[inline]
+    /// remove this entity from this entity whitelist by a mask of bits where each bit index represent a group
+    pub fn remove_whitelist_by_mask(mut self, group_mask: u32) -> CollisionGroups {
+        self.whitelist = Self::remove_mask(self.whitelist, group_mask);
+        self
+    }
+
+    #[inline]
+    /// adds this entity to this entity blacklist by a mask of bits where each bit index represent a group
+    pub fn add_blacklist_by_mask(mut self, group_mask: u32) -> CollisionGroups {
+        self.blacklist = Self::add_mask(self.blacklist, group_mask);
+        self
+    }
+
+    #[inline]
+    /// remove this entity from this entity blacklist by a mask of bits where each bit index represent a group
+    pub fn remove_blacklist_by_mask(mut self, group_mask: u32) -> CollisionGroups {
+        self.blacklist = Self::remove_mask(self.blacklist, group_mask);
+        self
+    }
+
     /// Adds or removes this entity from the given group.
     #[inline]
     pub fn modify_membership(&mut self, group_id: usize, add: bool) {
