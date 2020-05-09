@@ -77,8 +77,11 @@ where
 
             // If the node has data then it is a leaf
             if let Some(data_handle) = data {
-                // all objects within the tree must be further away than the
-                // bounding volume (TODO: is this true?)
+                // rough_toi is less than or equal the cost of any subnode.
+                // Either: The ray origin is outside the bv, and so no point in the bv
+                //   could have a lower cost than rough_toi.
+                // Or: The ray origin is inside the bv, and rough_toi is 0
+                // We only check the data if it may be better than best_cost_so_far
                 if rough_toi < best_cost_so_far {
                     // Possibly the best. Look up underlying data of the node...
                     // TODO: Should this be `.expect()`?

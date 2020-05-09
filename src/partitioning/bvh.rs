@@ -104,6 +104,7 @@ pub trait BVH<T, BV> {
         BFS: BestFirstVisitor<N, T, BV>,
     {
         let mut queue: BinaryHeap<WeightedValue<N, Self::Node>> = BinaryHeap::new();
+        // The lowest cost collision with actual scene geometry.
         let mut best_cost = N::max_value();
         let mut best_result = None;
 
@@ -112,6 +113,7 @@ pub trait BVH<T, BV> {
 
             match visitor.visit(best_cost, root_bv, root_data) {
                 BestFirstVisitStatus::Continue { cost, result } => {
+                    // Root may be a leaf node
                     if let Some(res) = result {
                         best_cost = cost;
                         best_result = Some((root, res));
@@ -125,6 +127,7 @@ pub trait BVH<T, BV> {
 
             while let Some(entry) = queue.pop() {
                 if -entry.cost >= best_cost {
+                    // No BV left in the tree that has a lower cost than best_result
                     break; // Solution found.
                 }
 
@@ -136,10 +139,11 @@ pub trait BVH<T, BV> {
                         BestFirstVisitStatus::Continue { cost, result } => {
                             if cost < best_cost {
                                 if result.is_some() {
+                                    // This is the nearest collision so far
                                     best_cost = cost;
                                     best_result = result.map(|res| (child, res));
                                 }
-
+                                // BV may have a child with lower cost, evaluate it next.
                                 queue.push(WeightedValue::new(child, -cost))
                             }
                         }
