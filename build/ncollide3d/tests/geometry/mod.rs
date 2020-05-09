@@ -4,6 +4,7 @@ mod contact;
 mod cuboid_ray_cast;
 mod cylinder_cuboid_contact;
 mod epa3;
+mod first_interference_with_ray;
 mod interferences_with_ray;
 mod still_objects_toi;
 mod time_of_impact3;
