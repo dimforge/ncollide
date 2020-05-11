@@ -20,11 +20,11 @@ pub fn contact_ball_ball<N: RealField>(
     let sum_radius_with_error = sum_radius + prediction;
 
     if distance_squared < sum_radius_with_error * sum_radius_with_error {
-        let mut normal = Unit::new_normalize(delta_pos);
-
-        if distance_squared.is_zero() {
-            normal = Vector::x_axis();
-        }
+        let normal = if !distance_squared.is_zero() {
+            Unit::new_normalize(delta_pos)
+        } else {
+            Vector::x_axis()
+        };
 
         Some(Contact::new(
             *center1 + *normal * r1,

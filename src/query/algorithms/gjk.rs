@@ -93,7 +93,15 @@ where
 
     // FIXME: reset the simplex if it is empty?
     let mut proj = simplex.project_origin_and_reduce();
-    let mut old_dir = -Unit::new_normalize(proj.coords);
+
+    let mut old_dir;
+
+    if let Some(proj_dir) = Unit::try_new(proj.coords, N::zero()) {
+        old_dir = -proj_dir;
+    } else {
+        return GJKResult::Intersection;
+    }
+
     let mut max_bound = N::max_value();
     let mut dir;
     let mut niter = 0;
