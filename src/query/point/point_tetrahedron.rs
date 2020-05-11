@@ -330,7 +330,11 @@ impl<N: RealField> PointQueryWithLocation<N> for Tetrahedron<N> {
                     // let vb = cp_ab * ap_ac - ap_ab * cp_ac;
                     // let vc = ap_ab * bp_ac - bp_ab * ap_ac;
 
-                    let normal = n.normalize();
+                    // NOTE: the normalization may fail even if the dot products
+                    // above were < 0. This happens, e.g., when we use fixed-point
+                    // numbers and there are not enough decimal bits to perform
+                    // the normalization.
+                    let normal = n.try_normalize(N::default_epsilon())?;
                     let vc = normal.dot(&ap.cross(bp));
                     let va = normal.dot(&bp.cross(cp));
                     let vb = normal.dot(&cp.cross(ap));

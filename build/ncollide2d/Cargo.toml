@@ -17,6 +17,10 @@ default = [ "dim2" ]
 dim2    = [ ]
 serde-serialize = [ "serde", "nalgebra/serde-serialize" ]
 
+# Improve numerical stability when working with fixed-point numbers
+# so we don't need a too large number of decimals.
+improved_fixed_point_support = [ ]
+
 [lib]
 name = "ncollide2d"
 path = "../../src/lib.rs"

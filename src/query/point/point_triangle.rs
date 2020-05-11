@@ -219,16 +219,21 @@ impl<N: RealField> PointQueryWithLocation<N> for Triangle<N> {
             ProjectionInfo::OnFace(face_side, va, vb, vc) => {
                 // Voronoï region of the face.
                 if DIM != 2 {
-                    let denom = _1 / (va + vb + vc);
-                    let v = vb * denom;
-                    let w = vc * denom;
-                    let bcoords = [_1 - v - w, v, w];
-                    let res = a + ab * v + ac * w;
+                    // NOTE: in some cases, numerical instability
+                    // may result in the denominator being zero
+                    // when the triangle is nearly degenerate.
+                    if va + vb + vc != N::zero() {
+                        let denom = _1 / (va + vb + vc);
+                        let v = vb * denom;
+                        let w = vc * denom;
+                        let bcoords = [_1 - v - w, v, w];
+                        let res = a + ab * v + ac * w;
 
-                    return (
-                        compute_result(pt, m * res),
-                        TrianglePointLocation::OnFace(face_side, bcoords),
-                    );
+                        return (
+                            compute_result(pt, m * res),
+                            TrianglePointLocation::OnFace(face_side, bcoords),
+                        );
+                    }
                 }
             }
         }

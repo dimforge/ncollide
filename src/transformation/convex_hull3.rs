@@ -189,9 +189,25 @@ fn get_initial_mesh<N: RealField>(
     /*
      * Compute the eigenvectors to see if the input datas live on a subspace.
      */
-    let cov_mat = cov(points);
-    let eig = cov_mat.symmetric_eigen();
-    let (eigvec, eigval) = (eig.eigenvectors, eig.eigenvalues);
+    let cov_mat;
+    let eigvec;
+    let eigval;
+
+    #[cfg(not(feature = "improved_fixed_point_support"))]
+    {
+        cov_mat = cov(points);
+        let eig = cov_mat.symmetric_eigen();
+        eigvec = eig.eigenvectors;
+        eigval = eig.eigenvalues;
+    }
+
+    #[cfg(feature = "improved_fixed_point_support")]
+    {
+        cov_mat = Matrix3::identity();
+        eigvec = Matrix3::identity();
+        eigval = Vector3::repeat(N::one());
+    }
+
     let mut eigpairs = [
         (eigvec.column(0).into_owned(), eigval[0]),
         (eigvec.column(1).into_owned(), eigval[1]),

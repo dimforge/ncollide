@@ -403,6 +403,12 @@ impl<N: RealField> EPA<N> {
                 }
             }
 
+            if first_new_face_id == self.faces.len() {
+                // Something went very wrong because all the edges
+                // from the silhouette belonged to deleted faces.
+                return None;
+            }
+
             self.faces[first_new_face_id].adj[2] = self.faces.len() - 1;
             self.faces.last_mut().unwrap().adj[1] = first_new_face_id;
 
