@@ -157,7 +157,19 @@ impl<N: RealField> PointQueryWithLocation<N> for Triangle<N> {
             }
             #[cfg(feature = "dim3")]
             {
-                let n = ab.cross(&ac);
+                let n;
+
+                #[cfg(feature = "improved_fixed_point_support")]
+                {
+                    let scaled_n = ab.cross(&ac);
+                    n = scaled_n.try_normalize(N::zero()).unwrap_or(scaled_n);
+                }
+
+                #[cfg(not(feature = "improved_fixed_point_support"))]
+                {
+                    n = ab.cross(&ac);
+                }
+
                 let vc = n.dot(&ab.cross(&ap));
                 if vc < na::zero() && ab_ap >= na::zero() && ab_bp <= na::zero() {
                     return ProjectionInfo::OnAB;
