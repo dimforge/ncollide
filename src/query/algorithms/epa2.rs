@@ -187,9 +187,44 @@ impl<N: RealField> EPA<N> {
         }
 
         if simplex.dimension() == 0 {
-            let mut n: Vector<N> = na::zero();
-            n[1] = na::one();
-            return Some((Point::origin(), Point::origin(), Unit::new_unchecked(n)));
+            const MAX_ITERS: usize = 100; // If there is no convergence, just use whatever direction was extracted so fare
+
+            // The contact is vertex-vertex.
+            // We need to determine a valid normal that lies
+            // on both vertices' normal cone.
+            let mut n = Vector::y_axis();
+
+            // First, find a vector on the first vertex tangent cone.
+            let orig1 = self.vertices[0].orig1;
+            for _ in 0..MAX_ITERS {
+                let supp1 = g1.support_point(m1, &n);
+                if let Some(tangent) = Unit::try_new(supp1 - orig1, _eps_tol) {
+                    if n.dot(&tangent) < _eps_tol {
+                        break;
+                    }
+
+                    n = Unit::new_unchecked(Vector::new(-tangent.y, tangent.x));
+                } else {
+                    break;
+                }
+            }
+
+            // Second, ensure the direction lies on the second vertex's tangent cone.
+            let orig2 = self.vertices[0].orig2;
+            for _ in 0..MAX_ITERS {
+                let supp2 = g2.support_point(m2, &-n);
+                if let Some(tangent) = Unit::try_new(supp2 - orig2, _eps_tol) {
+                    if (-n).dot(&tangent) < _eps_tol {
+                        break;
+                    }
+
+                    n = Unit::new_unchecked(Vector::new(-tangent.y, tangent.x));
+                } else {
+                    break;
+                }
+            }
+
+            return Some((Point::origin(), Point::origin(), n));
         } else if simplex.dimension() == 2 {
             let dp1 = self.vertices[1] - self.vertices[0];
             let dp2 = self.vertices[2] - self.vertices[0];
