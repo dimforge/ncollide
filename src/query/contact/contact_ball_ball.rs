@@ -12,8 +12,8 @@ pub fn contact_ball_ball<N: RealField>(
     b2: &Ball<N>,
     prediction: N,
 ) -> Option<Contact<N>> {
-    let r1 = b1.radius();
-    let r2 = b2.radius();
+    let r1 = b1.radius;
+    let r2 = b2.radius;
     let delta_pos = *center2 - *center1;
     let distance_squared = delta_pos.norm_squared();
     let sum_radius = r1 + r2;

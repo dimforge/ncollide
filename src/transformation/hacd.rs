@@ -161,7 +161,7 @@ pub fn hacd<N: RealField>(
 
 fn normalize<N: RealField>(mesh: &mut TriMesh<N>) -> (Point3<N>, N) {
     let aabb = bounding_volume::point_cloud_aabb(&Isometry::identity(), &mesh.coords[..]);
-    let diag = na::distance(aabb.mins(), aabb.maxs());
+    let diag = na::distance(&aabb.mins, &aabb.maxs);
     let center = aabb.center();
 
     mesh.translate_by(&Translation3::from(-center.coords));
@@ -410,7 +410,7 @@ impl<N: RealField> DualGraphEdge<N> {
 
         // FIXME: refactor this.
         let aabb = dual_graph[v1].aabb.merged(&dual_graph[v2].aabb);
-        let diagonal = na::distance(aabb.mins(), aabb.maxs());
+        let diagonal = na::distance(&aabb.mins, &aabb.maxs);
         let shape_cost;
 
         if area.is_zero() || diagonal.is_zero() {

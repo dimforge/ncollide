@@ -12,7 +12,7 @@ impl<N: RealField> HasBoundingVolume<N, BoundingSphere<N>> for Capsule<N> {
 
     #[inline]
     fn local_bounding_volume(&self) -> BoundingSphere<N> {
-        let radius = self.radius() + self.half_height();
+        let radius = self.radius + self.half_height;
 
         BoundingSphere::new(Point::origin(), radius)
     }

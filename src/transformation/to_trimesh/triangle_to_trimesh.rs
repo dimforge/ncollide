@@ -7,11 +7,6 @@ impl<N: RealField> ToTriMesh<N> for Triangle<N> {
     type DiscretizationParameter = ();
 
     fn to_trimesh(&self, _: ()) -> TriMesh<N> {
-        TriMesh::new(
-            vec![self.a().clone(), self.b().clone(), self.c().clone()],
-            None,
-            None,
-            None,
-        )
+        TriMesh::new(vec![self.a, self.b, self.c], None, None, None)
     }
 }

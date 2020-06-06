@@ -11,7 +11,7 @@ impl<N: RealField> ToTriMesh<N> for Cuboid<N> {
     fn to_trimesh(&self, _: ()) -> TriMesh<N> {
         let _2: N = na::convert(2.0f64);
 
-        procedural::cuboid(&(*self.half_extents() * _2))
+        procedural::cuboid(&(self.half_extents * _2))
     }
 }
 

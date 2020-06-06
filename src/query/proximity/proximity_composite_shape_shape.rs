@@ -71,11 +71,11 @@ where
         CompositeShapeAgainstAnyInterfVisitor {
             msum_shift: -ls_aabb2.center().coords,
             msum_margin: ls_aabb2.half_extents(),
-            m1: m1,
-            g1: g1,
-            m2: m2,
-            g2: g2,
-            margin: margin,
+            m1,
+            g1,
+            m2,
+            g2,
+            margin,
         }
     }
 }
@@ -95,8 +95,8 @@ where
     ) -> BestFirstVisitStatus<N, Self::Result> {
         // Compute the minkowski sum of the two AABBs.
         let msum = AABB::new(
-            *bv.mins() + self.msum_shift + (-self.msum_margin),
-            *bv.maxs() + self.msum_shift + self.msum_margin,
+            bv.mins + self.msum_shift + (-self.msum_margin),
+            bv.maxs + self.msum_shift + self.msum_margin,
         );
 
         // Compute the distance to the origin.

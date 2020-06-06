@@ -36,7 +36,7 @@ impl<N: RealField> CapsuleCapsuleManifoldGenerator<N> {
         let segment2 = g2.segment();
 
         let mut prediction = prediction.clone();
-        let new_linear_prediction = prediction.linear() + g1.radius() + g2.radius();
+        let new_linear_prediction = prediction.linear() + g1.radius + g2.radius;
         prediction.set_linear(new_linear_prediction);
 
         // Update all collisions

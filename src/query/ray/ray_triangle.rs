@@ -14,7 +14,7 @@ impl<N: RealField> RayCast<N> for Triangle<N> {
         _: bool,
     ) -> Option<RayIntersection<N>> {
         let ls_ray = ray.inverse_transform_by(m);
-        let mut inter = ray_intersection_with_triangle(self.a(), self.b(), self.c(), &ls_ray)?.0;
+        let mut inter = ray_intersection_with_triangle(&self.a, &self.b, &self.c, &ls_ray)?.0;
 
         if inter.toi <= max_toi {
             inter.normal = m * inter.normal;

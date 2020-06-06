@@ -13,7 +13,7 @@ impl<N: RealField> HasBoundingVolume<N, BoundingSphere<N>> for Triangle<N> {
 
     #[inline]
     fn local_bounding_volume(&self) -> BoundingSphere<N> {
-        let pts = [*self.a(), *self.b(), *self.c()];
+        let pts = [self.a, self.b, self.c];
         let (center, radius) = bounding_volume::point_cloud_bounding_sphere(&pts[..]);
 
         BoundingSphere::new(center, radius)

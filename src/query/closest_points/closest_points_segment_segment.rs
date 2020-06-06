@@ -37,7 +37,7 @@ pub fn closest_points_segment_segment_with_locations<N: RealField>(
     let seg1 = seg1.transformed(m1);
     let seg2 = seg2.transformed(m2);
 
-    closest_points_segment_segment_with_locations_nD((seg1.a(), seg1.b()), (seg2.a(), seg2.b()))
+    closest_points_segment_segment_with_locations_nD((&seg1.a, &seg1.b), (&seg2.a, &seg2.b))
 }
 
 /// Segment-segment closest points computation in an arbitrary dimension.

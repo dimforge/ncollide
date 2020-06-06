@@ -12,8 +12,6 @@ impl<N: RealField> HasBoundingVolume<N, BoundingSphere<N>> for Ball<N> {
 
     #[inline]
     fn local_bounding_volume(&self) -> BoundingSphere<N> {
-        let radius = self.radius();
-
-        BoundingSphere::new(Point::origin(), radius)
+        BoundingSphere::new(Point::origin(), self.radius)
     }
 }

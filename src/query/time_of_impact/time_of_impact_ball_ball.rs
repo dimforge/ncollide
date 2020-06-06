@@ -17,7 +17,7 @@ pub fn time_of_impact_ball_ball<N: RealField>(
     target_distance: N,
 ) -> Option<TOI<N>> {
     let vel = *vel1 - *vel2;
-    let rsum = b1.radius() + b2.radius();
+    let rsum = b1.radius + b2.radius;
     let radius = rsum + target_distance;
     let center = *center1 + (-center2.coords);
     let ray = Ray::new(Point::origin(), -vel);
@@ -41,8 +41,8 @@ pub fn time_of_impact_ball_ball<N: RealField>(
         } else {
             normal1 = Unit::new_unchecked(dpt / radius);
             normal2 = -normal1;
-            witness1 = Point::from(*normal1 * b1.radius());
-            witness2 = Point::from(*normal2 * b2.radius());
+            witness1 = Point::from(*normal1 * b1.radius);
+            witness2 = Point::from(*normal2 * b2.radius);
         }
 
         let status = if inside && center.coords.norm_squared() < rsum * rsum {

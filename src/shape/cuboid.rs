@@ -7,9 +7,10 @@ use std::f64;
 
 /// Shape of a box.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Debug, Copy, Clone)]
 pub struct Cuboid<N: RealField> {
-    half_extents: Vector<N>,
+    /// The half-extents of the cuboid.
+    pub half_extents: Vector<N>,
 }
 
 // NOTE: format of the cuboid feature id:
@@ -24,19 +25,14 @@ impl<N: RealField> Cuboid<N> {
     /// axis. Each half-extent must be positive.
     #[inline]
     pub fn new(half_extents: Vector<N>) -> Cuboid<N> {
-        for i in 0..DIM {
-            assert!(half_extents[i] >= N::zero());
-        }
-
-        Cuboid {
-            half_extents: half_extents,
-        }
+        Cuboid { half_extents }
     }
 }
 
 impl<N: RealField> Cuboid<N> {
     /// The half-extents of this box. Half-extents are the box half-width along each axis.
     #[inline]
+    #[deprecated(note = "use the `self.half_extents` public field directly.")]
     pub fn half_extents(&self) -> &Vector<N> {
         &self.half_extents
     }
@@ -141,7 +137,7 @@ impl<N: RealField> SupportMap<N> for Cuboid<N> {
     fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
         let local_dir = m.inverse_transform_vector(dir);
 
-        let mut res = *self.half_extents();
+        let mut res = self.half_extents;
 
         for i in 0usize..DIM {
             if local_dir[i] < N::zero() {

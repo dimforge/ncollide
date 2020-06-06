@@ -279,7 +279,7 @@ impl<N: RealField> Shape<N> for Plane<N> {
         _: Option<&[N]>,
         dir: &Unit<Vector<N>>,
     ) -> bool {
-        let world_normal = m * self.normal();
+        let world_normal = m * self.normal;
         dir.dot(&world_normal) <= N::zero()
     }
 }

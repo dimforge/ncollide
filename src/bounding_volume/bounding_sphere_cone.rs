@@ -13,8 +13,7 @@ impl<N: RealField> HasBoundingVolume<N, BoundingSphere<N>> for Cone<N> {
 
     #[inline]
     fn local_bounding_volume(&self) -> BoundingSphere<N> {
-        let radius =
-            (self.radius() * self.radius() + self.half_height() * self.half_height()).sqrt();
+        let radius = (self.radius * self.radius + self.half_height * self.half_height).sqrt();
 
         BoundingSphere::new(Point::origin(), radius)
     }

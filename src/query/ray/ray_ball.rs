@@ -24,14 +24,9 @@ fn ball_uv<N: RealField>(normal: &Vector<N>) -> Point2<N> {
 impl<N: RealField> RayCast<N> for Ball<N> {
     #[inline]
     fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, max_toi: N, solid: bool) -> Option<N> {
-        ray_toi_with_ball(
-            &Point::from(m.translation.vector),
-            self.radius(),
-            ray,
-            solid,
-        )
-        .1
-        .filter(|toi| *toi <= max_toi)
+        ray_toi_with_ball(&Point::from(m.translation.vector), self.radius, ray, solid)
+            .1
+            .filter(|toi| *toi <= max_toi)
     }
 
     #[inline]
@@ -42,14 +37,9 @@ impl<N: RealField> RayCast<N> for Ball<N> {
         max_toi: N,
         solid: bool,
     ) -> Option<RayIntersection<N>> {
-        ray_toi_and_normal_with_ball(
-            &Point::from(m.translation.vector),
-            self.radius(),
-            ray,
-            solid,
-        )
-        .1
-        .filter(|int| int.toi <= max_toi)
+        ray_toi_and_normal_with_ball(&Point::from(m.translation.vector), self.radius, ray, solid)
+            .1
+            .filter(|int| int.toi <= max_toi)
     }
 
     #[cfg(feature = "dim3")]
@@ -62,7 +52,7 @@ impl<N: RealField> RayCast<N> for Ball<N> {
         solid: bool,
     ) -> Option<RayIntersection<N>> {
         let center = Point::from(m.translation.vector);
-        let (inside, mut inter) = ray_toi_with_ball(&center, self.radius(), ray, solid);
+        let (inside, mut inter) = ray_toi_with_ball(&center, self.radius, ray, solid);
         inter = inter.filter(|toi| *toi <= max_toi);
 
         inter.map(|n| {

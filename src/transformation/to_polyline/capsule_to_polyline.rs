@@ -15,12 +15,12 @@ impl<N: RealField> ToPolyline<N> for Capsule<N> {
 
         let mut points: Vec<Point2<N>> = Vec::with_capacity(nsubdiv as usize);
 
-        utils::push_xy_arc(self.radius(), nsubdiv, dtheta, &mut points);
+        utils::push_xy_arc(self.radius, nsubdiv, dtheta, &mut points);
 
         let npoints = points.len();
 
         for i in 0..npoints {
-            let new_point = points[i] + Vector2::new(na::zero(), self.half_height());
+            let new_point = points[i] + Vector2::new(na::zero(), self.half_height);
 
             points.push(-new_point);
             points[i] = new_point;

@@ -7,17 +7,17 @@ impl<N: RealField> PointQuery<N> for Capsule<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> PointProjection<N> {
         let mut y = Point::origin();
-        y[1] = self.half_height();
+        y[1] = self.half_height;
         let seg = Segment::new(-y, y);
         let proj = seg.project_point(m, pt, solid);
         let dproj = *pt - proj.point;
 
         if let Some((dir, dist)) = Unit::try_new_and_get(dproj, N::default_epsilon()) {
-            let inside = dist <= self.radius();
+            let inside = dist <= self.radius;
             if solid && inside {
                 PointProjection::new(true, *pt)
             } else {
-                PointProjection::new(inside, proj.point + dir.into_inner() * self.radius())
+                PointProjection::new(inside, proj.point + dir.into_inner() * self.radius)
             }
         } else {
             if solid {
@@ -26,7 +26,7 @@ impl<N: RealField> PointQuery<N> for Capsule<N> {
                 let mut dir: Vector<N> = na::zero();
                 dir[1] = na::one();
                 dir = m * dir;
-                PointProjection::new(true, proj.point + dir * self.radius())
+                PointProjection::new(true, proj.point + dir * self.radius)
             }
         }
     }

@@ -162,8 +162,8 @@ impl<N: RealField> HeightField<N> {
         f: &mut impl FnMut(usize, &Segment<N>, &dyn ContactPreprocessor<N>),
     ) {
         let _0_5: N = na::convert(0.5);
-        let ref_mins = aabb.mins().coords.component_div(&self.scale);
-        let ref_maxs = aabb.maxs().coords.component_div(&self.scale);
+        let ref_mins = aabb.mins.coords.component_div(&self.scale);
+        let ref_maxs = aabb.maxs.coords.component_div(&self.scale);
         let seg_length = N::one() / na::convert(self.heights.len() as f64 - 1.0);
 
         if ref_maxs.x < -_0_5 || ref_mins.x > _0_5 {

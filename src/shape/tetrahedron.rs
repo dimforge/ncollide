@@ -10,10 +10,14 @@ use std::mem;
 #[repr(C)]
 #[derive(Copy, Clone, Debug)]
 pub struct Tetrahedron<N: RealField> {
-    a: Point<N>,
-    b: Point<N>,
-    c: Point<N>,
-    d: Point<N>,
+    /// The tetrahedron first point.
+    pub a: Point<N>,
+    /// The tetrahedron first point.
+    pub b: Point<N>,
+    /// The tetrahedron first point.
+    pub c: Point<N>,
+    /// The tetrahedron first point.
+    pub d: Point<N>,
 }
 
 /// Logical description of the location of a point on a triangle.
@@ -101,24 +105,28 @@ impl<N: RealField> Tetrahedron<N> {
 
     /// The fist point of this tetrahedron.
     #[inline]
+    #[deprecated(note = "use the `self.a` public field directly.")]
     pub fn a(&self) -> &Point<N> {
         &self.a
     }
 
     /// The second point of this tetrahedron.
     #[inline]
+    #[deprecated(note = "use the `self.b` public field directly.")]
     pub fn b(&self) -> &Point<N> {
         &self.b
     }
 
     /// The third point of this tetrahedron.
     #[inline]
+    #[deprecated(note = "use the `self.c` public field directly.")]
     pub fn c(&self) -> &Point<N> {
         &self.c
     }
 
     /// The fourth point of this tetrahedron.
     #[inline]
+    #[deprecated(note = "use the `self.d` public field directly.")]
     pub fn d(&self) -> &Point<N> {
         &self.d
     }

@@ -39,16 +39,16 @@ impl<N: RealField> PlaneBallManifoldGenerator<N> {
         flip: bool,
     ) -> bool {
         if let (Some(plane), Some(ball)) = (g1.as_shape::<Plane<N>>(), g2.as_shape::<Ball<N>>()) {
-            let plane_normal = m1 * plane.normal();
+            let plane_normal = m1 * plane.normal;
             let plane_center = Point::from(m1.translation.vector);
 
             let ball_center = Point::from(m2.translation.vector);
             let dist = (ball_center - plane_center).dot(plane_normal.as_ref());
-            let depth = -dist + ball.radius();
+            let depth = -dist + ball.radius;
 
             if depth > -prediction.linear() {
                 let world1 = ball_center + *plane_normal * (-dist);
-                let world2 = ball_center + *plane_normal * (-ball.radius());
+                let world2 = ball_center + *plane_normal * (-ball.radius);
 
                 let local1 = m1.inverse_transform_point(&world1);
                 let local2 = Point::origin();
@@ -59,18 +59,18 @@ impl<N: RealField> PlaneBallManifoldGenerator<N> {
                 let contact;
 
                 let approx_ball = NeighborhoodGeometry::Point;
-                let approx_plane = NeighborhoodGeometry::Plane(*plane.normal());
+                let approx_plane = NeighborhoodGeometry::Plane(plane.normal);
 
                 if !flip {
                     contact = Contact::new(world1, world2, plane_normal, depth);
                     kinematic.set_approx1(f1, local1, approx_plane);
                     kinematic.set_approx2(f2, local2, approx_ball);
-                    kinematic.set_dilation2(ball.radius());
+                    kinematic.set_dilation2(ball.radius);
                     let _ = manifold.push(contact, kinematic, Point::origin(), proc1, proc2);
                 } else {
                     contact = Contact::new(world2, world1, -plane_normal, depth);
                     kinematic.set_approx1(f2, local2, approx_ball);
-                    kinematic.set_dilation1(ball.radius());
+                    kinematic.set_dilation1(ball.radius);
                     kinematic.set_approx2(f1, local1, approx_plane);
                     let _ = manifold.push(contact, kinematic, Point::origin(), proc2, proc1);
                 }

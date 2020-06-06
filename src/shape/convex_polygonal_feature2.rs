@@ -125,15 +125,9 @@ impl<N: RealField> ConvexPolygonalFeature<N> {
         let mut seg1 = Segment::new(self.vertices[0], self.vertices[1]);
         let mut seg2 = Segment::new(other.vertices[0], other.vertices[1]);
 
-        let ref_pt = *seg1.a();
-        let mut range1 = [
-            (*seg1.a() - ref_pt).dot(&ortho),
-            (*seg1.b() - ref_pt).dot(&ortho),
-        ];
-        let mut range2 = [
-            (*seg2.a() - ref_pt).dot(&ortho),
-            (*seg2.b() - ref_pt).dot(&ortho),
-        ];
+        let ref_pt = seg1.a;
+        let mut range1 = [(seg1.a - ref_pt).dot(&ortho), (seg1.b - ref_pt).dot(&ortho)];
+        let mut range2 = [(seg2.a - ref_pt).dot(&ortho), (seg2.b - ref_pt).dot(&ortho)];
         let mut features1 = [self.vertices_id[0], self.vertices_id[1]];
         let mut features2 = [other.vertices_id[0], other.vertices_id[1]];
 
@@ -160,7 +154,7 @@ impl<N: RealField> ConvexPolygonalFeature<N> {
         if range2[0] > range1[0] {
             let bcoord = (range2[0] - range1[0]) / length1;
             let p1 = seg1.point_at(&SegmentPointLocation::OnEdge([_1 - bcoord, bcoord]));
-            let p2 = *seg2.a();
+            let p2 = seg2.a;
             let contact = Contact::new_wo_depth(p1, p2, *normal);
 
             if -contact.depth <= prediction.linear() {
@@ -168,7 +162,7 @@ impl<N: RealField> ConvexPolygonalFeature<N> {
             }
         } else {
             let bcoord = (range1[0] - range2[0]) / length2;
-            let p1 = *seg1.a();
+            let p1 = seg1.a;
             let p2 = seg2.point_at(&SegmentPointLocation::OnEdge([_1 - bcoord, bcoord]));
             let contact = Contact::new_wo_depth(p1, p2, *normal);
 
@@ -180,7 +174,7 @@ impl<N: RealField> ConvexPolygonalFeature<N> {
         if range2[1] < range1[1] {
             let bcoord = (range2[1] - range1[0]) / length1;
             let p1 = seg1.point_at(&SegmentPointLocation::OnEdge([_1 - bcoord, bcoord]));
-            let p2 = *seg2.b();
+            let p2 = seg2.b;
             let contact = Contact::new_wo_depth(p1, p2, *normal);
 
             if -contact.depth <= prediction.linear() {
@@ -188,7 +182,7 @@ impl<N: RealField> ConvexPolygonalFeature<N> {
             }
         } else {
             let bcoord = (range1[1] - range2[0]) / length2;
-            let p1 = *seg1.b();
+            let p1 = seg1.b;
             let p2 = seg2.point_at(&SegmentPointLocation::OnEdge([_1 - bcoord, bcoord]));
             let contact = Contact::new_wo_depth(p1, p2, *normal);
 

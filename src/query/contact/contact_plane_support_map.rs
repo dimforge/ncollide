@@ -11,7 +11,7 @@ pub fn contact_plane_support_map<N: RealField, G: ?Sized + SupportMap<N>>(
     other: &G,
     prediction: N,
 ) -> Option<Contact<N>> {
-    let plane_normal = mplane * plane.normal();
+    let plane_normal = mplane * plane.normal;
     let plane_center = Point::from(mplane.translation.vector);
     let deepest = other.support_point_toward(mother, &-plane_normal);
 

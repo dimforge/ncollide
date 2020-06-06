@@ -7,14 +7,14 @@ impl<N: RealField> PointQuery<N> for Plane<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> PointProjection<N> {
         let ls_pt = m.inverse_transform_point(pt);
-        let d = self.normal().dot(&ls_pt.coords);
+        let d = self.normal.dot(&ls_pt.coords);
 
         let inside = d <= na::zero();
 
         if inside && solid {
             PointProjection::new(true, *pt)
         } else {
-            PointProjection::new(inside, *pt + (-*self.normal().as_ref() * d))
+            PointProjection::new(inside, *pt + (-*self.normal * d))
         }
     }
 
@@ -30,7 +30,7 @@ impl<N: RealField> PointQuery<N> for Plane<N> {
     #[inline]
     fn distance_to_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> N {
         let ls_pt = m.inverse_transform_point(pt);
-        let dist = self.normal().dot(&ls_pt.coords);
+        let dist = self.normal.dot(&ls_pt.coords);
 
         if dist < na::zero() && solid {
             na::zero()
@@ -44,6 +44,6 @@ impl<N: RealField> PointQuery<N> for Plane<N> {
     fn contains_point(&self, m: &Isometry<N>, pt: &Point<N>) -> bool {
         let ls_pt = m.inverse_transform_point(pt);
 
-        self.normal().dot(&ls_pt.coords) <= na::zero()
+        self.normal.dot(&ls_pt.coords) <= na::zero()
     }
 }

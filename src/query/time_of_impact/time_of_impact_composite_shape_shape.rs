@@ -122,8 +122,8 @@ where
     ) -> BestFirstVisitStatus<N, Self::Result> {
         // Compute the minkowski sum of the two AABBs.
         let msum = AABB::new(
-            *bv.mins() + self.msum_shift + (-self.msum_margin),
-            *bv.maxs() + self.msum_shift + self.msum_margin,
+            bv.mins + self.msum_shift + (-self.msum_margin),
+            bv.maxs + self.msum_shift + self.msum_margin,
         );
 
         // Compute the TOI.

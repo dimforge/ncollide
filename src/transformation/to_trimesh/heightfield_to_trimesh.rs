@@ -10,9 +10,9 @@ impl<N: RealField> ToTriMesh<N> for shape::HeightField<N> {
         let mut vertices = Vec::new();
 
         for tri in self.triangles() {
-            vertices.push(*tri.a());
-            vertices.push(*tri.b());
-            vertices.push(*tri.c());
+            vertices.push(tri.a);
+            vertices.push(tri.b);
+            vertices.push(tri.c);
         }
 
         TriMesh::new(vertices, None, None, None)

@@ -13,8 +13,8 @@ impl<N: RealField> AABB<N> {
         solid: bool,
     ) -> (bool, Point<N>, Vector<N>) {
         let ls_pt = m.inverse_transform_point(pt);
-        let mins_pt = *self.mins() - ls_pt;
-        let pt_maxs = ls_pt - *self.maxs();
+        let mins_pt = self.mins - ls_pt;
+        let pt_maxs = ls_pt - self.maxs;
         let shift = mins_pt.sup(&na::zero()) - pt_maxs.sup(&na::zero());
 
         let inside = shift.is_zero();
@@ -91,10 +91,10 @@ impl<N: RealField> PointQuery<N> for AABB<N> {
 
         if nzero_shifts == DIM {
             for i in 0..DIM {
-                if ls_pt[i] > self.maxs()[i] - N::default_epsilon() {
+                if ls_pt[i] > self.maxs[i] - N::default_epsilon() {
                     return (proj, FeatureId::Face(i));
                 }
-                if ls_pt[i] <= self.mins()[i] + N::default_epsilon() {
+                if ls_pt[i] <= self.mins[i] + N::default_epsilon() {
                     return (proj, FeatureId::Face(i + DIM));
                 }
             }
@@ -137,8 +137,8 @@ impl<N: RealField> PointQuery<N> for AABB<N> {
     #[inline]
     fn distance_to_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> N {
         let ls_pt = m.inverse_transform_point(pt);
-        let mins_pt = *self.mins() - ls_pt;
-        let pt_maxs = ls_pt - *self.maxs();
+        let mins_pt = self.mins - ls_pt;
+        let pt_maxs = ls_pt - self.maxs;
         let shift = mins_pt.sup(&pt_maxs).sup(&na::zero());
 
         if solid || !shift.is_zero() {

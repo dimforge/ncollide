@@ -21,7 +21,7 @@ where
     G: SupportMap<N>,
 {
     let vel = *vel_other - *vel_plane;
-    let plane_normal = mplane * plane.normal();
+    let plane_normal = mplane * plane.normal;
     // FIXME: add method to get only the local support point.
     // This would avoid the `inverse_transform_point` later.
     let support_point = other.support_point(mother, &-plane_normal);
@@ -42,13 +42,13 @@ where
         } else {
             // Project the witness point to the plane.
             // Note that witness2 is already in the plane's local-space.
-            witness2 = witness2 - **plane.normal() * witness2.coords.dot(plane.normal());
+            witness2 = witness2 - *plane.normal * witness2.coords.dot(&plane.normal);
             status = TOIStatus::Converged
         }
 
         Some(TOI {
             toi,
-            normal1: *plane.normal(),
+            normal1: plane.normal,
             normal2: mother.inverse_transform_unit_vector(&-plane_normal),
             witness1,
             witness2,

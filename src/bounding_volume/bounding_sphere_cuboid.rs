@@ -12,7 +12,7 @@ impl<N: RealField> HasBoundingVolume<N, BoundingSphere<N>> for Cuboid<N> {
 
     #[inline]
     fn local_bounding_volume(&self) -> BoundingSphere<N> {
-        let radius = self.half_extents().norm();
+        let radius = self.half_extents.norm();
 
         BoundingSphere::new(Point::origin(), radius)
     }

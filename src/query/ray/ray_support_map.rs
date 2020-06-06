@@ -204,7 +204,7 @@ impl<N: RealField> RayCast<N> for Segment<N> {
             let (s, t, parallel) = query::closest_points_line_line_parameters_eps(
                 &ray.origin,
                 &ray.dir,
-                seg.a(),
+                &seg.a,
                 &seg_dir,
                 N::default_epsilon(),
             );
@@ -213,7 +213,7 @@ impl<N: RealField> RayCast<N> for Segment<N> {
                 // The lines are parallel, we have to distinguish
                 // the case where there is no intersection at all
                 // from the case where the line are collinear.
-                let dpos = seg.a() - ray.origin;
+                let dpos = seg.a - ray.origin;
                 let normal = seg.scaled_normal();
 
                 if dpos.dot(&normal).abs() < N::default_epsilon() {

@@ -33,10 +33,10 @@ where
 
 /// An Axis Aligned Bounding Box.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Copy, Clone)]
 pub struct AABB<N: RealField> {
-    mins: Point<N>,
-    maxs: Point<N>,
+    pub mins: Point<N>,
+    pub maxs: Point<N>,
 }
 
 impl<N: RealField> AABB<N> {
@@ -48,11 +48,7 @@ impl<N: RealField> AABB<N> {
     ///   must be smaller than the related components of `maxs`.
     #[inline]
     pub fn new(mins: Point<N>, maxs: Point<N>) -> AABB<N> {
-        // assert!(na::partial_le(&mins, &maxs));
-        AABB {
-            mins: mins,
-            maxs: maxs,
-        }
+        AABB { mins, maxs }
     }
 
     /// Creates a new AABB from its scenter and its half-extents.
@@ -60,15 +56,16 @@ impl<N: RealField> AABB<N> {
     pub fn from_half_extents(center: Point<N>, half_extents: Vector<N>) -> Self {
         Self::new(center - half_extents, center + half_extents)
     }
-
     /// Reference to the AABB point with the smallest components along each axis.
     #[inline]
+    #[deprecated(note = "use the `.mins` public field instead.")]
     pub fn mins(&self) -> &Point<N> {
         &self.mins
     }
 
     /// Reference to the AABB point with the biggest components along each axis.
     #[inline]
+    #[deprecated(note = "use the `.maxs` public field instead.")]
     pub fn maxs(&self) -> &Point<N> {
         &self.maxs
     }
@@ -106,7 +103,7 @@ impl<N: RealField> AABB<N> {
     #[inline]
     pub fn bounding_sphere(&self) -> BoundingSphere<N> {
         let center = self.center();
-        let rad = na::distance(self.mins(), self.maxs());
+        let rad = na::distance(&self.mins, &self.maxs);
 
         BoundingSphere::new(center, rad)
     }

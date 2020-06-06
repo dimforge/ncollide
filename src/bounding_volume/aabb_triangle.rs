@@ -8,9 +8,9 @@ use na::RealField;
 impl<N: RealField> HasBoundingVolume<N, AABB<N>> for Triangle<N> {
     #[inline]
     fn bounding_volume(&self, m: &Isometry<N>) -> AABB<N> {
-        let a = m.transform_point(self.a()).coords;
-        let b = m.transform_point(self.b()).coords;
-        let c = m.transform_point(self.c()).coords;
+        let a = m.transform_point(&self.a).coords;
+        let b = m.transform_point(&self.b).coords;
+        let c = m.transform_point(&self.c).coords;
 
         let mut min = unsafe { Point::new_uninitialized() };
         let mut max = unsafe { Point::new_uninitialized() };
@@ -25,9 +25,9 @@ impl<N: RealField> HasBoundingVolume<N, AABB<N>> for Triangle<N> {
 
     #[inline]
     fn local_bounding_volume(&self) -> AABB<N> {
-        let a = self.a().coords;
-        let b = self.b().coords;
-        let c = self.c().coords;
+        let a = self.a.coords;
+        let b = self.b.coords;
+        let c = self.c.coords;
 
         let mut min = unsafe { Point::new_uninitialized() };
         let mut max = unsafe { Point::new_uninitialized() };

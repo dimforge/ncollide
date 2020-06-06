@@ -8,10 +8,12 @@ use crate::shape::{FeatureId, Segment, SupportMap};
 
 /// SupportMap description of a capsule shape with its principal axis aligned with the `y` axis.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Debug, Copy, Clone)]
 pub struct Capsule<N> {
-    half_height: N,
-    radius: N,
+    /// The half-height of the capsule's cylindrical part.
+    pub half_height: N,
+    /// The radius of the capsule.
+    pub radius: N,
 }
 
 impl<N: RealField> Capsule<N> {
@@ -21,8 +23,6 @@ impl<N: RealField> Capsule<N> {
     /// * `half_height` - the half length of the capsule along the `y` axis.
     /// * `radius` - radius of the rounded part of the capsule.
     pub fn new(half_height: N, radius: N) -> Capsule<N> {
-        assert!(half_height.is_positive() && radius.is_positive());
-
         Capsule {
             half_height,
             radius,
@@ -31,6 +31,7 @@ impl<N: RealField> Capsule<N> {
 
     /// The capsule half length along its local `y` axis.
     #[inline]
+    #[deprecated(note = "use the `self.half_height` public field directly.")]
     pub fn half_height(&self) -> N {
         self.half_height
     }
@@ -43,6 +44,7 @@ impl<N: RealField> Capsule<N> {
 
     /// The radius of the capsule's rounded part.
     #[inline]
+    #[deprecated(note = "use the `self.radius` public field directly.")]
     pub fn radius(&self) -> N {
         self.radius
     }
@@ -80,12 +82,12 @@ impl<N: RealField> SupportMap<N> for Capsule<N> {
         let mut res: Vector<N> = na::zero();
 
         if local_dir[1].is_negative() {
-            res[1] = -self.half_height()
+            res[1] = -self.half_height
         } else {
-            res[1] = self.half_height()
+            res[1] = self.half_height
         }
 
-        m * Point::from(res + local_dir * self.radius())
+        m * Point::from(res + local_dir * self.radius)
     }
 }
 
