@@ -39,7 +39,7 @@ impl<N: RealField> PlaneConvexPolyhedronManifoldGenerator<N> {
         flip: bool,
     ) -> bool {
         if let (Some(plane), Some(cp)) = (g1.as_shape::<Plane<N>>(), g2.as_convex_polyhedron()) {
-            let plane_normal = m1 * plane.normal();
+            let plane_normal = m1 * plane.normal;
             let plane_center = Point::from(m1.translation.vector);
 
             cp.support_face_toward(m2, &-plane_normal, poly_feature);
@@ -57,7 +57,7 @@ impl<N: RealField> PlaneConvexPolyhedronManifoldGenerator<N> {
                     let mut kinematic = ContactKinematic::new();
                     let contact;
 
-                    let approx_plane = NeighborhoodGeometry::Plane(*plane.normal());
+                    let approx_plane = NeighborhoodGeometry::Plane(plane.normal);
                     let approx2 = NeighborhoodGeometry::Point;
 
                     if !flip {

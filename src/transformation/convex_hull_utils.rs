@@ -57,7 +57,7 @@ where
 /// Scale and center the given set of point depending on their AABB.
 pub fn normalize<N: RealField>(coords: &mut [Point<N>]) -> (Point<N>, N) {
     let aabb = bounding_volume::point_cloud_aabb(&Isometry::identity(), &coords[..]);
-    let diag = na::distance(aabb.mins(), aabb.maxs());
+    let diag = na::distance(&aabb.mins, &aabb.maxs);
     let center = aabb.center();
 
     for c in coords.iter_mut() {

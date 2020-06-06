@@ -12,10 +12,12 @@ use std::mem;
 /// A segment shape.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[repr(C)]
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Debug, Copy, Clone)]
 pub struct Segment<N: RealField> {
-    a: Point<N>,
-    b: Point<N>,
+    /// The segment first point.
+    pub a: Point<N>,
+    /// The segment second point.
+    pub b: Point<N>,
 }
 
 /// Logical description of the location of a point on a triangle.
@@ -60,12 +62,14 @@ impl<N: RealField> Segment<N> {
 impl<N: RealField> Segment<N> {
     /// The first point of this segment.
     #[inline]
+    #[deprecated(note = "use the `self.a` public field directly.")]
     pub fn a(&self) -> &Point<N> {
         &self.a
     }
 
     /// The second point of this segment.
     #[inline]
+    #[deprecated(note = "use the `self.b` public field directly.")]
     pub fn b(&self) -> &Point<N> {
         &self.b
     }
@@ -74,7 +78,7 @@ impl<N: RealField> Segment<N> {
 impl<N: RealField> Segment<N> {
     /// The direction of this segment scaled by its length.
     ///
-    /// Points from `self.a()` toward `self.b()`.
+    /// Points from `self.a` toward `self.b`.
     pub fn scaled_direction(&self) -> Vector<N> {
         self.b - self.a
     }

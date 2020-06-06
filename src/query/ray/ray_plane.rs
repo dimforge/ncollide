@@ -51,7 +51,7 @@ impl<N: RealField> RayCast<N> for Plane<N> {
 
         let dpos = -ls_ray.origin;
 
-        let dot_normal_dpos = self.normal().dot(&dpos.coords);
+        let dot_normal_dpos = self.normal.dot(&dpos.coords);
 
         if solid && dot_normal_dpos > na::zero() {
             // The ray is inside of the solid half-space.
@@ -62,13 +62,13 @@ impl<N: RealField> RayCast<N> for Plane<N> {
             ));
         }
 
-        let t = dot_normal_dpos / self.normal().dot(&ls_ray.dir);
+        let t = dot_normal_dpos / self.normal.dot(&ls_ray.dir);
 
         if t >= na::zero() && t <= max_toi {
             let n = if dot_normal_dpos > na::zero() {
-                -*self.normal()
+                -self.normal
             } else {
-                *self.normal()
+                self.normal
             };
 
             Some(RayIntersection::new(t, m * *n, FeatureId::Face(0)))

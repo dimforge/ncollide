@@ -23,11 +23,11 @@ pub fn local_ball_aabb<N: RealField>(radius: N) -> AABB<N> {
 impl<N: RealField> HasBoundingVolume<N, AABB<N>> for Ball<N> {
     #[inline]
     fn bounding_volume(&self, m: &Isometry<N>) -> AABB<N> {
-        ball_aabb(&Point::from(m.translation.vector), self.radius())
+        ball_aabb(&Point::from(m.translation.vector), self.radius)
     }
 
     #[inline]
     fn local_bounding_volume(&self) -> AABB<N> {
-        local_ball_aabb(self.radius())
+        local_ball_aabb(self.radius)
     }
 }

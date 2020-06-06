@@ -655,7 +655,7 @@ impl<N: RealField> DeformableShape<N> for Polyline<N> {
                     Point::from_slice(&coords[pid1..pid1 + DIM]),
                     Point::from_slice(&coords[pid2..pid2 + DIM]),
                 );
-                approx.point = *seg.a();
+                approx.point = seg.a;
 
                 if let Some(dir) = seg.direction() {
                     approx.geometry = NeighborhoodGeometry::Line(dir);
@@ -680,7 +680,7 @@ impl<N: RealField> DeformableShape<N> for Polyline<N> {
                     Point::from_slice(&coords[pid2..pid2 + DIM]),
                 );
 
-                approx.point = *seg.a();
+                approx.point = seg.a;
 
                 if let Some(n) = seg.normal() {
                     if !is_backface {

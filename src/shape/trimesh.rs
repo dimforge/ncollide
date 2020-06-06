@@ -123,9 +123,9 @@ impl<N: RealField> TriMesh<N> {
                 let normal = triangle.normal();
                 let side_normals = normal.map(|n| {
                     [
-                        Unit::new_normalize((triangle.b() - triangle.a()).cross(&n)),
-                        Unit::new_normalize((triangle.c() - triangle.b()).cross(&n)),
-                        Unit::new_normalize((triangle.a() - triangle.c()).cross(&n)),
+                        Unit::new_normalize((triangle.b - triangle.a).cross(&n)),
+                        Unit::new_normalize((triangle.c - triangle.b).cross(&n)),
+                        Unit::new_normalize((triangle.a - triangle.c).cross(&n)),
                     ]
                 });
 
@@ -867,7 +867,7 @@ impl<N: RealField> DeformableShape<N> for TriMesh<N> {
                     Point::from_slice(&coords[pid1..pid1 + DIM]),
                     Point::from_slice(&coords[pid2..pid2 + DIM]),
                 );
-                approx.point = *seg.a();
+                approx.point = seg.a;
 
                 if let Some(dir) = seg.direction() {
                     approx.geometry = NeighborhoodGeometry::Line(dir);
@@ -891,7 +891,7 @@ impl<N: RealField> DeformableShape<N> for TriMesh<N> {
                     Point::from_slice(&coords[pid3..pid3 + DIM]),
                 );
 
-                approx.point = *tri.a();
+                approx.point = tri.a;
 
                 if let Some(n) = tri.normal() {
                     if !is_backface {

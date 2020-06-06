@@ -45,7 +45,7 @@ impl<N: RealField> RayCast<N> for HeightField<N> {
             let (s, t) = query::closest_points_line_line_parameters(
                 &ray.origin,
                 &ray.dir,
-                seg.a(),
+                &seg.a,
                 &seg.scaled_direction(),
             );
             if s >= N::zero() && t >= N::zero() && t <= N::one() {
@@ -97,7 +97,7 @@ impl<N: RealField> RayCast<N> for HeightField<N> {
                 let (s, t) = query::closest_points_line_line_parameters(
                     &ray.origin,
                     &ray.dir,
-                    seg.a(),
+                    &seg.a,
                     &seg.scaled_direction(),
                 );
 

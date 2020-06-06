@@ -30,7 +30,7 @@ where
 
 /// A Bounding Sphere.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Copy, Clone)]
 pub struct BoundingSphere<N: RealField> {
     center: Point<N>,
     radius: N,

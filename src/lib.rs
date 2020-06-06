@@ -78,7 +78,7 @@ macro_rules! try_ret {
 const NOT_REGISTERED_ERROR: &'static str =
     "This collision object has not been registered into a world (proxy indexes are None).";
 
-#[deprecated = "Use the `pipeline` module instead."]
+#[deprecated = "use the `pipeline` module instead."]
 pub use crate::pipeline::{broad_phase, narrow_phase, world};
 
 pub mod bounding_volume;

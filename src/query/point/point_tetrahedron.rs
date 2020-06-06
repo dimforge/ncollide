@@ -40,10 +40,10 @@ impl<N: RealField> PointQueryWithLocation<N> for Tetrahedron<N> {
     ) -> (PointProjection<N>, Self::Location) {
         let p = m.inverse_transform_point(pt);
 
-        let ab = *self.b() - *self.a();
-        let ac = *self.c() - *self.a();
-        let ad = *self.d() - *self.a();
-        let ap = p - *self.a();
+        let ab = self.b - self.a;
+        let ac = self.c - self.a;
+        let ad = self.d - self.a;
+        let ap = p - self.a;
 
         /*
          * Voronoï regions of vertices.
@@ -56,13 +56,13 @@ impl<N: RealField> PointQueryWithLocation<N> for Tetrahedron<N> {
 
         if ap_ab <= _0 && ap_ac <= _0 && ap_ad <= _0 {
             // Voronoï region of `a`.
-            let proj = PointProjection::new(false, m * self.a());
+            let proj = PointProjection::new(false, m * self.a);
             return (proj, TetrahedronPointLocation::OnVertex(0));
         }
 
-        let bc = *self.c() - *self.b();
-        let bd = *self.d() - *self.b();
-        let bp = p - *self.b();
+        let bc = self.c - self.b;
+        let bd = self.d - self.b;
+        let bp = p - self.b;
 
         let bp_bc = bp.dot(&bc);
         let bp_bd = bp.dot(&bd);
@@ -70,12 +70,12 @@ impl<N: RealField> PointQueryWithLocation<N> for Tetrahedron<N> {
 
         if bp_bc <= _0 && bp_bd <= _0 && bp_ab >= _0 {
             // Voronoï region of `b`.
-            let proj = PointProjection::new(false, m * self.b());
+            let proj = PointProjection::new(false, m * self.b);
             return (proj, TetrahedronPointLocation::OnVertex(1));
         }
 
-        let cd = *self.d() - *self.c();
-        let cp = p - *self.c();
+        let cd = self.d - self.c;
+        let cp = p - self.c;
 
         let cp_ac = cp.dot(&ac);
         let cp_bc = cp.dot(&bc);
@@ -83,11 +83,11 @@ impl<N: RealField> PointQueryWithLocation<N> for Tetrahedron<N> {
 
         if cp_cd <= _0 && cp_bc >= _0 && cp_ac >= _0 {
             // Voronoï region of `c`.
-            let proj = PointProjection::new(false, m * self.c());
+            let proj = PointProjection::new(false, m * self.c);
             return (proj, TetrahedronPointLocation::OnVertex(2));
         }
 
-        let dp = p - *self.d();
+        let dp = p - self.d;
 
         let dp_cd = dp.dot(&cd);
         let dp_bd = dp.dot(&bd);
@@ -95,7 +95,7 @@ impl<N: RealField> PointQueryWithLocation<N> for Tetrahedron<N> {
 
         if dp_ad >= _0 && dp_bd >= _0 && dp_cd >= _0 {
             // Voronoï region of `d`.
-            let proj = PointProjection::new(false, m * self.d());
+            let proj = PointProjection::new(false, m * self.d);
             return (proj, TetrahedronPointLocation::OnVertex(3));
         }
 
@@ -157,15 +157,7 @@ impl<N: RealField> PointQueryWithLocation<N> for Tetrahedron<N> {
         let nabc = ab.cross(&ac);
         let nabd = ab.cross(&ad);
         let (dabc, dabd, res) = check_edge(
-            0,
-            m,
-            self.a(),
-            self.b(),
-            &nabc,
-            &nabd,
-            &ap,
-            &ab,
-            ap_ab,
+            0, m, &self.a, &self.b, &nabc, &nabd, &ap, &ab, ap_ab,
             /*ap_ac, ap_ad,*/ bp_ab, /*, bp_ac, bp_ad*/
         );
         if let Some(res) = res {
@@ -181,15 +173,7 @@ impl<N: RealField> PointQueryWithLocation<N> for Tetrahedron<N> {
         //            let cp_ad = cp_cd + cp_ac;
         let nacd = ac.cross(&ad);
         let (dacd, dacb, res) = check_edge(
-            1,
-            m,
-            self.a(),
-            self.c(),
-            &nacd,
-            &-nabc,
-            &ap,
-            &ac,
-            ap_ac,
+            1, m, &self.a, &self.c, &nacd, &-nabc, &ap, &ac, ap_ac,
             /*ap_ad, ap_ab,*/ cp_ac, /*, cp_ad, cp_ab*/
         );
         if let Some(res) = res {
@@ -204,15 +188,7 @@ impl<N: RealField> PointQueryWithLocation<N> for Tetrahedron<N> {
         //            let dp_ac = dp_ad - dp_cd;
         //            let dp_ab = dp_ad - dp_bd;
         let (dadb, dadc, res) = check_edge(
-            2,
-            m,
-            self.a(),
-            self.d(),
-            &-nabd,
-            &-nacd,
-            &ap,
-            &ad,
-            ap_ad,
+            2, m, &self.a, &self.d, &-nabd, &-nacd, &ap, &ad, ap_ad,
             /*ap_ab, ap_ac,*/ dp_ad, /*, dp_ab, dp_ac*/
         );
         if let Some(res) = res {
@@ -228,15 +204,7 @@ impl<N: RealField> PointQueryWithLocation<N> for Tetrahedron<N> {
         let nbcd = bc.cross(&bd);
         // NOTE: nabc = nbcd
         let (dbca, dbcd, res) = check_edge(
-            3,
-            m,
-            self.b(),
-            self.c(),
-            &nabc,
-            &nbcd,
-            &bp,
-            &bc,
-            bp_bc,
+            3, m, &self.b, &self.c, &nabc, &nbcd, &bp, &bc, bp_bc,
             /*-bp_ab, bp_bd,*/ cp_bc, /*, -cp_ab, cp_bd*/
         );
         if let Some(res) = res {
@@ -253,15 +221,7 @@ impl<N: RealField> PointQueryWithLocation<N> for Tetrahedron<N> {
         // NOTE: nbdc = -nbcd
         // NOTE: nbda = nabd
         let (dbdc, dbda, res) = check_edge(
-            4,
-            m,
-            self.b(),
-            self.d(),
-            &-nbcd,
-            &nabd,
-            &bp,
-            &bd,
-            bp_bd,
+            4, m, &self.b, &self.d, &-nbcd, &nabd, &bp, &bd, bp_bd,
             /*bp_bc, -bp_ab,*/ dp_bd, /*, dp_bc, -dp_ab*/
         );
         if let Some(res) = res {
@@ -277,15 +237,7 @@ impl<N: RealField> PointQueryWithLocation<N> for Tetrahedron<N> {
         // NOTE: ncda = nacd
         // NOTE: ncdb = nbcd
         let (dcda, dcdb, res) = check_edge(
-            5,
-            m,
-            self.c(),
-            self.d(),
-            &nacd,
-            &nbcd,
-            &cp,
-            &cd,
-            cp_cd,
+            5, m, &self.c, &self.d, &nacd, &nbcd, &cp, &cd, cp_cd,
             /*-cp_ac, -cp_bc,*/ dp_cd, /*, -dp_ac, -dp_bc*/
         );
         if let Some(res) = res {
@@ -355,19 +307,7 @@ impl<N: RealField> PointQueryWithLocation<N> for Tetrahedron<N> {
 
         // Face abc.
         if let Some(res) = check_face(
-            0,
-            self.a(),
-            self.b(),
-            self.c(),
-            m,
-            &ap,
-            &bp,
-            &cp,
-            &ab,
-            &ac,
-            &ad,
-            dabc,
-            dbca,
+            0, &self.a, &self.b, &self.c, m, &ap, &bp, &cp, &ab, &ac, &ad, dabc, dbca,
             dacb,
             /*ap_ab, bp_ab, cp_ab,
             ap_ac, bp_ac, cp_ac*/
@@ -377,19 +317,7 @@ impl<N: RealField> PointQueryWithLocation<N> for Tetrahedron<N> {
 
         // Face abd.
         if let Some(res) = check_face(
-            1,
-            self.a(),
-            self.b(),
-            self.d(),
-            m,
-            &ap,
-            &bp,
-            &dp,
-            &ab,
-            &ad,
-            &ac,
-            dadb,
-            dabd,
+            1, &self.a, &self.b, &self.d, m, &ap, &bp, &dp, &ab, &ad, &ac, dadb, dabd,
             dbda,
             /*ap_ab, bp_ab, dp_ab,
             ap_ad, bp_ad, dp_ad*/
@@ -398,19 +326,7 @@ impl<N: RealField> PointQueryWithLocation<N> for Tetrahedron<N> {
         }
         // Face acd.
         if let Some(res) = check_face(
-            2,
-            self.a(),
-            self.c(),
-            self.d(),
-            m,
-            &ap,
-            &cp,
-            &dp,
-            &ac,
-            &ad,
-            &ab,
-            dacd,
-            dcda,
+            2, &self.a, &self.c, &self.d, m, &ap, &cp, &dp, &ac, &ad, &ab, dacd, dcda,
             dadc,
             /*ap_ac, cp_ac, dp_ac,
             ap_ad, cp_ad, dp_ad*/
@@ -419,19 +335,7 @@ impl<N: RealField> PointQueryWithLocation<N> for Tetrahedron<N> {
         }
         // Face bcd.
         if let Some(res) = check_face(
-            3,
-            self.b(),
-            self.c(),
-            self.d(),
-            m,
-            &bp,
-            &cp,
-            &dp,
-            &bc,
-            &bd,
-            &-ab,
-            dbcd,
-            dcdb,
+            3, &self.b, &self.c, &self.d, m, &bp, &cp, &dp, &bc, &bd, &-ab, dbcd, dcdb,
             dbdc,
             /*bp_bc, cp_bc, dp_bc,
             bp_bd, cp_bd, dp_bd*/

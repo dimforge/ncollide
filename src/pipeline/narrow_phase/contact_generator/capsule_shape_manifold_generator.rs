@@ -34,7 +34,7 @@ impl<N: RealField> CapsuleShapeManifoldGenerator<N> {
     ) -> bool {
         let segment = g1.segment();
         let mut prediction = prediction.clone();
-        let new_linear_prediction = prediction.linear() + g1.radius();
+        let new_linear_prediction = prediction.linear() + g1.radius;
         prediction.set_linear(new_linear_prediction);
 
         if self.sub_detector.is_none() {

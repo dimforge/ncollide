@@ -54,8 +54,8 @@ impl<N: RealField> ContactManifoldGenerator<N> for BallBallManifoldGenerator<N> 
                     Point::origin(),
                     NeighborhoodGeometry::Point,
                 );
-                kinematic.set_dilation1(a.radius());
-                kinematic.set_dilation2(b.radius());
+                kinematic.set_dilation1(a.radius);
+                kinematic.set_dilation2(b.radius);
 
                 let _ = manifold.push(contact, kinematic, Point::origin(), proc1, proc2);
             }

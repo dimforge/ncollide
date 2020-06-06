@@ -107,7 +107,7 @@ impl<N: RealField> TriMeshTriMeshManifoldGenerator<N> {
                 let mut penetration_dir = Vector::y_axis();
 
                 // First, test normals.
-                let proj1 = t1.a().coords.dot(&n1);
+                let proj1 = t1.a.coords.dot(&n1);
                 let mut interval1 = (proj1, proj1);
                 let interval2 = t2.extents_on_dir(&n1);
 
@@ -125,7 +125,7 @@ impl<N: RealField> TriMeshTriMeshManifoldGenerator<N> {
                     break;
                 }
 
-                let proj2 = t2.a().coords.dot(&n2);
+                let proj2 = t2.a.coords.dot(&n2);
                 let mut interval2 = (proj2, proj2);
                 let interval1 = t1.extents_on_dir(&n2);
 
@@ -291,8 +291,8 @@ impl<N: RealField> TriMeshTriMeshManifoldGenerator<N> {
                     let seg2 = Segment::new(m12 * pts2[e2.indices.x], m12 * pts2[e2.indices.y]);
 
                     let locs = query::closest_points_segment_segment_with_locations_nD(
-                        (seg1.a(), seg1.b()),
-                        (seg2.a(), seg2.b()),
+                        (&seg1.a, &seg1.b),
+                        (&seg2.a, &seg2.b),
                     );
                     let p1 = seg1.point_at(&locs.0);
                     let p2 = seg2.point_at(&locs.1);
@@ -439,7 +439,7 @@ impl<N: RealField> TriMeshTriMeshManifoldGenerator<N> {
                     }
                 }
 
-                let dpt = p1 - t2.a();
+                let dpt = p1 - t2.a;
                 let dist = dpt.dot(&n2);
 
                 if dist >= N::zero()
@@ -483,7 +483,7 @@ impl<N: RealField> TriMeshTriMeshManifoldGenerator<N> {
                     }
                 }
 
-                let dpt = p2 - t1.a();
+                let dpt = p2 - t1.a;
                 let dist = dpt.dot(&n1);
 
                 if dist >= N::zero()
@@ -500,7 +500,7 @@ impl<N: RealField> TriMeshTriMeshManifoldGenerator<N> {
                     let mut kinematic = ContactKinematic::new();
                     kinematic.set_approx1(
                         FeatureId::Face(i1),
-                        *t1.a(),
+                        t1.a,
                         NeighborhoodGeometry::Plane(n1),
                     );
                     kinematic.set_approx2(

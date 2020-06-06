@@ -56,8 +56,8 @@ impl<N: RealField> PointQueryWithLocation<N> for Segment<N> {
         _: bool,
     ) -> (PointProjection<N>, Self::Location) {
         let ls_pt = m.inverse_transform_point(pt);
-        let ab = *self.b() - *self.a();
-        let ap = ls_pt - *self.a();
+        let ab = self.b - self.a;
+        let ap = ls_pt - self.a;
         let ab_ap = ab.dot(&ap);
         let sqnab = ab.norm_squared();
         let _1 = na::one::<N>();
@@ -68,11 +68,11 @@ impl<N: RealField> PointQueryWithLocation<N> for Segment<N> {
         if ab_ap <= na::zero() {
             // Voronoï region of vertex 'a'.
             location = SegmentPointLocation::OnVertex(0);
-            proj = m * self.a();
+            proj = m * self.a;
         } else if ab_ap >= sqnab {
             // Voronoï region of vertex 'b'.
             location = SegmentPointLocation::OnVertex(1);
-            proj = m * self.b();
+            proj = m * self.b;
         } else {
             assert!(sqnab != na::zero());
 
@@ -80,7 +80,7 @@ impl<N: RealField> PointQueryWithLocation<N> for Segment<N> {
             let u = ab_ap / sqnab;
             let bcoords = [_1 - u, u];
             location = SegmentPointLocation::OnEdge(bcoords);
-            proj = *self.a() + ab * u;
+            proj = self.a + ab * u;
             proj = m * proj;
         }
 

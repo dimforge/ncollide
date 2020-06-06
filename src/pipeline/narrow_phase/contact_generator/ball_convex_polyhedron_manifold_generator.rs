@@ -53,10 +53,10 @@ impl<N: RealField> BallConvexPolyhedronManifoldGenerator<N> {
             let normal;
             if let Some((dir, dist)) = Unit::try_new_and_get(dpt, N::default_epsilon()) {
                 if proj.is_inside {
-                    depth = dist + ball.radius();
+                    depth = dist + ball.radius;
                     normal = -dir;
                 } else {
-                    depth = -dist + ball.radius();
+                    depth = -dist + ball.radius;
                     normal = dir;
                 }
             } else {
@@ -72,18 +72,18 @@ impl<N: RealField> BallConvexPolyhedronManifoldGenerator<N> {
             if depth >= -prediction.linear() {
                 let mut kinematic = ContactKinematic::new();
                 let f1 = FeatureId::Face(0);
-                let world1 = ball_center + normal.into_inner() * ball.radius();
+                let world1 = ball_center + normal.into_inner() * ball.radius;
 
                 let contact;
 
                 if !self.flip {
                     contact = Contact::new(world1, world2, normal, depth);
                     kinematic.set_approx1(f1, Point::origin(), NeighborhoodGeometry::Point);
-                    kinematic.set_dilation1(ball.radius());
+                    kinematic.set_dilation1(ball.radius);
                 } else {
                     contact = Contact::new(world2, world1, -normal, depth);
                     kinematic.set_approx2(f1, Point::origin(), NeighborhoodGeometry::Point);
-                    kinematic.set_dilation2(ball.radius());
+                    kinematic.set_dilation2(ball.radius);
                 }
 
                 let local2 = m2.inverse_transform_point(&world2);

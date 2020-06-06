@@ -14,11 +14,14 @@ use std::mem;
 /// A triangle shape.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[repr(C)]
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Debug, Copy, Clone)]
 pub struct Triangle<N: RealField> {
-    a: Point<N>,
-    b: Point<N>,
-    c: Point<N>,
+    /// The triangle first point.
+    pub a: Point<N>,
+    /// The triangle second point.
+    pub b: Point<N>,
+    /// The triangle third point.
+    pub c: Point<N>,
 }
 
 /// Description of the location of a point on a triangle.
@@ -101,18 +104,21 @@ impl<N: RealField> Triangle<N> {
 
     /// The fist point of this triangle.
     #[inline]
+    #[deprecated(note = "use the `self.a` public field directly.")]
     pub fn a(&self) -> &Point<N> {
         &self.a
     }
 
     /// The second point of this triangle.
     #[inline]
+    #[deprecated(note = "use the `self.b` public field directly.")]
     pub fn b(&self) -> &Point<N> {
         &self.b
     }
 
     /// The third point of this triangle.
     #[inline]
+    #[deprecated(note = "use the `self.c` public field directly.")]
     pub fn c(&self) -> &Point<N> {
         &self.c
     }
@@ -286,21 +292,21 @@ impl<N: RealField> SupportMap<N> for Triangle<N> {
     fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
         let local_dir = m.inverse_transform_vector(dir);
 
-        let d1 = self.a().coords.dot(&local_dir);
-        let d2 = self.b().coords.dot(&local_dir);
-        let d3 = self.c().coords.dot(&local_dir);
+        let d1 = self.a.coords.dot(&local_dir);
+        let d2 = self.b.coords.dot(&local_dir);
+        let d3 = self.c.coords.dot(&local_dir);
 
         let res = if d1 > d2 {
             if d1 > d3 {
-                self.a()
+                self.a
             } else {
-                self.c()
+                self.c
             }
         } else {
             if d2 > d3 {
-                self.b()
+                self.b
             } else {
-                self.c()
+                self.c
             }
         };
 

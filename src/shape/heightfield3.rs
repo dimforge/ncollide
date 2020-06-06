@@ -370,8 +370,8 @@ impl<N: RealField> HeightField<N> {
         let ncells_x = self.ncols();
         let ncells_z = self.nrows();
 
-        let ref_mins = aabb.mins().coords.component_div(&self.scale);
-        let ref_maxs = aabb.maxs().coords.component_div(&self.scale);
+        let ref_mins = aabb.mins.coords.component_div(&self.scale);
+        let ref_maxs = aabb.maxs.coords.component_div(&self.scale);
         let cell_width = self.unit_cell_width();
         let cell_height = self.unit_cell_height();
 

@@ -19,14 +19,14 @@ impl<N: RealField> RayCast<N> for AABB<N> {
 
         for i in 0usize..DIM {
             if ls_ray.dir[i].is_zero() {
-                if ls_ray.origin[i] < self.mins()[i] || ls_ray.origin[i] > self.maxs()[i] {
+                if ls_ray.origin[i] < self.mins[i] || ls_ray.origin[i] > self.maxs[i] {
                     return None;
                 }
             } else {
                 let _1: N = na::one();
                 let denom = _1 / ls_ray.dir[i];
-                let mut inter_with_near_plane = (self.mins()[i] - ls_ray.origin[i]) * denom;
-                let mut inter_with_far_plane = (self.maxs()[i] - ls_ray.origin[i]) * denom;
+                let mut inter_with_near_plane = (self.mins[i] - ls_ray.origin[i]) * denom;
+                let mut inter_with_far_plane = (self.maxs[i] - ls_ray.origin[i]) * denom;
 
                 if inter_with_near_plane > inter_with_far_plane {
                     mem::swap(&mut inter_with_near_plane, &mut inter_with_far_plane)
@@ -146,8 +146,8 @@ fn do_toi_and_normal_and_uv_with_ray<N: RealField>(
 
         ray_aabb(aabb, &ls_ray, max_toi, solid).map(|(t, n, s)| {
             let pt = ls_ray.origin + ls_ray.dir * t;
-            let dpt = pt - *aabb.mins();
-            let scale = *aabb.maxs() - *aabb.mins();
+            let dpt = pt - aabb.mins;
+            let scale = aabb.maxs - aabb.mins;
             let id = s.abs();
             let gs_n = m * n;
             let feature = if s < 0 {
@@ -199,15 +199,15 @@ fn clip_line<N: RealField>(
 
     for i in 0usize..DIM {
         if dir[i].is_zero() {
-            if origin[i] < aabb.mins()[i] || origin[i] > aabb.maxs()[i] {
+            if origin[i] < aabb.mins[i] || origin[i] > aabb.maxs[i] {
                 return None;
             }
         } else {
             let _1: N = na::one();
             let denom = _1 / dir[i];
             let flip_sides;
-            let mut inter_with_near_plane = (aabb.mins()[i] - origin[i]) * denom;
-            let mut inter_with_far_plane = (aabb.maxs()[i] - origin[i]) * denom;
+            let mut inter_with_near_plane = (aabb.mins[i] - origin[i]) * denom;
+            let mut inter_with_far_plane = (aabb.maxs[i] - origin[i]) * denom;
 
             if inter_with_near_plane > inter_with_far_plane {
                 flip_sides = true;

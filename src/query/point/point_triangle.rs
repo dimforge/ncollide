@@ -64,9 +64,9 @@ impl<N: RealField> PointQueryWithLocation<N> for Triangle<N> {
         pt: &Point<N>,
         solid: bool,
     ) -> (PointProjection<N>, Self::Location) {
-        let a = *self.a();
-        let b = *self.b();
-        let c = *self.c();
+        let a = self.a;
+        let b = self.b;
+        let c = self.c;
         let p = m.inverse_transform_point(pt);
 
         let _1 = na::one::<N>();

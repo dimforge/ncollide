@@ -7,18 +7,19 @@ use na::{RealField, Unit};
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Plane<N: RealField> {
     /// The plane normal.
-    normal: Unit<Vector<N>>,
+    pub normal: Unit<Vector<N>>,
 }
 
 impl<N: RealField> Plane<N> {
     /// Builds a new plane from its center and its normal.
     #[inline]
     pub fn new(normal: Unit<Vector<N>>) -> Plane<N> {
-        Plane { normal: normal }
+        Plane { normal }
     }
 
     /// The plane normal.
     #[inline]
+    #[deprecated(note = "use the `self.normal` public field directly.")]
     pub fn normal(&self) -> &Unit<Vector<N>> {
         &self.normal
     }

@@ -5,25 +5,22 @@ use crate::shape::SupportMap;
 
 /// A Ball shape.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Debug, Copy, Clone)]
 pub struct Ball<N: RealField> {
-    radius: N,
+    /// The radius of the ball.
+    pub radius: N,
 }
 
 impl<N: RealField> Ball<N> {
     /// Creates a new ball from its radius and center.
     #[inline]
     pub fn new(radius: N) -> Ball<N> {
-        assert!(
-            radius > N::zero(),
-            "A ball radius must be strictly positive."
-        );
-
         Ball { radius }
     }
 
     /// The ball radius.
     #[inline]
+    #[deprecated(note = "use the `self.radius` public field directly.")]
     pub fn radius(&self) -> N {
         self.radius
     }
@@ -37,6 +34,6 @@ impl<N: RealField> SupportMap<N> for Ball<N> {
 
     #[inline]
     fn support_point_toward(&self, m: &Isometry<N>, dir: &Unit<Vector<N>>) -> Point<N> {
-        m * Point::origin() + **dir * self.radius()
+        m * Point::origin() + **dir * self.radius
     }
 }
