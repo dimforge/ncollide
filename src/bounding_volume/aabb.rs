@@ -51,11 +51,20 @@ impl<N: RealField> AABB<N> {
         AABB { mins, maxs }
     }
 
-    /// Creates a new AABB from its scenter and its half-extents.
+    /// Creates a new AABB from its center and its half-extents.
     #[inline]
     pub fn from_half_extents(center: Point<N>, half_extents: Vector<N>) -> Self {
         Self::new(center - half_extents, center + half_extents)
     }
+
+    /// Creates a new AABB from a set of points.
+    pub fn from_points<'a, I>(pts: I) -> Self
+    where
+        I: IntoIterator<Item = &'a Point<N>>,
+    {
+        super::aabb_utils::local_point_cloud_aabb(pts)
+    }
+
     /// Reference to the AABB point with the smallest components along each axis.
     #[inline]
     #[deprecated(note = "use the `.mins` public field instead.")]
@@ -87,6 +96,12 @@ impl<N: RealField> AABB<N> {
     #[inline]
     pub fn extents(&self) -> Vector<N> {
         self.maxs - self.mins
+    }
+
+    /// Enlarges this AABB so it also contains the point `pt`.
+    pub fn take_point(&mut self, pt: Point<N>) {
+        self.mins = self.mins.coords.inf(&pt.coords).into();
+        self.maxs = self.maxs.coords.sup(&pt.coords).into();
     }
 
     /// Computes the AABB bounding `self` transformed by `m`.
