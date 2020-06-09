@@ -250,7 +250,7 @@ impl<N: RealField> PointQueryWithLocation<N> for Triangle<N> {
             }
         }
 
-        // Special treatement if we work in 2d because in this case we really are inside of the
+        // Special treatment if we work in 2d because in this case we really are inside of the
         // object.
         if solid {
             (
