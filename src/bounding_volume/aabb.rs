@@ -51,6 +51,17 @@ impl<N: RealField> AABB<N> {
         AABB { mins, maxs }
     }
 
+    /// Creates an invalid AABB with `mins` components set to `N::max_values` and `maxs`components set to `-N::max_values`.
+    ///
+    /// This is often used as the initial values of some AABB merging algorithms.
+    #[inline]
+    pub fn new_invalid() -> Self {
+        Self::new(
+            Vector::repeat(N::max_value()).into(),
+            Vector::repeat(-N::max_value()).into(),
+        )
+    }
+
     /// Creates a new AABB from its center and its half-extents.
     #[inline]
     pub fn from_half_extents(center: Point<N>, half_extents: Vector<N>) -> Self {
