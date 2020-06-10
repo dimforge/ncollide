@@ -8,6 +8,9 @@ pub use self::contact_manifold::{ContactManifold, ContactTrackingMode};
 pub use self::contact_preprocessor::ContactPreprocessor;
 
 pub use self::contact_ball_ball::contact_ball_ball;
+pub use self::contact_ball_convex_polyhedron::{
+    contact_ball_convex_polyhedron, contact_convex_polyhedron_ball,
+};
 pub use self::contact_composite_shape_shape::{
     contact_composite_shape_shape, contact_shape_composite_shape,
 };
@@ -18,6 +21,7 @@ pub use self::contact_support_map_support_map::contact_support_map_support_map_w
 
 mod contact;
 mod contact_ball_ball;
+mod contact_ball_convex_polyhedron;
 mod contact_composite_shape_shape;
 mod contact_kinematic;
 mod contact_manifold;
