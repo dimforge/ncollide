@@ -3,11 +3,12 @@
 //!
 
 use crate::bounding_volume::{BoundingVolume, AABB};
-use crate::math::Isometry;
+use crate::math::{Isometry, Point};
 use crate::partitioning::{BVHImpl, BVT};
 use crate::query::{Contact, ContactKinematic, ContactPrediction, ContactPreprocessor};
-use crate::shape::{CompositeShape, FeatureId, Shape, ShapeHandle};
+use crate::shape::{CompositeShape, ConvexPolygon, FeatureId, Shape, ShapeHandle};
 use na::{self, RealField};
+use spade::delaunay::FloatDelaunayTriangulation;
 use std::mem;
 
 /// A compound shape with an aabb bounding volume.
@@ -50,6 +51,58 @@ impl<N: RealField> Compound<N> {
             bvs: bvs,
             nbits,
         }
+    }
+
+    /// Creates a new 2D concave polygon from a set of points assumed to describe a
+    /// counter-clockwise convex polyline.
+    pub fn new_concave_polygon(isometry: Isometry<N>, hull: &[(N, N)]) -> Compound<N>
+    where
+        N: spade::SpadeFloat,
+    {
+        assert!(hull.len() >= 3, "A polygon must have at least 3 vertex");
+        assert!(
+            hull.first() == hull.last(),
+            "The hull must be closed (the first and last vertex be the same)"
+        );
+
+        let mut delaunay = FloatDelaunayTriangulation::with_walk_locate();
+
+        // Add each vertex of the hull one by one. An index (accessible with the `fix()` method is
+        // associated with each vertex. This index is strictly increasing.
+        for (x, y) in hull {
+            let _ = delaunay.insert([*x, *y]);
+        }
+
+        Compound::new(
+            delaunay
+                .triangles()
+                .filter_map(|face| {
+                    let indexes = {
+                        let vertex_handle = face.as_triangle();
+                        let mut indexes = [0; 3];
+                        for i in 0..3 {
+                            indexes[i] = vertex_handle[i].fix();
+                        }
+                        indexes
+                    };
+
+                    // The index of triangle are clockwise, and since the hull is counter clockwise
+                    // vertices inside the hull will have their index in decreasing order.
+                    let [a, b, c] = indexes;
+                    if (a > b && b > c) || (c > a && a > b) || (b > c && c > a) {
+                        let points: Vec<_> = indexes
+                            .iter()
+                            .map(|i| hull[*i])
+                            .map(|(x, y)| Point::new(x, y))
+                            .collect();
+                        Some(ConvexPolygon::try_from_points(&points).unwrap())
+                    } else {
+                        None
+                    }
+                })
+                .map(|triangle| (isometry, ShapeHandle::new(triangle)))
+                .collect(),
+        )
     }
 }
 

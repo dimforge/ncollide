@@ -39,7 +39,9 @@ simba           = "0.1"
 nalgebra        = "0.21"
 approx          = { version = "0.3", default-features = false }
 serde           = { version = "1.0", optional = true, features = ["derive"]}
+spade           = "1.8.2"
 
 [dev-dependencies]
 rand  = { version = "0.7", default-features = false }
 simba = { version = "0.1", features = [ "partial_fixed_point_support" ] }
+gnuplot         = "0.0.37"
