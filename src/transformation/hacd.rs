@@ -160,7 +160,7 @@ pub fn hacd<N: RealField>(
 }
 
 fn normalize<N: RealField>(mesh: &mut TriMesh<N>) -> (Point3<N>, N) {
-    let aabb = bounding_volume::point_cloud_aabb(&Isometry::identity(), &mesh.coords[..]);
+    let aabb = bounding_volume::local_point_cloud_aabb(&mesh.coords[..]);
     let diag = na::distance(&aabb.mins, &aabb.maxs);
     let center = aabb.center();
 
@@ -474,7 +474,7 @@ impl<N: RealField> DualGraphEdge<N> {
             concavity: &mut N,
             ancestors: &mut BinaryHeap<VertexWithConcavity<N>>,
         ) {
-            let sv = chull.support_point(&Isometry::identity(), &ray.dir);
+            let sv = chull.local_support_point(&ray.dir);
             let distance = sv.coords.dot(&ray.dir);
 
             if !relative_eq!(distance, na::zero()) {
@@ -783,6 +783,11 @@ impl<'a, N: RealField> ConvexPair<'a, N> {
 impl<'a, N: RealField> SupportMap<N> for ConvexPair<'a, N> {
     #[inline]
     fn support_point(&self, _: &Isometry<N>, dir: &Vector3<N>) -> Point3<N> {
+        self.local_support_point(dir)
+    }
+
+    #[inline]
+    fn local_support_point(&self, dir: &Vector3<N>) -> Point3<N> {
         let sa = utils::point_cloud_support_point(dir, self.a);
         let sb = utils::point_cloud_support_point(dir, self.b);
 

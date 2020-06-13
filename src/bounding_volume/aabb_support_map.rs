@@ -15,8 +15,7 @@ impl<N: RealField> HasBoundingVolume<N, AABB<N>> for Cone<N> {
 
     #[inline]
     fn local_bounding_volume(&self) -> AABB<N> {
-        // SPEED: add `local_support_map_aabb` function to support map
-        bounding_volume::support_map_aabb(&Isometry::identity(), self)
+        bounding_volume::local_support_map_aabb(self)
     }
 }
 
@@ -29,8 +28,7 @@ impl<N: RealField> HasBoundingVolume<N, AABB<N>> for Cylinder<N> {
 
     #[inline]
     fn local_bounding_volume(&self) -> AABB<N> {
-        // SPEED: add `local_support_map_aabb` function to support map
-        bounding_volume::support_map_aabb(&Isometry::identity(), self)
+        bounding_volume::local_support_map_aabb(self)
     }
 }
 
@@ -42,8 +40,7 @@ impl<N: RealField> HasBoundingVolume<N, AABB<N>> for Capsule<N> {
 
     #[inline]
     fn local_bounding_volume(&self) -> AABB<N> {
-        // SPEED: add `local_support_map_aabb` function to support map
-        bounding_volume::support_map_aabb(&Isometry::identity(), self)
+        bounding_volume::local_support_map_aabb(self)
     }
 }
 
@@ -56,7 +53,6 @@ impl<N: RealField> HasBoundingVolume<N, AABB<N>> for Segment<N> {
 
     #[inline]
     fn local_bounding_volume(&self) -> AABB<N> {
-        // SPEED: add `local_support_map_aabb` function to support map
-        bounding_volume::support_map_aabb(&Isometry::identity(), self)
+        bounding_volume::local_support_map_aabb(self)
     }
 }

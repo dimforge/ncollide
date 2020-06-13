@@ -1,6 +1,6 @@
 //! Support mapping based Cylinder shape.
 
-use crate::math::{Isometry, Point, Vector};
+use crate::math::{Point, Vector};
 use crate::shape::SupportMap;
 use na::{self, RealField};
 
@@ -45,11 +45,8 @@ impl<N: RealField> Cylinder<N> {
 }
 
 impl<N: RealField> SupportMap<N> for Cylinder<N> {
-    fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
-        let local_dir = m.inverse_transform_vector(dir);
-
-        let mut vres = local_dir;
-        let negative = local_dir[1].is_negative();
+    fn local_support_point(&self, dir: &Vector<N>) -> Point<N> {
+        let mut vres = *dir;
 
         vres[1] = na::zero();
 
@@ -59,12 +56,8 @@ impl<N: RealField> SupportMap<N> for Cylinder<N> {
             vres = vres * self.radius;
         }
 
-        if negative {
-            vres[1] = -self.half_height
-        } else {
-            vres[1] = self.half_height
-        }
+        vres[1] = dir[1].copysign(self.half_height);
 
-        m * Point::from(vres)
+        Point::from(vres)
     }
 }
