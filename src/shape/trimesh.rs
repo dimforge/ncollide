@@ -12,7 +12,7 @@ use crate::shape::{
     CompositeShape, DeformableShape, DeformationsType, FeatureId, Segment, Shape, Triangle,
 };
 use crate::utils::{DeterministicState, IsometryOps};
-use na::{self, Id, Point2, Point3, RealField, Unit};
+use na::{self, Point2, Point3, RealField, Unit};
 use std::collections::{hash_map::Entry, HashMap};
 use std::iter;
 use std::ops::Range;
@@ -836,10 +836,11 @@ impl<N: RealField> DeformableShape<N> for TriMesh<N> {
             if self.deformations.timestamps[tri_id] != self.deformations.curr_timestamp {
                 // Update the BV.
                 let idx = &self.faces[tri_id].indices;
-                let mut new_bv = bounding_volume::point_cloud_aabb(
-                    &Id::new(),
-                    &[self.points[idx.x], self.points[idx.y], self.points[idx.z]],
-                );
+                let mut new_bv = bounding_volume::local_point_cloud_aabb(&[
+                    self.points[idx.x],
+                    self.points[idx.y],
+                    self.points[idx.z],
+                ]);
                 new_bv.loosen(self.deformations.margin);
                 self.bvt
                     .set_leaf_bounding_volume(self.faces[tri_id].bvt_leaf, new_bv, false);

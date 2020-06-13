@@ -2,8 +2,8 @@ use super::ToPolyline;
 use crate::procedural;
 use crate::procedural::Polyline;
 use crate::shape::Cuboid;
-use alga::general::RealField;
 use na;
+use simba::scalar::RealField;
 
 impl<N: RealField> ToPolyline<N> for Cuboid<N> {
     type DiscretizationParameter = ();

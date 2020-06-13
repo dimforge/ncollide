@@ -1,5 +1,3 @@
-extern crate ncollide2d;
-
 use ncollide2d::shape::Ball;
 
 fn main() {

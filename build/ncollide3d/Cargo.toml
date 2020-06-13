@@ -1,6 +1,6 @@
 [package]
 name    = "ncollide3d"
-version = "0.22.0"
+version = "0.23.2"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "2 and 3-dimensional collision detection library in Rust."
@@ -17,6 +17,10 @@ default = [ "dim3" ]
 dim3    = [ ]
 serde-serialize = [ "serde", "nalgebra/serde-serialize" ]
 
+# Improve numerical stability when working with fixed-point numbers
+# so we don't need a too large number of decimals.
+improved_fixed_point_support = [ ]
+
 [lib]
 name = "ncollide3d"
 path = "../../src/lib.rs"
@@ -31,8 +35,8 @@ smallvec   = "1"
 slab       = "0.4"
 slotmap    = "0.4"
 petgraph   = "0.5"
-alga       = "0.9"
-nalgebra   = "0.20"
+simba      = "0.1"
+nalgebra   = "0.21"
 approx     = { version = "0.3", default-features = false }
 serde      = { version = "1.0", optional = true, features = ["derive", "rc"]}
 

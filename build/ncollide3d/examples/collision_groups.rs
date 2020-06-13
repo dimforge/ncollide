@@ -1,5 +1,3 @@
-extern crate ncollide3d;
-
 use ncollide3d::pipeline::CollisionGroups;
 
 fn main() {

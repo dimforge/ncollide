@@ -2,8 +2,8 @@ use super::ToTriMesh;
 use crate::procedural;
 use crate::procedural::TriMesh;
 use crate::shape::Cylinder;
-use alga::general::RealField;
 use na;
+use simba::scalar::RealField;
 
 impl<N: RealField> ToTriMesh<N> for Cylinder<N> {
     type DiscretizationParameter = u32;

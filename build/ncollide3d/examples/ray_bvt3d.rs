@@ -1,5 +1,4 @@
 extern crate nalgebra as na;
-extern crate ncollide3d;
 
 use na::{Isometry3, Point3, Vector3};
 use ncollide3d::bounding_volume::{self, BoundingSphere, HasBoundingVolume};

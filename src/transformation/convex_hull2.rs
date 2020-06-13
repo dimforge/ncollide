@@ -3,8 +3,8 @@ use std::marker::PhantomData;
 #[cfg(feature = "dim2")]
 use crate::procedural::Polyline;
 use crate::transformation::convex_hull_utils::{indexed_support_point_id, support_point_id};
-use alga::general::RealField;
 use na::{self, Point2, Vector2};
+use simba::scalar::RealField;
 
 /// Computes the convex hull of a set of 2d points.
 #[cfg(feature = "dim2")]

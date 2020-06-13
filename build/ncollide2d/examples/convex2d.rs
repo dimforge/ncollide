@@ -1,6 +1,4 @@
-extern crate alga;
 extern crate nalgebra as na;
-extern crate ncollide2d;
 extern crate num_traits as num;
 
 use na::Point2;

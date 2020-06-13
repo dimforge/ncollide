@@ -1,5 +1,4 @@
-use crate::math::{Isometry, Point, Vector};
-use alga::linear::{Rotation, Translation};
+use crate::math::{Isometry, Point, Rotation, Translation, Vector, DIM};
 use na::{self, RealField};
 
 /// Geometric description of a polyline.
@@ -57,21 +56,21 @@ impl<N: RealField> Polyline<N> {
     }
 
     /// Translates each vertex of this polyline.
-    pub fn translate_by<T: Translation<Point<N>>>(&mut self, t: &T) {
+    pub fn translate_by(&mut self, t: &Translation<N>) {
         for c in self.coords.iter_mut() {
-            *c = t.transform_point(c);
+            *c = t * &*c;
         }
     }
 
     /// Rotates each vertex and normal of this polyline.
-    pub fn rotate_by<R: Rotation<Point<N>>>(&mut self, r: &R) {
+    pub fn rotate_by(&mut self, r: &Rotation<N>) {
         for c in self.coords.iter_mut() {
-            *c = r.transform_point(c);
+            *c = r * &*c;
         }
 
         for n in self.normals.iter_mut() {
             for n in n.iter_mut() {
-                *n = r.transform_vector(n);
+                *n = r * &*n;
             }
         }
     }
@@ -79,7 +78,7 @@ impl<N: RealField> Polyline<N> {
     /// Transforms each vertex and rotates each normal of this polyline.
     pub fn transform_by(&mut self, t: &Isometry<N>) {
         for c in self.coords.iter_mut() {
-            *c = t * *c;
+            *c = t * &*c;
         }
 
         for n in self.normals.iter_mut() {
@@ -108,7 +107,7 @@ impl<N: RealField> Polyline<N> {
     #[inline]
     pub fn scale_by(&mut self, s: &Vector<N>) {
         for c in self.coords.iter_mut() {
-            for i in 0..na::dimension::<Vector<N>>() {
+            for i in 0..DIM {
                 c[i] = (*c)[i] * s[i];
             }
         }

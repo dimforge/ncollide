@@ -1,7 +1,7 @@
 //! The Gilbert–Johnson–Keerthi distance algorithm.
 
-use alga::general::RealField;
 use na::{self, Unit};
+use simba::scalar::RealField;
 
 use crate::query::algorithms::{special_support_maps::ConstantOrigin, CSOPoint, VoronoiSimplex};
 use crate::shape::SupportMap;
@@ -93,7 +93,15 @@ where
 
     // FIXME: reset the simplex if it is empty?
     let mut proj = simplex.project_origin_and_reduce();
-    let mut old_dir = -Unit::new_normalize(proj.coords);
+
+    let mut old_dir;
+
+    if let Some(proj_dir) = Unit::try_new(proj.coords, N::zero()) {
+        old_dir = -proj_dir;
+    } else {
+        return GJKResult::Intersection;
+    }
+
     let mut max_bound = N::max_value();
     let mut dir;
     let mut niter = 0;
@@ -242,7 +250,6 @@ where
 
     let mut ltoi = N::zero();
     let mut curr_ray = Ray::new(ray.origin, ray.dir / ray_length);
-    let max_toi = max_toi * ray_length;
     let dir = -curr_ray.dir;
     let mut ldir = dir;
 
@@ -295,7 +302,10 @@ where
                     ldir = *dir;
                     ltoi += t;
 
-                    if ltoi > max_toi {
+                    // NOTE: we divide by ray_length instead of doing max_toi * ray_length
+                    // because the multiplication may cause an overflow if max_toi is set
+                    // to N::max_value() by users that want to have an infinite ray.
+                    if ltoi / ray_length > max_toi {
                         return None;
                     }
 
@@ -307,7 +317,7 @@ where
                 }
             }
             None => {
-                if dir.dot(&curr_ray.dir) > N::default_epsilon() {
+                if dir.dot(&curr_ray.dir) > _eps_tol {
                     // miss
                     return None;
                 }
@@ -323,7 +333,16 @@ where
         assert!(min_bound == min_bound);
 
         if max_bound - min_bound <= _eps_rel * max_bound {
-            return None;
+            // This is needed when using fixed-points to avoid missing
+            // some castes.
+            // FIXME: I feel like we should always return `Some` in
+            // this case, even with floating-point numbers. Though it
+            // has not been sufficinetly tested with floats yet to be sure.
+            if cfg!(feature = "improved_fixed_point_support") {
+                return Some((ltoi / ray_length, ldir));
+            } else {
+                return None;
+            }
         }
 
         let _ = simplex.add_point(support_point.translate(&-curr_ray.origin.coords));

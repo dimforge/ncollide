@@ -1,4 +1,4 @@
-use crate::math::{Isometry, Point, Vector};
+use crate::math::{Isometry, Point, Vector, DIM};
 use crate::query::{PointProjection, PointQuery, PointQueryWithLocation};
 use crate::shape::{FeatureId, Triangle, TrianglePointLocation};
 use na::{self, RealField};
@@ -31,7 +31,7 @@ impl<N: RealField> PointQuery<N> for Triangle<N> {
         m: &Isometry<N>,
         pt: &Point<N>,
     ) -> (PointProjection<N>, FeatureId) {
-        let (proj, loc) = if na::dimension::<Vector<N>>() == 2 {
+        let (proj, loc) = if DIM == 2 {
             self.project_point_with_location(m, pt, false)
         } else {
             self.project_point_with_location(m, pt, true)
@@ -157,7 +157,19 @@ impl<N: RealField> PointQueryWithLocation<N> for Triangle<N> {
             }
             #[cfg(feature = "dim3")]
             {
-                let n = ab.cross(&ac);
+                let n;
+
+                #[cfg(feature = "improved_fixed_point_support")]
+                {
+                    let scaled_n = ab.cross(&ac);
+                    n = scaled_n.try_normalize(N::zero()).unwrap_or(scaled_n);
+                }
+
+                #[cfg(not(feature = "improved_fixed_point_support"))]
+                {
+                    n = ab.cross(&ac);
+                }
+
                 let vc = n.dot(&ab.cross(&ap));
                 if vc < na::zero() && ab_ap >= na::zero() && ab_bp <= na::zero() {
                     return ProjectionInfo::OnAB;
@@ -218,17 +230,22 @@ impl<N: RealField> PointQueryWithLocation<N> for Triangle<N> {
             }
             ProjectionInfo::OnFace(face_side, va, vb, vc) => {
                 // Voronoï region of the face.
-                if na::dimension::<Vector<N>>() != 2 {
-                    let denom = _1 / (va + vb + vc);
-                    let v = vb * denom;
-                    let w = vc * denom;
-                    let bcoords = [_1 - v - w, v, w];
-                    let res = a + ab * v + ac * w;
+                if DIM != 2 {
+                    // NOTE: in some cases, numerical instability
+                    // may result in the denominator being zero
+                    // when the triangle is nearly degenerate.
+                    if va + vb + vc != N::zero() {
+                        let denom = _1 / (va + vb + vc);
+                        let v = vb * denom;
+                        let w = vc * denom;
+                        let bcoords = [_1 - v - w, v, w];
+                        let res = a + ab * v + ac * w;
 
-                    return (
-                        compute_result(pt, m * res),
-                        TrianglePointLocation::OnFace(face_side, bcoords),
-                    );
+                        return (
+                            compute_result(pt, m * res),
+                            TrianglePointLocation::OnFace(face_side, bcoords),
+                        );
+                    }
                 }
             }
         }

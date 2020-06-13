@@ -4,7 +4,7 @@ use crate::bounding_volume::BoundingVolume;
 use crate::math::{Point, DIM};
 use crate::partitioning::BVH;
 use crate::utils;
-use alga::general::RealField;
+use simba::scalar::RealField;
 use std::collections::VecDeque;
 use std::iter;
 use std::usize;

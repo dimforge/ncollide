@@ -1,8 +1,6 @@
 /*
 
 extern crate nalgebra as na;
-extern crate ncollide2d;
-extern crate ncollide3d;
 
 use na::Point3;
 use ncollide3d::procedural;

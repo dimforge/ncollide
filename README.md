@@ -2,11 +2,14 @@
     <a href="https://discord.gg/vt9DJSW">
         <img src="https://img.shields.io/discord/507548572338880513.svg?logo=discord&colorB=7289DA">
     </a>
-    <a href="https://crates.io/crates/ncollide">
-         <img src="http://meritbadge.herokuapp.com/ncollide?style=flat-square" alt="crates.io">
+    <a href="https://crates.io/crates/ncollide2d">
+         <img src="http://meritbadge.herokuapp.com/ncollide2d?style=flat-square" alt="crates.io">
     </a>
-    <a href="https://travis-ci.org/rustsim/ncollide">
-        <img src="https://travis-ci.org/rustsim/ncollide.svg?branch=master" alt="Build status">
+    <a href="https://crates.io/crates/ncollide3d">
+         <img src="http://meritbadge.herokuapp.com/ncollide3d?style=flat-square" alt="crates.io">
+    </a>
+    <a href="https://circleci.com/gh/rustsim/ncollide">
+        <img src="https://circleci.com/gh/rustsim/ncollide.svg?style=svg" alt="Build status">
     </a>
 </p>
 <p align = "center">
@@ -32,8 +35,8 @@ Simply add one the following (or both) to your `Cargo.toml` file:
 
 ```
 [dependencies]
-ncollide2d = "0.22" # For 2D collision detection.
-ncollide3d = "0.22" # For 3D collision detection.
+ncollide2d = "0.23" # For 2D collision detection.
+ncollide3d = "0.23" # For 3D collision detection.
 ```
 
 

@@ -1,7 +1,6 @@
 #[macro_use]
 extern crate approx; // for relative_eq!
 extern crate nalgebra as na;
-extern crate ncollide2d;
 
 use na::{Isometry2, Vector2};
 use ncollide2d::query;

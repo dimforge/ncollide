@@ -1,5 +1,4 @@
 //extern crate nalgebra as na;
-//extern crate ncollide3d;
 //
 //use ncollide3d::broad_phase::BroadPhasePairFilter;
 //use ncollide3d::shape::{Ball, ShapeHandle};

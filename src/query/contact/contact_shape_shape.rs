@@ -14,7 +14,10 @@ pub fn contact<N: RealField>(
     g2: &dyn Shape<N>,
     prediction: N,
 ) -> Option<Contact<N>> {
-    if let (Some(b1), Some(b2)) = (g1.as_shape::<Ball<N>>(), g2.as_shape::<Ball<N>>()) {
+    let ball1 = g1.as_shape::<Ball<N>>();
+    let ball2 = g2.as_shape::<Ball<N>>();
+
+    if let (Some(b1), Some(b2)) = (ball1, ball2) {
         let p1 = Point::from(m1.translation.vector);
         let p2 = Point::from(m2.translation.vector);
 
@@ -23,6 +26,16 @@ pub fn contact<N: RealField>(
         query::contact_plane_support_map(m1, p1, m2, s2, prediction)
     } else if let (Some(s1), Some(p2)) = (g1.as_support_map(), g2.as_shape::<Plane<N>>()) {
         query::contact_support_map_plane(m1, s1, m2, p2, prediction)
+    } else if let (Some(b1), (Some(_), Some(_))) =
+        (ball1, (g2.as_convex_polyhedron(), g2.as_point_query()))
+    {
+        let p1 = Point::from(m1.translation.vector);
+        query::contact_ball_convex_polyhedron(&p1, b1, m2, g2, prediction)
+    } else if let ((Some(_), Some(_)), Some(b2)) =
+        ((g1.as_convex_polyhedron(), g1.as_point_query()), ball2)
+    {
+        let p2 = Point::from(m2.translation.vector);
+        query::contact_convex_polyhedron_ball(m1, g1, &p2, b2, prediction)
     } else if let (Some(s1), Some(s2)) = (g1.as_support_map(), g2.as_support_map()) {
         query::contact_support_map_support_map(m1, s1, m2, s2, prediction)
     } else if let Some(c1) = g1.as_composite_shape() {

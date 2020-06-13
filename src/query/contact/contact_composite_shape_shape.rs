@@ -56,10 +56,8 @@ where
     G2: CompositeShape<N>,
 {
     let mut res = contact_composite_shape_shape(m2, g2, m1, g1, prediction);
-
-    for c in res.iter_mut() {
+    if let Some(c) = &mut res {
         c.flip()
     }
-
     res
 }

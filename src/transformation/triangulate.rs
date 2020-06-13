@@ -1,14 +1,14 @@
 //! Point cloud triangulation.
 
-use std::collections::HashMap;
 use std::collections::hash_map::Entry;
+use std::collections::HashMap;
 
-use crate::alga::general::RealField;
-use na::{self, Point3};
-use crate::math::Point;
-use crate::utils;
 use crate::bounding_volume;
+use crate::math::Point;
 use crate::procedural::{IndexBuffer, TriMesh};
+use crate::simba::scalar::RealField;
+use crate::utils;
+use na::{self, Point3};
 
 struct Triangle<N: RealField> {
     idx: Point3<usize>,
@@ -45,7 +45,11 @@ pub struct Triangulator<N: RealField> {
 
 impl<N: RealField> Triangulator<P> {
     /// Creates a new Triangulator.
-    pub fn new(supertriangle_a: Point<N>, supertriangle_b: Point<N>, supertriangle_c: Point<N>) -> Triangulator<P> {
+    pub fn new(
+        supertriangle_a: Point<N>,
+        supertriangle_b: Point<N>,
+        supertriangle_c: Point<N>,
+    ) -> Triangulator<P> {
         let vertices = vec![supertriangle_a, supertriangle_b, supertriangle_c];
 
         Triangulator {

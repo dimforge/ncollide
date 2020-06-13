@@ -6,7 +6,6 @@ use crate::query::algorithms::{gjk, CSOPoint, VoronoiSimplex};
 use crate::query::PointQueryWithLocation;
 use crate::shape::{SupportMap, Triangle, TrianglePointLocation};
 use crate::utils;
-use alga::linear::FiniteDimInnerSpace;
 use na::{self, RealField, Unit};
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
@@ -402,6 +401,12 @@ impl<N: RealField> EPA<N> {
                         self.heap.push(FaceId::new(new_face_id, -dist)?);
                     }
                 }
+            }
+
+            if first_new_face_id == self.faces.len() {
+                // Something went very wrong because all the edges
+                // from the silhouette belonged to deleted faces.
+                return None;
             }
 
             self.faces[first_new_face_id].adj[2] = self.faces.len() - 1;
