@@ -289,14 +289,12 @@ impl<N: RealField> Triangle<N> {
 
 impl<N: RealField> SupportMap<N> for Triangle<N> {
     #[inline]
-    fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
-        let local_dir = m.inverse_transform_vector(dir);
+    fn local_support_point(&self, dir: &Vector<N>) -> Point<N> {
+        let d1 = self.a.coords.dot(dir);
+        let d2 = self.b.coords.dot(dir);
+        let d3 = self.c.coords.dot(dir);
 
-        let d1 = self.a.coords.dot(&local_dir);
-        let d2 = self.b.coords.dot(&local_dir);
-        let d3 = self.c.coords.dot(&local_dir);
-
-        let res = if d1 > d2 {
+        if d1 > d2 {
             if d1 > d3 {
                 self.a
             } else {
@@ -308,9 +306,7 @@ impl<N: RealField> SupportMap<N> for Triangle<N> {
             } else {
                 self.c
             }
-        };
-
-        m * res
+        }
     }
 }
 

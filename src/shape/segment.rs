@@ -181,13 +181,11 @@ impl<N: RealField> Segment<N> {
 
 impl<N: RealField> SupportMap<N> for Segment<N> {
     #[inline]
-    fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
-        let local_dir = m.inverse_transform_vector(dir);
-
-        if self.a.coords.dot(&local_dir) > self.b.coords.dot(&local_dir) {
-            m * self.a
+    fn local_support_point(&self, dir: &Vector<N>) -> Point<N> {
+        if self.a.coords.dot(dir) > self.b.coords.dot(dir) {
+            self.a
         } else {
-            m * self.b
+            self.b
         }
     }
 }

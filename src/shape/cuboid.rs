@@ -134,18 +134,14 @@ impl<N: RealField> Cuboid<N> {
 
 impl<N: RealField> SupportMap<N> for Cuboid<N> {
     #[inline]
-    fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
-        let local_dir = m.inverse_transform_vector(dir);
-
+    fn local_support_point(&self, dir: &Vector<N>) -> Point<N> {
         let mut res = self.half_extents;
 
         for i in 0usize..DIM {
-            if local_dir[i] < N::zero() {
-                res[i] = -res[i];
-            }
+            res[i] = dir[i].copysign(res[i]);
         }
 
-        m * Point::from(res)
+        res.into()
     }
 }
 

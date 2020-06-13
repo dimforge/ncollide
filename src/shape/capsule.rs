@@ -2,7 +2,7 @@
 
 use na::{self, RealField, Unit};
 
-use crate::math::{Isometry, Point, Vector};
+use crate::math::{Point, Vector};
 use crate::query::{Contact, ContactKinematic, ContactPreprocessor};
 use crate::shape::{FeatureId, Segment, SupportMap};
 
@@ -71,23 +71,15 @@ impl<N: RealField> Capsule<N> {
 
 impl<N: RealField> SupportMap<N> for Capsule<N> {
     #[inline]
-    fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
-        self.support_point_toward(m, &Unit::new_normalize(*dir))
+    fn local_support_point(&self, dir: &Vector<N>) -> Point<N> {
+        self.local_support_point_toward(&Unit::new_normalize(*dir))
     }
 
     #[inline]
-    fn support_point_toward(&self, m: &Isometry<N>, dir: &Unit<Vector<N>>) -> Point<N> {
-        let local_dir = m.inverse_transform_vector(dir);
-
+    fn local_support_point_toward(&self, dir: &Unit<Vector<N>>) -> Point<N> {
         let mut res: Vector<N> = na::zero();
-
-        if local_dir[1].is_negative() {
-            res[1] = -self.half_height
-        } else {
-            res[1] = self.half_height
-        }
-
-        m * Point::from(res + local_dir * self.radius)
+        res[1] = dir[1].copysign(self.half_height);
+        Point::from(res + **dir * self.radius)
     }
 }
 

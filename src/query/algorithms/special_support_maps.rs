@@ -16,6 +16,16 @@ impl<N: RealField> SupportMap<N> for ConstantOrigin {
     fn support_point_toward(&self, _: &Isometry<N>, _: &Unit<Vector<N>>) -> Point<N> {
         Point::origin()
     }
+
+    #[inline]
+    fn local_support_point(&self, _: &Vector<N>) -> Point<N> {
+        Point::origin()
+    }
+
+    #[inline]
+    fn local_support_point_toward(&self, _: &Unit<Vector<N>>) -> Point<N> {
+        Point::origin()
+    }
 }
 
 /// The Minkowski sum of a shape and a ball.
@@ -35,5 +45,15 @@ impl<'a, N: RealField, S: ?Sized + SupportMap<N>> SupportMap<N> for DilatedShape
     #[inline]
     fn support_point_toward(&self, m: &Isometry<N>, dir: &Unit<Vector<N>>) -> Point<N> {
         self.shape.support_point_toward(m, dir) + **dir * self.radius
+    }
+
+    #[inline]
+    fn local_support_point(&self, dir: &Vector<N>) -> Point<N> {
+        self.local_support_point_toward(&Unit::new_normalize(*dir))
+    }
+
+    #[inline]
+    fn local_support_point_toward(&self, dir: &Unit<Vector<N>>) -> Point<N> {
+        self.shape.local_support_point_toward(dir) + **dir * self.radius
     }
 }

@@ -6,7 +6,7 @@ pub use self::spatialized_normal_cone::SpatializedNormalCone;
 pub use crate::bounding_volume::aabb::{aabb, local_aabb, AABB};
 pub use crate::bounding_volume::aabb_ball::ball_aabb;
 pub use crate::bounding_volume::aabb_utils::{
-    local_point_cloud_aabb, point_cloud_aabb, support_map_aabb,
+    local_point_cloud_aabb, local_support_map_aabb, point_cloud_aabb, support_map_aabb,
 };
 #[doc(inline)]
 pub use crate::bounding_volume::bounding_sphere::{
@@ -35,7 +35,6 @@ mod aabb_plane;
 mod aabb_polyline;
 mod aabb_shape;
 mod aabb_support_map;
-#[cfg(feature = "dim3")]
 mod aabb_triangle;
 #[cfg(feature = "dim3")]
 mod aabb_trimesh;
@@ -60,7 +59,6 @@ mod bounding_sphere_plane;
 mod bounding_sphere_polyline;
 mod bounding_sphere_segment;
 mod bounding_sphere_shape;
-#[cfg(feature = "dim3")]
 mod bounding_sphere_triangle;
 #[cfg(feature = "dim3")]
 mod bounding_sphere_trimesh;

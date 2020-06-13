@@ -110,11 +110,8 @@ impl<N: RealField> ConvexPolygon<N> {
 
 impl<N: RealField> SupportMap<N> for ConvexPolygon<N> {
     #[inline]
-    fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
-        let local_dir = m.inverse_transform_vector(dir);
-        let best_pt = utils::point_cloud_support_point(&local_dir, self.points());
-
-        m * best_pt
+    fn local_support_point(&self, dir: &Vector<N>) -> Point<N> {
+        utils::point_cloud_support_point(dir, self.points())
     }
 }
 
