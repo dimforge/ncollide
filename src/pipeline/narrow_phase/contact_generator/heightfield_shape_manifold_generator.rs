@@ -35,7 +35,6 @@ impl<N: RealField> HeightFieldShapeManifoldGenerator<N> {
         proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         manifold: &mut ContactManifold<N>,
-        flip: bool,
     ) {
         self.timestamp += 1;
 
@@ -48,7 +47,7 @@ impl<N: RealField> HeightFieldShapeManifoldGenerator<N> {
             .entry(i)
         {
             Entry::Occupied(mut entry) => {
-                let ok = if flip {
+                let ok = if self.flip {
                     entry.get_mut().0.generate_contacts(
                         dispatcher,
                         m2,
@@ -79,14 +78,14 @@ impl<N: RealField> HeightFieldShapeManifoldGenerator<N> {
                 }
             }
             Entry::Vacant(entry) => {
-                let new_detector = if flip {
+                let new_detector = if self.flip {
                     dispatcher.get_contact_algorithm(g2, elt1)
                 } else {
                     dispatcher.get_contact_algorithm(elt1, g2)
                 };
 
                 if let Some(mut new_detector) = new_detector {
-                    if flip {
+                    if self.flip {
                         let _ = new_detector.generate_contacts(
                             dispatcher,
                             m2,
@@ -138,12 +137,12 @@ impl<N: RealField> ContactManifoldGenerator<N> for HeightFieldShapeManifoldGener
     ) -> bool {
         if !self.flip {
             if let Some(hf) = a.as_shape::<HeightField<N>>() {
-                self.do_update(d, ma, hf, proc1, mb, b, proc2, prediction, manifold, false);
+                self.do_update(d, ma, hf, proc1, mb, b, proc2, prediction, manifold);
                 return true;
             }
         } else {
             if let Some(hf) = b.as_shape::<HeightField<N>>() {
-                self.do_update(d, mb, hf, proc2, ma, a, proc1, prediction, manifold, true);
+                self.do_update(d, mb, hf, proc2, ma, a, proc1, prediction, manifold);
                 return true;
             }
         }
