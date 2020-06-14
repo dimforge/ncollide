@@ -1,3 +1,5 @@
+use std::mem;
+
 use crate::math::{Isometry, Point, Vector};
 use crate::query::{self, Contact};
 use crate::shape::{FeatureId, Shape};
@@ -370,5 +372,11 @@ impl<N: RealField> ContactKinematic<N> {
         depth += self.margin1 + self.margin2;
 
         Some(Contact::new(world1, world2, normal, depth))
+    }
+
+    /// Swap fields associated with objects 1 and 2
+    pub fn flip(&mut self) {
+        mem::swap(&mut self.approx1, &mut self.approx2);
+        mem::swap(&mut self.margin1, &mut self.margin2);
     }
 }
