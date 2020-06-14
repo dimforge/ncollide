@@ -51,8 +51,8 @@ impl<N: RealField> ContactDispatcher<N> for DefaultContactDispatcher {
 
         if a_is_heightfield || b_is_heightfield {
             return Some(wrap(
-                flip,
-                HeightFieldShapeManifoldGenerator::<N>::new(b_is_heightfield),
+                flip ^ b_is_heightfield,
+                HeightFieldShapeManifoldGenerator::<N>::new(),
             ));
         } else if a_is_capsule && b_is_capsule {
             Some(wrap(flip, CapsuleCapsuleManifoldGenerator::<N>::new()))
@@ -64,9 +64,9 @@ impl<N: RealField> ContactDispatcher<N> for DefaultContactDispatcher {
         } else if a_is_ball && b_is_ball {
             Some(wrap(flip, BallBallManifoldGenerator::<N>::new()))
         } else if a_is_plane && b_is_ball {
-            Some(wrap(flip, PlaneBallManifoldGenerator::<N>::new(false)))
+            Some(wrap(flip, PlaneBallManifoldGenerator::<N>::new()))
         } else if a_is_ball && b_is_plane {
-            Some(wrap(flip, PlaneBallManifoldGenerator::<N>::new(true)))
+            Some(wrap(!flip, PlaneBallManifoldGenerator::<N>::new()))
         } else if a_is_plane && b.is_support_map() {
             let gen = PlaneConvexPolyhedronManifoldGenerator::<N>::new(false);
             Some(wrap(flip, gen))

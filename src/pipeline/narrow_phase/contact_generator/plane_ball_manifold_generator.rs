@@ -11,7 +11,6 @@ use std::marker::PhantomData;
 /// Collision detector between g1 plane and g1 shape implementing the `SupportMap` trait.
 #[derive(Clone)]
 pub struct PlaneBallManifoldGenerator<N: RealField> {
-    flip: bool,
     phantom: PhantomData<N>,
 }
 
@@ -19,9 +18,8 @@ impl<N: RealField> PlaneBallManifoldGenerator<N> {
     /// Creates g1 new persistent collision detector between g1 plane and g1 shape with g1 support
     /// mapping function.
     #[inline]
-    pub fn new(flip: bool) -> PlaneBallManifoldGenerator<N> {
+    pub fn new() -> PlaneBallManifoldGenerator<N> {
         PlaneBallManifoldGenerator {
-            flip,
             phantom: PhantomData,
         }
     }
@@ -36,7 +34,6 @@ impl<N: RealField> PlaneBallManifoldGenerator<N> {
         proc2: Option<&dyn ContactPreprocessor<N>>,
         prediction: &ContactPrediction<N>,
         manifold: &mut ContactManifold<N>,
-        flip: bool,
     ) -> bool {
         if let (Some(plane), Some(ball)) = (g1.as_shape::<Plane<N>>(), g2.as_shape::<Ball<N>>()) {
             let plane_normal = m1 * plane.normal();
@@ -61,19 +58,11 @@ impl<N: RealField> PlaneBallManifoldGenerator<N> {
                 let approx_ball = NeighborhoodGeometry::Point;
                 let approx_plane = NeighborhoodGeometry::Plane(*plane.normal());
 
-                if !flip {
-                    contact = Contact::new(world1, world2, plane_normal, depth);
-                    kinematic.set_approx1(f1, local1, approx_plane);
-                    kinematic.set_approx2(f2, local2, approx_ball);
-                    kinematic.set_dilation2(ball.radius());
-                    let _ = manifold.push(contact, kinematic, Point::origin(), proc1, proc2);
-                } else {
-                    contact = Contact::new(world2, world1, -plane_normal, depth);
-                    kinematic.set_approx1(f2, local2, approx_ball);
-                    kinematic.set_dilation1(ball.radius());
-                    kinematic.set_approx2(f1, local1, approx_plane);
-                    let _ = manifold.push(contact, kinematic, Point::origin(), proc2, proc1);
-                }
+                contact = Contact::new(world1, world2, plane_normal, depth);
+                kinematic.set_approx1(f1, local1, approx_plane);
+                kinematic.set_approx2(f2, local2, approx_ball);
+                kinematic.set_dilation2(ball.radius());
+                let _ = manifold.push(contact, kinematic, Point::origin(), proc1, proc2);
             }
 
             true
@@ -97,10 +86,6 @@ impl<N: RealField> ContactManifoldGenerator<N> for PlaneBallManifoldGenerator<N>
         prediction: &ContactPrediction<N>,
         manifold: &mut ContactManifold<N>,
     ) -> bool {
-        if !self.flip {
-            Self::do_update_to(m1, g1, proc1, m2, g2, proc2, prediction, manifold, false)
-        } else {
-            Self::do_update_to(m2, g2, proc2, m1, g1, proc1, prediction, manifold, true)
-        }
+        Self::do_update_to(m1, g1, proc1, m2, g2, proc2, prediction, manifold)
     }
 }
