@@ -18,7 +18,7 @@ use crate::pipeline::object::{
     CollisionGroups, CollisionObject, CollisionObjectSet, CollisionObjectSlab,
     CollisionObjectSlabHandle, CollisionObjects, GeometricQueryType,
 };
-use crate::query::{self, ContactManifold, Proximity, Ray, TOI};
+use crate::query::{ContactManifold, DefaultTOIDispatcher, Proximity, Ray, TOIDispatcher, TOI};
 use crate::shape::{Shape, ShapeHandle};
 
 /// Type of the broad phase trait-object used by the collision world.
@@ -32,6 +32,8 @@ pub struct CollisionWorld<N: RealField, T> {
     pub broad_phase: BroadPhaseObject<N>,
     /// The narrow-phase used by this collision world.
     pub narrow_phase: NarrowPhase<N, CollisionObjectSlabHandle>,
+    /// The Time of Impact dispatcher used.
+    pub toi_dispatcher: Box<dyn TOIDispatcher<N>>,
     /// The graph of interactions detected so far.
     pub interactions: InteractionGraph<N, CollisionObjectSlabHandle>,
     /// A user-defined broad-phase pair filter.
@@ -46,6 +48,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
         let objects = CollisionObjectSlab::new();
         let coll_dispatcher = Box::new(DefaultContactDispatcher::new());
         let prox_dispatcher = Box::new(DefaultProximityDispatcher::new());
+        let toi_dispatcher = Box::new(DefaultTOIDispatcher);
         let broad_phase =
             Box::new(DBVTBroadPhase::<N, AABB<N>, CollisionObjectSlabHandle>::new(margin));
         let narrow_phase = NarrowPhase::new(coll_dispatcher, prox_dispatcher);
@@ -55,6 +58,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
             objects,
             broad_phase,
             narrow_phase,
+            toi_dispatcher,
             pair_filters: None,
         }
     }
@@ -319,19 +323,22 @@ impl<N: RealField, T> CollisionWorld<N, T> {
         // FIXME: avoid allocation.
         let interferences: Vec<_> = self.interferences_with_aabb(&aabb, groups).collect();
 
+        let dispatcher = &*self.toi_dispatcher;
         interferences.into_iter().filter_map(move |(handle, x)| {
-            query::time_of_impact(
-                &isometry,
-                &direction,
-                shape,
-                x.position(),
-                &Vector::zeros(),
-                x.shape().as_ref(),
-                N::max_value(),
-                N::zero(),
-            )
-            .unwrap_or(None)
-            .map(|toi| (handle, toi))
+            dispatcher
+                .time_of_impact(
+                    dispatcher,
+                    &isometry,
+                    &direction,
+                    shape,
+                    x.position(),
+                    &Vector::zeros(),
+                    x.shape().as_ref(),
+                    N::max_value(),
+                    N::zero(),
+                )
+                .unwrap_or(None)
+                .map(|toi| (handle, toi))
         })
     }
 

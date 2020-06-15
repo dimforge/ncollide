@@ -11,6 +11,7 @@ fn test_ball_ball_toi() {
     let m2 = Isometry3::new(Vector3::new(0.0, 10.0, 0.0), na::zero());
 
     let cast = query::time_of_impact(
+        &query::DefaultTOIDispatcher,
         &m1,
         &Vector3::new(0.0, 10.0, 0.0),
         &b,
