@@ -1,7 +1,7 @@
 use na::{RealField, Unit};
 
 use crate::math::{Isometry, Point, Vector};
-use crate::query::{self, Unsupported};
+use crate::query::{self, TOIDispatcher, Unsupported};
 use crate::shape::{Ball, Plane, Shape};
 use crate::utils::IsometryOps;
 
@@ -64,6 +64,7 @@ impl<N: RealField> TOI<N> {
 ///
 /// Returns `0.0` if the objects are touching or penetrating.
 pub fn time_of_impact<N: RealField>(
+    dispatcher: &dyn TOIDispatcher<N>,
     m1: &Isometry<N>,
     vel1: &Vector<N>,
     g1: &dyn Shape<N>,
@@ -127,6 +128,7 @@ pub fn time_of_impact<N: RealField>(
         ))
     } else if let Some(c1) = g1.as_composite_shape() {
         Ok(query::time_of_impact_composite_shape_shape(
+            dispatcher,
             m1,
             vel1,
             c1,
@@ -138,6 +140,7 @@ pub fn time_of_impact<N: RealField>(
         ))
     } else if let Some(c2) = g2.as_composite_shape() {
         Ok(query::time_of_impact_shape_composite_shape(
+            dispatcher,
             m1,
             vel1,
             g1,

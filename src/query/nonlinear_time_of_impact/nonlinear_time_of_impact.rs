@@ -1,14 +1,15 @@
 use na::RealField;
 
 use crate::interpolation::RigidMotion;
-use crate::query::{self, Unsupported, TOI};
+use crate::query::{self, TOIDispatcher, Unsupported, TOI};
 use crate::shape::{Ball, Shape};
 
 /// Computes the smallest time of impact of two shapes under translational movement.
 pub fn nonlinear_time_of_impact<N: RealField>(
-    motion1: &(impl RigidMotion<N> + ?Sized),
+    dispatcher: &dyn TOIDispatcher<N>,
+    motion1: &dyn RigidMotion<N>,
     g1: &dyn Shape<N>,
-    motion2: &(impl RigidMotion<N> + ?Sized),
+    motion2: &dyn RigidMotion<N>,
     g2: &dyn Shape<N>,
     max_toi: N,
     target_distance: N,
@@ -33,6 +34,7 @@ pub fn nonlinear_time_of_impact<N: RealField>(
         ))
     } else if let Some(c1) = g1.as_composite_shape() {
         Ok(query::nonlinear_time_of_impact_composite_shape_shape(
+            dispatcher,
             motion1,
             c1,
             motion2,
@@ -42,6 +44,7 @@ pub fn nonlinear_time_of_impact<N: RealField>(
         ))
     } else if let Some(c2) = g2.as_composite_shape() {
         Ok(query::nonlinear_time_of_impact_shape_composite_shape(
+            dispatcher,
             motion1,
             g1,
             motion2,

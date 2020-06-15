@@ -2,12 +2,13 @@ use crate::bounding_volume::bounding_volume::BoundingVolume;
 use crate::bounding_volume::AABB;
 use crate::math::{Isometry, Point, Vector};
 use crate::partitioning::{BestFirstVisitStatus, BestFirstVisitor};
-use crate::query::{self, Ray, RayCast, TOI};
+use crate::query::{Ray, RayCast, TOIDispatcher, TOI};
 use crate::shape::{CompositeShape, Shape};
 use na::{self, RealField};
 
 /// Time Of Impact of a composite shape with any other shape, under translational movement.
 pub fn time_of_impact_composite_shape_shape<N, G1: ?Sized>(
+    dispatcher: &dyn TOIDispatcher<N>,
     m1: &Isometry<N>,
     vel1: &Vector<N>,
     g1: &G1,
@@ -22,6 +23,7 @@ where
     G1: CompositeShape<N>,
 {
     let mut visitor = CompositeShapeAgainstAnyTOIVisitor::new(
+        dispatcher,
         m1,
         vel1,
         g1,
@@ -36,6 +38,7 @@ where
 
 /// Time Of Impact of any shape with a composite shape, under translational movement.
 pub fn time_of_impact_shape_composite_shape<N, G2: ?Sized>(
+    dispatcher: &dyn TOIDispatcher<N>,
     m1: &Isometry<N>,
     vel1: &Vector<N>,
     g1: &dyn Shape<N>,
@@ -49,11 +52,22 @@ where
     N: RealField,
     G2: CompositeShape<N>,
 {
-    time_of_impact_composite_shape_shape(m2, vel2, g2, m1, vel1, g1, max_toi, target_distance)
-        .map(|toi| toi.swapped())
+    time_of_impact_composite_shape_shape(
+        dispatcher,
+        m2,
+        vel2,
+        g2,
+        m1,
+        vel1,
+        g1,
+        max_toi,
+        target_distance,
+    )
+    .map(|toi| toi.swapped())
 }
 
 struct CompositeShapeAgainstAnyTOIVisitor<'a, N: 'a + RealField, G1: ?Sized + 'a> {
+    dispatcher: &'a dyn TOIDispatcher<N>,
     msum_shift: Vector<N>,
     msum_margin: Vector<N>,
     ray: Ray<N>,
@@ -74,6 +88,7 @@ where
     G1: CompositeShape<N>,
 {
     pub fn new(
+        dispatcher: &'a dyn TOIDispatcher<N>,
         m1: &'a Isometry<N>,
         vel1: &'a Vector<N>,
         g1: &'a G1,
@@ -87,6 +102,7 @@ where
         let ls_aabb2 = g2.aabb(&ls_m2).loosened(target_distance);
 
         CompositeShapeAgainstAnyTOIVisitor {
+            dispatcher,
             msum_shift: -ls_aabb2.center().coords,
             msum_margin: ls_aabb2.half_extents(),
             ray: Ray::new(
@@ -140,17 +156,20 @@ where
             if let Some(b) = data {
                 if toi < best {
                     self.g1.map_part_at(*b, self.m1, &mut |m1, g1| {
-                        if let Some(toi) = query::time_of_impact(
-                            m1,
-                            self.vel1,
-                            g1,
-                            self.m2,
-                            self.vel2,
-                            self.g2,
-                            self.max_toi,
-                            self.target_distance,
-                        )
-                        .unwrap_or(None)
+                        if let Some(toi) = self
+                            .dispatcher
+                            .time_of_impact(
+                                self.dispatcher,
+                                m1,
+                                self.vel1,
+                                g1,
+                                self.m2,
+                                self.vel2,
+                                self.g2,
+                                self.max_toi,
+                                self.target_distance,
+                            )
+                            .unwrap_or(None)
                         {
                             if toi.toi > self.max_toi {
                                 res = BestFirstVisitStatus::Stop;
