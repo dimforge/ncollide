@@ -22,11 +22,6 @@ struct FaceId<N: RealField> {
 impl<N: RealField> FaceId<N> {
     fn new(id: usize, neg_dist: N) -> Option<Self> {
         if neg_dist > gjk::eps_tol() {
-            //            println!(
-            //                "EPA: the origin was outside of the CSO: {} > tolerence ({})",
-            //                neg_dist,
-            //                gjk::eps_tol::<N>()
-            //            );
             None
         } else {
             Some(FaceId { id, neg_dist })
@@ -345,7 +340,6 @@ impl<N: RealField> EPA<N> {
 
             niter += 1;
             if niter > 10000 {
-                //                println!("EPA did not converge after 1000 iterations… stopping the iterations.");
                 return None;
             }
         }

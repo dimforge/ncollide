@@ -171,7 +171,6 @@ where
         }
         niter += 1;
         if niter == 10000 {
-            //            eprintln!("Error: GJK did not converge.");
             return GJKResult::NoIntersection(Vector::x_axis());
         }
     }
@@ -358,7 +357,6 @@ where
 
         niter += 1;
         if niter == 10000 {
-            //            eprintln!("Error: GJK did not converge.");
             return None;
         }
     }
