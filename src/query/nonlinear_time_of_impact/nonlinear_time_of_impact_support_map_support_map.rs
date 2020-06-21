@@ -100,7 +100,6 @@ where
                     let max_target_distance = target_distance + rel_tol;
 
                     loop {
-                        //                        println!("Curr toi range: [{}, {}], dist: {}, separator: {}", min_t, max_t, dist, *dir);
                         // FIXME: use the secant method too for finding the next iterate.
                         if dist < min_target_distance {
                             // Too close or penetration, go back in time.
