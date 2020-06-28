@@ -330,6 +330,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
                 N::max_value(),
                 N::zero(),
             )
+            .unwrap_or(None)
             .map(|toi| (handle, toi))
         })
     }

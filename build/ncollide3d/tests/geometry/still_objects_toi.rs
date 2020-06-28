@@ -35,6 +35,7 @@ fn collide(v_y: f32) -> Option<f32> {
         std::f32::MAX,
         0.0,
     )
+    .unwrap()
     .map(|toi| toi.toi)
 }
 

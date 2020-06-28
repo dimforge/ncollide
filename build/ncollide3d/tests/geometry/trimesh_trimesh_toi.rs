@@ -46,6 +46,7 @@ fn do_toi_test() -> Option<f64> {
         std::f64::MAX,
         0.0,
     )
+    .unwrap()
     .map(|toi| toi.toi)
 }
 

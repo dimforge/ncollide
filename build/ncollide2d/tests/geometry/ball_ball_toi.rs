@@ -19,7 +19,8 @@ fn test_ball_ball_toi() {
         &b,
         std::f64::MAX,
         0.0,
-    );
+    )
+    .unwrap();
 
     assert_eq!(cast.unwrap().toi, 0.9);
 }
