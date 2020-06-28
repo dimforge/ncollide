@@ -17,7 +17,8 @@ fn ball_triangle_toi_infinite_loop_issue() {
     let m2 = Isometry3::new(Vector3::new(11.5, 5.5, 0.0), na::zero());
     let dir = Vector3::new(0.0, 0.000000000000000000000000000000000000000006925, 0.0);
 
-    let cast = query::time_of_impact(&m1, &dir, &b, &m2, &na::zero(), &t, std::f32::MAX, 0.0);
+    let cast =
+        query::time_of_impact(&m1, &dir, &b, &m2, &na::zero(), &t, std::f32::MAX, 0.0).unwrap();
 
     println!("TOI: {:?}", cast);
     assert!(cast.is_none()); // The provided velocity is too small.

@@ -151,7 +151,9 @@ where
                                 self.g2,
                                 self.max_toi,
                                 self.target_distance,
-                            ) {
+                            )
+                            .unwrap_or(None)
+                            {
                                 res = BestFirstVisitStatus::Continue {
                                     cost: toi.toi,
                                     result: Some(toi),

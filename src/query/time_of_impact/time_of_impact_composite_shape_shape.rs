@@ -149,7 +149,9 @@ where
                             self.g2,
                             self.max_toi,
                             self.target_distance,
-                        ) {
+                        )
+                        .unwrap_or(None)
+                        {
                             if toi.toi > self.max_toi {
                                 res = BestFirstVisitStatus::Stop;
                             } else {

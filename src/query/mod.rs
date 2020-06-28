@@ -28,6 +28,7 @@
 pub use self::closest_points::*;
 pub use self::contact::*;
 pub use self::distance::*;
+pub use self::error::*;
 pub use self::nonlinear_time_of_impact::*;
 pub use self::point::*;
 pub use self::proximity::*;
@@ -38,6 +39,7 @@ pub mod algorithms;
 mod closest_points;
 mod contact;
 mod distance;
+mod error;
 mod nonlinear_time_of_impact;
 mod point;
 mod proximity;
