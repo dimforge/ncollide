@@ -7,7 +7,7 @@ pub use self::composite_shape_composite_shape_manifold_generator::CompositeShape
 pub use self::composite_shape_shape_manifold_generator::CompositeShapeShapeManifoldGenerator;
 #[doc(inline)]
 pub use self::contact_manifold_generator::{
-    ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator,
+    ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator, FlippedContactManifoldGenerator,
 };
 pub use self::convex_polyhedron_convex_polyhedron_manifold_generator::ConvexPolyhedronConvexPolyhedronManifoldGenerator;
 pub use self::default_contact_dispatcher::DefaultContactDispatcher;

@@ -36,6 +36,7 @@ pub struct ContactManifold<N: RealField> {
     deepest: usize,
     contacts: Slab<(TrackedContact<N>, usize)>,
     cache: ContactCache<N>,
+    flip_new_contacts: bool,
 }
 
 impl<N: RealField> ContactManifold<N> {
@@ -49,6 +50,7 @@ impl<N: RealField> ContactManifold<N> {
             persistence: 1,
             contacts: Slab::new(),
             cache: ContactCache::DistanceBased(Vec::new(), na::convert(0.02)),
+            flip_new_contacts: false,
         }
     }
 
@@ -170,14 +172,19 @@ impl<N: RealField> ContactManifold<N> {
         preprocessor1: Option<&dyn ContactPreprocessor<N>>,
         preprocessor2: Option<&dyn ContactPreprocessor<N>>,
     ) -> bool {
+        if self.flip_new_contacts {
+            contact.flip();
+            kinematic.flip();
+        }
+
         if let Some(pp) = preprocessor1 {
-            if !pp.process_contact(&mut contact, &mut kinematic, true) {
+            if !pp.process_contact(&mut contact, &mut kinematic, !self.flip_new_contacts) {
                 return false;
             }
         }
 
         if let Some(pp) = preprocessor2 {
-            if !pp.process_contact(&mut contact, &mut kinematic, false) {
+            if !pp.process_contact(&mut contact, &mut kinematic, self.flip_new_contacts) {
                 return false;
             }
         }
@@ -273,5 +280,10 @@ impl<N: RealField> ContactManifold<N> {
                 }
             }
         }
+    }
+
+    /// Toggle whether `push` flips contacts
+    pub(crate) fn flip_new_contacts(&mut self) {
+        self.flip_new_contacts ^= true;
     }
 }

@@ -9,7 +9,7 @@ pub use self::contact_generator::{
     CompositeShapeCompositeShapeManifoldGenerator, CompositeShapeShapeManifoldGenerator,
     ContactAlgorithm, ContactDispatcher, ContactManifoldGenerator,
     ConvexPolyhedronConvexPolyhedronManifoldGenerator, DefaultContactDispatcher,
-    HeightFieldShapeManifoldGenerator, PlaneBallManifoldGenerator,
+    FlippedContactManifoldGenerator, HeightFieldShapeManifoldGenerator, PlaneBallManifoldGenerator,
     PlaneConvexPolyhedronManifoldGenerator,
 };
 pub use self::events::{ContactEvent, ContactEvents, EventPool, ProximityEvent, ProximityEvents};
