@@ -33,10 +33,10 @@ pub fn contact_ball_convex_polyhedron<N: RealField>(
     let normal;
     if let Some((dir, dist)) = Unit::try_new_and_get(dpt, N::default_epsilon()) {
         if proj.is_inside {
-            depth = dist + ball1.radius();
+            depth = dist + ball1.radius;
             normal = -dir;
         } else {
-            depth = -dist + ball1.radius();
+            depth = -dist + ball1.radius;
             normal = dir;
         }
     } else {
@@ -50,7 +50,7 @@ pub fn contact_ball_convex_polyhedron<N: RealField>(
     }
 
     if depth >= -prediction {
-        let world1 = ball_center1 + normal.into_inner() * ball1.radius();
+        let world1 = ball_center1 + normal.into_inner() * ball1.radius;
         return Some(Contact::new(world1, world2, normal, depth));
     }
 
