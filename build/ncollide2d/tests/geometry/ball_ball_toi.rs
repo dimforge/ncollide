@@ -11,6 +11,7 @@ fn test_ball_ball_toi() {
     let m2 = Isometry2::new(Vector2::new(0.0, 10.0), na::zero());
 
     let cast = query::time_of_impact(
+        &query::DefaultTOIDispatcher,
         &m1,
         &Vector2::new(0.0, 10.0),
         &b,
@@ -19,7 +20,8 @@ fn test_ball_ball_toi() {
         &b,
         std::f64::MAX,
         0.0,
-    );
+    )
+    .unwrap();
 
     assert_eq!(cast.unwrap().toi, 0.9);
 }

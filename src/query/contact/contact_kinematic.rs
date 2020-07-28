@@ -253,8 +253,6 @@ impl<N: RealField> ContactKinematic<N> {
                             &-n,
                         )
                     {
-                        //                        println!("Is in tangent cone 3.");
-
                         depth = d;
                         normal = -n;
                     } else {
@@ -283,8 +281,6 @@ impl<N: RealField> ContactKinematic<N> {
                             &-n,
                         )
                     {
-                        //                        println!("Is in tangent cone 4.");
-
                         depth = d;
                         normal = -n;
                     } else {
@@ -316,7 +312,6 @@ impl<N: RealField> ContactKinematic<N> {
                             &-n,
                         )
                     {
-                        //                        println!("Is in tangent cone 5.");
                         depth = d;
                         normal = -n;
                     } else {
@@ -346,8 +341,6 @@ impl<N: RealField> ContactKinematic<N> {
                             &-n,
                         )
                     {
-                        //                        println!("Is in tangent cone 6.");
-
                         depth = d;
                         normal = -n;
                     } else {
@@ -364,7 +357,6 @@ impl<N: RealField> ContactKinematic<N> {
             }
         }
 
-        //        println!("Before margin: {:?}", Contact::new(world1, world2, normal, depth));
         world1 += normal.into_inner() * self.margin1;
         world2 += normal.into_inner() * (-self.margin2);
         depth += self.margin1 + self.margin2;

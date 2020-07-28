@@ -37,6 +37,7 @@ fn do_toi_test() -> Option<f64> {
     let vel_two = Vector3::new(0.0, 0.0, 0.0);
 
     query::time_of_impact(
+        &query::DefaultTOIDispatcher,
         &transform_one,
         &vel_one,
         &shape_one,
@@ -46,6 +47,7 @@ fn do_toi_test() -> Option<f64> {
         std::f64::MAX,
         0.0,
     )
+    .unwrap()
     .map(|toi| toi.toi)
 }
 

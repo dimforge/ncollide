@@ -1,5 +1,5 @@
 use na::{self, Isometry3, Vector3};
-use ncollide3d::query::time_of_impact;
+use ncollide3d::query::{time_of_impact, DefaultTOIDispatcher};
 use ncollide3d::shape::Cuboid;
 
 /**
@@ -26,6 +26,7 @@ fn collide(v_y: f32) -> Option<f32> {
     let cuboid = Cuboid::new(Vector3::new(0.5, 0.5, 0.5));
 
     time_of_impact(
+        &DefaultTOIDispatcher,
         &pos1,
         &vel1,
         &cuboid,
@@ -35,6 +36,7 @@ fn collide(v_y: f32) -> Option<f32> {
         std::f32::MAX,
         0.0,
     )
+    .unwrap()
     .map(|toi| toi.toi)
 }
 

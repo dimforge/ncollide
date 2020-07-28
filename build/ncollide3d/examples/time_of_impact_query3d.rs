@@ -20,6 +20,7 @@ fn main() {
     let ball_vel2 = Vector3::new(-0.5, -0.5, -0.5);
 
     let toi_intersecting = query::time_of_impact(
+        &query::DefaultTOIDispatcher,
         &ball_pos_intersecting,
         &ball_vel1,
         &ball,
@@ -28,8 +29,10 @@ fn main() {
         &cuboid,
         std::f64::MAX,
         0.0,
-    );
+    )
+    .unwrap();
     let toi_will_touch = query::time_of_impact(
+        &query::DefaultTOIDispatcher,
         &ball_pos_will_touch,
         &ball_vel2,
         &ball,
@@ -38,8 +41,10 @@ fn main() {
         &cuboid,
         std::f64::MAX,
         0.0,
-    );
+    )
+    .unwrap();
     let toi_wont_touch = query::time_of_impact(
+        &query::DefaultTOIDispatcher,
         &ball_pos_wont_touch,
         &ball_vel1,
         &ball,
@@ -48,7 +53,8 @@ fn main() {
         &cuboid,
         std::f64::MAX,
         0.0,
-    );
+    )
+    .unwrap();
 
     assert_eq!(toi_intersecting.map(|toi| toi.toi), Some(0.0));
     assert!(toi_will_touch.is_some() && toi_will_touch.unwrap().toi > 0.0);

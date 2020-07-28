@@ -28,19 +28,23 @@
 pub use self::closest_points::*;
 pub use self::contact::*;
 pub use self::distance::*;
+pub use self::error::*;
 pub use self::nonlinear_time_of_impact::*;
 pub use self::point::*;
 pub use self::proximity::*;
 pub use self::ray::*;
 pub use self::time_of_impact::*;
+pub use self::toi_dispatcher::*;
 
 pub mod algorithms;
 mod closest_points;
 mod contact;
 mod distance;
+mod error;
 mod nonlinear_time_of_impact;
 mod point;
 mod proximity;
 mod ray;
 mod time_of_impact;
+mod toi_dispatcher;
 pub mod visitors;
