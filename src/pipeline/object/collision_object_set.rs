@@ -60,6 +60,13 @@ impl<N: RealField, T> CollisionObjectSlab<N, T> {
         }
     }
 
+    /// Constructs a new empty collection with the specified capacity.
+    pub fn with_capacity(capacity: usize) -> CollisionObjectSlab<N, T> {
+        CollisionObjectSlab {
+            objects: Slab::with_capacity(capacity),
+        }
+    }
+
     /// Inserts a new collision object into this collection and returns the corresponding handle.
     #[inline]
     pub fn insert(&mut self, co: CollisionObject<N, T>) -> CollisionObjectSlabHandle {
@@ -135,6 +142,26 @@ impl<N: RealField, T> CollisionObjectSlab<N, T> {
     #[inline]
     pub fn len(&self) -> usize {
         self.objects.len()
+    }
+
+    /// Return the number of values the slab can store without reallocating.
+    #[inline]
+    pub fn capacity(&self) -> usize {
+        self.objects.capacity()
+    }
+
+    /// Reserve capacity for at least `additional` more values to be stored
+    /// without allocating.
+    #[inline]
+    pub fn reserve(&mut self, additional: usize) {
+        self.objects.reserve(additional);
+    }
+
+    /// Reserve the minimum capacity required to store exactly `additional`
+    /// more values.
+    #[inline]
+    pub fn reserve_exact(&mut self, additional: usize) {
+        self.objects.reserve_exact(additional);
     }
 }
 
