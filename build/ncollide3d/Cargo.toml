@@ -9,7 +9,7 @@ homepage = "http://ncollide.org"
 repository = "https://github.com/rustsim/ncollide"
 readme = "README.md"
 keywords = [ "collision", "geometry", "distance", "ray", "convex" ]
-license = "BSD-3-Clause"
+license = "Apache-2.0"
 edition = "2018"
 
 [features]

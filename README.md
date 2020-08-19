@@ -8,8 +8,8 @@
     <a href="https://crates.io/crates/ncollide3d">
          <img src="http://meritbadge.herokuapp.com/ncollide3d?style=flat-square" alt="crates.io">
     </a>
-    <a href="https://circleci.com/gh/rustsim/ncollide">
-        <img src="https://circleci.com/gh/rustsim/ncollide.svg?style=svg" alt="Build status">
+    <a href="https://circleci.com/gh/dimforge/ncollide">
+        <img src="https://circleci.com/gh/dimforge/ncollide.svg?style=svg" alt="Build status">
     </a>
 </p>
 <p align = "center">
@@ -51,10 +51,3 @@ ncollide3d = "0.23" # For 3D collision detection.
   yet implemented)
 
 And various traits for collision detectors and broad phase collision detection.
-
-## Contribution
-Pull requests and issues are very welcome. In addition, click this button if you which to donate to support the development of <b>ncollide</b>:
-
-<p align = "center">
-    <a href="https://www.patreon.com/bePatron?u=7111380" ><img src="https://c5.patreon.com/external/logo/become_a_patron_button.png" alt="Become a Patron!" /></a>
-</p>
