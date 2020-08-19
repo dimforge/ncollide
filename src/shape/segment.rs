@@ -114,8 +114,9 @@ impl<N: RealField> Segment<N> {
         Unit::try_new(self.scaled_normal(), N::default_epsilon())
     }
 
+    /// Returns `None`. Exists only for API similarity with the 2D ncollide.
     #[cfg(feature = "dim3")]
-    pub(crate) fn normal(&self) -> Option<Unit<Vector<N>>> {
+    pub fn normal(&self) -> Option<Unit<Vector<N>>> {
         None
     }
 
