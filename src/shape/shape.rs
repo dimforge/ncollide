@@ -166,6 +166,11 @@ impl<N: RealField> ShapeHandle<N> {
         ShapeHandle(shape)
     }
 
+    /// Gets a reference the `Arc` refcounted shape object.
+    pub fn as_arc(&self) -> &Arc<dyn Shape<N>> {
+        &self.0
+    }
+
     pub(crate) fn make_mut(&mut self) -> &mut dyn Shape<N> {
         if Arc::get_mut(&mut self.0).is_none() {
             let unique_self = self.0.clone_arc();
