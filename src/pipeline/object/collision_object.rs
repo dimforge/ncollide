@@ -115,6 +115,7 @@ pub trait CollisionObjectRef<N: RealField> {
 
 /// The unique identifier of a collision object stored in a `CollisionObjectSlab` structure.
 #[derive(Copy, Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[repr(transparent)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct CollisionObjectSlabHandle(pub usize);
 
