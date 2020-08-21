@@ -111,9 +111,9 @@ impl<N: RealField> TriMesh<N> {
         .collect();
         let mut faces = Vec::with_capacity(indices.len());
 
-        let edges = Self::edges_list(&indices);
-        let adj_face_list = Self::adj_face_list(&indices, &mut vertices);
-        let adj_vertex_list = Self::adj_vertex_list(&edges, &mut vertices);
+        let edges = Self::create_edges_list(&indices);
+        let adj_face_list = Self::create_adj_face_list(&indices, &mut vertices);
+        let adj_vertex_list = Self::create_adj_vertex_list(&edges, &mut vertices);
 
         {
             let is = &*indices;
@@ -196,7 +196,7 @@ impl<N: RealField> TriMesh<N> {
         }
     }
 
-    fn edges_list(indices: &[Point3<usize>]) -> Vec<TriMeshEdge> {
+    fn create_edges_list(indices: &[Point3<usize>]) -> Vec<TriMeshEdge> {
         let mut edges = HashMap::with_hasher(DeterministicState::new());
 
         fn key(a: usize, b: usize) -> (usize, usize) {
@@ -255,7 +255,7 @@ impl<N: RealField> TriMesh<N> {
         edges.values().cloned().collect()
     }
 
-    fn adj_vertex_list(edges: &[TriMeshEdge], vertices: &mut [TriMeshVertex]) -> Vec<usize> {
+    fn create_adj_vertex_list(edges: &[TriMeshEdge], vertices: &mut [TriMeshVertex]) -> Vec<usize> {
         let mut num_neighbors: Vec<usize> = iter::repeat(0).take(vertices.len()).collect();
 
         for e in edges {
@@ -292,7 +292,10 @@ impl<N: RealField> TriMesh<N> {
         adj_vertex_list
     }
 
-    fn adj_face_list(indices: &[Point3<usize>], vertices: &mut [TriMeshVertex]) -> Vec<usize> {
+    fn create_adj_face_list(
+        indices: &[Point3<usize>],
+        vertices: &mut [TriMeshVertex],
+    ) -> Vec<usize> {
         let mut num_neighbors: Vec<usize> = iter::repeat(0).take(vertices.len()).collect();
 
         for idx in indices {
@@ -424,6 +427,22 @@ impl<N: RealField> TriMesh<N> {
     #[inline]
     pub fn uvs(&self) -> Option<&[Point2<N>]> {
         self.uvs.as_ref().map(|uvs| &uvs[..])
+    }
+
+    /// The adjacent vertices list of this mesh.
+    ///
+    /// Use `TriMeshVertex.adj_vertices` to index this. Elements are indexes into the `vertices` list.
+    #[inline]
+    pub fn adj_vertex_list(&self) -> &[usize] {
+        &self.adj_vertex_list
+    }
+
+    /// The adjacent vertices list of this mesh.
+    ///
+    /// Use `TriMeshVertex.adj_faces` to index this. Elements are indexes into the `faces` list.
+    #[inline]
+    pub fn adj_face_list(&self) -> &[usize] {
+        &self.adj_face_list
     }
 
     /// Gets the i-th mesh element.
