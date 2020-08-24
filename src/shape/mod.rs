@@ -37,7 +37,7 @@ pub use self::support_map::SupportMap;
 pub use self::tetrahedron::{Tetrahedron, TetrahedronPointLocation};
 pub use self::triangle::{Triangle, TrianglePointLocation};
 #[cfg(feature = "dim3")]
-pub use self::trimesh::{TriMesh, TriMeshFace};
+pub use self::trimesh::{FaceAdjacentToEdge, TriMesh, TriMeshEdge, TriMeshFace, TriMeshVertex};
 
 mod ball;
 mod capsule;
