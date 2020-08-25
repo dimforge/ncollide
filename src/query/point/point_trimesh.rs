@@ -17,10 +17,23 @@ impl<N: RealField> PointQuery<N> for TriMesh<N> {
     #[inline]
     fn project_point_with_feature(
         &self,
-        _: &Isometry<N>,
-        _: &Point<N>,
+        m: &Isometry<N>,
+        point: &Point<N>,
     ) -> (PointProjection<N>, FeatureId) {
-        unimplemented!()
+        let (projection, (triangle_id, location)) =
+            self.project_point_with_location(m, point, false);
+        let face = &self.faces()[triangle_id];
+        let feature_id = match location {
+            TrianglePointLocation::OnVertex(triangle_local_id) => {
+                FeatureId::Vertex(face.indices[triangle_local_id])
+            }
+            TrianglePointLocation::OnEdge(triangle_local_id, _) => {
+                FeatureId::Edge(face.edges[triangle_local_id])
+            }
+            TrianglePointLocation::OnFace(_, _) => FeatureId::Face(triangle_id),
+            TrianglePointLocation::OnSolid => FeatureId::Unknown,
+        };
+        (projection, feature_id)
     }
 
     // FIXME: implement distance_to_point too?
