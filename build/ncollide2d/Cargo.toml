@@ -42,4 +42,4 @@ serde           = { version = "1.0", optional = true, features = ["derive"]}
 
 [dev-dependencies]
 rand  = { version = "0.7", default-features = false }
-simba = { version = "0.1", features = [ "partial_fixed_point_support" ] }
+simba = { version = "0.2", features = [ "partial_fixed_point_support" ] }
