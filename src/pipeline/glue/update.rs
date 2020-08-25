@@ -12,7 +12,7 @@ where
     N: RealField,
     Objects: CollisionObjectSet<N>,
     Filter:
-        BroadPhasePairFilter<N, Objects::CollisionObject, Objects::CollisionObjectHandle> + ?Sized,
+        BroadPhasePairFilter<N, Objects> + ?Sized,
 {
     narrow_phase: &'b mut NarrowPhase<N, Objects::CollisionObjectHandle>,
     interactions: &'b mut InteractionGraph<N, Objects::CollisionObjectHandle>,
@@ -26,21 +26,19 @@ impl<'a, 'b, N: RealField, Objects, Filter>
 where
     Objects: CollisionObjectSet<N>,
     Filter:
-        BroadPhasePairFilter<N, Objects::CollisionObject, Objects::CollisionObjectHandle> + ?Sized,
+        BroadPhasePairFilter<N, Objects> + ?Sized,
 {
     fn is_interference_allowed(
         &mut self,
         b1: &Objects::CollisionObjectHandle,
         b2: &Objects::CollisionObjectHandle,
     ) -> bool {
-        let o1 = try_ret!(self.objects.collision_object(*b1), false);
-        let o2 = try_ret!(self.objects.collision_object(*b2), false);
         let filter_by_groups = CollisionGroupsPairFilter;
 
-        filter_by_groups.is_pair_valid(o1, o2, *b1, *b2)
+        filter_by_groups.is_pair_valid(*b1, *b2, self.objects)
             && self
                 .pair_filters
-                .map(|f| f.is_pair_valid(o1, o2, *b1, *b2))
+                .map(|f| f.is_pair_valid(*b1, *b2, self.objects))
                 .unwrap_or(true)
     }
 
@@ -73,7 +71,7 @@ pub fn perform_broad_phase<N: RealField, Objects>(
     narrow_phase: &mut NarrowPhase<N, Objects::CollisionObjectHandle>,
     interactions: &mut InteractionGraph<N, Objects::CollisionObjectHandle>,
     pair_filters: Option<
-        &(impl BroadPhasePairFilter<N, Objects::CollisionObject, Objects::CollisionObjectHandle>
+        &(impl BroadPhasePairFilter<N, Objects>
               + ?Sized),
     >,
 ) where
@@ -127,7 +125,7 @@ pub fn perform_all_pipeline<'a, N, Objects>(
     narrow_phase: &mut NarrowPhase<N, Objects::CollisionObjectHandle>,
     interactions: &mut InteractionGraph<N, Objects::CollisionObjectHandle>,
     pair_filters: Option<
-        &'a (impl BroadPhasePairFilter<N, Objects::CollisionObject, Objects::CollisionObjectHandle>
+        &'a (impl BroadPhasePairFilter<N, Objects>
                  + ?Sized),
     >,
 ) where
