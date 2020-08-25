@@ -42,6 +42,7 @@ impl<N: RealField> HasBoundingVolume<N, AABB<N>> for Triangle<N> {
 }
 
 #[cfg(test)]
+#[cfg(feature = "dim3")]
 mod test {
     use crate::{
         bounding_volume::support_map_aabb,

@@ -56,11 +56,10 @@ extern crate approx;
 extern crate downcast_rs;
 #[macro_use]
 extern crate bitflags;
-extern crate nalgebra as na;
 extern crate num_traits as num;
 
-pub use nalgebra;
-pub use simba;
+pub extern crate nalgebra as na;
+pub extern crate simba;
 
 macro_rules! try_ret {
     ($val: expr) => {
