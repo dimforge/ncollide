@@ -1,5 +1,5 @@
 use crate::pipeline::broad_phase::BroadPhasePairFilter;
-use crate::pipeline::object::{CollisionObjectHandle, CollisionObjectRef};
+use crate::pipeline::object::{CollisionObjectRef, CollisionObjectSet};
 use na::RealField;
 
 const SELF_COLLISION: u32 = 1 << 31;
@@ -383,10 +383,13 @@ impl CollisionGroupsPairFilter {
     }
 }
 
-impl<N: RealField, Object: CollisionObjectRef<N>, Handle: CollisionObjectHandle>
-    BroadPhasePairFilter<N, Object, Handle> for CollisionGroupsPairFilter
+impl<N: RealField, Set: CollisionObjectSet<N>>
+    BroadPhasePairFilter<N, Set> for CollisionGroupsPairFilter
 {
-    fn is_pair_valid(&self, co1: &Object, co2: &Object, h1: Handle, h2: Handle) -> bool {
+    fn is_pair_valid(&self, h1: Set::CollisionObjectHandle, h2: Set::CollisionObjectHandle, s: &Set) -> bool {
+        let co1 = try_ret!(s.collision_object(h1), false);
+        let co2 = try_ret!(s.collision_object(h2), false);
+
         if h1 == h2 {
             co1.collision_groups().can_interact_with_self()
         } else {

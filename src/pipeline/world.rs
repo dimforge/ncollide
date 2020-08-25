@@ -38,7 +38,7 @@ pub struct CollisionWorld<N: RealField, T> {
     pub interactions: InteractionGraph<N, CollisionObjectSlabHandle>,
     /// A user-defined broad-phase pair filter.
     pub pair_filters:
-        Option<Box<dyn BroadPhasePairFilter<N, CollisionObject<N, T>, CollisionObjectSlabHandle>>>,
+        Option<Box<dyn BroadPhasePairFilter<N, CollisionObjectSlab<N, T>>>>,
 }
 
 impl<N: RealField, T> CollisionWorld<N, T> {
@@ -210,12 +210,12 @@ impl<N: RealField, T> CollisionWorld<N, T> {
     /// collision pairs.
     pub fn set_broad_phase_pair_filter<F>(&mut self, filter: Option<F>)
     where
-        F: BroadPhasePairFilter<N, CollisionObject<N, T>, CollisionObjectSlabHandle>,
+        F: BroadPhasePairFilter<N, CollisionObjectSlab<N, T>>,
     {
         self.pair_filters = filter.map(|f| {
             Box::new(f)
                 as Box<
-                    dyn BroadPhasePairFilter<N, CollisionObject<N, T>, CollisionObjectSlabHandle>,
+                    dyn BroadPhasePairFilter<N, CollisionObjectSlab<N, T>>,
                 >
         });
         self.broad_phase.deferred_recompute_all_proximities();
