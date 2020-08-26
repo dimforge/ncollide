@@ -383,10 +383,15 @@ impl CollisionGroupsPairFilter {
     }
 }
 
-impl<N: RealField, Set: CollisionObjectSet<N>>
-    BroadPhasePairFilter<N, Set> for CollisionGroupsPairFilter
+impl<N: RealField, Set: CollisionObjectSet<N>> BroadPhasePairFilter<N, Set>
+    for CollisionGroupsPairFilter
 {
-    fn is_pair_valid(&self, h1: Set::CollisionObjectHandle, h2: Set::CollisionObjectHandle, s: &Set) -> bool {
+    fn is_pair_valid(
+        &self,
+        h1: Set::CollisionObjectHandle,
+        h2: Set::CollisionObjectHandle,
+        s: &Set,
+    ) -> bool {
         let co1 = try_ret!(s.collision_object(h1), false);
         let co2 = try_ret!(s.collision_object(h2), false);
 
