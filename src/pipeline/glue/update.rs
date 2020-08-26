@@ -11,8 +11,7 @@ struct CollisionWorldInterferenceHandler<'a, 'b, N, Objects, Filter>
 where
     N: RealField,
     Objects: CollisionObjectSet<N>,
-    Filter:
-        BroadPhasePairFilter<N, Objects> + ?Sized,
+    Filter: BroadPhasePairFilter<N, Objects> + ?Sized,
 {
     narrow_phase: &'b mut NarrowPhase<N, Objects::CollisionObjectHandle>,
     interactions: &'b mut InteractionGraph<N, Objects::CollisionObjectHandle>,
@@ -25,8 +24,7 @@ impl<'a, 'b, N: RealField, Objects, Filter>
     for CollisionWorldInterferenceHandler<'a, 'b, N, Objects, Filter>
 where
     Objects: CollisionObjectSet<N>,
-    Filter:
-        BroadPhasePairFilter<N, Objects> + ?Sized,
+    Filter: BroadPhasePairFilter<N, Objects> + ?Sized,
 {
     fn is_interference_allowed(
         &mut self,
@@ -70,10 +68,7 @@ pub fn perform_broad_phase<N: RealField, Objects>(
     broad_phase: &mut (impl BroadPhase<N, AABB<N>, Objects::CollisionObjectHandle> + ?Sized),
     narrow_phase: &mut NarrowPhase<N, Objects::CollisionObjectHandle>,
     interactions: &mut InteractionGraph<N, Objects::CollisionObjectHandle>,
-    pair_filters: Option<
-        &(impl BroadPhasePairFilter<N, Objects>
-              + ?Sized),
-    >,
+    pair_filters: Option<&(impl BroadPhasePairFilter<N, Objects> + ?Sized)>,
 ) where
     Objects: CollisionObjectSet<N>,
 {
@@ -124,10 +119,7 @@ pub fn perform_all_pipeline<'a, N, Objects>(
     broad_phase: &mut (impl BroadPhase<N, AABB<N>, Objects::CollisionObjectHandle> + ?Sized),
     narrow_phase: &mut NarrowPhase<N, Objects::CollisionObjectHandle>,
     interactions: &mut InteractionGraph<N, Objects::CollisionObjectHandle>,
-    pair_filters: Option<
-        &'a (impl BroadPhasePairFilter<N, Objects>
-                 + ?Sized),
-    >,
+    pair_filters: Option<&'a (impl BroadPhasePairFilter<N, Objects> + ?Sized)>,
 ) where
     N: RealField,
     Objects: CollisionObjectSet<N>,
