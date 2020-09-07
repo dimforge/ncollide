@@ -381,6 +381,24 @@ impl<N: RealField> TriMesh<N> {
         for pt in &mut self.points {
             pt.coords.component_mul_assign(scale)
         }
+        //Recalculate aabb, method taken from constructor
+        let mut leaves = Vec::with_capacity(self.faces.len());
+        for (i, face) in self.faces.iter().enumerate() {
+            let triangle = Triangle::new(
+                self.points[face.indices[0]],
+                self.points[face.indices[1]],
+                self.points[face.indices[2]],
+            );
+            let bv = triangle.local_aabb();
+            leaves.push((i, bv.clone()));
+        }
+        self.bvt = BVT::new_balanced(leaves);
+
+        //don't know if neccessary here
+        // Set face.bvt_leaf
+        for (i, leaf) in self.bvt.leaves().iter().enumerate() {
+            self.faces[*leaf.data()].bvt_leaf = i;
+        }
     }
 
     /// Applies a non-uniform scale to this triangle mesh.
