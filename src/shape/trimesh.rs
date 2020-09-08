@@ -331,6 +331,25 @@ impl<N: RealField> TriMesh<N> {
         adj_face_list
     }
 
+    fn recalculate_aabb(&mut self) {
+        let mut leaves = Vec::with_capacity(self.faces.len());
+        for (i, face) in self.faces.iter().enumerate() {
+            let triangle = Triangle::new(
+                self.points[face.indices[0]],
+                self.points[face.indices[1]],
+                self.points[face.indices[2]],
+            );
+            let bv = triangle.local_aabb();
+            leaves.push((i, bv));
+        }
+        self.bvt = BVT::new_balanced(leaves);
+
+        // Set bvt leaves
+        for (i, leaf) in self.bvt.leaves().iter().enumerate() {
+            self.faces[*leaf.data()].bvt_leaf = i;
+        }
+    }
+
     /// The triangle mesh's AABB.
     #[inline]
     pub fn aabb(&self) -> &AABB<N> {
@@ -368,6 +387,7 @@ impl<N: RealField> TriMesh<N> {
         for pt in &mut self.points {
             *pt = transform * *pt
         }
+        self.recalculate_aabb();
     }
 
     /// Applies a transformation to this triangle mesh.
@@ -381,6 +401,7 @@ impl<N: RealField> TriMesh<N> {
         for pt in &mut self.points {
             pt.coords.component_mul_assign(scale)
         }
+        self.recalculate_aabb();
     }
 
     /// Applies a non-uniform scale to this triangle mesh.
