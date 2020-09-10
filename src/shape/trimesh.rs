@@ -331,7 +331,7 @@ impl<N: RealField> TriMesh<N> {
         adj_face_list
     }
 
-    fn recalculate_aabb(&mut self) {
+    fn refit_bvt(&mut self) {
         let mut leaves = Vec::with_capacity(self.faces.len());
         for (i, face) in self.faces.iter().enumerate() {
             let triangle = Triangle::new(
@@ -387,7 +387,7 @@ impl<N: RealField> TriMesh<N> {
         for pt in &mut self.points {
             *pt = transform * *pt
         }
-        self.recalculate_aabb();
+        self.refit_bvt();
     }
 
     /// Applies a transformation to this triangle mesh.
@@ -401,7 +401,7 @@ impl<N: RealField> TriMesh<N> {
         for pt in &mut self.points {
             pt.coords.component_mul_assign(scale)
         }
-        self.recalculate_aabb();
+        self.refit_bvt();
     }
 
     /// Applies a non-uniform scale to this triangle mesh.
