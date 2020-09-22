@@ -1,11 +1,8 @@
 use crate::pipeline::object::CollisionObjectSet;
 use na::RealField;
-use std::any::Any;
 
 /// A signal handler for contact detection.
-pub trait BroadPhasePairFilter<N: RealField, Set: CollisionObjectSet<N>>:
-    Any + Send + Sync
-{
+pub trait BroadPhasePairFilter<N: RealField, Set: CollisionObjectSet<N>>: Send + Sync {
     /// Activate an action for when two objects start or stop to be close to each other.
     fn is_pair_valid(
         &self,
