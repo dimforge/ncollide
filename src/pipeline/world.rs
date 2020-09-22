@@ -209,7 +209,7 @@ impl<N: RealField, T> CollisionWorld<N, T> {
     /// collision pairs.
     pub fn set_broad_phase_pair_filter<F>(&mut self, filter: Option<F>)
     where
-        F: BroadPhasePairFilter<N, CollisionObjectSlab<N, T>>,
+        F: BroadPhasePairFilter<N, CollisionObjectSlab<N, T>> + 'static,
     {
         self.pair_filters = filter
             .map(|f| Box::new(f) as Box<dyn BroadPhasePairFilter<N, CollisionObjectSlab<N, T>>>);
