@@ -234,7 +234,9 @@ impl<N: RealField> ConvexHull<N> {
                             }
                         }
 
-                        faces.push(new_face);
+                        if new_face.num_vertices_or_edges > 2 {
+                            faces.push(new_face);
+                        }
                         break;
                     }
                 }
