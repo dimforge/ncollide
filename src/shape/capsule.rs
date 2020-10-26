@@ -78,7 +78,7 @@ impl<N: RealField> SupportMap<N> for Capsule<N> {
     #[inline]
     fn local_support_point_toward(&self, dir: &Unit<Vector<N>>) -> Point<N> {
         let mut res: Vector<N> = na::zero();
-        res[1] = dir[1].copysign(self.half_height);
+        res[1] = self.half_height.copysign(dir[1]);
         Point::from(res + **dir * self.radius)
     }
 }

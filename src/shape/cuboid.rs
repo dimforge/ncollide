@@ -138,7 +138,7 @@ impl<N: RealField> SupportMap<N> for Cuboid<N> {
         let mut res = self.half_extents;
 
         for i in 0usize..DIM {
-            res[i] = dir[i].copysign(res[i]);
+            res[i] = res[i].copysign(dir[i]);
         }
 
         res.into()

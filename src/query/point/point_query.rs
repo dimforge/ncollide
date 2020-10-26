@@ -15,10 +15,7 @@ pub struct PointProjection<N: RealField> {
 impl<N: RealField> PointProjection<N> {
     /// Initializes a new `PointProjection`.
     pub fn new(is_inside: bool, point: Point<N>) -> PointProjection<N> {
-        PointProjection {
-            is_inside: is_inside,
-            point: point,
-        }
+        PointProjection { is_inside, point }
     }
 }
 
