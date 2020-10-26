@@ -15,6 +15,7 @@ pub use self::closest_points_plane_support_map::{
 pub use self::closest_points_segment_segment::{
     closest_points_segment_segment, closest_points_segment_segment_with_locations,
     closest_points_segment_segment_with_locations_nD,
+    closest_points_segment_segment_with_locations_nD_eps,
 };
 pub use self::closest_points_shape_shape::closest_points;
 pub use self::closest_points_support_map_support_map::closest_points_support_map_support_map;

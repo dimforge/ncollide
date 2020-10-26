@@ -47,6 +47,26 @@ pub fn closest_points_segment_segment_with_locations_nD<N, D>(
     seg1: (&Point<N, D>, &Point<N, D>),
     seg2: (&Point<N, D>, &Point<N, D>),
 ) -> (SegmentPointLocation<N>, SegmentPointLocation<N>)
+    where
+        N: RealField,
+        D: DimName,
+        DefaultAllocator: Allocator<N, D>,
+{
+    let res = closest_points_segment_segment_with_locations_nD_eps(seg1, seg2, N::default_epsilon());
+    (res.0, res.1)
+}
+
+/// Segment-segment closest points computation in an arbitrary dimension.
+///
+/// This returns the location of the closest points, as well as a boolean indicating
+/// if the two segments were considered parallel.
+#[allow(non_snake_case)]
+#[inline]
+pub fn closest_points_segment_segment_with_locations_nD_eps<N, D>(
+    seg1: (&Point<N, D>, &Point<N, D>),
+    seg2: (&Point<N, D>, &Point<N, D>),
+    eps: N,
+) -> (SegmentPointLocation<N>, SegmentPointLocation<N>, bool)
 where
     N: RealField,
     D: DimName,
@@ -66,17 +86,17 @@ where
 
     let mut s;
     let mut t;
+    let mut parallel = false;
 
-    let _eps = N::default_epsilon();
-    if a <= _eps && e <= _eps {
+    if a <= eps && e <= eps {
         s = _0;
         t = _0;
-    } else if a <= _eps {
+    } else if a <= eps {
         s = _0;
         t = na::clamp(f / e, _0, _1);
     } else {
         let c = d1.dot(&r);
-        if e <= _eps {
+        if e <= eps {
             t = _0;
             s = na::clamp(-c / a, _0, _1);
         } else {
@@ -85,8 +105,10 @@ where
             let bb = b * b;
             let denom = ae - bb;
 
+            parallel = denom <= eps || ulps_eq!(ae, bb);
+
             // Use absolute and ulps error to test collinearity.
-            if denom > _eps && !ulps_eq!(ae, bb) {
+            if !parallel {
                 s = na::clamp((b * f - c * e) / denom, _0, _1);
             } else {
                 s = _0;
@@ -120,5 +142,5 @@ where
         SegmentPointLocation::OnEdge([_1 - t, t])
     };
 
-    (loc1, loc2)
+    (loc1, loc2, parallel)
 }
