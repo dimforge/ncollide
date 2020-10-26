@@ -1,7 +1,7 @@
 use crate::math::{Isometry, Point, Vector};
 use crate::shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
 use crate::transformation;
-use crate::utils::{self, IsometryOps};
+use crate::utils;
 use na::{self, RealField, Unit};
 use std::f64;
 

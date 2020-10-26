@@ -3,7 +3,6 @@ use na::{RealField, Unit};
 use crate::math::{Isometry, Point, Vector};
 use crate::query::{self, TOIDispatcher, Unsupported};
 use crate::shape::{Ball, Plane, Shape};
-use crate::utils::IsometryOps;
 
 /// The status of the time-of-impact computation algorithm.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]

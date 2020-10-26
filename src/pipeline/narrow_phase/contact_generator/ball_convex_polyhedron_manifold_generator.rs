@@ -5,7 +5,6 @@ use crate::query::{
     NeighborhoodGeometry,
 };
 use crate::shape::{Ball, FeatureId, Shape};
-use crate::utils::IsometryOps;
 use na::{RealField, Unit};
 use std::marker::PhantomData;
 

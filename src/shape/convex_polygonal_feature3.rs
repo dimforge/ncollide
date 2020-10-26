@@ -7,7 +7,7 @@ use crate::query::{
     self, Contact, ContactKinematic, ContactManifold, ContactPrediction, NeighborhoodGeometry,
 };
 use crate::shape::{FeatureId, Segment, SegmentPointLocation};
-use crate::utils::{self, IsometryOps};
+use crate::utils;
 
 /// A cache used for polygonal clipping.
 #[derive(Clone)]

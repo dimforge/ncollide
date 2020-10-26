@@ -4,7 +4,6 @@ use crate::math::{Isometry, Point, Vector};
 use crate::shape::{ConvexPolygonalFeature, ConvexPolyhedron, FeatureId, SupportMap};
 #[cfg(feature = "dim2")]
 use crate::utils;
-use crate::utils::IsometryOps;
 use na::{self, RealField, Unit};
 use std::f64;
 use std::mem;

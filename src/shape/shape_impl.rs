@@ -9,7 +9,6 @@ use crate::shape::{
 };
 #[cfg(feature = "dim3")]
 use crate::shape::{ConvexHull, TriMesh, Triangle};
-use crate::utils::IsometryOps;
 use na::{RealField, Unit};
 
 macro_rules! impl_as_convex_polyhedron (

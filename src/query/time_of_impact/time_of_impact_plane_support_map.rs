@@ -3,7 +3,6 @@ use na::RealField;
 use crate::math::{Isometry, Vector};
 use crate::query::{Ray, RayCast, TOIStatus, TOI};
 use crate::shape::{Plane, SupportMap};
-use crate::utils::IsometryOps;
 
 /// Time Of Impact of a plane with a support-mapped shape under translational movement.
 pub fn time_of_impact_plane_support_map<N, G: ?Sized>(

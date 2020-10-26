@@ -47,12 +47,13 @@ pub fn closest_points_segment_segment_with_locations_nD<N, D>(
     seg1: (&Point<N, D>, &Point<N, D>),
     seg2: (&Point<N, D>, &Point<N, D>),
 ) -> (SegmentPointLocation<N>, SegmentPointLocation<N>)
-    where
-        N: RealField,
-        D: DimName,
-        DefaultAllocator: Allocator<N, D>,
+where
+    N: RealField,
+    D: DimName,
+    DefaultAllocator: Allocator<N, D>,
 {
-    let res = closest_points_segment_segment_with_locations_nD_eps(seg1, seg2, N::default_epsilon());
+    let res =
+        closest_points_segment_segment_with_locations_nD_eps(seg1, seg2, N::default_epsilon());
     (res.0, res.1)
 }
 
