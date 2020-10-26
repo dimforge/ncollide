@@ -188,6 +188,33 @@ impl<N: RealField> RayCast<N> for ConvexPolygon<N> {
     }
 }
 
+// FIXME: optimize this, we should use the general algorithm for triangles.
+#[cfg(feature = "dim2")]
+impl<N: RealField> RayCast<N> for crate::shape::Triangle<N> {
+    fn toi_and_normal_with_ray(
+        &self,
+        m: &Isometry<N>,
+        ray: &Ray<N>,
+        max_toi: N,
+        solid: bool,
+    ) -> Option<RayIntersection<N>> {
+        let ls_ray = ray.inverse_transform_by(m);
+
+        ray_intersection_with_support_map_with_params(
+            &Isometry::identity(),
+            self,
+            &mut VoronoiSimplex::new(),
+            &ls_ray,
+            max_toi,
+            solid,
+        )
+        .map(|mut res| {
+            res.normal = m * res.normal;
+            res
+        })
+    }
+}
+
 #[allow(unused_variables)]
 impl<N: RealField> RayCast<N> for Segment<N> {
     fn toi_and_normal_with_ray(
