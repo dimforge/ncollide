@@ -1,7 +1,6 @@
 use na::RealField;
 
 use crate::math::{Isometry, Point, Translation, Vector};
-use crate::utils::IsometryOps;
 
 /// A continuous rigid motion.
 ///

@@ -11,7 +11,7 @@ use crate::query::{
 use crate::shape::{
     CompositeShape, DeformableShape, DeformationsType, FeatureId, Segment, Shape, Triangle,
 };
-use crate::utils::{DeterministicState, IsometryOps};
+use crate::utils::DeterministicState;
 use na::{self, Point2, Point3, RealField, Unit};
 use std::collections::{hash_map::Entry, HashMap};
 use std::iter;

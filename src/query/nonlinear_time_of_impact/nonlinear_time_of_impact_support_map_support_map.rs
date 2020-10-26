@@ -4,7 +4,6 @@ use crate::interpolation::RigidMotion;
 use crate::math::{Isometry, Point, Vector};
 use crate::query::{self, ClosestPoints, TOIStatus, TOI};
 use crate::shape::SupportMap;
-use crate::utils::IsometryOps;
 
 /// Time of impacts between two support-mapped shapes under a rigid motion.
 pub fn nonlinear_time_of_impact_support_map_support_map<N, G1: ?Sized, G2: ?Sized>(

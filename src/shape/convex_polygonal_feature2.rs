@@ -5,7 +5,6 @@ use crate::query::ContactPreprocessor;
 use crate::query::{Contact, ContactPrediction};
 use crate::query::{ContactKinematic, ContactManifold, NeighborhoodGeometry};
 use crate::shape::{FeatureId, Segment, SegmentPointLocation};
-use crate::utils::IsometryOps;
 
 /// A feature (face or vertex) of a 2D convex polygon.
 #[derive(Clone, Debug)]
