@@ -51,7 +51,7 @@ impl<N: RealField> SupportMap<N> for Cone<N> {
 
         if vres.normalize_mut().is_zero() {
             vres = na::zero();
-            vres[1] = dir[1].copysign(self.half_height);
+            vres[1] = self.half_height.copysign(dir[1]);
         } else {
             vres = vres * self.radius;
             vres[1] = -self.half_height;

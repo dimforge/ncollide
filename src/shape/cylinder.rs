@@ -56,7 +56,7 @@ impl<N: RealField> SupportMap<N> for Cylinder<N> {
             vres = vres * self.radius;
         }
 
-        vres[1] = dir[1].copysign(self.half_height);
+        vres[1] = self.half_height.copysign(dir[1]);
 
         Point::from(vres)
     }
