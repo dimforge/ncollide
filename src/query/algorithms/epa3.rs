@@ -67,7 +67,6 @@ impl<N: RealField> Face<N> {
         adj: [usize; 3],
     ) -> Self {
         let normal;
-        let deleted;
 
         if let Some(n) = utils::ccw_face_normal([
             &vertices[pts[0]].point,
@@ -75,10 +74,12 @@ impl<N: RealField> Face<N> {
             &vertices[pts[2]].point,
         ]) {
             normal = n;
-            deleted = false;
         } else {
+            // This is a bit of a hack for degenerate faces.
+            // TODO: It will work OK with our current code, though
+            // we should do this in another way to avoid any risk
+            // of misusing the face normal in the future.
             normal = Unit::new_unchecked(na::zero());
-            deleted = true;
         }
 
         Face {
@@ -87,7 +88,7 @@ impl<N: RealField> Face<N> {
             bcoords,
             adj,
             normal,
-            deleted,
+            deleted: false,
         }
     }
 
@@ -133,7 +134,7 @@ impl<N: RealField> Face<N> {
         } else if self.pts[1] == id {
             2
         } else {
-            assert!(self.pts[2] == id);
+            assert_eq!(self.pts[2], id);
             0
         }
     }
@@ -143,6 +144,12 @@ impl<N: RealField> Face<N> {
         let p1 = &vertices[self.pts[(opp_pt_id + 1) % 3]].point;
         let p2 = &vertices[self.pts[(opp_pt_id + 2) % 3]].point;
         let pt = &vertices[point].point;
+
+        // NOTE: it is important that we return true for the case where
+        // the dot product is zero. This is because degenerate faces will
+        // have a zero normal, causing the dot product to be zero.
+        // So return true for these case will let us skip the triangle
+        // during silhouette computation.
         (*pt - *p0).dot(&self.normal) >= -gjk::eps_tol::<N>()
             || utils::is_affinely_dependent_triangle(p1, p2, pt)
     }
