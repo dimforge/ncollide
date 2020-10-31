@@ -64,7 +64,7 @@ impl<N: RealField> BallConvexPolyhedronManifoldGenerator<N> {
                     return true;
                 }
 
-                depth = N::zero();
+                depth = ball.radius;
                 normal = -cp2.feature_normal(f2);
             }
 
