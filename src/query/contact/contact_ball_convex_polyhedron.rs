@@ -45,7 +45,7 @@ pub fn contact_ball_convex_polyhedron<N: RealField>(
             return None;
         }
 
-        depth = N::zero();
+        depth = ball1.radius;
         normal = -poly2.feature_normal(f2);
     }
 
