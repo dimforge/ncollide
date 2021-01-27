@@ -1,4 +1,4 @@
-use crate::math::{Isometry, Point};
+use crate::math::{Isometry, Point, Vector};
 use na::RealField;
 
 /// Traits of objects having a bounding volume.
@@ -45,4 +45,17 @@ pub trait BoundingVolume<N: RealField>: std::fmt::Debug {
 
     /// Creates a new, tightened version, of this bounding volume.
     fn tightened(&self, _: N) -> Self;
+
+    /// Enlarges this bounding volume, by vector in each dimension.
+    fn loosen_by_vector(&mut self, _: Vector<N>);
+
+    /// Creates a new, enlarged version, of this bounding volume, by vector in each dimension.
+    fn loosened_by_vector(&self, _: Vector<N>) -> Self;
+
+    /// Tighten this bounding volume, by vector in each dimension.
+    fn tighten_by_vector(&mut self, _: Vector<N>);
+
+    /// Creates a new, tightened version, of this bounding volume,  by vector in each dimension.
+    fn tightened_by_vector(&self, _: Vector<N>) -> Self;
+
 }

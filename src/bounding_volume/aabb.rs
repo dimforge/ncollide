@@ -224,4 +224,32 @@ impl<N: RealField> BoundingVolume<N> for AABB<N> {
             self.maxs + Vector::repeat(-amount),
         )
     }
+
+    #[inline]
+    fn loosen_by_vector(&mut self, amount: Vector<N>){
+        self.mins = self.mins - amount;
+        self.maxs = self.maxs + amount;
+    }
+
+    #[inline]
+    fn loosened_by_vector(&self, amount: Vector<N>) -> Self {
+        AABB {
+            mins: self.mins - amount,
+            maxs: self.maxs + amount,
+        }
+    }
+
+    #[inline]
+    fn tighten_by_vector(&mut self, amount: Vector<N>) {
+        self.mins = self.mins + amount;
+        self.maxs = self.maxs - amount;
+    }
+
+    #[inline]
+    fn tightened_by_vector(&self, amount: Vector<N>) -> Self {
+        AABB {
+            mins: self.mins + amount,
+            maxs: self.maxs - amount,
+        }
+    }
 }
