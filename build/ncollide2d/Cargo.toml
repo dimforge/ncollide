@@ -3,7 +3,7 @@ name    = "ncollide2d"
 version = "0.27.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
-description = "2 and 3-dimensional collision detection library in Rust."
+description = "2 and 3-dimensional collision detection library in Rust. Will be superseded by the parry2d crate."
 documentation = "http://ncollide.org/rustdoc/ncollide"
 homepage = "http://ncollide.org"
 repository = "https://github.com/rustsim/ncollide"
@@ -11,6 +11,9 @@ readme = "README.md"
 keywords = [ "collision", "geometry", "distance", "ray", "convex" ]
 license = "Apache-2.0"
 edition = "2018"
+
+[badges]
+maintenance = { status = "passively-maintained" }
 
 [features]
 default = [ "dim2" ]

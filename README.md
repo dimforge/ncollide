@@ -18,6 +18,9 @@
     </strong>
 </p>
 
+
+⚠️**This crate is now passively-maintained. It is being superseded by the [Parry](https://parry.rs) project.**⚠️
+
 ncollide
 ========
 
