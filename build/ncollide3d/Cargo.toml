@@ -36,13 +36,13 @@ downcast-rs = "1"
 num-traits = { version = "0.2", default-features = false }
 smallvec   = "1"
 slab       = "0.4"
-slotmap    = "0.4"
+slotmap    = "1"
 petgraph   = "0.5"
-simba      = "0.3"
-nalgebra   = "0.24"
+simba      = "0.4"
+nalgebra   = "0.25"
 approx     = { version = "0.4", default-features = false }
 serde      = { version = "1.0", optional = true, features = ["derive", "rc"]}
 
 [dev-dependencies]
-rand_isaac = "0.2"
-rand       = { version = "0.7", default-features = false }
+rand_isaac = "0.3"
+rand       = { version = "0.8", default-features = false }
