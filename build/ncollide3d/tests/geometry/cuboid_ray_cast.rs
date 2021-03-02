@@ -1,4 +1,4 @@
-// https://github.com/rustsim/ncollide/issues/242
+// https://github.com/dimforge/ncollide/issues/242
 
 use na::{Isometry3, Point3, Translation3, UnitQuaternion, Vector3};
 use ncollide3d::query::{PointQuery, Ray, RayCast};
