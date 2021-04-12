@@ -1,17 +1,13 @@
 use crate::bounding_volume;
 use crate::math::Point;
 use crate::num::Bounded;
-use na::allocator::Allocator;
-use na::base::{DefaultAllocator, DimName};
 use na::{self, RealField};
 
 /// Returns the index of the support point of a list of points.
-pub fn support_point_id<N: RealField, D: DimName>(
-    direction: &na::VectorN<N, D>,
+pub fn support_point_id<N: RealField, const D: usize>(
+    direction: &na::SVector<N, D>,
     points: &[na::Point<N, D>],
 ) -> Option<usize>
-where
-    DefaultAllocator: Allocator<N, D>,
 {
     let mut argmax = None;
     let _max: N = Bounded::max_value();
@@ -30,13 +26,11 @@ where
 }
 
 /// Returns the index of the support point of an indexed list of points.
-pub fn indexed_support_point_id<N: RealField, D: DimName>(
-    direction: &na::VectorN<N, D>,
+pub fn indexed_support_point_id<N: RealField, const D: usize>(
+    direction: &na::SVector<N, D>,
     points: &[na::Point<N, D>],
     idx: &[usize],
 ) -> Option<usize>
-where
-    DefaultAllocator: Allocator<N, D>,
 {
     let mut argmax = None;
     let _max: N = Bounded::max_value();

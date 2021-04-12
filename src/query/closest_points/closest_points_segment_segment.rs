@@ -1,8 +1,6 @@
 use crate::math::Isometry;
 use crate::query::ClosestPoints;
 use crate::shape::{Segment, SegmentPointLocation};
-use na::allocator::Allocator;
-use na::base::{DefaultAllocator, DimName};
 use na::{self, Point, RealField};
 
 /// Closest points between segments.
@@ -43,14 +41,12 @@ pub fn closest_points_segment_segment_with_locations<N: RealField>(
 /// Segment-segment closest points computation in an arbitrary dimension.
 #[allow(non_snake_case)]
 #[inline]
-pub fn closest_points_segment_segment_with_locations_nD<N, D>(
+pub fn closest_points_segment_segment_with_locations_nD<N, const D: usize>(
     seg1: (&Point<N, D>, &Point<N, D>),
     seg2: (&Point<N, D>, &Point<N, D>),
 ) -> (SegmentPointLocation<N>, SegmentPointLocation<N>)
 where
     N: RealField,
-    D: DimName,
-    DefaultAllocator: Allocator<N, D>,
 {
     let res =
         closest_points_segment_segment_with_locations_nD_eps(seg1, seg2, N::default_epsilon());
@@ -63,15 +59,13 @@ where
 /// if the two segments were considered parallel.
 #[allow(non_snake_case)]
 #[inline]
-pub fn closest_points_segment_segment_with_locations_nD_eps<N, D>(
+pub fn closest_points_segment_segment_with_locations_nD_eps<N, const D: usize>(
     seg1: (&Point<N, D>, &Point<N, D>),
     seg2: (&Point<N, D>, &Point<N, D>),
     eps: N,
 ) -> (SegmentPointLocation<N>, SegmentPointLocation<N>, bool)
 where
     N: RealField,
-    D: DimName,
-    DefaultAllocator: Allocator<N, D>,
 {
     // Inspired by RealField-time collision detection by Christer Ericson.
     let d1 = seg1.1 - seg1.0;
