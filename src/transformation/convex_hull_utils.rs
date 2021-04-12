@@ -7,8 +7,7 @@ use na::{self, RealField};
 pub fn support_point_id<N: RealField, const D: usize>(
     direction: &na::SVector<N, D>,
     points: &[na::Point<N, D>],
-) -> Option<usize>
-{
+) -> Option<usize> {
     let mut argmax = None;
     let _max: N = Bounded::max_value();
     let mut max = -_max;
@@ -30,8 +29,7 @@ pub fn indexed_support_point_id<N: RealField, const D: usize>(
     direction: &na::SVector<N, D>,
     points: &[na::Point<N, D>],
     idx: &[usize],
-) -> Option<usize>
-{
+) -> Option<usize> {
     let mut argmax = None;
     let _max: N = Bounded::max_value();
     let mut max = -_max;
