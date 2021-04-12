@@ -1,6 +1,6 @@
 [package]
 name    = "ncollide2d"
-version = "0.28.0"
+version = "0.29.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "2 and 3-dimensional collision detection library in Rust. Will be superseded by the parry2d crate."
