@@ -2,8 +2,8 @@ extern crate nalgebra as na;
 
 use na::{Isometry2, Point2, Vector2};
 use ncollide2d::bounding_volume::{self, BoundingSphere, HasBoundingVolume};
-use ncollide2d::partitioning::{BVH, BVT};
-use ncollide2d::query::{visitors::RayInterferencesCollector, Ray, RayCast};
+use ncollide2d::partitioning::{VisitStatus, BVH, BVT};
+use ncollide2d::query::{visitors::RayInterferencesVisitor, Ray, RayCast};
 use ncollide2d::shape::{Ball, Cuboid};
 
 /*
@@ -60,20 +60,24 @@ fn main() {
     /*
      * Collecting all objects with bounding volumes intersecting the ray.
      */
-    let mut collector_hit: Vec<usize> = Vec::new();
-    let mut collector_miss: Vec<usize> = Vec::new();
+    let mut hit_count = 0;
+    let mut miss_count = 0;
 
     // We need a new scope here to avoid borrowing issues.
     {
-        let mut visitor_hit =
-            RayInterferencesCollector::new(&ray_hit, std::f64::MAX, &mut collector_hit);
-        let mut visitor_miss =
-            RayInterferencesCollector::new(&ray_miss, std::f64::MAX, &mut collector_miss);
+        let mut visitor_hit = RayInterferencesVisitor::new(&ray_hit, std::f64::MAX, |_| {
+            hit_count += 1;
+            VisitStatus::Continue
+        });
+        let mut visitor_miss = RayInterferencesVisitor::new(&ray_miss, std::f64::MAX, |_| {
+            miss_count += 1;
+            VisitStatus::Continue
+        });
 
         bvt.visit(&mut visitor_hit);
         bvt.visit(&mut visitor_miss);
     }
 
-    assert!(collector_hit.len() == 3);
-    assert!(collector_miss.len() == 0);
+    assert_eq!(hit_count, 3);
+    assert_eq!(miss_count, 0);
 }

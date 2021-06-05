@@ -1,7 +1,8 @@
 use crate::math::{Isometry, Vector};
+use crate::partitioning::VisitStatus;
 use crate::pipeline::narrow_phase::{ContactDispatcher, ContactManifoldGenerator};
 use crate::query::{
-    self, visitors::AABBSetsInterferencesCollector, Contact, ContactKinematic, ContactManifold,
+    self, visitors::AABBSetsInterferencesVisitor, Contact, ContactKinematic, ContactManifold,
     ContactPrediction, ContactPreprocessor, ContactTrackingMode, NeighborhoodGeometry,
 };
 use crate::shape::{
@@ -9,7 +10,6 @@ use crate::shape::{
     SegmentPointLocation, Shape, TriMesh, Triangle,
 };
 use na::{self, RealField, Unit};
-use std::mem;
 
 /// Collision detector between a concave shape and another shape.
 pub struct TriMeshTriMeshManifoldGenerator<N: RealField> {
@@ -17,7 +17,6 @@ pub struct TriMeshTriMeshManifoldGenerator<N: RealField> {
     new_contacts: Vec<(Contact<N>, FeatureId, FeatureId)>,
     convex_feature1: ConvexPolygonalFeature<N>,
     convex_feature2: ConvexPolygonalFeature<N>,
-    interferences: Vec<(usize, usize)>,
 }
 
 impl<N: RealField> TriMeshTriMeshManifoldGenerator<N> {
@@ -28,7 +27,6 @@ impl<N: RealField> TriMeshTriMeshManifoldGenerator<N> {
             new_contacts: Vec::new(),
             convex_feature1: ConvexPolygonalFeature::with_size(3),
             convex_feature2: ConvexPolygonalFeature::with_size(3),
-            interferences: Vec::new(),
         }
     }
 }
@@ -538,24 +536,18 @@ impl<N: RealField> ContactManifoldGenerator<N> for TriMeshTriMeshManifoldGenerat
             // For transforming AABBs from mesh2 in the local space of mesh1.
             let m12_abs_rot = m12.rotation.to_rotation_matrix().matrix().abs();
 
-            {
-                let mut visitor = AABBSetsInterferencesCollector::new(
-                    prediction.linear(),
-                    &m12,
-                    &m12_abs_rot,
-                    &mut self.interferences,
-                );
-                mesh1.bvh().visit_bvtt(mesh2.bvh(), &mut visitor);
-            }
-
-            let mut interferences = mem::replace(&mut self.interferences, Vec::new());
-            for id in interferences.drain(..) {
-                self.compute_faces_closest_points(
-                    &m12, &m21, m1, mesh1, id.0, proc1, m2, mesh2, id.1, proc2, prediction,
-                    manifold,
-                );
-            }
-            self.interferences = interferences;
+            let mut visitor = AABBSetsInterferencesVisitor::new(
+                prediction.linear(),
+                &m12,
+                &m12_abs_rot,
+                |&a, &b| {
+                    self.compute_faces_closest_points(
+                        &m12, &m21, m1, mesh1, a, proc1, m2, mesh2, b, proc2, prediction, manifold,
+                    );
+                    VisitStatus::Continue
+                },
+            );
+            mesh1.bvh().visit_bvtt(mesh2.bvh(), &mut visitor);
 
             true
         } else {

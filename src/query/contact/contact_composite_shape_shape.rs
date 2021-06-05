@@ -1,6 +1,7 @@
 use crate::bounding_volume::BoundingVolume;
 use crate::math::Isometry;
-use crate::query::visitors::BoundingVolumeInterferencesCollector;
+use crate::partitioning::VisitStatus;
+use crate::query::visitors::BoundingVolumeInterferencesVisitor;
 use crate::query::{self, Contact};
 use crate::shape::{CompositeShape, Shape};
 use na::{self, RealField};
@@ -20,16 +21,9 @@ where
     let ls_m2 = m1.inverse() * m2.clone();
     let ls_aabb2 = g2.aabb(&ls_m2).loosened(prediction);
 
-    let mut interferences = Vec::new();
-
-    {
-        let mut visitor = BoundingVolumeInterferencesCollector::new(&ls_aabb2, &mut interferences);
-        g1.bvh().visit(&mut visitor);
-    }
-
     let mut res = None::<Contact<N>>;
 
-    for i in interferences.into_iter() {
+    let mut visitor = BoundingVolumeInterferencesVisitor::new(&ls_aabb2, |&i| {
         g1.map_part_at(i, m1, &mut |m, part| {
             if let Some(c) = query::contact(m, part, m2, g2, prediction) {
                 let replace = res.map_or(true, |cbest| c.depth > cbest.depth);
@@ -39,7 +33,10 @@ where
                 }
             }
         });
-    }
+
+        VisitStatus::Continue
+    });
+    g1.bvh().visit(&mut visitor);
 
     res
 }
