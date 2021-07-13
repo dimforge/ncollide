@@ -1,11 +1,11 @@
 use crate::bounding_volume::BoundingVolume;
 use crate::math::Point;
-use crate::partitioning::{DBVTLeaf, DBVTLeafId, BVH, DBVT};
+use crate::partitioning::{DBVTLeaf, DBVTLeafId, VisitStatus, BVH, DBVT};
 use crate::pipeline::broad_phase::{
     BroadPhase, BroadPhaseInterferenceHandler, BroadPhaseProxyHandle,
 };
 use crate::query::visitors::{
-    BoundingVolumeInterferencesCollector, PointInterferencesCollector, RayInterferencesCollector,
+    BoundingVolumeInterferencesVisitor, PointInterferencesVisitor, RayInterferencesVisitor,
     RayIntersectionCostFnVisitor,
 };
 use crate::query::{PointQuery, Ray, RayCast, RayIntersection};
@@ -67,7 +67,6 @@ pub struct DBVTBroadPhase<N: RealField, BV, T> {
     purge_all: bool,
 
     // Just to avoid dynamic allocations.
-    collector: Vec<BroadPhaseProxyHandle>,
     leaves_to_update: Vec<DBVTLeaf<N, BroadPhaseProxyHandle, BV>>,
     proxies_to_update: VecDeque<(BroadPhaseProxyHandle, BV)>,
 }
@@ -85,7 +84,6 @@ where
             stree: DBVT::new(),
             pairs: HashMap::with_hasher(DeterministicState::new()),
             purge_all: false,
-            collector: Vec::new(),
             leaves_to_update: Vec::new(),
             proxies_to_update: VecDeque::new(),
             margin,
@@ -171,7 +169,7 @@ where
     BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
     T: Any + Send + Sync + Clone,
 {
-    fn update(&mut self, handler: &mut dyn BroadPhaseInterferenceHandler<T>) {
+    fn update(&mut self, mut handler: &mut dyn BroadPhaseInterferenceHandler<T>) {
         /*
          * Remove from the trees all nodes that have been deleted or modified.
          */
@@ -218,32 +216,34 @@ where
         for leaf in self.leaves_to_update.drain(..) {
             {
                 let proxy1 = &self.proxies[leaf.data.uid()];
-                {
-                    let mut visitor = BoundingVolumeInterferencesCollector::new(
+                let mut visitor = {
+                    let proxies = &self.proxies;
+                    let pairs = &mut self.pairs;
+                    let handler = &mut handler;
+                    let leaf = &leaf;
+                    BoundingVolumeInterferencesVisitor::new(
                         &leaf.bounding_volume,
-                        &mut self.collector,
-                    );
+                        move |proxy_key2: &BroadPhaseProxyHandle| {
+                            // Event generation.
+                            let proxy2 = &proxies[proxy_key2.uid()];
 
-                    self.tree.visit(&mut visitor);
-                    self.stree.visit(&mut visitor);
-                }
-
-                // Event generation.
-                for proxy_key2 in self.collector.iter() {
-                    let proxy2 = &self.proxies[proxy_key2.uid()];
-
-                    if handler.is_interference_allowed(&proxy1.data, &proxy2.data) {
-                        match self.pairs.entry(SortedPair::new(leaf.data, *proxy_key2)) {
-                            Entry::Occupied(entry) => *entry.into_mut() = true,
-                            Entry::Vacant(entry) => {
-                                handler.interference_started(&proxy1.data, &proxy2.data);
-                                let _ = entry.insert(true);
+                            if handler.is_interference_allowed(&proxy1.data, &proxy2.data) {
+                                match pairs.entry(SortedPair::new(leaf.data, *proxy_key2)) {
+                                    Entry::Occupied(entry) => *entry.into_mut() = true,
+                                    Entry::Vacant(entry) => {
+                                        handler.interference_started(&proxy1.data, &proxy2.data);
+                                        let _ = entry.insert(true);
+                                    }
+                                }
                             }
-                        }
-                    }
-                }
 
-                self.collector.clear();
+                            VisitStatus::Continue
+                        },
+                    )
+                };
+
+                self.tree.visit(&mut visitor);
+                self.stree.visit(&mut visitor);
             }
 
             let proxy1 = &mut self.proxies[leaf.data.uid()];
@@ -385,48 +385,36 @@ where
     }
 
     fn interferences_with_bounding_volume<'a>(&'a self, bv: &BV, out: &mut Vec<&'a T>) {
-        let mut collector = Vec::new();
+        let mut visitor =
+            BoundingVolumeInterferencesVisitor::new(bv, |handle: &BroadPhaseProxyHandle| {
+                out.push(&self.proxies[handle.uid()].data);
+                VisitStatus::Continue
+            });
 
-        {
-            let mut visitor = BoundingVolumeInterferencesCollector::new(bv, &mut collector);
-
-            self.tree.visit(&mut visitor);
-            self.stree.visit(&mut visitor);
-        }
-
-        for l in collector.into_iter() {
-            out.push(&self.proxies[l.uid()].data)
-        }
+        self.tree.visit(&mut visitor);
+        self.stree.visit(&mut visitor);
     }
 
     fn interferences_with_ray<'a>(&'a self, ray: &Ray<N>, max_toi: N, out: &mut Vec<&'a T>) {
-        let mut collector = Vec::new();
+        let mut visitor =
+            RayInterferencesVisitor::new(ray, max_toi, |handle: &BroadPhaseProxyHandle| {
+                out.push(&self.proxies[handle.uid()].data);
+                VisitStatus::Continue
+            });
 
-        {
-            let mut visitor = RayInterferencesCollector::new(ray, max_toi, &mut collector);
-
-            self.tree.visit(&mut visitor);
-            self.stree.visit(&mut visitor);
-        }
-
-        for l in collector.into_iter() {
-            out.push(&self.proxies[l.uid()].data)
-        }
+        self.tree.visit(&mut visitor);
+        self.stree.visit(&mut visitor);
     }
 
     fn interferences_with_point<'a>(&'a self, point: &Point<N>, out: &mut Vec<&'a T>) {
-        let mut collector = Vec::new();
+        let mut visitor =
+            PointInterferencesVisitor::new(point, |handle: &BroadPhaseProxyHandle| {
+                out.push(&self.proxies[handle.uid()].data);
+                VisitStatus::Continue
+            });
 
-        {
-            let mut visitor = PointInterferencesCollector::new(point, &mut collector);
-
-            self.tree.visit(&mut visitor);
-            self.stree.visit(&mut visitor);
-        }
-
-        for l in collector.into_iter() {
-            out.push(&self.proxies[l.uid()].data)
-        }
+        self.tree.visit(&mut visitor);
+        self.stree.visit(&mut visitor);
     }
 
     /// Returns the first object that interferes with a ray.
