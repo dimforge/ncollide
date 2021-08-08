@@ -1,6 +1,6 @@
 [package]
 name    = "ncollide2d"
-version = "0.31.0"
+version = "0.32.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "2 and 3-dimensional collision detection library in Rust. Will be superseded by the parry2d crate."
@@ -38,8 +38,8 @@ smallvec        = "1"
 slab            = "0.4"
 slotmap         = "1"
 petgraph        = "0.5"
-simba           = "0.5"
-nalgebra        = "0.28"
+simba           = "0.6"
+nalgebra        = "0.29"
 approx          = { version = "0.5", default-features = false }
 serde           = { version = "1.0", optional = true, features = ["derive"]}
 
