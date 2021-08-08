@@ -18,7 +18,7 @@ pub fn interferences_with_ray<'a, 'b, N, Objects>(
     groups: &'b CollisionGroups,
 ) -> InterferencesWithRay<'a, 'b, N, Objects>
 where
-    N: RealField,
+    N: RealField + Copy,
     Objects: CollisionObjectSet<N>,
 {
     let mut handles = Vec::new();
@@ -34,7 +34,7 @@ where
 }
 
 /// Iterator through all the objects on the world that intersect a specific ray.
-pub struct InterferencesWithRay<'a, 'b, N: RealField, Objects: CollisionObjectSet<N>> {
+pub struct InterferencesWithRay<'a, 'b, N: RealField + Copy, Objects: CollisionObjectSet<N>> {
     ray: &'b Ray<N>,
     max_toi: N,
     objects: &'a Objects,
@@ -42,9 +42,9 @@ pub struct InterferencesWithRay<'a, 'b, N: RealField, Objects: CollisionObjectSe
     handles: IntoIter<&'a Objects::CollisionObjectHandle>,
 }
 
-impl<'a, 'b, N: RealField, Objects> Iterator for InterferencesWithRay<'a, 'b, N, Objects>
+impl<'a, 'b, N: RealField + Copy, Objects> Iterator for InterferencesWithRay<'a, 'b, N, Objects>
 where
-    N: RealField,
+    N: RealField + Copy,
     Objects: CollisionObjectSet<N>,
 {
     type Item = (
@@ -86,7 +86,7 @@ pub fn interferences_with_point<'a, 'b, N, Objects>(
     groups: &'b CollisionGroups,
 ) -> InterferencesWithPoint<'a, 'b, N, Objects>
 where
-    N: RealField,
+    N: RealField + Copy,
     Objects: CollisionObjectSet<N>,
 {
     let mut handles = Vec::new();
@@ -101,16 +101,16 @@ where
 }
 
 /// Iterator through all the objects on the world that intersect a specific point.
-pub struct InterferencesWithPoint<'a, 'b, N: RealField, Objects: CollisionObjectSet<N>> {
+pub struct InterferencesWithPoint<'a, 'b, N: RealField + Copy, Objects: CollisionObjectSet<N>> {
     point: &'b Point<N>,
     objects: &'a Objects,
     groups: &'b CollisionGroups,
     handles: IntoIter<&'a Objects::CollisionObjectHandle>,
 }
 
-impl<'a, 'b, N: RealField, Objects> Iterator for InterferencesWithPoint<'a, 'b, N, Objects>
+impl<'a, 'b, N: RealField + Copy, Objects> Iterator for InterferencesWithPoint<'a, 'b, N, Objects>
 where
-    N: RealField,
+    N: RealField + Copy,
     Objects: CollisionObjectSet<N>,
 {
     type Item = (Objects::CollisionObjectHandle, &'a Objects::CollisionObject);
@@ -141,7 +141,7 @@ pub fn interferences_with_aabb<'a, 'b, N, Objects>(
     groups: &'b CollisionGroups,
 ) -> InterferencesWithAABB<'a, 'b, N, Objects>
 where
-    N: RealField,
+    N: RealField + Copy,
     Objects: CollisionObjectSet<N>,
 {
     let mut handles = Vec::new();
@@ -155,13 +155,13 @@ where
 }
 
 /// Iterator through all the objects on the world which bounding volume intersects a specific AABB.
-pub struct InterferencesWithAABB<'a, 'b, N: RealField, Objects: CollisionObjectSet<N>> {
+pub struct InterferencesWithAABB<'a, 'b, N: RealField + Copy, Objects: CollisionObjectSet<N>> {
     objects: &'a Objects,
     groups: &'b CollisionGroups,
     handles: IntoIter<&'a Objects::CollisionObjectHandle>,
 }
 
-impl<'a, 'b, N: RealField, Objects: CollisionObjectSet<N>> Iterator
+impl<'a, 'b, N: RealField + Copy, Objects: CollisionObjectSet<N>> Iterator
     for InterferencesWithAABB<'a, 'b, N, Objects>
 {
     type Item = (Objects::CollisionObjectHandle, &'a Objects::CollisionObject);
@@ -185,7 +185,7 @@ impl<'a, 'b, N: RealField, Objects: CollisionObjectSet<N>> Iterator
 /// Contains the handle of the closest object along the ray along with its
 /// intersection details
 #[derive(Debug)]
-pub struct FirstInterferenceWithRay<'a, N: RealField, Objects: CollisionObjectSet<N>> {
+pub struct FirstInterferenceWithRay<'a, N: RealField + Copy, Objects: CollisionObjectSet<N>> {
     /// Handle to the object the ray collided with.
     pub handle: Objects::CollisionObjectHandle,
     /// Reference to the object the ray collided with.
@@ -197,7 +197,7 @@ pub struct FirstInterferenceWithRay<'a, N: RealField, Objects: CollisionObjectSe
 /// Returns an the closest collision object intersecting with the given ray.
 ///
 /// The result will only include collision objects in a group that can interact with the given `groups`.
-pub fn first_interference_with_ray<'a, 'b, N: RealField, Objects: CollisionObjectSet<N>>(
+pub fn first_interference_with_ray<'a, 'b, N: RealField + Copy, Objects: CollisionObjectSet<N>>(
     objects: &'a Objects,
     broad_phase: &'a (impl BroadPhase<N, AABB<N>, Objects::CollisionObjectHandle> + ?Sized),
     ray: &'b Ray<N>,

@@ -11,7 +11,7 @@ use crate::pipeline::object::{
 use crate::query::{ContactId, ContactManifold, Proximity};
 
 /// Collision detector dispatcher for collision objects.
-pub struct NarrowPhase<N: RealField, Handle: CollisionObjectHandle> {
+pub struct NarrowPhase<N: RealField + Copy, Handle: CollisionObjectHandle> {
     contact_dispatcher: Box<dyn ContactDispatcher<N>>,
     proximity_dispatcher: Box<dyn ProximityDispatcher<N>>,
     contact_events: ContactEvents<Handle>,
@@ -19,7 +19,7 @@ pub struct NarrowPhase<N: RealField, Handle: CollisionObjectHandle> {
     id_allocator: SlotMap<ContactId, bool>,
 }
 
-impl<N: RealField, Handle: CollisionObjectHandle> NarrowPhase<N, Handle> {
+impl<N: RealField + Copy, Handle: CollisionObjectHandle> NarrowPhase<N, Handle> {
     /// Creates a new `NarrowPhase`.
     pub fn new(
         contact_dispatcher: Box<dyn ContactDispatcher<N>>,

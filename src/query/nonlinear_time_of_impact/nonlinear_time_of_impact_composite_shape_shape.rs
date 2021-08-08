@@ -17,7 +17,7 @@ pub fn nonlinear_time_of_impact_composite_shape_shape<N, G1>(
     target_distance: N,
 ) -> Option<TOI<N>>
 where
-    N: RealField,
+    N: RealField + Copy,
     G1: ?Sized + CompositeShape<N>,
 {
     let mut visitor = CompositeShapeAgainstAnyNonlinearTOIVisitor::new(
@@ -44,7 +44,7 @@ pub fn nonlinear_time_of_impact_shape_composite_shape<N, G2>(
     target_distance: N,
 ) -> Option<TOI<N>>
 where
-    N: RealField,
+    N: RealField + Copy,
     G2: ?Sized + CompositeShape<N>,
 {
     nonlinear_time_of_impact_composite_shape_shape(
@@ -58,7 +58,7 @@ where
     )
 }
 
-struct CompositeShapeAgainstAnyNonlinearTOIVisitor<'a, N: 'a + RealField, G1: ?Sized + 'a> {
+struct CompositeShapeAgainstAnyNonlinearTOIVisitor<'a, N: 'a + RealField + Copy, G1: ?Sized + 'a> {
     dispatcher: &'a dyn TOIDispatcher<N>,
     sphere2: BoundingSphere<N>,
     max_toi: N,
@@ -72,7 +72,7 @@ struct CompositeShapeAgainstAnyNonlinearTOIVisitor<'a, N: 'a + RealField, G1: ?S
 
 impl<'a, N, G1> CompositeShapeAgainstAnyNonlinearTOIVisitor<'a, N, G1>
 where
-    N: RealField,
+    N: RealField + Copy,
     G1: ?Sized + CompositeShape<N>,
 {
     pub fn new(
@@ -100,7 +100,7 @@ where
 impl<'a, N, G1> BestFirstVisitor<N, usize, AABB<N>>
     for CompositeShapeAgainstAnyNonlinearTOIVisitor<'a, N, G1>
 where
-    N: RealField,
+    N: RealField + Copy,
     G1: ?Sized + CompositeShape<N>,
 {
     type Result = TOI<N>;

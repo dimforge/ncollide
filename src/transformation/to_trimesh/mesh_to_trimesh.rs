@@ -5,7 +5,7 @@ use na;
 use na::Point3;
 use simba::scalar::RealField;
 
-impl<N: RealField> ToTriMesh<Point3<N>, ()> for shape::TriMesh3<N> {
+impl<N: RealField + Copy> ToTriMesh<Point3<N>, ()> for shape::TriMesh3<N> {
     fn to_trimesh(&self, _: ()) -> TriMesh3<N> {
         TriMesh::new(
             (**self.vertices()).clone(),

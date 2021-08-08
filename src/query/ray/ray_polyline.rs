@@ -5,7 +5,7 @@ use crate::query::{Ray, RayCast, RayIntersection};
 use crate::shape::{FeatureId, Polyline};
 use na::RealField;
 
-impl<N: RealField> RayCast<N> for Polyline<N> {
+impl<N: RealField + Copy> RayCast<N> for Polyline<N> {
     #[inline]
     fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, max_toi: N, _: bool) -> Option<N> {
         let ls_ray = ray.inverse_transform_by(m);
@@ -53,13 +53,13 @@ impl<N: RealField> RayCast<N> for Polyline<N> {
 /*
  * Costs functions.
  */
-struct PolylineRayToiVisitor<'a, N: 'a + RealField> {
+struct PolylineRayToiVisitor<'a, N: 'a + RealField + Copy> {
     polyline: &'a Polyline<N>,
     ray: &'a Ray<N>,
     max_toi: N,
 }
 
-impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for PolylineRayToiVisitor<'a, N> {
+impl<'a, N: RealField + Copy> BestFirstVisitor<N, usize, AABB<N>> for PolylineRayToiVisitor<'a, N> {
     type Result = N;
 
     #[inline]
@@ -97,13 +97,13 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for PolylineRayToiVis
     }
 }
 
-struct PolylineRayToiAndNormalVisitor<'a, N: 'a + RealField> {
+struct PolylineRayToiAndNormalVisitor<'a, N: 'a + RealField + Copy> {
     polyline: &'a Polyline<N>,
     ray: &'a Ray<N>,
     max_toi: N,
 }
 
-impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>>
+impl<'a, N: RealField + Copy> BestFirstVisitor<N, usize, AABB<N>>
     for PolylineRayToiAndNormalVisitor<'a, N>
 {
     type Result = (usize, RayIntersection<N>);

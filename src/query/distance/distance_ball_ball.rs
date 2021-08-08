@@ -4,7 +4,7 @@ use na::{self, RealField};
 
 /// Distance between balls.
 #[inline]
-pub fn distance_ball_ball<N: RealField>(
+pub fn distance_ball_ball<N: RealField + Copy>(
     center1: &Point<N>,
     b1: &Ball<N>,
     center2: &Point<N>,

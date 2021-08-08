@@ -3,7 +3,7 @@ use crate::math::{Isometry, Point};
 use crate::shape::Cuboid;
 use na::{self, RealField};
 
-impl<N: RealField> HasBoundingVolume<N, BoundingSphere<N>> for Cuboid<N> {
+impl<N: RealField + Copy> HasBoundingVolume<N, BoundingSphere<N>> for Cuboid<N> {
     #[inline]
     fn bounding_volume(&self, m: &Isometry<N>) -> BoundingSphere<N> {
         let bv: BoundingSphere<N> = self.local_bounding_volume();

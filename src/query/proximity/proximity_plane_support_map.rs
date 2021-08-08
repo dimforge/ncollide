@@ -6,7 +6,7 @@ use crate::shape::Plane;
 use crate::shape::SupportMap;
 
 /// Proximity between a plane and a support-mapped shape (Cuboid, ConvexHull, etc.)
-pub fn proximity_plane_support_map<N: RealField, G: ?Sized + SupportMap<N>>(
+pub fn proximity_plane_support_map<N: RealField + Copy, G: ?Sized + SupportMap<N>>(
     mplane: &Isometry<N>,
     plane: &Plane<N>,
     mother: &Isometry<N>,
@@ -36,7 +36,7 @@ pub fn proximity_plane_support_map<N: RealField, G: ?Sized + SupportMap<N>>(
 }
 
 /// Proximity between a support-mapped shape (Cuboid, ConvexHull, etc.) and a plane.
-pub fn proximity_support_map_plane<N: RealField, G: ?Sized + SupportMap<N>>(
+pub fn proximity_support_map_plane<N: RealField + Copy, G: ?Sized + SupportMap<N>>(
     mother: &Isometry<N>,
     other: &G,
     mplane: &Isometry<N>,

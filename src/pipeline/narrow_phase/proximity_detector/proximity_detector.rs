@@ -5,7 +5,7 @@ use na::RealField;
 use std::any::Any;
 
 /// Trait implemented by algorithms that determine if two objects are in close proximity.
-pub trait ProximityDetector<N: RealField>: Any + Send + Sync {
+pub trait ProximityDetector<N: RealField + Copy>: Any + Send + Sync {
     /// Runs the proximity detection on two objects. It is assumed that the same proximity detector
     /// (the same instance) is always used with the same pair of object.
     fn update(

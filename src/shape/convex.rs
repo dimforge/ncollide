@@ -16,14 +16,14 @@ struct Vertex {
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Copy, Clone)]
-struct Edge<N: RealField> {
+struct Edge<N: RealField + Copy> {
     vertices: Point2<usize>,
     faces: Point2<usize>,
     dir: Unit<Vector<N>>,
     deleted: bool,
 }
 
-impl<N: RealField> Edge<N> {
+impl<N: RealField + Copy> Edge<N> {
     fn other_triangle(&self, id: usize) -> usize {
         if id == self.faces[0] {
             self.faces[1]
@@ -35,7 +35,7 @@ impl<N: RealField> Edge<N> {
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Copy, Clone)]
-struct Face<N: RealField> {
+struct Face<N: RealField + Copy> {
     first_vertex_or_edge: usize,
     num_vertices_or_edges: usize,
     normal: Unit<Vector<N>>,
@@ -43,14 +43,14 @@ struct Face<N: RealField> {
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Copy, Clone)]
-struct Triangle<N: RealField> {
+struct Triangle<N: RealField + Copy> {
     vertices: Point3<usize>,
     edges: Point3<usize>,
     normal: Unit<Vector<N>>,
     parent_face: Option<usize>,
 }
 
-impl<N: RealField> Triangle<N> {
+impl<N: RealField + Copy> Triangle<N> {
     fn next_edge_id(&self, id: usize) -> usize {
         for i in 0..3 {
             if self.edges[i] == id {
@@ -65,7 +65,7 @@ impl<N: RealField> Triangle<N> {
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Clone)]
 /// A convex polyhedron without degenerate faces.
-pub struct ConvexHull<N: RealField> {
+pub struct ConvexHull<N: RealField + Copy> {
     points: Vec<Point<N>>,
     vertices: Vec<Vertex>,
     faces: Vec<Face<N>>,
@@ -80,7 +80,7 @@ pub struct ConvexHull<N: RealField> {
     vertices_adj_to_face: Vec<usize>,
 }
 
-impl<N: RealField> ConvexHull<N> {
+impl<N: RealField + Copy> ConvexHull<N> {
     /// Creates a new 2D convex polyhedron from an arbitrary set of points.
     ///
     /// This explicitly computes the convex hull of the given set of points. Use
@@ -415,14 +415,14 @@ impl<N: RealField> ConvexHull<N> {
     }
 }
 
-impl<N: RealField> SupportMap<N> for ConvexHull<N> {
+impl<N: RealField + Copy> SupportMap<N> for ConvexHull<N> {
     #[inline]
     fn local_support_point(&self, dir: &Vector<N>) -> Point<N> {
         utils::point_cloud_support_point(dir, self.points())
     }
 }
 
-impl<N: RealField> ConvexPolyhedron<N> for ConvexHull<N> {
+impl<N: RealField + Copy> ConvexPolyhedron<N> for ConvexHull<N> {
     fn vertex(&self, id: FeatureId) -> Point<N> {
         self.points[id.unwrap_vertex()]
     }

@@ -5,7 +5,7 @@ use crate::shape::Cone;
 use na;
 use simba::scalar::RealField;
 
-impl<N: RealField> ToTriMesh<N> for Cone<N> {
+impl<N: RealField + Copy> ToTriMesh<N> for Cone<N> {
     type DiscretizationParameter = u32;
 
     fn to_trimesh(&self, nsubdiv: u32) -> TriMesh<N> {

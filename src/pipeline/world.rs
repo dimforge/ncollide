@@ -25,7 +25,7 @@ use crate::shape::{Shape, ShapeHandle};
 pub type BroadPhaseObject<N> = Box<dyn BroadPhase<N, AABB<N>, CollisionObjectSlabHandle>>;
 
 /// A world that handles collision objects.
-pub struct CollisionWorld<N: RealField, T> {
+pub struct CollisionWorld<N: RealField + Copy, T> {
     /// The set of objects on this collision world.
     pub objects: CollisionObjectSlab<N, T>,
     /// The broad phase used by this collision world.
@@ -40,7 +40,7 @@ pub struct CollisionWorld<N: RealField, T> {
     pub pair_filters: Option<Box<dyn BroadPhasePairFilter<N, CollisionObjectSlab<N, T>>>>,
 }
 
-impl<N: RealField, T> CollisionWorld<N, T> {
+impl<N: RealField + Copy, T> CollisionWorld<N, T> {
     /// Creates a new collision world.
     // FIXME: use default values for `margin` and allow its modification by the user ?
     pub fn new(margin: N) -> CollisionWorld<N, T> {

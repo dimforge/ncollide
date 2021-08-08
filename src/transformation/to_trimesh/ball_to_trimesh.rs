@@ -5,7 +5,7 @@ use crate::shape::Ball;
 use na;
 use simba::scalar::RealField;
 
-impl<N: RealField> ToTriMesh<N> for Ball<N> {
+impl<N: RealField + Copy> ToTriMesh<N> for Ball<N> {
     type DiscretizationParameter = (u32, u32);
 
     fn to_trimesh(&self, (ntheta_subdiv, nphi_subdiv): (u32, u32)) -> TriMesh<N> {

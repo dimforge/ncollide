@@ -5,7 +5,7 @@ use crate::math::{Isometry, Point};
 use crate::query::{PointProjection, PointQuery};
 use crate::shape::{Ball, FeatureId};
 
-impl<N: RealField> PointQuery<N> for Ball<N> {
+impl<N: RealField + Copy> PointQuery<N> for Ball<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> PointProjection<N> {
         let ls_pt = m.inverse_transform_point(pt);

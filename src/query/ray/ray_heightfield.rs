@@ -8,7 +8,7 @@ use crate::shape::HeightField;
 use na::RealField;
 
 #[cfg(feature = "dim2")]
-impl<N: RealField> RayCast<N> for HeightField<N> {
+impl<N: RealField + Copy> RayCast<N> for HeightField<N> {
     #[inline]
     fn toi_and_normal_with_ray(
         &self,
@@ -120,7 +120,7 @@ impl<N: RealField> RayCast<N> for HeightField<N> {
 }
 
 #[cfg(feature = "dim3")]
-impl<N: RealField> RayCast<N> for HeightField<N> {
+impl<N: RealField + Copy> RayCast<N> for HeightField<N> {
     #[inline]
     fn toi_and_normal_with_ray(
         &self,

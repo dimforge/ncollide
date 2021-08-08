@@ -4,7 +4,7 @@ use crate::shape::Ball;
 use na;
 use simba::scalar::RealField;
 
-impl<N: RealField> ToPolyline<N> for Ball<N> {
+impl<N: RealField + Copy> ToPolyline<N> for Ball<N> {
     type DiscretizationParameter = u32;
 
     fn to_polyline(&self, nsubdiv: u32) -> Polyline<N> {

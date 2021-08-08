@@ -14,7 +14,7 @@ pub fn contact_support_map_support_map<N, G1: ?Sized, G2: ?Sized>(
     prediction: N,
 ) -> Option<Contact<N>>
 where
-    N: RealField,
+    N: RealField + Copy,
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
@@ -45,7 +45,7 @@ pub fn contact_support_map_support_map_with_params<N, G1: ?Sized, G2: ?Sized>(
     init_dir: Option<Unit<Vector<N>>>,
 ) -> GJKResult<N>
 where
-    N: RealField,
+    N: RealField + Copy,
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {

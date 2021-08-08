@@ -100,7 +100,7 @@ pub trait BVH<T, BV> {
     /// user-defined type.
     fn best_first_search<N, BFS>(&self, visitor: &mut BFS) -> Option<(Self::Node, BFS::Result)>
     where
-        N: RealField,
+        N: RealField + Copy,
         BFS: BestFirstVisitor<N, T, BV>,
     {
         let mut queue: BinaryHeap<WeightedValue<N, Self::Node>> = BinaryHeap::new();
@@ -162,7 +162,7 @@ pub trait BVH<T, BV> {
 
 /// An enum grouping references to all the BVH implementations on ncollide.
 #[derive(Copy, Clone)]
-pub enum BVHImpl<'a, N: 'a + RealField, T: 'a, BV: 'a> {
+pub enum BVHImpl<'a, N: 'a + RealField + Copy, T: 'a, BV: 'a> {
     /// A static binary bounding volume tree.
     BVT(&'a BVT<T, BV>),
     /// A dynamic binary bounding volume tree.
@@ -177,7 +177,7 @@ pub enum BVHNodeId {
     DBVTNodeId(DBVTNodeId),
 }
 
-impl<'a, N: RealField, T, BV> BVHImpl<'a, N, T, BV> {
+impl<'a, N: RealField + Copy, T, BV> BVHImpl<'a, N, T, BV> {
     /// Gets the underlying reference to a BVT, or panics if this is not a `BVTImpl::BVT`.
     #[inline]
     pub fn unwrap_bvt(self) -> &'a BVT<T, BV> {

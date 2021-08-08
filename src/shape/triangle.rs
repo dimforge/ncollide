@@ -15,7 +15,7 @@ use std::mem;
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[repr(C)]
 #[derive(PartialEq, Debug, Copy, Clone)]
-pub struct Triangle<N: RealField> {
+pub struct Triangle<N: RealField + Copy> {
     /// The triangle first point.
     pub a: Point<N>,
     /// The triangle second point.
@@ -26,7 +26,7 @@ pub struct Triangle<N: RealField> {
 
 /// Description of the location of a point on a triangle.
 #[derive(Copy, Clone, Debug)]
-pub enum TrianglePointLocation<N: RealField> {
+pub enum TrianglePointLocation<N: RealField + Copy> {
     /// The point lies on a vertex.
     OnVertex(usize),
     /// The point lies on an edge.
@@ -47,7 +47,7 @@ pub enum TrianglePointLocation<N: RealField> {
     OnSolid,
 }
 
-impl<N: RealField> TrianglePointLocation<N> {
+impl<N: RealField + Copy> TrianglePointLocation<N> {
     /// The barycentric coordinates corresponding to this point location.
     ///
     /// Returns `None` if the location is `TrianglePointLocation::OnSolid`.
@@ -90,7 +90,7 @@ impl<N: RealField> TrianglePointLocation<N> {
     }
 }
 
-impl<N: RealField> Triangle<N> {
+impl<N: RealField + Copy> Triangle<N> {
     /// Creates a triangle from three points.
     #[inline]
     pub fn new(a: Point<N>, b: Point<N>, c: Point<N>) -> Triangle<N> {
@@ -287,7 +287,7 @@ impl<N: RealField> Triangle<N> {
     }
 }
 
-impl<N: RealField> SupportMap<N> for Triangle<N> {
+impl<N: RealField + Copy> SupportMap<N> for Triangle<N> {
     #[inline]
     fn local_support_point(&self, dir: &Vector<N>) -> Point<N> {
         let d1 = self.a.coords.dot(dir);
@@ -311,7 +311,7 @@ impl<N: RealField> SupportMap<N> for Triangle<N> {
 }
 
 #[cfg(feature = "dim3")]
-impl<N: RealField> ConvexPolyhedron<N> for Triangle<N> {
+impl<N: RealField + Copy> ConvexPolyhedron<N> for Triangle<N> {
     fn vertex(&self, id: FeatureId) -> Point<N> {
         match id.unwrap_vertex() {
             0 => self.a,

@@ -10,13 +10,13 @@ use crate::simba::scalar::RealField;
 use crate::utils;
 use na::{self, Point3};
 
-struct Triangle<N: RealField> {
+struct Triangle<N: RealField + Copy> {
     idx: Point3<usize>,
     circumcircle_center: Point<N>,
     circumcircle_sq_radius: N,
 }
 
-impl<N: RealField> Triangle<N> {
+impl<N: RealField + Copy> Triangle<N> {
     pub fn new(idx: Point3<usize>, pts: &[Point<N>]) -> Triangle<N> {
         let pa = &pts[idx.x];
         let pb = &pts[idx.y];
@@ -37,13 +37,13 @@ impl<N: RealField> Triangle<N> {
 }
 
 /// Incremental triangulation utility.
-pub struct Triangulator<N: RealField> {
+pub struct Triangulator<N: RealField + Copy> {
     vertices: Vec<Point<N>>,
     triangles: Vec<Triangle<N>>,
     edges: HashMap<(usize, usize), usize>,
 }
 
-impl<N: RealField> Triangulator<P> {
+impl<N: RealField + Copy> Triangulator<P> {
     /// Creates a new Triangulator.
     pub fn new(
         supertriangle_a: Point<N>,
@@ -158,7 +158,7 @@ impl<N: RealField> Triangulator<P> {
 /// If the points do not lie on the same 2d plane, strange things might happends (triangle might be
 /// attached together in an unnatural way). Though, if they are only slighly perturbated on the
 /// directions orthogonal to the plane, this should be fine.
-pub fn triangulate<N: RealField>(pts: &[Point<N>]) -> TriMesh<N> {
+pub fn triangulate<N: RealField + Copy>(pts: &[Point<N>]) -> TriMesh<N> {
     //// Compute the super-triangle
     let (center, radius) = bounding_volume::point_cloud_bounding_sphere(pts);
     let radius = radius * na::convert(2.0);

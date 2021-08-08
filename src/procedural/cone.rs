@@ -5,7 +5,7 @@ use na::{Point3, Vector3};
 use simba::scalar::RealField;
 
 /// Generates a cone with a given height and diameter.
-pub fn cone<N: RealField>(diameter: N, height: N, nsubdiv: u32) -> TriMesh<N> {
+pub fn cone<N: RealField + Copy>(diameter: N, height: N, nsubdiv: u32) -> TriMesh<N> {
     let mut cone = unit_cone(nsubdiv);
 
     cone.scale_by(&Vector3::new(diameter, height, diameter));
@@ -14,7 +14,7 @@ pub fn cone<N: RealField>(diameter: N, height: N, nsubdiv: u32) -> TriMesh<N> {
 }
 
 /// Generates a cone with unit height and diameter.
-pub fn unit_cone<N: RealField>(nsubdiv: u32) -> TriMesh<N> {
+pub fn unit_cone<N: RealField + Copy>(nsubdiv: u32) -> TriMesh<N> {
     let two_pi = N::two_pi();
     let dtheta = two_pi / na::convert(nsubdiv as f64);
     let mut coords = Vec::new();

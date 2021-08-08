@@ -18,7 +18,7 @@ pub fn time_of_impact_support_map_support_map<N, G1: ?Sized, G2: ?Sized>(
     target_distance: N,
 ) -> Option<TOI<N>>
 where
-    N: RealField,
+    N: RealField + Copy,
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {

@@ -5,14 +5,14 @@ use na::{self, RealField};
 /// Description of the projection of a point on a shape.
 #[derive(Copy, Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub struct PointProjection<N: RealField> {
+pub struct PointProjection<N: RealField + Copy> {
     /// Whether or not the point to project was inside of the shape.
     pub is_inside: bool,
     /// The projection result.
     pub point: Point<N>,
 }
 
-impl<N: RealField> PointProjection<N> {
+impl<N: RealField + Copy> PointProjection<N> {
     /// Initializes a new `PointProjection`.
     pub fn new(is_inside: bool, point: Point<N>) -> PointProjection<N> {
         PointProjection { is_inside, point }
@@ -20,7 +20,7 @@ impl<N: RealField> PointProjection<N> {
 }
 
 /// Trait of objects that can be tested for point inclusion and projection.
-pub trait PointQuery<N: RealField> {
+pub trait PointQuery<N: RealField + Copy> {
     /// Projects a point on `self` transformed by `m`.
     fn project_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> PointProjection<N>;
 
@@ -66,7 +66,7 @@ pub trait PointQuery<N: RealField> {
 /// information, can implement `PointQueryWithLocation` in addition and have their
 /// `PointQuery::project_point` implementation just call out to
 /// `PointQueryWithLocation::project_point_with_location`.
-pub trait PointQueryWithLocation<N: RealField> {
+pub trait PointQueryWithLocation<N: RealField + Copy> {
     /// Additional shape-specific projection information
     ///
     /// In addition to the generic projection information returned in

@@ -24,7 +24,7 @@ bitflags! {
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
 /// An heightfield implicitly discretized with triangles.
-pub struct HeightField<N: RealField> {
+pub struct HeightField<N: RealField + Copy> {
     heights: DMatrix<N>,
     scale: Vector<N>,
     aabb: AABB<N>,
@@ -32,7 +32,7 @@ pub struct HeightField<N: RealField> {
     status: DMatrix<HeightFieldCellStatus>,
 }
 
-impl<N: RealField> HeightField<N> {
+impl<N: RealField + Copy> HeightField<N> {
     /// Initializes a new heightfield with the given heights and a scaling factor.
     pub fn new(heights: DMatrix<N>, scale: Vector<N>) -> Self {
         assert!(
@@ -456,12 +456,12 @@ impl<N: RealField> HeightField<N> {
 }
 
 #[allow(dead_code)]
-pub struct HeightFieldTriangleContactPreprocessor<'a, N: RealField> {
+pub struct HeightFieldTriangleContactPreprocessor<'a, N: RealField + Copy> {
     heightfield: &'a HeightField<N>,
     triangle: usize,
 }
 
-impl<'a, N: RealField> HeightFieldTriangleContactPreprocessor<'a, N> {
+impl<'a, N: RealField + Copy> HeightFieldTriangleContactPreprocessor<'a, N> {
     pub fn new(heightfield: &'a HeightField<N>, triangle: usize) -> Self {
         HeightFieldTriangleContactPreprocessor {
             heightfield,
@@ -470,7 +470,7 @@ impl<'a, N: RealField> HeightFieldTriangleContactPreprocessor<'a, N> {
     }
 }
 
-impl<'a, N: RealField> ContactPreprocessor<N> for HeightFieldTriangleContactPreprocessor<'a, N> {
+impl<'a, N: RealField + Copy> ContactPreprocessor<N> for HeightFieldTriangleContactPreprocessor<'a, N> {
     fn process_contact(
         &self,
         _c: &mut Contact<N>,
@@ -517,13 +517,13 @@ impl<'a, N: RealField> ContactPreprocessor<N> for HeightFieldTriangleContactPrep
     }
 }
 
-struct HeightfieldTriangles<'a, N: RealField> {
+struct HeightfieldTriangles<'a, N: RealField + Copy> {
     heightfield: &'a HeightField<N>,
     curr: (usize, usize),
     tris: (Option<Triangle<N>>, Option<Triangle<N>>),
 }
 
-impl<'a, N: RealField> Iterator for HeightfieldTriangles<'a, N> {
+impl<'a, N: RealField + Copy> Iterator for HeightfieldTriangles<'a, N> {
     type Item = Triangle<N>;
 
     fn next(&mut self) -> Option<Triangle<N>> {

@@ -7,7 +7,7 @@ use crate::utils;
 
 /// Computes the volume of a tetrahedron.
 #[inline]
-pub fn tetrahedron_volume<N: RealField>(
+pub fn tetrahedron_volume<N: RealField + Copy>(
     p1: &Point<N>,
     p2: &Point<N>,
     p3: &Point<N>,
@@ -21,7 +21,7 @@ pub fn tetrahedron_volume<N: RealField>(
 /// If it is positive, `p4` is on the half-space pointed by the normal of the oriented triangle
 /// `(p1, p2, p3)`.
 #[inline]
-pub fn tetrahedron_signed_volume<N: RealField>(
+pub fn tetrahedron_signed_volume<N: RealField + Copy>(
     p1: &Point<N>,
     p2: &Point<N>,
     p3: &Point<N>,
@@ -40,7 +40,7 @@ pub fn tetrahedron_signed_volume<N: RealField>(
 
 /// Computes the center of a tetrahedron.
 #[inline]
-pub fn tetrahedron_center<N: RealField>(
+pub fn tetrahedron_center<N: RealField + Copy>(
     p1: &Point<N>,
     p2: &Point<N>,
     p3: &Point<N>,

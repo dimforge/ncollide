@@ -7,7 +7,7 @@ use crate::shape::{Cone, Cylinder};
 use na::RealField;
 
 #[cfg(feature = "dim3")]
-impl<N: RealField> HasBoundingVolume<N, AABB<N>> for Cone<N> {
+impl<N: RealField + Copy> HasBoundingVolume<N, AABB<N>> for Cone<N> {
     #[inline]
     fn bounding_volume(&self, m: &Isometry<N>) -> AABB<N> {
         bounding_volume::support_map_aabb(m, self)
@@ -20,7 +20,7 @@ impl<N: RealField> HasBoundingVolume<N, AABB<N>> for Cone<N> {
 }
 
 #[cfg(feature = "dim3")]
-impl<N: RealField> HasBoundingVolume<N, AABB<N>> for Cylinder<N> {
+impl<N: RealField + Copy> HasBoundingVolume<N, AABB<N>> for Cylinder<N> {
     #[inline]
     fn bounding_volume(&self, m: &Isometry<N>) -> AABB<N> {
         bounding_volume::support_map_aabb(m, self)
@@ -32,7 +32,7 @@ impl<N: RealField> HasBoundingVolume<N, AABB<N>> for Cylinder<N> {
     }
 }
 
-impl<N: RealField> HasBoundingVolume<N, AABB<N>> for Capsule<N> {
+impl<N: RealField + Copy> HasBoundingVolume<N, AABB<N>> for Capsule<N> {
     #[inline]
     fn bounding_volume(&self, m: &Isometry<N>) -> AABB<N> {
         bounding_volume::support_map_aabb(m, self)
@@ -44,7 +44,7 @@ impl<N: RealField> HasBoundingVolume<N, AABB<N>> for Capsule<N> {
     }
 }
 
-impl<N: RealField> HasBoundingVolume<N, AABB<N>> for Segment<N> {
+impl<N: RealField + Copy> HasBoundingVolume<N, AABB<N>> for Segment<N> {
     #[inline]
     fn bounding_volume(&self, m: &Isometry<N>) -> AABB<N> {
         // SPEED: optimize this

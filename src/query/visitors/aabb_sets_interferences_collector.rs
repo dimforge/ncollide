@@ -4,7 +4,7 @@ use crate::partitioning::{SimultaneousVisitor, VisitStatus};
 use na::RealField;
 
 /// Spatial partitioning data structure visitor collecting interferences with a given bounding volume.
-pub struct AABBSetsInterferencesCollector<'a, N: 'a + RealField, T: 'a> {
+pub struct AABBSetsInterferencesCollector<'a, N: 'a + RealField + Copy, T: 'a> {
     /// The transform from the local-space of the second bounding volumes to the local space of the first.
     pub ls_m2: &'a Isometry<N>,
     /// The absolute value of the rotation matrix representing `ls_m2.rotation`.
@@ -19,7 +19,7 @@ pub struct AABBSetsInterferencesCollector<'a, N: 'a + RealField, T: 'a> {
     pub collector: &'a mut Vec<(T, T)>,
 }
 
-impl<'a, N: RealField, T> AABBSetsInterferencesCollector<'a, N, T> {
+impl<'a, N: RealField + Copy, T> AABBSetsInterferencesCollector<'a, N, T> {
     /// Creates a new `AABBSetsInterferencesCollector`.
     #[inline]
     pub fn new(
@@ -37,7 +37,7 @@ impl<'a, N: RealField, T> AABBSetsInterferencesCollector<'a, N, T> {
     }
 }
 
-impl<'a, N: RealField, T: Clone> SimultaneousVisitor<T, AABB<N>>
+impl<'a, N: RealField + Copy, T: Clone> SimultaneousVisitor<T, AABB<N>>
     for AABBSetsInterferencesCollector<'a, N, T>
 {
     #[inline]

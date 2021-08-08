@@ -10,11 +10,11 @@ use std::marker::PhantomData;
 
 /// Collision detector between two balls.
 #[derive(Clone)]
-pub struct BallBallManifoldGenerator<N: RealField> {
+pub struct BallBallManifoldGenerator<N: RealField + Copy> {
     phantom: PhantomData<N>,
 }
 
-impl<N: RealField> BallBallManifoldGenerator<N> {
+impl<N: RealField + Copy> BallBallManifoldGenerator<N> {
     /// Creates a new persistent collision detector between two balls.
     #[inline]
     pub fn new() -> BallBallManifoldGenerator<N> {
@@ -24,7 +24,7 @@ impl<N: RealField> BallBallManifoldGenerator<N> {
     }
 }
 
-impl<N: RealField> ContactManifoldGenerator<N> for BallBallManifoldGenerator<N> {
+impl<N: RealField + Copy> ContactManifoldGenerator<N> for BallBallManifoldGenerator<N> {
     fn generate_contacts(
         &mut self,
         _: &dyn ContactDispatcher<N>,

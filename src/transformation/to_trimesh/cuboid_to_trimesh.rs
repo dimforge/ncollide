@@ -5,7 +5,7 @@ use crate::shape::Cuboid;
 use na;
 use simba::scalar::RealField;
 
-impl<N: RealField> ToTriMesh<N> for Cuboid<N> {
+impl<N: RealField + Copy> ToTriMesh<N> for Cuboid<N> {
     type DiscretizationParameter = ();
 
     fn to_trimesh(&self, _: ()) -> TriMesh<N> {

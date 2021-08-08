@@ -7,12 +7,12 @@ use crate::shape::{Capsule, Shape};
 use na::{self, RealField};
 
 /// Collision detector between a concave shape and another shape.
-pub struct CapsuleCapsuleManifoldGenerator<N: RealField> {
+pub struct CapsuleCapsuleManifoldGenerator<N: RealField + Copy> {
     // FIXME: use a dedicated segment-segment algorithm instead.
     sub_detector: ConvexPolyhedronConvexPolyhedronManifoldGenerator<N>,
 }
 
-impl<N: RealField> CapsuleCapsuleManifoldGenerator<N> {
+impl<N: RealField + Copy> CapsuleCapsuleManifoldGenerator<N> {
     /// Creates a new collision detector between a concave shape and another shape.
     pub fn new() -> CapsuleCapsuleManifoldGenerator<N> {
         CapsuleCapsuleManifoldGenerator {
@@ -54,7 +54,7 @@ impl<N: RealField> CapsuleCapsuleManifoldGenerator<N> {
     }
 }
 
-impl<N: RealField> ContactManifoldGenerator<N> for CapsuleCapsuleManifoldGenerator<N> {
+impl<N: RealField + Copy> ContactManifoldGenerator<N> for CapsuleCapsuleManifoldGenerator<N> {
     fn generate_contacts(
         &mut self,
         d: &dyn ContactDispatcher<N>,

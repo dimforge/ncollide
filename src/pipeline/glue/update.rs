@@ -9,7 +9,7 @@ use crate::pipeline::object::{CollisionGroupsPairFilter, CollisionObjectRef, Col
 
 struct CollisionWorldInterferenceHandler<'a, 'b, N, Objects, Filter>
 where
-    N: RealField,
+    N: RealField + Copy,
     Objects: CollisionObjectSet<N>,
     Filter: BroadPhasePairFilter<N, Objects> + ?Sized,
 {
@@ -19,7 +19,7 @@ where
     pair_filters: Option<&'a Filter>,
 }
 
-impl<'a, 'b, N: RealField, Objects, Filter>
+impl<'a, 'b, N: RealField + Copy, Objects, Filter>
     BroadPhaseInterferenceHandler<Objects::CollisionObjectHandle>
     for CollisionWorldInterferenceHandler<'a, 'b, N, Objects, Filter>
 where
@@ -63,7 +63,7 @@ where
 ///
 /// This will update the broad-phase internal structure, and create potential interaction pairs in the interaction graph.
 /// A `pair_filters` can be provided to filter out pairs of object that should not be considered.
-pub fn perform_broad_phase<N: RealField, Objects>(
+pub fn perform_broad_phase<N: RealField + Copy, Objects>(
     objects: &Objects,
     broad_phase: &mut (impl BroadPhase<N, AABB<N>, Objects::CollisionObjectHandle> + ?Sized),
     narrow_phase: &mut NarrowPhase<N, Objects::CollisionObjectHandle>,
@@ -104,7 +104,7 @@ pub fn perform_narrow_phase<N, Objects>(
     narrow_phase: &mut NarrowPhase<N, Objects::CollisionObjectHandle>,
     interactions: &mut InteractionGraph<N, Objects::CollisionObjectHandle>,
 ) where
-    N: RealField,
+    N: RealField + Copy,
     Objects: CollisionObjectSet<N>,
 {
     narrow_phase.update(interactions, objects);
@@ -121,7 +121,7 @@ pub fn perform_all_pipeline<'a, N, Objects>(
     interactions: &mut InteractionGraph<N, Objects::CollisionObjectHandle>,
     pair_filters: Option<&'a (impl BroadPhasePairFilter<N, Objects> + ?Sized)>,
 ) where
-    N: RealField,
+    N: RealField + Copy,
     Objects: CollisionObjectSet<N>,
 {
     perform_broad_phase(

@@ -3,7 +3,7 @@ use crate::math::{Isometry, Point};
 use crate::shape::Plane;
 use na::RealField;
 
-impl<N: RealField> HasBoundingVolume<N, BoundingSphere<N>> for Plane<N> {
+impl<N: RealField + Copy> HasBoundingVolume<N, BoundingSphere<N>> for Plane<N> {
     #[inline]
     fn bounding_volume(&self, m: &Isometry<N>) -> BoundingSphere<N> {
         let bv: BoundingSphere<N> = self.local_bounding_volume();

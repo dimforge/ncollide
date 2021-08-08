@@ -59,7 +59,7 @@ impl CollisionObjectUpdateFlags {
 }
 
 /// Trait implemented by collision objects.
-pub trait CollisionObjectRef<N: RealField> {
+pub trait CollisionObjectRef<N: RealField + Copy> {
     /// The interaction graph index of this collision object, if it has been registered into an interaction graph.
     ///
     /// Se the `glue::create_proxies` for more details.
@@ -128,7 +128,7 @@ impl CollisionObjectSlabHandle {
 }
 
 /// A stand-alone object that has a position and a shape.
-pub struct CollisionObject<N: RealField, T> {
+pub struct CollisionObject<N: RealField + Copy, T> {
     proxy_handle: Option<BroadPhaseProxyHandle>,
     graph_index: Option<CollisionObjectGraphIndex>,
     position: Isometry<N>,
@@ -140,7 +140,7 @@ pub struct CollisionObject<N: RealField, T> {
     data: T,
 }
 
-impl<N: RealField, T> CollisionObject<N, T> {
+impl<N: RealField + Copy, T> CollisionObject<N, T> {
     /// Creates a new collision object.
     pub fn new(
         proxy_handle: Option<BroadPhaseProxyHandle>,
@@ -303,7 +303,7 @@ impl<N: RealField, T> CollisionObject<N, T> {
     }
 }
 
-impl<N: RealField, T> CollisionObjectRef<N> for CollisionObject<N, T> {
+impl<N: RealField + Copy, T> CollisionObjectRef<N> for CollisionObject<N, T> {
     fn graph_index(&self) -> Option<CollisionObjectGraphIndex> {
         self.graph_index()
     }

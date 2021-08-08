@@ -4,7 +4,7 @@ use crate::shape::{Plane, SupportMap};
 use na::{self, RealField};
 
 /// Contact between a plane and a support-mapped shape (Cuboid, ConvexHull, etc.)
-pub fn contact_plane_support_map<N: RealField, G: ?Sized + SupportMap<N>>(
+pub fn contact_plane_support_map<N: RealField + Copy, G: ?Sized + SupportMap<N>>(
     mplane: &Isometry<N>,
     plane: &Plane<N>,
     mother: &Isometry<N>,
@@ -27,7 +27,7 @@ pub fn contact_plane_support_map<N: RealField, G: ?Sized + SupportMap<N>>(
 }
 
 /// Contact between a support-mapped shape (Cuboid, ConvexHull, etc.) and a plane.
-pub fn contact_support_map_plane<N: RealField, G: ?Sized + SupportMap<N>>(
+pub fn contact_support_map_plane<N: RealField + Copy, G: ?Sized + SupportMap<N>>(
     mother: &Isometry<N>,
     other: &G,
     mplane: &Isometry<N>,

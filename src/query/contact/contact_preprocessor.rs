@@ -2,7 +2,7 @@ use crate::query::{Contact, ContactKinematic};
 use na::RealField;
 
 /// Pre-process a contact before it is added to a contact manifold.
-pub trait ContactPreprocessor<N: RealField> {
+pub trait ContactPreprocessor<N: RealField + Copy> {
     /// Process a contact before it is stored into a contact manifold.
     ///
     /// Returns `false` if the contact should be ignored.
@@ -19,7 +19,7 @@ pub trait ContactPreprocessor<N: RealField> {
 // more virtual call) when the first member is `None`.
 impl<'a, 'b, N, A, B> ContactPreprocessor<N> for (Option<&'a A>, &'b B)
 where
-    N: RealField,
+    N: RealField + Copy,
     A: ?Sized + ContactPreprocessor<N>,
     B: ?Sized + ContactPreprocessor<N>,
 {

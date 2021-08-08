@@ -7,7 +7,7 @@ use std::any::Any;
 
 /// An algorithm to compute contact points, normals and penetration depths between two specific
 /// objects.
-pub trait ContactManifoldGenerator<N: RealField>: Any + Send + Sync {
+pub trait ContactManifoldGenerator<N: RealField + Copy>: Any + Send + Sync {
     /// Runs the collision detection on two objects. It is assumed that the same
     /// collision detector (the same structure) is always used with the same
     /// pair of objects.

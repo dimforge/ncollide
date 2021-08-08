@@ -14,7 +14,7 @@ impl<T: Copy + Hash + PartialEq + Eq + 'static + Send + Sync> CollisionObjectHan
 ///
 /// A set of collision object map a handle of type `Self::CollisionObjectHandle` with a collision
 /// object of type `Self::CollisionObject`.
-pub trait CollisionObjectSet<N: RealField> {
+pub trait CollisionObjectSet<N: RealField + Copy> {
     /// Type of the collision object stored into this set.
     type CollisionObject: CollisionObjectRef<N>;
     /// Type of the handles identifying collision objects.
@@ -29,7 +29,7 @@ pub trait CollisionObjectSet<N: RealField> {
     fn foreach(&self, f: impl FnMut(Self::CollisionObjectHandle, &Self::CollisionObject));
 }
 
-impl<N: RealField, T> CollisionObjectSet<N> for CollisionObjectSlab<N, T> {
+impl<N: RealField + Copy, T> CollisionObjectSet<N> for CollisionObjectSlab<N, T> {
     type CollisionObject = CollisionObject<N, T>;
     type CollisionObjectHandle = CollisionObjectSlabHandle;
 
@@ -48,11 +48,11 @@ impl<N: RealField, T> CollisionObjectSet<N> for CollisionObjectSlab<N, T> {
 }
 
 /// A set of collision objects that can be indexed by collision object handles.
-pub struct CollisionObjectSlab<N: RealField, T> {
+pub struct CollisionObjectSlab<N: RealField + Copy, T> {
     pub(crate) objects: Slab<CollisionObject<N, T>>,
 }
 
-impl<N: RealField, T> CollisionObjectSlab<N, T> {
+impl<N: RealField + Copy, T> CollisionObjectSlab<N, T> {
     /// Creates a new empty collection of collision objects.
     pub fn new() -> CollisionObjectSlab<N, T> {
         CollisionObjectSlab {
@@ -165,7 +165,7 @@ impl<N: RealField, T> CollisionObjectSlab<N, T> {
     }
 }
 
-impl<N: RealField, T> Index<CollisionObjectSlabHandle> for CollisionObjectSlab<N, T> {
+impl<N: RealField + Copy, T> Index<CollisionObjectSlabHandle> for CollisionObjectSlab<N, T> {
     type Output = CollisionObject<N, T>;
 
     #[inline]
@@ -174,7 +174,7 @@ impl<N: RealField, T> Index<CollisionObjectSlabHandle> for CollisionObjectSlab<N
     }
 }
 
-impl<N: RealField, T> IndexMut<CollisionObjectSlabHandle> for CollisionObjectSlab<N, T> {
+impl<N: RealField + Copy, T> IndexMut<CollisionObjectSlabHandle> for CollisionObjectSlab<N, T> {
     #[inline]
     fn index_mut(&mut self, handle: CollisionObjectSlabHandle) -> &mut Self::Output {
         &mut self.objects[handle.0]
@@ -182,11 +182,11 @@ impl<N: RealField, T> IndexMut<CollisionObjectSlabHandle> for CollisionObjectSla
 }
 
 /// An iterator yielding references to collision objects.
-pub struct CollisionObjects<'a, N: 'a + RealField, T: 'a> {
+pub struct CollisionObjects<'a, N: 'a + RealField + Copy, T: 'a> {
     iter: Iter<'a, CollisionObject<N, T>>,
 }
 
-impl<'a, N: 'a + RealField, T: 'a> Iterator for CollisionObjects<'a, N, T> {
+impl<'a, N: 'a + RealField + Copy, T: 'a> Iterator for CollisionObjects<'a, N, T> {
     type Item = (CollisionObjectSlabHandle, &'a CollisionObject<N, T>);
 
     #[inline]
@@ -198,11 +198,11 @@ impl<'a, N: 'a + RealField, T: 'a> Iterator for CollisionObjects<'a, N, T> {
 }
 
 /// An iterator yielding mutable references to collision objects.
-pub struct CollisionObjectsMut<'a, N: 'a + RealField, T: 'a> {
+pub struct CollisionObjectsMut<'a, N: 'a + RealField + Copy, T: 'a> {
     iter_mut: IterMut<'a, CollisionObject<N, T>>,
 }
 
-impl<'a, N: 'a + RealField, T: 'a> Iterator for CollisionObjectsMut<'a, N, T> {
+impl<'a, N: 'a + RealField + Copy, T: 'a> Iterator for CollisionObjectsMut<'a, N, T> {
     type Item = (CollisionObjectSlabHandle, &'a mut CollisionObject<N, T>);
 
     #[inline]

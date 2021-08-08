@@ -5,7 +5,7 @@ use crate::query::{self, Ray, RayCast, RayIntersection};
 use crate::shape::{CompositeShape, FeatureId, TriMesh};
 use na::{Point2, RealField, Vector3};
 
-impl<N: RealField> RayCast<N> for TriMesh<N> {
+impl<N: RealField + Copy> RayCast<N> for TriMesh<N> {
     #[inline]
     fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, max_toi: N, _: bool) -> Option<N> {
         let ls_ray = ray.inverse_transform_by(m);
@@ -97,13 +97,13 @@ impl<N: RealField> RayCast<N> for TriMesh<N> {
 /*
  * Costs functions.
  */
-struct TriMeshRayToiVisitor<'a, N: 'a + RealField> {
+struct TriMeshRayToiVisitor<'a, N: 'a + RealField + Copy> {
     mesh: &'a TriMesh<N>,
     ray: &'a Ray<N>,
     max_toi: N,
 }
 
-impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for TriMeshRayToiVisitor<'a, N> {
+impl<'a, N: RealField + Copy> BestFirstVisitor<N, usize, AABB<N>> for TriMeshRayToiVisitor<'a, N> {
     type Result = N;
 
     #[inline]
@@ -141,13 +141,13 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for TriMeshRayToiVisi
     }
 }
 
-struct TriMeshRayToiAndNormalVisitor<'a, N: 'a + RealField> {
+struct TriMeshRayToiAndNormalVisitor<'a, N: 'a + RealField + Copy> {
     mesh: &'a TriMesh<N>,
     ray: &'a Ray<N>,
     max_toi: N,
 }
 
-impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>>
+impl<'a, N: RealField + Copy> BestFirstVisitor<N, usize, AABB<N>>
     for TriMeshRayToiAndNormalVisitor<'a, N>
 {
     type Result = (usize, RayIntersection<N>);
@@ -190,13 +190,13 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>>
     }
 }
 
-struct TriMeshRayToiAndNormalAndUVsVisitor<'a, N: 'a + RealField> {
+struct TriMeshRayToiAndNormalAndUVsVisitor<'a, N: 'a + RealField + Copy> {
     mesh: &'a TriMesh<N>,
     ray: &'a Ray<N>,
     max_toi: N,
 }
 
-impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>>
+impl<'a, N: RealField + Copy> BestFirstVisitor<N, usize, AABB<N>>
     for TriMeshRayToiAndNormalAndUVsVisitor<'a, N>
 {
     type Result = (usize, RayIntersection<N>, Vector3<N>);

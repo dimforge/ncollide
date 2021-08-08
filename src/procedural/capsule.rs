@@ -11,7 +11,7 @@ pub fn capsule<N>(
     nphi_subdiv: u32,
 ) -> TriMesh<N>
 where
-    N: RealField,
+    N: RealField + Copy,
 {
     let top = sphere::unit_hemisphere::<N>(ntheta_subdiv, nphi_subdiv);
     let TriMesh {

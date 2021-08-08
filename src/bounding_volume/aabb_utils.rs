@@ -8,7 +8,7 @@ use na::{self, RealField};
 /// Computes the AABB of an support mapped shape.
 pub fn support_map_aabb<N, G>(m: &Isometry<N>, i: &G) -> AABB<N>
 where
-    N: RealField,
+    N: RealField + Copy,
     G: SupportMap<N>,
 {
     let mut min = na::zero::<Vector<N>>();
@@ -33,7 +33,7 @@ where
 /// Computes the AABB of an support mapped shape.
 pub fn local_support_map_aabb<N, G>(i: &G) -> AABB<N>
 where
-    N: RealField,
+    N: RealField + Copy,
     G: SupportMap<N>,
 {
     let mut min = na::zero::<Vector<N>>();
@@ -56,7 +56,7 @@ where
 }
 
 /// Computes the AABB of a set of points transformed by `m`.
-pub fn point_cloud_aabb<'a, N: RealField, I>(m: &Isometry<N>, pts: I) -> AABB<N>
+pub fn point_cloud_aabb<'a, N: RealField + Copy, I>(m: &Isometry<N>, pts: I) -> AABB<N>
 where
     I: IntoIterator<Item = &'a Point<N>>,
 {
@@ -79,7 +79,7 @@ where
 }
 
 /// Computes the AABB of a set of points.
-pub fn local_point_cloud_aabb<'a, N: RealField, I>(pts: I) -> AABB<N>
+pub fn local_point_cloud_aabb<'a, N: RealField + Copy, I>(pts: I) -> AABB<N>
 where
     I: IntoIterator<Item = &'a Point<N>>,
 {

@@ -4,7 +4,7 @@ use crate::query::{PointProjection, PointQuery};
 use crate::shape::{Cuboid, FeatureId};
 use na::RealField;
 
-impl<N: RealField> PointQuery<N> for Cuboid<N> {
+impl<N: RealField + Copy> PointQuery<N> for Cuboid<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> PointProjection<N> {
         let dl = Point::origin() + (-self.half_extents);

@@ -11,7 +11,7 @@ use na::{self, RealField, Unit};
 
 #[cfg(feature = "dim2")]
 #[derive(Clone)]
-pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<N: RealField> {
+pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<N: RealField + Copy> {
     simplex: VoronoiSimplex<N>,
     last_gjk_dir: Option<Unit<Vector<N>>>,
     last_optimal_dir: Option<Unit<Vector<N>>>,
@@ -22,7 +22,7 @@ pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<N: RealField> {
 
 #[cfg(feature = "dim3")]
 #[derive(Clone)]
-pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<N: RealField> {
+pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<N: RealField + Copy> {
     simplex: VoronoiSimplex<N>,
     last_gjk_dir: Option<Unit<Vector<N>>>,
     last_optimal_dir: Option<Unit<Vector<N>>>,
@@ -32,7 +32,7 @@ pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<N: RealField> {
     manifold2: ConvexPolygonalFeature<N>,
 }
 
-impl<N: RealField> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
+impl<N: RealField + Copy> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
     #[cfg(feature = "dim3")]
     pub fn new() -> Self {
         ConvexPolyhedronConvexPolyhedronManifoldGenerator {
@@ -77,7 +77,7 @@ impl<N: RealField> ConvexPolyhedronConvexPolyhedronManifoldGenerator<N> {
     }
 }
 
-impl<N: RealField> ContactManifoldGenerator<N>
+impl<N: RealField + Copy> ContactManifoldGenerator<N>
     for ConvexPolyhedronConvexPolyhedronManifoldGenerator<N>
 {
     fn generate_contacts(

@@ -7,7 +7,7 @@ use crate::query::{
 use crate::shape::{FeatureId, Polyline, SegmentPointLocation};
 use na::{self, RealField};
 
-impl<N: RealField> PointQuery<N> for Polyline<N> {
+impl<N: RealField + Copy> PointQuery<N> for Polyline<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, point: &Point<N>, solid: bool) -> PointProjection<N> {
         let (projection, _) = self.project_point_with_location(m, point, solid);
@@ -51,7 +51,7 @@ impl<N: RealField> PointQuery<N> for Polyline<N> {
     }
 }
 
-impl<N: RealField> PointQueryWithLocation<N> for Polyline<N> {
+impl<N: RealField + Copy> PointQueryWithLocation<N> for Polyline<N> {
     type Location = (usize, SegmentPointLocation<N>);
 
     #[inline]
@@ -79,12 +79,12 @@ impl<N: RealField> PointQueryWithLocation<N> for Polyline<N> {
  */
 macro_rules! gen_visitor(
     ($Visitor: ident, $Location: ty, $project: ident $(, $args: ident)*) => {
-        struct $Visitor<'a, N: 'a + RealField> {
+        struct $Visitor<'a, N: 'a + RealField + Copy> {
             polyline: &'a Polyline<N>,
             point: &'a Point<N>,
         }
 
-        impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for $Visitor<'a, N> {
+        impl<'a, N: RealField + Copy> BestFirstVisitor<N, usize, AABB<N>> for $Visitor<'a, N> {
             type Result = (PointProjection<N>, (usize, $Location));
 
             #[inline]

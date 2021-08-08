@@ -12,7 +12,7 @@ use std::mem;
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[repr(C)]
 #[derive(PartialEq, Debug, Copy, Clone)]
-pub struct Segment<N: RealField> {
+pub struct Segment<N: RealField + Copy> {
     /// The segment first point.
     pub a: Point<N>,
     /// The segment second point.
@@ -21,14 +21,14 @@ pub struct Segment<N: RealField> {
 
 /// Logical description of the location of a point on a triangle.
 #[derive(PartialEq, Debug, Clone, Copy)]
-pub enum SegmentPointLocation<N: RealField> {
+pub enum SegmentPointLocation<N: RealField + Copy> {
     /// The point lies on a vertex.
     OnVertex(usize),
     /// The point lies on the segment interior.
     OnEdge([N; 2]),
 }
 
-impl<N: RealField> SegmentPointLocation<N> {
+impl<N: RealField + Copy> SegmentPointLocation<N> {
     /// The barycentric coordinates corresponding to this point location.
     pub fn barycentric_coordinates(&self) -> [N; 2] {
         let mut bcoords = [N::zero(); 2];
@@ -45,7 +45,7 @@ impl<N: RealField> SegmentPointLocation<N> {
     }
 }
 
-impl<N: RealField> Segment<N> {
+impl<N: RealField + Copy> Segment<N> {
     /// Creates a new segment from two points.
     #[inline]
     pub fn new(a: Point<N>, b: Point<N>) -> Segment<N> {
@@ -58,7 +58,7 @@ impl<N: RealField> Segment<N> {
     }
 }
 
-impl<N: RealField> Segment<N> {
+impl<N: RealField + Copy> Segment<N> {
     /// The first point of this segment.
     #[inline]
     #[deprecated(note = "use the `self.a` public field directly.")]
@@ -74,7 +74,7 @@ impl<N: RealField> Segment<N> {
     }
 }
 
-impl<N: RealField> Segment<N> {
+impl<N: RealField + Copy> Segment<N> {
     /// The direction of this segment scaled by its length.
     ///
     /// Points from `self.a` toward `self.b`.
@@ -179,7 +179,7 @@ impl<N: RealField> Segment<N> {
     }
 }
 
-impl<N: RealField> SupportMap<N> for Segment<N> {
+impl<N: RealField + Copy> SupportMap<N> for Segment<N> {
     #[inline]
     fn local_support_point(&self, dir: &Vector<N>) -> Point<N> {
         if self.a.coords.dot(dir) > self.b.coords.dot(dir) {
@@ -190,7 +190,7 @@ impl<N: RealField> SupportMap<N> for Segment<N> {
     }
 }
 
-impl<N: RealField> ConvexPolyhedron<N> for Segment<N> {
+impl<N: RealField + Copy> ConvexPolyhedron<N> for Segment<N> {
     fn vertex(&self, id: FeatureId) -> Point<N> {
         if id.unwrap_vertex() == 0 {
             self.a

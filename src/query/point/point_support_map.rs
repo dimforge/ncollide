@@ -20,7 +20,7 @@ pub fn point_projection_on_support_map<N, G>(
     solid: bool,
 ) -> PointProjection<N>
 where
-    N: RealField,
+    N: RealField + Copy,
     G: SupportMap<N>,
 {
     let id = Isometry::identity();
@@ -53,7 +53,7 @@ where
 }
 
 #[cfg(feature = "dim3")]
-impl<N: RealField> PointQuery<N> for Cylinder<N> {
+impl<N: RealField + Copy> PointQuery<N> for Cylinder<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, point: &Point<N>, solid: bool) -> PointProjection<N> {
         point_projection_on_support_map(m, self, &mut VoronoiSimplex::new(), point, solid)
@@ -70,7 +70,7 @@ impl<N: RealField> PointQuery<N> for Cylinder<N> {
 }
 
 #[cfg(feature = "dim3")]
-impl<N: RealField> PointQuery<N> for Cone<N> {
+impl<N: RealField + Copy> PointQuery<N> for Cone<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, point: &Point<N>, solid: bool) -> PointProjection<N> {
         point_projection_on_support_map(m, self, &mut VoronoiSimplex::new(), point, solid)
@@ -87,7 +87,7 @@ impl<N: RealField> PointQuery<N> for Cone<N> {
 }
 
 #[cfg(feature = "dim3")]
-impl<N: RealField> PointQuery<N> for ConvexHull<N> {
+impl<N: RealField + Copy> PointQuery<N> for ConvexHull<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, point: &Point<N>, solid: bool) -> PointProjection<N> {
         point_projection_on_support_map(m, self, &mut VoronoiSimplex::new(), point, solid)
@@ -117,7 +117,7 @@ impl<N: RealField> PointQuery<N> for ConvexHull<N> {
 }
 
 #[cfg(feature = "dim2")]
-impl<N: RealField> PointQuery<N> for ConvexPolygon<N> {
+impl<N: RealField + Copy> PointQuery<N> for ConvexPolygon<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, point: &Point<N>, solid: bool) -> PointProjection<N> {
         point_projection_on_support_map(m, self, &mut VoronoiSimplex::new(), point, solid)

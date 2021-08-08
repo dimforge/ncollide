@@ -13,7 +13,7 @@ pub enum DeformationsType {
 }
 
 /// Trait implemented by deformable shapes.
-pub trait DeformableShape<N: RealField> {
+pub trait DeformableShape<N: RealField + Copy> {
     /// The type of degrees of freedom this shape has.
     fn deformations_type(&self) -> DeformationsType;
 

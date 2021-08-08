@@ -3,7 +3,7 @@ use crate::query::{PointProjection, PointQuery, PointQueryWithLocation};
 use crate::shape::{FeatureId, Tetrahedron, TetrahedronPointLocation};
 use na::{self, RealField};
 
-impl<N: RealField> PointQuery<N> for Tetrahedron<N> {
+impl<N: RealField + Copy> PointQuery<N> for Tetrahedron<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> PointProjection<N> {
         let (projection, _) = self.project_point_with_location(m, pt, solid);
@@ -28,7 +28,7 @@ impl<N: RealField> PointQuery<N> for Tetrahedron<N> {
     }
 }
 
-impl<N: RealField> PointQueryWithLocation<N> for Tetrahedron<N> {
+impl<N: RealField + Copy> PointQueryWithLocation<N> for Tetrahedron<N> {
     type Location = TetrahedronPointLocation<N>;
 
     #[inline]
@@ -103,7 +103,7 @@ impl<N: RealField> PointQueryWithLocation<N> for Tetrahedron<N> {
          * Voronoï regions of edges.
          */
         #[inline(always)]
-        fn check_edge<N: RealField>(
+        fn check_edge<N: RealField + Copy>(
             i: usize,
             m: &Isometry<N>,
             a: &Point<N>,
@@ -248,7 +248,7 @@ impl<N: RealField> PointQueryWithLocation<N> for Tetrahedron<N> {
          * Voronoï regions of faces.
          */
         #[inline(always)]
-        fn check_face<N: RealField>(
+        fn check_face<N: RealField + Copy>(
             i: usize,
             a: &Point<N>,
             b: &Point<N>,

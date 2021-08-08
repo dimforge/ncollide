@@ -10,7 +10,7 @@ use crate::utils;
 use na::{self, Matrix3, Point2, Point3, RealField, Vector3};
 
 /// Computes the convariance matrix of a set of points.
-fn cov<N: RealField>(pts: &[Point3<N>]) -> Matrix3<N> {
+fn cov<N: RealField + Copy>(pts: &[Point3<N>]) -> Matrix3<N> {
     let center = utils::center(pts);
     let mut cov: Matrix3<N> = na::zero();
     let normalizer: N = na::convert(1.0 / (pts.len() as f64));
@@ -24,7 +24,7 @@ fn cov<N: RealField>(pts: &[Point3<N>]) -> Matrix3<N> {
 }
 
 /// Computes the convex hull of a set of 3d points.
-pub fn convex_hull3<N: RealField>(points: &[Point3<N>]) -> TriMesh<N> {
+pub fn convex_hull3<N: RealField + Copy>(points: &[Point3<N>]) -> TriMesh<N> {
     assert!(
         points.len() != 0,
         "Cannot compute the convex hull of an empty set of point."
@@ -147,12 +147,12 @@ pub fn convex_hull3<N: RealField>(points: &[Point3<N>]) -> TriMesh<N> {
     TriMesh::new(points, None, None, Some(IndexBuffer::Unified(idx)))
 }
 
-enum InitialMesh<N: RealField> {
+enum InitialMesh<N: RealField + Copy> {
     Facets(Vec<TriangleFacet<N>>, Matrix3<N>),
     ResultMesh(TriMesh<N>),
 }
 
-fn build_degenerate_mesh_point<N: RealField>(point: Point3<N>) -> TriMesh<N> {
+fn build_degenerate_mesh_point<N: RealField + Copy>(point: Point3<N>) -> TriMesh<N> {
     let ta = Point3::new(0u32, 0, 0);
     let tb = Point3::new(0u32, 0, 0);
 
@@ -164,7 +164,7 @@ fn build_degenerate_mesh_point<N: RealField>(point: Point3<N>) -> TriMesh<N> {
     )
 }
 
-fn build_degenerate_mesh_segment<N: RealField>(
+fn build_degenerate_mesh_segment<N: RealField + Copy>(
     dir: &Vector3<N>,
     points: &[Point3<N>],
 ) -> TriMesh<N> {
@@ -182,7 +182,7 @@ fn build_degenerate_mesh_segment<N: RealField>(
     )
 }
 
-fn get_initial_mesh<N: RealField>(
+fn get_initial_mesh<N: RealField + Copy>(
     points: &mut [Point3<N>],
     undecidable: &mut Vec<usize>,
 ) -> InitialMesh<N> {
@@ -372,7 +372,7 @@ fn get_initial_mesh<N: RealField>(
     }
 }
 
-fn compute_silhouette<N: RealField>(
+fn compute_silhouette<N: RealField + Copy>(
     facet: usize,
     indirect_id: usize,
     point: usize,
@@ -418,7 +418,7 @@ fn compute_silhouette<N: RealField>(
     }
 }
 
-fn verify_facet_links<N: RealField>(ifacet: usize, facets: &[TriangleFacet<N>]) {
+fn verify_facet_links<N: RealField + Copy>(ifacet: usize, facets: &[TriangleFacet<N>]) {
     let facet = &facets[ifacet];
 
     for i in 0usize..3 {
@@ -434,7 +434,7 @@ fn verify_facet_links<N: RealField>(ifacet: usize, facets: &[TriangleFacet<N>]) 
     }
 }
 
-fn attach_and_push_facets3<N: RealField>(
+fn attach_and_push_facets3<N: RealField + Copy>(
     horizon_loop_facets: &[usize],
     horizon_loop_ids: &[usize],
     point: usize,
@@ -546,7 +546,7 @@ fn attach_and_push_facets3<N: RealField>(
     }
 }
 
-struct TriangleFacet<N: RealField> {
+struct TriangleFacet<N: RealField + Copy> {
     valid: bool,
     normal: Vector3<N>,
     adj: [usize; 3],
@@ -557,7 +557,7 @@ struct TriangleFacet<N: RealField> {
     furthest_distance: N,
 }
 
-impl<N: RealField> TriangleFacet<N> {
+impl<N: RealField + Copy> TriangleFacet<N> {
     pub fn new(p1: usize, p2: usize, p3: usize, points: &[Point3<N>]) -> TriangleFacet<N> {
         let p1p2 = points[p2] - points[p1];
         let p1p3 = points[p3] - points[p1];

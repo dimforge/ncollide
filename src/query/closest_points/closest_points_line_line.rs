@@ -6,7 +6,7 @@ use na::{self, RealField};
 /// The result, say `res`, is such that the closest points between both lines are
 /// `orig1 + dir1 * res.0` and `orig2 + dir2 * res.1`.
 #[inline]
-pub fn closest_points_line_line_parameters<N: RealField>(
+pub fn closest_points_line_line_parameters<N: RealField + Copy>(
     orig1: &Point<N>,
     dir1: &Vector<N>,
     orig2: &Point<N>,
@@ -24,7 +24,7 @@ pub fn closest_points_line_line_parameters<N: RealField>(
 /// then `res.2` is set to `true` and the returned closest points are `orig1` and
 /// its projection on the second line.
 #[inline]
-pub fn closest_points_line_line_parameters_eps<N: RealField>(
+pub fn closest_points_line_line_parameters_eps<N: RealField + Copy>(
     orig1: &Point<N>,
     dir1: &Vector<N>,
     orig2: &Point<N>,
@@ -72,7 +72,7 @@ pub fn closest_points_line_line_parameters_eps<N: RealField>(
 // FIXME: can we re-used this for the segment/segment case?
 /// Closest points between two segments.
 #[inline]
-pub fn closest_points_line_line<N: RealField>(
+pub fn closest_points_line_line<N: RealField + Copy>(
     orig1: &Point<N>,
     dir1: &Vector<N>,
     orig2: &Point<N>,

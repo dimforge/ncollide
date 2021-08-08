@@ -10,7 +10,7 @@ use std::ops::Sub;
 /// points correspond to the difference of two point, each belonging
 /// to a different solid.
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub struct CSOPoint<N: RealField> {
+pub struct CSOPoint<N: RealField + Copy> {
     /// The point on the CSO. This is equal to `self.orig1 - self.orig2`, unless this CSOPoint
     /// has been translated with self.translate.
     pub point: Point<N>,
@@ -20,7 +20,7 @@ pub struct CSOPoint<N: RealField> {
     pub orig2: Point<N>,
 }
 
-impl<N: RealField> CSOPoint<N> {
+impl<N: RealField + Copy> CSOPoint<N> {
     /// Initializes a CSO point with `orig1 - orig2`.
     pub fn new(orig1: Point<N>, orig2: Point<N>) -> Self {
         let point = Point::from(orig1 - orig2);
@@ -95,7 +95,7 @@ impl<N: RealField> CSOPoint<N> {
     }
 }
 
-impl<N: RealField> Sub<CSOPoint<N>> for CSOPoint<N> {
+impl<N: RealField + Copy> Sub<CSOPoint<N>> for CSOPoint<N> {
     type Output = Vector<N>;
 
     #[inline]

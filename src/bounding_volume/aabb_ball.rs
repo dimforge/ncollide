@@ -5,7 +5,7 @@ use na::RealField;
 
 /// Computes the Axis-Aligned Bounding Box of a ball transformed by `center`.
 #[inline]
-pub fn ball_aabb<N: RealField>(center: &Point<N>, radius: N) -> AABB<N> {
+pub fn ball_aabb<N: RealField + Copy>(center: &Point<N>, radius: N) -> AABB<N> {
     AABB::new(
         *center + Vector::repeat(-radius),
         *center + Vector::repeat(radius),
@@ -14,13 +14,13 @@ pub fn ball_aabb<N: RealField>(center: &Point<N>, radius: N) -> AABB<N> {
 
 /// Computes the Axis-Aligned Bounding Box of a ball.
 #[inline]
-pub fn local_ball_aabb<N: RealField>(radius: N) -> AABB<N> {
+pub fn local_ball_aabb<N: RealField + Copy>(radius: N) -> AABB<N> {
     let half_extents = Point::from(Vector::repeat(radius));
 
     AABB::new(-half_extents, half_extents)
 }
 
-impl<N: RealField> HasBoundingVolume<N, AABB<N>> for Ball<N> {
+impl<N: RealField + Copy> HasBoundingVolume<N, AABB<N>> for Ball<N> {
     #[inline]
     fn bounding_volume(&self, m: &Isometry<N>) -> AABB<N> {
         ball_aabb(&Point::from(m.translation.vector), self.radius)

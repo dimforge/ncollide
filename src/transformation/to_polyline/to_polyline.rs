@@ -2,7 +2,7 @@ use crate::procedural::Polyline;
 use na::RealField;
 
 /// Trait implemented by shapes that can be approximated by a triangle mesh.
-pub trait ToPolyline<N: RealField> {
+pub trait ToPolyline<N: RealField + Copy> {
     type DiscretizationParameter;
 
     /// Builds a triangle mesh from this shape.

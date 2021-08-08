@@ -10,7 +10,7 @@ use na::{self, RealField};
 /// Same as `g.bounding_sphere(m)`.
 pub fn bounding_sphere<N, G: ?Sized>(g: &G, m: &Isometry<N>) -> BoundingSphere<N>
 where
-    N: RealField,
+    N: RealField + Copy,
     G: HasBoundingVolume<N, BoundingSphere<N>>,
 {
     g.bounding_volume(m)
@@ -22,7 +22,7 @@ where
 /// Same as `g.local_bounding_sphere(m)`.
 pub fn local_bounding_sphere<N, G: ?Sized>(g: &G) -> BoundingSphere<N>
 where
-    N: RealField,
+    N: RealField + Copy,
     G: HasBoundingVolume<N, BoundingSphere<N>>,
 {
     g.local_bounding_volume()
@@ -31,12 +31,12 @@ where
 /// A Bounding Sphere.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, PartialEq, Copy, Clone)]
-pub struct BoundingSphere<N: RealField> {
+pub struct BoundingSphere<N: RealField + Copy> {
     center: Point<N>,
     radius: N,
 }
 
-impl<N: RealField> BoundingSphere<N> {
+impl<N: RealField + Copy> BoundingSphere<N> {
     /// Creates a new bounding sphere.
     pub fn new(center: Point<N>, radius: N) -> BoundingSphere<N> {
         BoundingSphere { center, radius }
@@ -61,7 +61,7 @@ impl<N: RealField> BoundingSphere<N> {
     }
 }
 
-impl<N: RealField> BoundingVolume<N> for BoundingSphere<N> {
+impl<N: RealField + Copy> BoundingVolume<N> for BoundingSphere<N> {
     #[inline]
     fn center(&self) -> Point<N> {
         *self.center()

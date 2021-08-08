@@ -8,7 +8,7 @@ use std::collections::{hash_map::Entry, HashMap};
 
 /// The technique used for contact tracking.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum ContactTrackingMode<N: RealField> {
+pub enum ContactTrackingMode<N: RealField + Copy> {
     /// Contact tracking using features.
     /// Two contacts are considered the same if they are on the same features.
     FeatureBased,
@@ -18,7 +18,7 @@ pub enum ContactTrackingMode<N: RealField> {
 }
 
 #[derive(Clone, Debug)]
-enum ContactCache<N: RealField> {
+enum ContactCache<N: RealField + Copy> {
     FeatureBased(HashMap<(FeatureId, FeatureId), usize>),
     DistanceBased(Vec<(Point<N>, usize)>, N),
 }
@@ -30,7 +30,7 @@ enum ContactCache<N: RealField> {
 /// This structure is responsible for matching new contacts with old ones in order to perform an
 /// approximate tracking of the contact points.
 #[derive(Clone, Debug)]
-pub struct ContactManifold<N: RealField> {
+pub struct ContactManifold<N: RealField + Copy> {
     ncontacts: usize,
     persistence: usize,
     deepest: usize,
@@ -38,7 +38,7 @@ pub struct ContactManifold<N: RealField> {
     cache: ContactCache<N>,
 }
 
-impl<N: RealField> ContactManifold<N> {
+impl<N: RealField + Copy> ContactManifold<N> {
     /// Initializes a contact manifold without any contact.
     ///
     /// The default contact tracking mode is set to `ContactTrackingMode::DistanceBased(0.02)`.

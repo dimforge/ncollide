@@ -14,7 +14,7 @@ pub struct Cone<N> {
     pub radius: N,
 }
 
-impl<N: RealField> Cone<N> {
+impl<N: RealField + Copy> Cone<N> {
     /// Creates a new cone.
     ///
     /// # Arguments:
@@ -42,7 +42,7 @@ impl<N: RealField> Cone<N> {
     }
 }
 
-impl<N: RealField> SupportMap<N> for Cone<N> {
+impl<N: RealField + Copy> SupportMap<N> for Cone<N> {
     #[inline]
     fn local_support_point(&self, dir: &Vector<N>) -> Point<N> {
         let mut vres = *dir;

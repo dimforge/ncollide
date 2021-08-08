@@ -15,7 +15,7 @@ pub fn nonlinear_time_of_impact_support_map_support_map<N, G1: ?Sized, G2: ?Size
     target_distance: N,
 ) -> Option<TOI<N>>
 where
-    N: RealField,
+    N: RealField + Copy,
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
@@ -48,7 +48,7 @@ pub fn nonlinear_time_of_impact_support_map_support_map_with_closest_points_func
     closest_points: impl Fn(&Isometry<N>, &G1, &Isometry<N>, &G2, N) -> ClosestPoints<N>,
 ) -> Option<TOI<N>>
 where
-    N: RealField,
+    N: RealField + Copy,
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {

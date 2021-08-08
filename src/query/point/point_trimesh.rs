@@ -7,7 +7,7 @@ use crate::query::{
 use crate::shape::{CompositeShape, FeatureId, TriMesh, TrianglePointLocation};
 use na::{self, RealField};
 
-impl<N: RealField> PointQuery<N> for TriMesh<N> {
+impl<N: RealField + Copy> PointQuery<N> for TriMesh<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, point: &Point<N>, solid: bool) -> PointProjection<N> {
         let (projection, _) = self.project_point_with_location(m, point, solid);
@@ -53,7 +53,7 @@ impl<N: RealField> PointQuery<N> for TriMesh<N> {
     }
 }
 
-impl<N: RealField> PointQueryWithLocation<N> for TriMesh<N> {
+impl<N: RealField + Copy> PointQueryWithLocation<N> for TriMesh<N> {
     type Location = (usize, TrianglePointLocation<N>);
 
     #[inline]
@@ -79,12 +79,12 @@ impl<N: RealField> PointQueryWithLocation<N> for TriMesh<N> {
 /*
  * Visitors
  */
-struct TriMeshPointProjVisitor<'a, N: 'a + RealField> {
+struct TriMeshPointProjVisitor<'a, N: 'a + RealField + Copy> {
     polyline: &'a TriMesh<N>,
     point: &'a Point<N>,
 }
 
-impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for TriMeshPointProjVisitor<'a, N> {
+impl<'a, N: RealField + Copy> BestFirstVisitor<N, usize, AABB<N>> for TriMeshPointProjVisitor<'a, N> {
     type Result = (PointProjection<N>, (usize, TrianglePointLocation<N>));
 
     #[inline]

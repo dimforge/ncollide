@@ -4,7 +4,7 @@ use crate::math::Isometry;
 use crate::shape::Segment;
 use na::RealField;
 
-impl<N: RealField> HasBoundingVolume<N, BoundingSphere<N>> for Segment<N> {
+impl<N: RealField + Copy> HasBoundingVolume<N, BoundingSphere<N>> for Segment<N> {
     #[inline]
     fn bounding_volume(&self, m: &Isometry<N>) -> BoundingSphere<N> {
         let bv: BoundingSphere<N> = self.local_bounding_volume();

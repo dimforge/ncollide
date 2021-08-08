@@ -20,7 +20,7 @@ use std::slice;
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
-struct DeformationInfos<N: RealField> {
+struct DeformationInfos<N: RealField + Copy> {
     margin: N,
     curr_timestamp: usize,
     timestamps: Vec<usize>,
@@ -47,7 +47,7 @@ impl FaceAdjacentToEdge {
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
 /// A face of a triangle mesh.
-pub struct TriMeshFace<N: RealField> {
+pub struct TriMeshFace<N: RealField + Copy> {
     /// Indices of the vertices of this face.
     pub indices: Point3<usize>,
     /// Indices of the edges of this face.
@@ -82,7 +82,7 @@ pub struct TriMeshVertex {
 /// A 3d triangle mesh.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
-pub struct TriMesh<N: RealField> {
+pub struct TriMesh<N: RealField + Copy> {
     bvt: BVT<usize, AABB<N>>,
     uvs: Option<Vec<Point2<N>>>,
     points: Vec<Point<N>>,
@@ -95,7 +95,7 @@ pub struct TriMesh<N: RealField> {
     oriented: bool,
 }
 
-impl<N: RealField> TriMesh<N> {
+impl<N: RealField + Copy> TriMesh<N> {
     /// Builds a new mesh.
     pub fn new(
         points: Vec<Point<N>>,
@@ -749,7 +749,7 @@ impl<N: RealField> TriMesh<N> {
     }
 }
 
-impl<N: RealField> CompositeShape<N> for TriMesh<N> {
+impl<N: RealField + Copy> CompositeShape<N> for TriMesh<N> {
     #[inline]
     fn nparts(&self) -> usize {
         self.faces.len()
@@ -792,7 +792,7 @@ impl<N: RealField> CompositeShape<N> for TriMesh<N> {
     }
 }
 
-impl<N: RealField> DeformableShape<N> for TriMesh<N> {
+impl<N: RealField + Copy> DeformableShape<N> for TriMesh<N> {
     fn deformations_type(&self) -> DeformationsType {
         DeformationsType::Vectors
     }
@@ -932,7 +932,7 @@ impl<N: RealField> DeformableShape<N> for TriMesh<N> {
     }
 }
 
-impl<N: RealField> From<procedural::TriMesh<N>> for TriMesh<N> {
+impl<N: RealField + Copy> From<procedural::TriMesh<N>> for TriMesh<N> {
     fn from(trimesh: procedural::TriMesh<N>) -> Self {
         let indices = trimesh
             .flat_indices()
@@ -943,14 +943,14 @@ impl<N: RealField> From<procedural::TriMesh<N>> for TriMesh<N> {
     }
 }
 
-struct TriMeshContactProcessor<'a, N: RealField> {
+struct TriMeshContactProcessor<'a, N: RealField + Copy> {
     mesh: &'a TriMesh<N>,
     pos: &'a Isometry<N>,
     face_id: usize,
     prediction: &'a ContactPrediction<N>,
 }
 
-impl<'a, N: RealField> TriMeshContactProcessor<'a, N> {
+impl<'a, N: RealField + Copy> TriMeshContactProcessor<'a, N> {
     pub fn new(
         mesh: &'a TriMesh<N>,
         pos: &'a Isometry<N>,
@@ -966,7 +966,7 @@ impl<'a, N: RealField> TriMeshContactProcessor<'a, N> {
     }
 }
 
-impl<'a, N: RealField> ContactPreprocessor<N> for TriMeshContactProcessor<'a, N> {
+impl<'a, N: RealField + Copy> ContactPreprocessor<N> for TriMeshContactProcessor<'a, N> {
     fn process_contact(
         &self,
         c: &mut Contact<N>,

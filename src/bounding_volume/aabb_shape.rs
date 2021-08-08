@@ -3,7 +3,7 @@ use crate::math::Isometry;
 use crate::shape::Shape;
 use na::RealField;
 
-impl<N: RealField> HasBoundingVolume<N, AABB<N>> for dyn Shape<N> {
+impl<N: RealField + Copy> HasBoundingVolume<N, AABB<N>> for dyn Shape<N> {
     #[inline]
     fn bounding_volume(&self, m: &Isometry<N>) -> AABB<N> {
         self.aabb(m)

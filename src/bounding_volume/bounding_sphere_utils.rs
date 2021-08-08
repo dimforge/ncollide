@@ -5,7 +5,7 @@ use na::{self, RealField};
 /// Computes the bounding sphere of a set of point, given its center.
 // FIXME: return a bounding sphere?
 #[inline]
-pub fn point_cloud_bounding_sphere_with_center<N: RealField>(
+pub fn point_cloud_bounding_sphere_with_center<N: RealField + Copy>(
     pts: &[Point<N>],
     center: Point<N>,
 ) -> (Point<N>, N) {
@@ -25,6 +25,6 @@ pub fn point_cloud_bounding_sphere_with_center<N: RealField>(
 /// Computes a bounding sphere of the specified set of point.
 // FIXME: return a bounding sphere?
 #[inline]
-pub fn point_cloud_bounding_sphere<N: RealField>(pts: &[Point<N>]) -> (Point<N>, N) {
+pub fn point_cloud_bounding_sphere<N: RealField + Copy>(pts: &[Point<N>]) -> (Point<N>, N) {
     point_cloud_bounding_sphere_with_center(pts, utils::center(pts))
 }

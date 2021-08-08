@@ -12,7 +12,7 @@ use na::{self, RealField};
 #[inline]
 pub fn aabb<N, G: ?Sized>(g: &G, m: &Isometry<N>) -> AABB<N>
 where
-    N: RealField,
+    N: RealField + Copy,
     G: HasBoundingVolume<N, AABB<N>>,
 {
     g.bounding_volume(m)
@@ -25,7 +25,7 @@ where
 #[inline]
 pub fn local_aabb<N, G: ?Sized>(g: &G) -> AABB<N>
 where
-    N: RealField,
+    N: RealField + Copy,
     G: HasBoundingVolume<N, AABB<N>>,
 {
     g.local_bounding_volume()
@@ -34,12 +34,12 @@ where
 /// An Axis Aligned Bounding Box.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, PartialEq, Copy, Clone)]
-pub struct AABB<N: RealField> {
+pub struct AABB<N: RealField + Copy> {
     pub mins: Point<N>,
     pub maxs: Point<N>,
 }
 
-impl<N: RealField> AABB<N> {
+impl<N: RealField + Copy> AABB<N> {
     /// Creates a new AABB.
     ///
     /// # Arguments:
@@ -146,7 +146,7 @@ impl<N: RealField> AABB<N> {
     }
 }
 
-impl<N: RealField> BoundingVolume<N> for AABB<N> {
+impl<N: RealField + Copy> BoundingVolume<N> for AABB<N> {
     #[inline]
     fn center(&self) -> Point<N> {
         self.center()

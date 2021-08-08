@@ -3,7 +3,7 @@ use crate::math::Isometry;
 use crate::shape::HeightField;
 use na::{self, RealField};
 
-impl<N: RealField> HasBoundingVolume<N, AABB<N>> for HeightField<N> {
+impl<N: RealField + Copy> HasBoundingVolume<N, AABB<N>> for HeightField<N> {
     #[inline]
     fn bounding_volume(&self, m: &Isometry<N>) -> AABB<N> {
         self.aabb().transform_by(m)

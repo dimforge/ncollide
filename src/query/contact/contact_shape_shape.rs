@@ -7,7 +7,7 @@ use crate::shape::{Ball, Plane, Shape};
 /// Computes one contact point between two shapes.
 ///
 /// Returns `None` if the objects are separated by a distance greater than `prediction`.
-pub fn contact<N: RealField>(
+pub fn contact<N: RealField + Copy>(
     m1: &Isometry<N>,
     g1: &dyn Shape<N>,
     m2: &Isometry<N>,

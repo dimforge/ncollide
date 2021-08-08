@@ -12,7 +12,7 @@ use na::{self, RealField, Unit};
 use std::mem;
 
 /// Collision detector between a concave shape and another shape.
-pub struct TriMeshTriMeshManifoldGenerator<N: RealField> {
+pub struct TriMeshTriMeshManifoldGenerator<N: RealField + Copy> {
     clip_cache: ClippingCache<N>,
     new_contacts: Vec<(Contact<N>, FeatureId, FeatureId)>,
     convex_feature1: ConvexPolygonalFeature<N>,
@@ -20,7 +20,7 @@ pub struct TriMeshTriMeshManifoldGenerator<N: RealField> {
     interferences: Vec<(usize, usize)>,
 }
 
-impl<N: RealField> TriMeshTriMeshManifoldGenerator<N> {
+impl<N: RealField + Copy> TriMeshTriMeshManifoldGenerator<N> {
     /// Creates a new collision detector between a concave shape and another shape.
     pub fn new() -> TriMeshTriMeshManifoldGenerator<N> {
         TriMeshTriMeshManifoldGenerator {
@@ -33,7 +33,7 @@ impl<N: RealField> TriMeshTriMeshManifoldGenerator<N> {
     }
 }
 
-impl<N: RealField> TriMeshTriMeshManifoldGenerator<N> {
+impl<N: RealField + Copy> TriMeshTriMeshManifoldGenerator<N> {
     fn compute_faces_closest_points(
         &mut self,
         m12: &Isometry<N>,
@@ -72,7 +72,7 @@ impl<N: RealField> TriMeshTriMeshManifoldGenerator<N> {
              * Start with the SAT.
              */
             #[inline(always)]
-            fn penetration<N: RealField>(a: (N, N), b: (N, N)) -> Option<(N, bool)> {
+            fn penetration<N: RealField + Copy>(a: (N, N), b: (N, N)) -> Option<(N, bool)> {
                 assert!(a.0 <= a.1 && b.0 <= b.1);
                 if a.0 > b.1 || b.0 > a.1 {
                     // The intervals are disjoint.
@@ -90,7 +90,7 @@ impl<N: RealField> TriMeshTriMeshManifoldGenerator<N> {
             }
 
             #[inline(always)]
-            fn sort2<N: RealField>(a: N, b: N) -> (N, N) {
+            fn sort2<N: RealField + Copy>(a: N, b: N) -> (N, N) {
                 if a > b {
                     (b, a)
                 } else {
@@ -515,7 +515,7 @@ impl<N: RealField> TriMeshTriMeshManifoldGenerator<N> {
     }
 }
 
-impl<N: RealField> ContactManifoldGenerator<N> for TriMeshTriMeshManifoldGenerator<N> {
+impl<N: RealField + Copy> ContactManifoldGenerator<N> for TriMeshTriMeshManifoldGenerator<N> {
     fn generate_contacts(
         &mut self,
         _: &dyn ContactDispatcher<N>,

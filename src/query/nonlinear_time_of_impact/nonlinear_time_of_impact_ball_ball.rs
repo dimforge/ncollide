@@ -7,7 +7,7 @@ use crate::shape::Ball;
 
 /// Non-linear Time Of Impact of two balls under a rigid motion (translation + rotation).
 #[inline]
-pub fn nonlinear_time_of_impact_ball_ball<N: RealField>(
+pub fn nonlinear_time_of_impact_ball_ball<N: RealField + Copy>(
     motion1: &(impl RigidMotion<N> + ?Sized),
     b1: &Ball<N>,
     motion2: &(impl RigidMotion<N> + ?Sized),
@@ -15,7 +15,7 @@ pub fn nonlinear_time_of_impact_ball_ball<N: RealField>(
     max_toi: N,
     target_distance: N,
 ) -> Option<TOI<N>> {
-    fn closest_points<N: RealField>(
+    fn closest_points<N: RealField + Copy>(
         m1: &Isometry<N>,
         g1: &Ball<N>,
         m2: &Isometry<N>,

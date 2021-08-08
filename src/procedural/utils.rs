@@ -19,7 +19,7 @@ use std::iter;
 /// Pushes a discretized counterclockwise circle to a buffer.
 #[cfg(feature = "dim3")]
 #[inline]
-pub fn push_circle<N: RealField>(
+pub fn push_circle<N: RealField + Copy>(
     radius: N,
     nsubdiv: u32,
     dtheta: N,
@@ -41,7 +41,7 @@ pub fn push_circle<N: RealField>(
 /// Pushes a discretized counterclockwise circle to a buffer.
 /// The circle is contained on the plane spanned by the `x` and `y` axis.
 #[inline]
-pub fn push_xy_arc<N: RealField>(radius: N, nsubdiv: u32, dtheta: N, out: &mut Vec<Point<N>>) {
+pub fn push_xy_arc<N: RealField + Copy>(radius: N, nsubdiv: u32, dtheta: N, out: &mut Vec<Point<N>>) {
     let mut curr_theta = N::zero();
 
     for _ in 0..nsubdiv {
@@ -181,7 +181,7 @@ pub fn split_index_buffer(indices: &[Point<u32>]) -> Vec<Point<Point<u32>>> {
 /// identical vertex.
 #[cfg(feature = "dim3")]
 #[inline]
-pub fn split_index_buffer_and_recover_topology<N: RealField>(
+pub fn split_index_buffer_and_recover_topology<N: RealField + Copy>(
     indices: &[Point<u32>],
     coords: &[Point<N>],
 ) -> (Vec<Point<Point<u32>>>, Vec<Point<N>>) {
@@ -189,7 +189,7 @@ pub fn split_index_buffer_and_recover_topology<N: RealField>(
     let mut new_coords = Vec::with_capacity(coords.len());
     let mut out = Vec::with_capacity(indices.len());
 
-    fn resolve_coord_id<N: RealField>(
+    fn resolve_coord_id<N: RealField + Copy>(
         coord: &Point<N>,
         vtx_to_id: &mut HashMap<HashablePartialEq<Point<N>>, u32, DeterministicState>,
         new_coords: &mut Vec<Point<N>>,
@@ -233,7 +233,7 @@ pub fn split_index_buffer_and_recover_topology<N: RealField>(
 /// Computes the normals of a set of vertices.
 #[cfg(feature = "dim3")]
 #[inline]
-pub fn compute_normals<N: RealField>(
+pub fn compute_normals<N: RealField + Copy>(
     coordinates: &[Point<N>],
     faces: &[Point<u32>],
     normals: &mut Vec<Vector<N>>,

@@ -3,7 +3,7 @@ use na::{self, RealField};
 
 /// Computes the index of the support point of a cloud of points.
 #[inline]
-pub fn point_cloud_support_point_id<N: RealField>(dir: &Vector<N>, points: &[Point<N>]) -> usize {
+pub fn point_cloud_support_point_id<N: RealField + Copy>(dir: &Vector<N>, points: &[Point<N>]) -> usize {
     let mut best_pt = 0;
     let mut best_dot = points[0].coords.dot(dir);
 
@@ -22,6 +22,6 @@ pub fn point_cloud_support_point_id<N: RealField>(dir: &Vector<N>, points: &[Poi
 
 /// Computes the support point of a cloud of points.
 #[inline]
-pub fn point_cloud_support_point<N: RealField>(dir: &Vector<N>, points: &[Point<N>]) -> Point<N> {
+pub fn point_cloud_support_point<N: RealField + Copy>(dir: &Vector<N>, points: &[Point<N>]) -> Point<N> {
     points[point_cloud_support_point_id(dir, points)]
 }

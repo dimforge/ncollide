@@ -8,13 +8,13 @@ use na::{self, RealField};
 use std::collections::{hash_map::Entry, HashMap};
 
 /// Collision detector between an heightfield and another shape.
-pub struct HeightFieldShapeManifoldGenerator<N: RealField> {
+pub struct HeightFieldShapeManifoldGenerator<N: RealField + Copy> {
     sub_detectors: HashMap<usize, (ContactAlgorithm<N>, usize), DeterministicState>,
     flip: bool,
     timestamp: usize,
 }
 
-impl<N: RealField> HeightFieldShapeManifoldGenerator<N> {
+impl<N: RealField + Copy> HeightFieldShapeManifoldGenerator<N> {
     /// Creates a new collision detector between an heightfield and another shape.
     pub fn new(flip: bool) -> HeightFieldShapeManifoldGenerator<N> {
         HeightFieldShapeManifoldGenerator {
@@ -123,7 +123,7 @@ impl<N: RealField> HeightFieldShapeManifoldGenerator<N> {
     }
 }
 
-impl<N: RealField> ContactManifoldGenerator<N> for HeightFieldShapeManifoldGenerator<N> {
+impl<N: RealField + Copy> ContactManifoldGenerator<N> for HeightFieldShapeManifoldGenerator<N> {
     fn generate_contacts(
         &mut self,
         d: &dyn ContactDispatcher<N>,

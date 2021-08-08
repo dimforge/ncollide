@@ -9,7 +9,7 @@ use std::mem;
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[repr(C)]
 #[derive(Copy, Clone, Debug)]
-pub struct Tetrahedron<N: RealField> {
+pub struct Tetrahedron<N: RealField + Copy> {
     /// The tetrahedron first point.
     pub a: Point<N>,
     /// The tetrahedron first point.
@@ -22,7 +22,7 @@ pub struct Tetrahedron<N: RealField> {
 
 /// Logical description of the location of a point on a triangle.
 #[derive(Copy, Clone, Debug)]
-pub enum TetrahedronPointLocation<N: RealField> {
+pub enum TetrahedronPointLocation<N: RealField + Copy> {
     /// The point lies on a vertex.
     OnVertex(usize),
     /// The point lies on an edge.
@@ -45,7 +45,7 @@ pub enum TetrahedronPointLocation<N: RealField> {
     OnSolid,
 }
 
-impl<N: RealField> TetrahedronPointLocation<N> {
+impl<N: RealField + Copy> TetrahedronPointLocation<N> {
     /// The barycentric coordinates corresponding to this point location.
     ///
     /// Returns `None` if the location is `TetrahedronPointLocation::OnSolid`.
@@ -91,7 +91,7 @@ impl<N: RealField> TetrahedronPointLocation<N> {
     }
 }
 
-impl<N: RealField> Tetrahedron<N> {
+impl<N: RealField + Copy> Tetrahedron<N> {
     /// Creates a tetrahedron from three points.
     #[inline]
     pub fn new(a: Point<N>, b: Point<N>, c: Point<N>, d: Point<N>) -> Tetrahedron<N> {

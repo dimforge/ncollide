@@ -5,7 +5,7 @@ use na::{self, Point, RealField};
 
 /// Closest points between segments.
 #[inline]
-pub fn closest_points_segment_segment<N: RealField>(
+pub fn closest_points_segment_segment<N: RealField + Copy>(
     m1: &Isometry<N>,
     seg1: &Segment<N>,
     m2: &Isometry<N>,
@@ -26,7 +26,7 @@ pub fn closest_points_segment_segment<N: RealField>(
 // FIXME: use this specialized procedure for distance/interference/contact determination as well.
 /// Closest points between two segments.
 #[inline]
-pub fn closest_points_segment_segment_with_locations<N: RealField>(
+pub fn closest_points_segment_segment_with_locations<N: RealField + Copy>(
     m1: &Isometry<N>,
     seg1: &Segment<N>,
     m2: &Isometry<N>,
@@ -46,7 +46,7 @@ pub fn closest_points_segment_segment_with_locations_nD<N, const D: usize>(
     seg2: (&Point<N, D>, &Point<N, D>),
 ) -> (SegmentPointLocation<N>, SegmentPointLocation<N>)
 where
-    N: RealField,
+    N: RealField + Copy,
 {
     let res =
         closest_points_segment_segment_with_locations_nD_eps(seg1, seg2, N::default_epsilon());
@@ -65,7 +65,7 @@ pub fn closest_points_segment_segment_with_locations_nD_eps<N, const D: usize>(
     eps: N,
 ) -> (SegmentPointLocation<N>, SegmentPointLocation<N>, bool)
 where
-    N: RealField,
+    N: RealField + Copy,
 {
     // Inspired by RealField-time collision detection by Christer Ericson.
     let d1 = seg1.1 - seg1.0;

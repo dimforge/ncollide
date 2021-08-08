@@ -5,7 +5,7 @@ use crate::query::{self, TOIDispatcher, Unsupported, TOI};
 use crate::shape::{Ball, Shape};
 
 /// Computes the smallest time of impact of two shapes under translational movement.
-pub fn nonlinear_time_of_impact<N: RealField>(
+pub fn nonlinear_time_of_impact<N: RealField + Copy>(
     dispatcher: &dyn TOIDispatcher<N>,
     motion1: &dyn RigidMotion<N>,
     g1: &dyn Shape<N>,

@@ -16,7 +16,7 @@ impl DefaultProximityDispatcher {
     }
 }
 
-impl<N: RealField> ProximityDispatcher<N> for DefaultProximityDispatcher {
+impl<N: RealField + Copy> ProximityDispatcher<N> for DefaultProximityDispatcher {
     fn get_proximity_algorithm(
         &self,
         a: &dyn Shape<N>,

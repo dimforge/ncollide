@@ -6,7 +6,7 @@ use crate::shape::Ball;
 
 /// Time Of Impact of two balls under translational movement.
 #[inline]
-pub fn time_of_impact_ball_ball<N: RealField>(
+pub fn time_of_impact_ball_ball<N: RealField + Copy>(
     center1: &Point<N>,
     vel1: &Vector<N>,
     b1: &Ball<N>,

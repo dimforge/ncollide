@@ -5,7 +5,7 @@ use crate::shape::Cuboid;
 use na;
 use simba::scalar::RealField;
 
-impl<N: RealField> ToPolyline<N> for Cuboid<N> {
+impl<N: RealField + Copy> ToPolyline<N> for Cuboid<N> {
     type DiscretizationParameter = ();
 
     fn to_polyline(&self, _: ()) -> Polyline<N> {

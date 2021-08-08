@@ -6,7 +6,7 @@ use crate::shape::CompositeShape;
 use na::RealField;
 
 /// Visitor for checking if a composite shape contains a specific point.
-pub struct CompositePointContainmentTest<'a, N: 'a + RealField, S: 'a + CompositeShape<N>> {
+pub struct CompositePointContainmentTest<'a, N: 'a + RealField + Copy, S: 'a + CompositeShape<N>> {
     /// The composite shape on which the point containment test should be performed.
     pub shape: &'a S,
     /// The point to be tested.
@@ -15,7 +15,7 @@ pub struct CompositePointContainmentTest<'a, N: 'a + RealField, S: 'a + Composit
     pub found: bool,
 }
 
-impl<'a, N: RealField, BV: BoundingVolume<N> + PointQuery<N>, S: CompositeShape<N>>
+impl<'a, N: RealField + Copy, BV: BoundingVolume<N> + PointQuery<N>, S: CompositeShape<N>>
     Visitor<usize, BV> for CompositePointContainmentTest<'a, N, S>
 {
     #[inline]

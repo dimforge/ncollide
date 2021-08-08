@@ -3,7 +3,7 @@ use crate::query::{Ray, RayCast, RayIntersection};
 use crate::shape::Shape;
 use na::RealField;
 
-impl<N: RealField> RayCast<N> for dyn Shape<N> {
+impl<N: RealField + Copy> RayCast<N> for dyn Shape<N> {
     #[inline]
     fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, max_toi: N, solid: bool) -> Option<N> {
         self.as_ray_cast()

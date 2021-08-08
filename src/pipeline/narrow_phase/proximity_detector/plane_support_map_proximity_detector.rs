@@ -34,7 +34,7 @@ impl SupportMapPlaneProximityDetector {
     }
 }
 
-impl<N: RealField> ProximityDetector<N> for PlaneSupportMapProximityDetector {
+impl<N: RealField + Copy> ProximityDetector<N> for PlaneSupportMapProximityDetector {
     #[inline]
     fn update(
         &mut self,
@@ -51,7 +51,7 @@ impl<N: RealField> ProximityDetector<N> for PlaneSupportMapProximityDetector {
     }
 }
 
-impl<N: RealField> ProximityDetector<N> for SupportMapPlaneProximityDetector {
+impl<N: RealField + Copy> ProximityDetector<N> for SupportMapPlaneProximityDetector {
     #[inline]
     fn update(
         &mut self,

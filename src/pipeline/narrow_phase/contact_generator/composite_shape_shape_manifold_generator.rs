@@ -13,14 +13,14 @@ use na::{self, RealField};
 use std::collections::{hash_map::Entry, HashMap};
 
 /// Collision detector between a concave shape and another shape.
-pub struct CompositeShapeShapeManifoldGenerator<N: RealField> {
+pub struct CompositeShapeShapeManifoldGenerator<N: RealField + Copy> {
     sub_detectors: HashMap<usize, (ContactAlgorithm<N>, usize), DeterministicState>,
     interferences: Vec<usize>,
     flip: bool,
     timestamp: usize,
 }
 
-impl<N: RealField> CompositeShapeShapeManifoldGenerator<N> {
+impl<N: RealField + Copy> CompositeShapeShapeManifoldGenerator<N> {
     /// Creates a new collision detector between a concave shape and another shape.
     pub fn new(flip: bool) -> CompositeShapeShapeManifoldGenerator<N> {
         CompositeShapeShapeManifoldGenerator {
@@ -120,7 +120,7 @@ impl<N: RealField> CompositeShapeShapeManifoldGenerator<N> {
     }
 }
 
-impl<N: RealField> ContactManifoldGenerator<N> for CompositeShapeShapeManifoldGenerator<N> {
+impl<N: RealField + Copy> ContactManifoldGenerator<N> for CompositeShapeShapeManifoldGenerator<N> {
     fn generate_contacts(
         &mut self,
         d: &dyn ContactDispatcher<N>,

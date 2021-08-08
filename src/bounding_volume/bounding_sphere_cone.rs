@@ -4,7 +4,7 @@ use crate::bounding_volume::{BoundingSphere, HasBoundingVolume};
 use crate::math::{Isometry, Point};
 use crate::shape::Cone;
 
-impl<N: RealField> HasBoundingVolume<N, BoundingSphere<N>> for Cone<N> {
+impl<N: RealField + Copy> HasBoundingVolume<N, BoundingSphere<N>> for Cone<N> {
     #[inline]
     fn bounding_volume(&self, m: &Isometry<N>) -> BoundingSphere<N> {
         let bv: BoundingSphere<N> = self.local_bounding_volume();

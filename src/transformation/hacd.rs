@@ -17,7 +17,7 @@ use std::collections::{BinaryHeap, HashMap, HashSet};
 use std::mem;
 
 /// Approximate convex decomposition of a triangle mesh.
-pub fn hacd<N: RealField>(
+pub fn hacd<N: RealField + Copy>(
     mesh: TriMesh<N>,
     error: N,
     min_components: usize,
@@ -159,7 +159,7 @@ pub fn hacd<N: RealField>(
     (result, parts)
 }
 
-fn normalize<N: RealField>(mesh: &mut TriMesh<N>) -> (Point3<N>, N) {
+fn normalize<N: RealField + Copy>(mesh: &mut TriMesh<N>) -> (Point3<N>, N) {
     let aabb = bounding_volume::local_point_cloud_aabb(&mesh.coords[..]);
     let diag = na::distance(&aabb.mins, &aabb.maxs);
     let center = aabb.center();
@@ -171,12 +171,12 @@ fn normalize<N: RealField>(mesh: &mut TriMesh<N>) -> (Point3<N>, N) {
     (center, diag)
 }
 
-fn denormalize<N: RealField>(mesh: &mut TriMesh<N>, center: &Point3<N>, diag: N) {
+fn denormalize<N: RealField + Copy>(mesh: &mut TriMesh<N>, center: &Point3<N>, diag: N) {
     mesh.scale_by_scalar(diag);
     mesh.translate_by(&Translation3::from(center.coords));
 }
 
-struct DualGraphVertex<N: RealField> {
+struct DualGraphVertex<N: RealField + Copy> {
     // XXX: Loss of determinism because of the randomized HashSet.
     neighbors: Option<HashSet<usize>>,
     // vertices adjascent to this one.
@@ -192,7 +192,7 @@ struct DualGraphVertex<N: RealField> {
     aabb: AABB<N>,
 }
 
-impl<N: RealField> DualGraphVertex<N> {
+impl<N: RealField + Copy> DualGraphVertex<N> {
     pub fn new(
         ancestor: usize,
         mesh: &TriMesh<N>,
@@ -379,7 +379,7 @@ struct DualGraphEdge<N> {
     iray_cast: bool,
 }
 
-impl<N: RealField> DualGraphEdge<N> {
+impl<N: RealField + Copy> DualGraphEdge<N> {
     pub fn new(
         timestamp: usize,
         v1: usize,
@@ -467,7 +467,7 @@ impl<N: RealField> DualGraphEdge<N> {
 
         let max_concavity = max_concavity.min(max_cost - max_concavity * self.shape);
 
-        fn cast_ray<'a, N: RealField>(
+        fn cast_ray<'a, N: RealField + Copy>(
             chull: &ConvexPair<'a, N>,
             ray: &Ray<N>,
             id: usize,
@@ -665,7 +665,7 @@ fn edge(a: u32, b: u32) -> Vector2<usize> {
     }
 }
 
-fn compute_ray_bvt<N: RealField>(rays: &[Ray<N>]) -> BVT<usize, AABB<N>> {
+fn compute_ray_bvt<N: RealField + Copy>(rays: &[Ray<N>]) -> BVT<usize, AABB<N>> {
     let aabbs = rays
         .iter()
         .enumerate()
@@ -675,7 +675,7 @@ fn compute_ray_bvt<N: RealField>(rays: &[Ray<N>]) -> BVT<usize, AABB<N>> {
     BVT::new_balanced(aabbs)
 }
 
-fn compute_rays<N: RealField>(mesh: &TriMesh<N>) -> (Vec<Ray<N>>, HashMap<(u32, u32), usize>) {
+fn compute_rays<N: RealField + Copy>(mesh: &TriMesh<N>) -> (Vec<Ray<N>>, HashMap<(u32, u32), usize>) {
     let mut rays = Vec::new();
     let mut raymap = HashMap::new();
 
@@ -723,7 +723,7 @@ fn compute_rays<N: RealField>(mesh: &TriMesh<N>) -> (Vec<Ray<N>>, HashMap<(u32, 
     (rays, raymap)
 }
 
-fn compute_dual_graph<N: RealField>(
+fn compute_dual_graph<N: RealField + Copy>(
     mesh: &TriMesh<N>,
     raymap: &HashMap<(u32, u32), usize>,
 ) -> Vec<DualGraphVertex<N>> {
@@ -769,18 +769,18 @@ fn compute_dual_graph<N: RealField>(
     dual_vertices
 }
 
-struct ConvexPair<'a, N: 'a + RealField> {
+struct ConvexPair<'a, N: 'a + RealField + Copy> {
     a: &'a [Point3<N>],
     b: &'a [Point3<N>],
 }
 
-impl<'a, N: RealField> ConvexPair<'a, N> {
+impl<'a, N: RealField + Copy> ConvexPair<'a, N> {
     pub fn new(a: &'a [Point3<N>], b: &'a [Point3<N>]) -> ConvexPair<'a, N> {
         ConvexPair { a: a, b: b }
     }
 }
 
-impl<'a, N: RealField> SupportMap<N> for ConvexPair<'a, N> {
+impl<'a, N: RealField + Copy> SupportMap<N> for ConvexPair<'a, N> {
     #[inline]
     fn support_point(&self, _: &Isometry<N>, dir: &Vector3<N>) -> Point3<N> {
         self.local_support_point(dir)
@@ -799,7 +799,7 @@ impl<'a, N: RealField> SupportMap<N> for ConvexPair<'a, N> {
     }
 }
 
-impl<'a, N: RealField> RayCast<N> for ConvexPair<'a, N> {
+impl<'a, N: RealField + Copy> RayCast<N> for ConvexPair<'a, N> {
     #[inline]
     fn toi_and_normal_with_ray(
         &self,

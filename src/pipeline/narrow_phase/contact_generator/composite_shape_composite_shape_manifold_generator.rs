@@ -29,7 +29,7 @@ impl<N> CompositeShapeCompositeShapeManifoldGenerator<N> {
     }
 }
 
-impl<N: RealField> CompositeShapeCompositeShapeManifoldGenerator<N> {
+impl<N: RealField + Copy> CompositeShapeCompositeShapeManifoldGenerator<N> {
     fn do_update(
         &mut self,
         dispatcher: &dyn ContactDispatcher<N>,
@@ -120,7 +120,7 @@ impl<N: RealField> CompositeShapeCompositeShapeManifoldGenerator<N> {
     }
 }
 
-impl<N: RealField> ContactManifoldGenerator<N>
+impl<N: RealField + Copy> ContactManifoldGenerator<N>
     for CompositeShapeCompositeShapeManifoldGenerator<N>
 {
     fn generate_contacts(

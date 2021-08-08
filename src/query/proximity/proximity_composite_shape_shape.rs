@@ -6,7 +6,7 @@ use crate::shape::{CompositeShape, Shape};
 use na::{self, RealField};
 
 /// Proximity between a composite shape (`Mesh`, `Compound`) and any other shape.
-pub fn proximity_composite_shape_shape<N: RealField, G1: ?Sized>(
+pub fn proximity_composite_shape_shape<N: RealField + Copy, G1: ?Sized>(
     m1: &Isometry<N>,
     g1: &G1,
     m2: &Isometry<N>,
@@ -30,7 +30,7 @@ where
 }
 
 /// Proximity between a shape and a composite (`Mesh`, `Compound`) shape.
-pub fn proximity_shape_composite_shape<N: RealField, G2: ?Sized>(
+pub fn proximity_shape_composite_shape<N: RealField + Copy, G2: ?Sized>(
     m1: &Isometry<N>,
     g1: &dyn Shape<N>,
     m2: &Isometry<N>,
@@ -43,7 +43,7 @@ where
     proximity_composite_shape_shape(m2, g2, m1, g1, margin)
 }
 
-struct CompositeShapeAgainstAnyInterfVisitor<'a, N: 'a + RealField, G1: ?Sized + 'a> {
+struct CompositeShapeAgainstAnyInterfVisitor<'a, N: 'a + RealField + Copy, G1: ?Sized + 'a> {
     msum_shift: Vector<N>,
     msum_margin: Vector<N>,
 
@@ -54,7 +54,7 @@ struct CompositeShapeAgainstAnyInterfVisitor<'a, N: 'a + RealField, G1: ?Sized +
     margin: N,
 }
 
-impl<'a, N: RealField, G1: ?Sized> CompositeShapeAgainstAnyInterfVisitor<'a, N, G1>
+impl<'a, N: RealField + Copy, G1: ?Sized> CompositeShapeAgainstAnyInterfVisitor<'a, N, G1>
 where
     G1: CompositeShape<N>,
 {
@@ -80,7 +80,7 @@ where
     }
 }
 
-impl<'a, N: RealField, G1: ?Sized> BestFirstVisitor<N, usize, AABB<N>>
+impl<'a, N: RealField + Copy, G1: ?Sized> BestFirstVisitor<N, usize, AABB<N>>
     for CompositeShapeAgainstAnyInterfVisitor<'a, N, G1>
 where
     G1: CompositeShape<N>,

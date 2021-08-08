@@ -6,7 +6,7 @@ use na::Isometry3;
 use na::{RealField, Unit};
 
 /// Extra operations with isometries.
-pub trait IsometryOps<N: RealField> {
+pub trait IsometryOps<N: RealField + Copy> {
     /// Transform a vector by the absolute value of the homogeneous matrix
     /// equivalent to `self`.
     fn absolute_transform_vector(&self, v: &Vector<N>) -> Vector<N>;
@@ -17,7 +17,7 @@ pub trait IsometryOps<N: RealField> {
 }
 
 #[cfg(feature = "dim2")]
-impl<N: RealField> IsometryOps<N> for Isometry2<N> {
+impl<N: RealField + Copy> IsometryOps<N> for Isometry2<N> {
     #[inline]
     fn absolute_transform_vector(&self, v: &Vector<N>) -> Vector<N> {
         self.rotation.to_rotation_matrix().into_inner().abs() * *v
@@ -38,7 +38,7 @@ impl<N: RealField> IsometryOps<N> for Isometry2<N> {
 }
 
 #[cfg(feature = "dim3")]
-impl<N: RealField> IsometryOps<N> for Isometry3<N> {
+impl<N: RealField + Copy> IsometryOps<N> for Isometry3<N> {
     #[inline]
     fn absolute_transform_vector(&self, v: &Vector<N>) -> Vector<N> {
         self.rotation.to_rotation_matrix().into_inner().abs() * *v

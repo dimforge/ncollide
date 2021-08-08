@@ -4,7 +4,7 @@ use crate::query::{Ray, RayCast, RayIntersection};
 use crate::shape::Cuboid;
 use na::RealField;
 
-impl<N: RealField> RayCast<N> for Cuboid<N> {
+impl<N: RealField + Copy> RayCast<N> for Cuboid<N> {
     #[inline]
     fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, max_toi: N, solid: bool) -> Option<N> {
         let dl = Point::from(-self.half_extents);

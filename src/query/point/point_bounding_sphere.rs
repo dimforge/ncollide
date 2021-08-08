@@ -4,7 +4,7 @@ use crate::query::{PointProjection, PointQuery};
 use crate::shape::{Ball, FeatureId};
 use na::RealField;
 
-impl<N: RealField> PointQuery<N> for BoundingSphere<N> {
+impl<N: RealField + Copy> PointQuery<N> for BoundingSphere<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> PointProjection<N> {
         let ls_pt = m.inverse_transform_point(pt) + (-self.center().coords);

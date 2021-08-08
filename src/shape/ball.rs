@@ -6,12 +6,12 @@ use crate::shape::SupportMap;
 /// A Ball shape.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(PartialEq, Debug, Copy, Clone)]
-pub struct Ball<N: RealField> {
+pub struct Ball<N: RealField + Copy> {
     /// The radius of the ball.
     pub radius: N,
 }
 
-impl<N: RealField> Ball<N> {
+impl<N: RealField + Copy> Ball<N> {
     /// Creates a new ball from its radius and center.
     #[inline]
     pub fn new(radius: N) -> Ball<N> {
@@ -26,7 +26,7 @@ impl<N: RealField> Ball<N> {
     }
 }
 
-impl<N: RealField> SupportMap<N> for Ball<N> {
+impl<N: RealField + Copy> SupportMap<N> for Ball<N> {
     #[inline]
     fn support_point(&self, m: &Isometry<N>, dir: &Vector<N>) -> Point<N> {
         self.support_point_toward(m, &Unit::new_normalize(*dir))

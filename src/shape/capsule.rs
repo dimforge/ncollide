@@ -16,7 +16,7 @@ pub struct Capsule<N> {
     pub radius: N,
 }
 
-impl<N: RealField> Capsule<N> {
+impl<N: RealField + Copy> Capsule<N> {
     /// Creates a new capsule.
     ///
     /// # Arguments:
@@ -69,7 +69,7 @@ impl<N: RealField> Capsule<N> {
     }
 }
 
-impl<N: RealField> SupportMap<N> for Capsule<N> {
+impl<N: RealField + Copy> SupportMap<N> for Capsule<N> {
     #[inline]
     fn local_support_point(&self, dir: &Vector<N>) -> Point<N> {
         self.local_support_point_toward(&Unit::new_normalize(*dir))
@@ -83,11 +83,11 @@ impl<N: RealField> SupportMap<N> for Capsule<N> {
     }
 }
 
-struct CapsuleContactPreprocessor<N: RealField> {
+struct CapsuleContactPreprocessor<N: RealField + Copy> {
     radius: N,
 }
 
-impl<N: RealField> CapsuleContactPreprocessor<N> {
+impl<N: RealField + Copy> CapsuleContactPreprocessor<N> {
     //    pub fn new(radius: N) -> Self {
     //        CapsuleContactPreprocessor {
     //            radius
@@ -95,7 +95,7 @@ impl<N: RealField> CapsuleContactPreprocessor<N> {
     //    }
 }
 
-impl<N: RealField> ContactPreprocessor<N> for CapsuleContactPreprocessor<N> {
+impl<N: RealField + Copy> ContactPreprocessor<N> for CapsuleContactPreprocessor<N> {
     fn process_contact(
         &self,
         c: &mut Contact<N>,

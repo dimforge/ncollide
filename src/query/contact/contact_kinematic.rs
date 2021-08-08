@@ -5,7 +5,7 @@ use na::{self, RealField, Unit};
 
 /// A shape geometry type at the neighborhood of a point.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum NeighborhoodGeometry<N: RealField> {
+pub enum NeighborhoodGeometry<N: RealField + Copy> {
     /// A punctual approximation.
     Point,
     /// A line approximation.
@@ -16,7 +16,7 @@ pub enum NeighborhoodGeometry<N: RealField> {
 
 /// The approximation of a shape on the neighborhood of a point.
 #[derive(Copy, Clone, Debug)]
-pub struct LocalShapeApproximation<N: RealField> {
+pub struct LocalShapeApproximation<N: RealField + Copy> {
     // XXX: currently, there is no explicit representation
     // of the point where the approximation occurs in terms
     // of shape-specific parameters. That's because we work
@@ -36,7 +36,7 @@ pub struct LocalShapeApproximation<N: RealField> {
     pub geometry: NeighborhoodGeometry<N>,
 }
 
-impl<N: RealField> LocalShapeApproximation<N> {
+impl<N: RealField + Copy> LocalShapeApproximation<N> {
     /// Initializes a new local shape approximation at `point`.
     pub fn new(feature: FeatureId, point: Point<N>, geometry: NeighborhoodGeometry<N>) -> Self {
         LocalShapeApproximation {
@@ -54,7 +54,7 @@ impl<N: RealField> LocalShapeApproximation<N> {
 /// around the given points are approximated by either dilated lines (unbounded
 /// cylinders), planes, dilated points (spheres).
 #[derive(Copy, Clone, Debug)]
-pub struct ContactKinematic<N: RealField> {
+pub struct ContactKinematic<N: RealField + Copy> {
     approx1: LocalShapeApproximation<N>,
     approx2: LocalShapeApproximation<N>,
 
@@ -62,7 +62,7 @@ pub struct ContactKinematic<N: RealField> {
     margin2: N,
 }
 
-impl<N: RealField> ContactKinematic<N> {
+impl<N: RealField + Copy> ContactKinematic<N> {
     /// Initializes an empty contact kinematic.
     ///
     /// All the contact kinematic information must be filled using methods

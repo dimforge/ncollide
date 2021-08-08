@@ -4,7 +4,7 @@ use crate::query::{Ray, RayCast, RayIntersection};
 use crate::shape::Ball;
 use na::RealField;
 
-impl<N: RealField> RayCast<N> for BoundingSphere<N> {
+impl<N: RealField + Copy> RayCast<N> for BoundingSphere<N> {
     #[inline]
     fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, max_toi: N, solid: bool) -> Option<N> {
         let centered_ray = ray.translate_by(-(m * self.center()).coords);

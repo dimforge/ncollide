@@ -2,7 +2,7 @@ use na::{self, RealField};
 
 /// Computes the median of a set of values.
 #[inline]
-pub fn median<N: RealField>(vals: &mut [N]) -> N {
+pub fn median<N: RealField + Copy>(vals: &mut [N]) -> N {
     assert!(vals.len() > 0, "Cannot compute the median of zero values.");
 
     vals.sort_by(|a, b| a.partial_cmp(b).unwrap());

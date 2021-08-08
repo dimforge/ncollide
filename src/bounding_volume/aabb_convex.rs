@@ -4,7 +4,7 @@ use crate::math::Isometry;
 use crate::shape::ConvexHull;
 use na::RealField;
 
-impl<N: RealField> HasBoundingVolume<N, AABB<N>> for ConvexHull<N> {
+impl<N: RealField + Copy> HasBoundingVolume<N, AABB<N>> for ConvexHull<N> {
     #[inline]
     fn bounding_volume(&self, m: &Isometry<N>) -> AABB<N> {
         aabb_utils::point_cloud_aabb(m, self.points())

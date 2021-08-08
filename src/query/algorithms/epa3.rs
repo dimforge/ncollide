@@ -11,12 +11,12 @@ use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 
 #[derive(Copy, Clone, PartialEq)]
-struct FaceId<N: RealField> {
+struct FaceId<N: RealField + Copy> {
     id: usize,
     neg_dist: N,
 }
 
-impl<N: RealField> FaceId<N> {
+impl<N: RealField + Copy> FaceId<N> {
     fn new(id: usize, neg_dist: N) -> Option<Self> {
         if neg_dist > gjk::eps_tol() {
             None
@@ -26,16 +26,16 @@ impl<N: RealField> FaceId<N> {
     }
 }
 
-impl<N: RealField> Eq for FaceId<N> {}
+impl<N: RealField + Copy> Eq for FaceId<N> {}
 
-impl<N: RealField> PartialOrd for FaceId<N> {
+impl<N: RealField + Copy> PartialOrd for FaceId<N> {
     #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         self.neg_dist.partial_cmp(&other.neg_dist)
     }
 }
 
-impl<N: RealField> Ord for FaceId<N> {
+impl<N: RealField + Copy> Ord for FaceId<N> {
     #[inline]
     fn cmp(&self, other: &Self) -> Ordering {
         if self.neg_dist < other.neg_dist {
@@ -49,7 +49,7 @@ impl<N: RealField> Ord for FaceId<N> {
 }
 
 #[derive(Clone, Debug)]
-struct Face<N: RealField> {
+struct Face<N: RealField + Copy> {
     pts: [usize; 3],
     adj: [usize; 3],
     normal: Unit<Vector<N>>,
@@ -58,7 +58,7 @@ struct Face<N: RealField> {
     deleted: bool,
 }
 
-impl<N: RealField> Face<N> {
+impl<N: RealField + Copy> Face<N> {
     pub fn new_with_proj(
         vertices: &[CSOPoint<N>],
         proj: Point<N>,
@@ -167,14 +167,14 @@ impl SilhouetteEdge {
 }
 
 /// The Expanding Polytope Algorithm in 3D.
-pub struct EPA<N: RealField> {
+pub struct EPA<N: RealField + Copy> {
     vertices: Vec<CSOPoint<N>>,
     faces: Vec<Face<N>>,
     silhouette: Vec<SilhouetteEdge>,
     heap: BinaryHeap<FaceId<N>>,
 }
 
-impl<N: RealField> EPA<N> {
+impl<N: RealField + Copy> EPA<N> {
     /// Creates a new instance of the 3D Expanding Polytope Algorithm.
     pub fn new() -> Self {
         EPA {

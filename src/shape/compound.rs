@@ -16,14 +16,14 @@ use std::mem;
 /// the main way of creating a concave shape from convex parts. Each parts can have its own
 /// delta transformation to shift or rotate it with regard to the other shapes.
 #[derive(Clone)]
-pub struct Compound<N: RealField> {
+pub struct Compound<N: RealField + Copy> {
     shapes: Vec<(Isometry<N>, ShapeHandle<N>)>,
     bvt: BVT<usize, AABB<N>>,
     bvs: Vec<AABB<N>>,
     nbits: usize,
 }
 
-impl<N: RealField> Compound<N> {
+impl<N: RealField + Copy> Compound<N> {
     /// Builds a new compound shape.
     pub fn new(shapes: Vec<(Isometry<N>, ShapeHandle<N>)>) -> Compound<N> {
         let mut bvs = Vec::new();
@@ -53,7 +53,7 @@ impl<N: RealField> Compound<N> {
     }
 }
 
-impl<N: RealField> Compound<N> {
+impl<N: RealField + Copy> Compound<N> {
     /// The shapes of this compound shape.
     #[inline]
     pub fn shapes(&self) -> &[(Isometry<N>, ShapeHandle<N>)] {
@@ -108,7 +108,7 @@ impl<N: RealField> Compound<N> {
     }
 }
 
-impl<N: RealField> CompositeShape<N> for Compound<N> {
+impl<N: RealField + Copy> CompositeShape<N> for Compound<N> {
     #[inline]
     fn nparts(&self) -> usize {
         self.shapes.len()
@@ -152,13 +152,13 @@ impl<N: RealField> CompositeShape<N> for Compound<N> {
     }
 }
 
-struct CompoundContactProcessor<'a, N: RealField> {
+struct CompoundContactProcessor<'a, N: RealField + Copy> {
     part_pos: &'a Isometry<N>,
     part_id: usize,
     nbits: usize,
 }
 
-impl<'a, N: RealField> CompoundContactProcessor<'a, N> {
+impl<'a, N: RealField + Copy> CompoundContactProcessor<'a, N> {
     pub fn new(part_pos: &'a Isometry<N>, part_id: usize, nbits: usize) -> Self {
         CompoundContactProcessor {
             part_pos,
@@ -168,7 +168,7 @@ impl<'a, N: RealField> CompoundContactProcessor<'a, N> {
     }
 }
 
-impl<'a, N: RealField> ContactPreprocessor<N> for CompoundContactProcessor<'a, N> {
+impl<'a, N: RealField + Copy> ContactPreprocessor<N> for CompoundContactProcessor<'a, N> {
     fn process_contact(
         &self,
         _c: &mut Contact<N>,

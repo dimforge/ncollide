@@ -4,7 +4,7 @@ use crate::shape::Cuboid;
 use crate::utils::IsometryOps;
 use na::RealField;
 
-impl<N: RealField> HasBoundingVolume<N, AABB<N>> for Cuboid<N> {
+impl<N: RealField + Copy> HasBoundingVolume<N, AABB<N>> for Cuboid<N> {
     #[inline]
     fn bounding_volume(&self, m: &Isometry<N>) -> AABB<N> {
         let center = Point::from(m.translation.vector);

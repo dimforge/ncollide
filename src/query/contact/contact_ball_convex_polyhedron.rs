@@ -8,7 +8,7 @@ use na::{self, RealField, Unit};
 /// This function panics if the input shape does not implement
 /// both the ConvexPolyhedron and PointQuery traits.
 #[inline]
-pub fn contact_ball_convex_polyhedron<N: RealField>(
+pub fn contact_ball_convex_polyhedron<N: RealField + Copy>(
     ball_center1: &Point<N>,
     ball1: &Ball<N>,
     m2: &Isometry<N>,
@@ -62,7 +62,7 @@ pub fn contact_ball_convex_polyhedron<N: RealField>(
 /// This function panics if the input shape does not implement
 /// both the ConvexPolyhedron and PointQuery traits.
 #[inline]
-pub fn contact_convex_polyhedron_ball<N: RealField>(
+pub fn contact_convex_polyhedron_ball<N: RealField + Copy>(
     m1: &Isometry<N>,
     poly1: &(impl Shape<N> + ?Sized),
     ball_center2: &Point<N>,

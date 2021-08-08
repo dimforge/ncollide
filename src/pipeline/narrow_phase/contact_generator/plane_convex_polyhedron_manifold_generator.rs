@@ -9,12 +9,12 @@ use na::{self, RealField};
 
 /// Collision detector between g1 plane and g1 shape implementing the `SupportMap` trait.
 #[derive(Clone)]
-pub struct PlaneConvexPolyhedronManifoldGenerator<N: RealField> {
+pub struct PlaneConvexPolyhedronManifoldGenerator<N: RealField + Copy> {
     flip: bool,
     feature: ConvexPolygonalFeature<N>,
 }
 
-impl<N: RealField> PlaneConvexPolyhedronManifoldGenerator<N> {
+impl<N: RealField + Copy> PlaneConvexPolyhedronManifoldGenerator<N> {
     /// Creates g1 new persistent collision detector between g1 plane and g1 shape with g1 support
     /// mapping function.
     #[inline]
@@ -81,7 +81,7 @@ impl<N: RealField> PlaneConvexPolyhedronManifoldGenerator<N> {
     }
 }
 
-impl<N: RealField> ContactManifoldGenerator<N> for PlaneConvexPolyhedronManifoldGenerator<N> {
+impl<N: RealField + Copy> ContactManifoldGenerator<N> for PlaneConvexPolyhedronManifoldGenerator<N> {
     fn generate_contacts(
         &mut self,
         _: &dyn ContactDispatcher<N>,

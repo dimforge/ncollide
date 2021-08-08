@@ -4,7 +4,7 @@ use crate::shape::SupportMap;
 use na::{self, RealField};
 
 /// Distance between a plane and a support-mapped shape.
-pub fn distance_plane_support_map<N: RealField, G: ?Sized + SupportMap<N>>(
+pub fn distance_plane_support_map<N: RealField + Copy, G: ?Sized + SupportMap<N>>(
     mplane: &Isometry<N>,
     plane: &Plane<N>,
     mother: &Isometry<N>,
@@ -24,7 +24,7 @@ pub fn distance_plane_support_map<N: RealField, G: ?Sized + SupportMap<N>>(
 }
 
 /// Distance between a support-mapped shape and a plane.
-pub fn distance_support_map_plane<N: RealField, G: ?Sized + SupportMap<N>>(
+pub fn distance_support_map_plane<N: RealField + Copy, G: ?Sized + SupportMap<N>>(
     mother: &Isometry<N>,
     other: &G,
     mplane: &Isometry<N>,

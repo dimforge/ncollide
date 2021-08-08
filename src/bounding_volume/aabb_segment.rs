@@ -4,7 +4,7 @@ use crate::math::Matrix;
 use crate::math::{Point, Scalar, Vector};
 use crate::shape::Segment;
 
-impl<N: RealField> HasBoundingVolume<N, AABB<N>> for Segment<N> {
+impl<N: RealField + Copy> HasBoundingVolume<N, AABB<N>> for Segment<N> {
     #[inline]
     fn bounding_volume(&self, m: &Isometry<N>) -> AABB<N> {
         // SPEED: optimize this

@@ -11,7 +11,7 @@ use crate::query::{self, Ray};
 
 /// Results of the GJK algorithm.
 #[derive(Clone, Debug, PartialEq)]
-pub enum GJKResult<N: RealField> {
+pub enum GJKResult<N: RealField + Copy> {
     /// Result of the GJK algorithm when the origin is inside of the polytope.
     Intersection,
     /// Result of the GJK algorithm when a projection of the origin on the polytope is found.
@@ -23,7 +23,7 @@ pub enum GJKResult<N: RealField> {
 }
 
 /// The absolute tolerence used by the GJK algorithm.
-pub fn eps_tol<N: RealField>() -> N {
+pub fn eps_tol<N: RealField + Copy>() -> N {
     let _eps = N::default_epsilon();
     _eps * na::convert(10.0f64)
 }
@@ -40,7 +40,7 @@ pub fn project_origin<N, G: ?Sized>(
     simplex: &mut VoronoiSimplex<N>,
 ) -> Option<Point<N>>
 where
-    N: RealField,
+    N: RealField + Copy,
     G: SupportMap<N>,
 {
     match closest_points(
@@ -83,7 +83,7 @@ pub fn closest_points<N, G1: ?Sized, G2: ?Sized>(
     simplex: &mut VoronoiSimplex<N>,
 ) -> GJKResult<N>
 where
-    N: RealField,
+    N: RealField + Copy,
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
@@ -185,7 +185,7 @@ pub fn cast_ray<N, G: ?Sized>(
     max_toi: N,
 ) -> Option<(N, Vector<N>)>
 where
-    N: RealField,
+    N: RealField + Copy,
     G: SupportMap<N>,
 {
     let m2 = Isometry::identity();
@@ -204,7 +204,7 @@ pub fn directional_distance<N, G1: ?Sized, G2: ?Sized>(
     simplex: &mut VoronoiSimplex<N>,
 ) -> Option<(N, Vector<N>, Point<N>, Point<N>)>
 where
-    N: RealField,
+    N: RealField + Copy,
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
@@ -233,7 +233,7 @@ fn minkowski_ray_cast<N, G1: ?Sized, G2: ?Sized>(
     simplex: &mut VoronoiSimplex<N>,
 ) -> Option<(N, Vector<N>)>
 where
-    N: RealField,
+    N: RealField + Copy,
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
@@ -362,7 +362,7 @@ where
     }
 }
 
-fn result<N: RealField>(simplex: &VoronoiSimplex<N>, prev: bool) -> (Point<N>, Point<N>) {
+fn result<N: RealField + Copy>(simplex: &VoronoiSimplex<N>, prev: bool) -> (Point<N>, Point<N>) {
     let mut res = (Point::origin(), Point::origin());
     if prev {
         for i in 0..simplex.prev_dimension() + 1 {

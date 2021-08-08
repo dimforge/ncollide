@@ -23,7 +23,7 @@ impl DefaultContactDispatcher {
     }
 }
 
-impl<N: RealField> ContactDispatcher<N> for DefaultContactDispatcher {
+impl<N: RealField + Copy> ContactDispatcher<N> for DefaultContactDispatcher {
     fn get_contact_algorithm(
         &self,
         a: &dyn Shape<N>,

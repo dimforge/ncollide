@@ -27,7 +27,7 @@ pub enum TOIStatus {
 
 /// The result of a time-of-impact (TOI) computation.
 #[derive(Clone, Debug)]
-pub struct TOI<N: RealField> {
+pub struct TOI<N: RealField + Copy> {
     /// The time at which the objects touch.
     pub toi: N,
     /// The local-space closest point on the first shape at the time of impact.
@@ -42,7 +42,7 @@ pub struct TOI<N: RealField> {
     pub status: TOIStatus,
 }
 
-impl<N: RealField> TOI<N> {
+impl<N: RealField + Copy> TOI<N> {
     /// Swaps every data of this TOI result such that the role of both shapes are inverted.
     ///
     /// In practice, this makes it so that `self.witness1` and `self.normal1` become `self.witness2` and `self.normal2` and vice-versa.
@@ -62,7 +62,7 @@ impl<N: RealField> TOI<N> {
 /// distance smaller or equal to `distance`.
 ///
 /// Returns `0.0` if the objects are touching or penetrating.
-pub fn time_of_impact<N: RealField>(
+pub fn time_of_impact<N: RealField + Copy>(
     dispatcher: &dyn TOIDispatcher<N>,
     m1: &Isometry<N>,
     vel1: &Vector<N>,

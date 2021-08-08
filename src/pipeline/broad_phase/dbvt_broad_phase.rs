@@ -54,7 +54,7 @@ const DEACTIVATION_THRESHOLD: usize = 100;
 ///
 /// It uses two separate trees: one for static objects and which is never updated, and one for
 /// moving objects.
-pub struct DBVTBroadPhase<N: RealField, BV, T> {
+pub struct DBVTBroadPhase<N: RealField + Copy, BV, T> {
     proxies: Slab<DBVTBroadPhaseProxy<T>>,
     // DBVT for moving objects.
     tree: DBVT<N, BroadPhaseProxyHandle, BV>,
@@ -74,7 +74,7 @@ pub struct DBVTBroadPhase<N: RealField, BV, T> {
 
 impl<N, BV, T> DBVTBroadPhase<N, BV, T>
 where
-    N: RealField,
+    N: RealField + Copy,
     BV: 'static + BoundingVolume<N> + Clone,
 {
     /// Creates a new broad phase based on a Dynamic Bounding Volume Tree.
@@ -167,7 +167,7 @@ where
 
 impl<N, BV, T> BroadPhase<N, BV, T> for DBVTBroadPhase<N, BV, T>
 where
-    N: RealField,
+    N: RealField + Copy,
     BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
     T: Any + Send + Sync + Clone,
 {

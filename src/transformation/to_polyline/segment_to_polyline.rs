@@ -3,7 +3,7 @@ use crate::procedural::Polyline;
 use crate::shape::Segment;
 use simba::scalar::RealField;
 
-impl<N: RealField> ToPolyline<N> for Segment<N> {
+impl<N: RealField + Copy> ToPolyline<N> for Segment<N> {
     type DiscretizationParameter = ();
 
     fn to_polyline(&self, _: ()) -> Polyline<N> {

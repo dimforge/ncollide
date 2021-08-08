@@ -7,7 +7,7 @@ use crate::shape::{Ball, Plane, Segment, Shape};
 /// Computes the pair of closest points between two shapes.
 ///
 /// Returns `None` if the objects are separated by a distance greater than `max_dist`.
-pub fn closest_points<N: RealField>(
+pub fn closest_points<N: RealField + Copy>(
     m1: &Isometry<N>,
     g1: &dyn Shape<N>,
     m2: &Isometry<N>,

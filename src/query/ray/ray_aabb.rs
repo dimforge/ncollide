@@ -10,7 +10,7 @@ use crate::math::{Isometry, Point, Vector, DIM};
 use crate::query::{Ray, RayCast, RayIntersection};
 use crate::shape::{FeatureId, Segment};
 
-impl<N: RealField> RayCast<N> for AABB<N> {
+impl<N: RealField + Copy> RayCast<N> for AABB<N> {
     fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, max_toi: N, solid: bool) -> Option<N> {
         let ls_ray = ray.inverse_transform_by(m);
 
@@ -83,7 +83,7 @@ impl<N: RealField> RayCast<N> for AABB<N> {
     }
 }
 
-impl<N: RealField> AABB<N> {
+impl<N: RealField + Copy> AABB<N> {
     /// Computes the parameters of the two intersection points between a line and this AABB.
     ///
     /// The parameters are such that the point are given by `orig + dir * parameter`.
@@ -132,7 +132,7 @@ impl<N: RealField> AABB<N> {
 }
 
 #[cfg(feature = "dim3")]
-fn do_toi_and_normal_and_uv_with_ray<N: RealField>(
+fn do_toi_and_normal_and_uv_with_ray<N: RealField + Copy>(
     m: &Isometry<N>,
     aabb: &AABB<N>,
     ray: &Ray<N>,
@@ -182,7 +182,7 @@ fn do_toi_and_normal_and_uv_with_ray<N: RealField>(
     }
 }
 
-fn clip_line<N: RealField>(
+fn clip_line<N: RealField + Copy>(
     aabb: &AABB<N>,
     origin: &Point<N>,
     dir: &Vector<N>,
@@ -277,7 +277,7 @@ fn clip_line<N: RealField>(
     Some((near, far))
 }
 
-fn ray_aabb<N: RealField>(
+fn ray_aabb<N: RealField + Copy>(
     aabb: &AABB<N>,
     ray: &Ray<N>,
     max_toi: N,

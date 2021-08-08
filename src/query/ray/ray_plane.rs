@@ -6,7 +6,7 @@ use crate::shape::{FeatureId, Plane};
 
 /// Computes the toi of an unbounded line with a plane described by its center and normal.
 #[inline]
-pub fn line_toi_with_plane<N: RealField>(
+pub fn line_toi_with_plane<N: RealField + Copy>(
     plane_center: &Point<N>,
     plane_normal: &Vector<N>,
     line_origin: &Point<N>,
@@ -24,7 +24,7 @@ pub fn line_toi_with_plane<N: RealField>(
 
 /// Computes the toi of a ray with a plane described by its center and normal.
 #[inline]
-pub fn ray_toi_with_plane<N: RealField>(
+pub fn ray_toi_with_plane<N: RealField + Copy>(
     center: &Point<N>,
     normal: &Vector<N>,
     ray: &Ray<N>,
@@ -38,7 +38,7 @@ pub fn ray_toi_with_plane<N: RealField>(
     None
 }
 
-impl<N: RealField> RayCast<N> for Plane<N> {
+impl<N: RealField + Copy> RayCast<N> for Plane<N> {
     #[inline]
     fn toi_and_normal_with_ray(
         &self,

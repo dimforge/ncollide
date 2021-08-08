@@ -8,12 +8,12 @@ use na::{self, RealField, Unit};
 use std::ops::Deref;
 use std::sync::Arc;
 
-pub trait ShapeClone<N: RealField> {
+pub trait ShapeClone<N: RealField + Copy> {
     /// Construct an `Arc` that refers to a uniquely-owned copy of `self`
     fn clone_arc(&self) -> Arc<dyn Shape<N>>;
 }
 
-impl<N: RealField, T: 'static + Shape<N> + Clone> ShapeClone<N> for T {
+impl<N: RealField + Copy, T: 'static + Shape<N> + Clone> ShapeClone<N> for T {
     fn clone_arc(&self) -> Arc<dyn Shape<N>> {
         Arc::new(self.clone())
     }
@@ -22,7 +22,7 @@ impl<N: RealField, T: 'static + Shape<N> + Clone> ShapeClone<N> for T {
 /// Trait implemented by all shapes supported by ncollide.
 ///
 /// This allows dynamic inspection of the shape capabilities.
-pub trait Shape<N: RealField>: Send + Sync + Downcast + ShapeClone<N> {
+pub trait Shape<N: RealField + Copy>: Send + Sync + Downcast + ShapeClone<N> {
     /// The AABB of `self` transformed by `m`.
     fn aabb(&self, m: &Isometry<N>) -> AABB<N>;
 
@@ -131,10 +131,10 @@ pub trait Shape<N: RealField>: Send + Sync + Downcast + ShapeClone<N> {
     }
 }
 
-impl_downcast!(Shape<N> where N: RealField);
+impl_downcast!(Shape<N> where N: RealField + Copy);
 
 /// Trait for casting shapes to its exact represetation.
-impl<N: RealField> dyn Shape<N> {
+impl<N: RealField + Copy> dyn Shape<N> {
     /// Tests if this shape has a specific type `T`.
     #[inline]
     pub fn is_shape<T: Shape<N>>(&self) -> bool {
@@ -152,9 +152,9 @@ impl<N: RealField> dyn Shape<N> {
 ///
 /// This can be mutated using COW.
 #[derive(Clone)]
-pub struct ShapeHandle<N: RealField>(Arc<dyn Shape<N>>);
+pub struct ShapeHandle<N: RealField + Copy>(Arc<dyn Shape<N>>);
 
-impl<N: RealField> ShapeHandle<N> {
+impl<N: RealField + Copy> ShapeHandle<N> {
     /// Creates a sharable shape handle from a shape.
     #[inline]
     pub fn new<S: Shape<N>>(shape: S) -> ShapeHandle<N> {
@@ -180,14 +180,14 @@ impl<N: RealField> ShapeHandle<N> {
     }
 }
 
-impl<N: RealField> AsRef<dyn Shape<N>> for ShapeHandle<N> {
+impl<N: RealField + Copy> AsRef<dyn Shape<N>> for ShapeHandle<N> {
     #[inline]
     fn as_ref(&self) -> &dyn Shape<N> {
         &*self.0
     }
 }
 
-impl<N: RealField> Deref for ShapeHandle<N> {
+impl<N: RealField + Copy> Deref for ShapeHandle<N> {
     type Target = dyn Shape<N>;
 
     #[inline]

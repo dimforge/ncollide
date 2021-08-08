@@ -107,19 +107,19 @@ macro_rules! impl_shape_common (
 );
 
 #[cfg(feature = "dim3")]
-impl<N: RealField> Shape<N> for Triangle<N> {
+impl<N: RealField + Copy> Shape<N> for Triangle<N> {
     impl_shape_common!();
     impl_as_support_map!();
     impl_as_convex_polyhedron!();
 }
 
-impl<N: RealField> Shape<N> for Segment<N> {
+impl<N: RealField + Copy> Shape<N> for Segment<N> {
     impl_shape_common!();
     impl_as_support_map!();
     impl_as_convex_polyhedron!();
 }
 
-impl<N: RealField> Shape<N> for Ball<N> {
+impl<N: RealField + Copy> Shape<N> for Ball<N> {
     impl_shape_common!();
     impl_as_support_map!();
 
@@ -137,13 +137,13 @@ impl<N: RealField> Shape<N> for Ball<N> {
     }
 }
 
-impl<N: RealField> Shape<N> for Cuboid<N> {
+impl<N: RealField + Copy> Shape<N> for Cuboid<N> {
     impl_shape_common!();
     impl_as_support_map!();
     impl_as_convex_polyhedron!();
 }
 
-impl<N: RealField> Shape<N> for Capsule<N> {
+impl<N: RealField + Copy> Shape<N> for Capsule<N> {
     impl_shape_common!();
     impl_as_support_map!();
 
@@ -162,20 +162,20 @@ impl<N: RealField> Shape<N> for Capsule<N> {
 }
 
 #[cfg(feature = "dim3")]
-impl<N: RealField> Shape<N> for ConvexHull<N> {
+impl<N: RealField + Copy> Shape<N> for ConvexHull<N> {
     impl_shape_common!();
     impl_as_support_map!();
     impl_as_convex_polyhedron!();
 }
 
 #[cfg(feature = "dim2")]
-impl<N: RealField> Shape<N> for ConvexPolygon<N> {
+impl<N: RealField + Copy> Shape<N> for ConvexPolygon<N> {
     impl_shape_common!();
     impl_as_support_map!();
     impl_as_convex_polyhedron!();
 }
 
-impl<N: RealField> Shape<N> for Compound<N> {
+impl<N: RealField + Copy> Shape<N> for Compound<N> {
     impl_shape_common!();
     impl_as_composite_shape!();
 
@@ -200,7 +200,7 @@ impl<N: RealField> Shape<N> for Compound<N> {
 }
 
 #[cfg(feature = "dim3")]
-impl<N: RealField> Shape<N> for TriMesh<N> {
+impl<N: RealField + Copy> Shape<N> for TriMesh<N> {
     impl_shape_common!();
     impl_as_composite_shape!();
     impl_as_deformable_shape!();
@@ -227,7 +227,7 @@ impl<N: RealField> Shape<N> for TriMesh<N> {
     }
 }
 
-impl<N: RealField> Shape<N> for Polyline<N> {
+impl<N: RealField + Copy> Shape<N> for Polyline<N> {
     impl_shape_common!();
     impl_as_composite_shape!();
     impl_as_deformable_shape!();
@@ -248,7 +248,7 @@ impl<N: RealField> Shape<N> for Polyline<N> {
     }
 }
 
-impl<N: RealField> Shape<N> for HeightField<N> {
+impl<N: RealField + Copy> Shape<N> for HeightField<N> {
     impl_shape_common!();
 
     fn tangent_cone_contains_dir(
@@ -268,7 +268,7 @@ impl<N: RealField> Shape<N> for HeightField<N> {
     }
 }
 
-impl<N: RealField> Shape<N> for Plane<N> {
+impl<N: RealField + Copy> Shape<N> for Plane<N> {
     impl_shape_common!();
 
     fn tangent_cone_contains_dir(

@@ -7,26 +7,26 @@ use crate::math::{Isometry, Point, Translation, Vector};
 /// This is a function, assumed to be continuous, that, given a parameter `t` returns a direct isometry.
 /// Mathematically speaking this is a one-parameter curve on the space of direct isometries. This curve
 /// should have a continuity of at least `C0`.
-pub trait RigidMotion<N: RealField> {
+pub trait RigidMotion<N: RealField + Copy> {
     /// Get a position at the time `t`.
     fn position_at_time(&self, t: N) -> Isometry<N>;
 }
 
-impl<N: RealField> RigidMotion<N> for Isometry<N> {
+impl<N: RealField + Copy> RigidMotion<N> for Isometry<N> {
     fn position_at_time(&self, _: N) -> Isometry<N> {
         *self
     }
 }
 
 /// Interpolation between two isometries using LERP for the translation part and SLERP for the rotation.
-pub struct InterpolatedRigidMotion<N: RealField> {
+pub struct InterpolatedRigidMotion<N: RealField + Copy> {
     /// The transformation at `t = 0.0`.
     pub start: Isometry<N>,
     /// The transformation at `t = 1.0`.
     pub end: Isometry<N>,
 }
 
-impl<N: RealField> InterpolatedRigidMotion<N> {
+impl<N: RealField + Copy> InterpolatedRigidMotion<N> {
     /// Initialize a lerp-slerp interpolation with the given start and end transformations.
     ///
     /// The `start` is the transformation at the time `t = 0.0` and `end` is the transformation at
@@ -36,14 +36,14 @@ impl<N: RealField> InterpolatedRigidMotion<N> {
     }
 }
 
-impl<N: RealField> RigidMotion<N> for InterpolatedRigidMotion<N> {
+impl<N: RealField + Copy> RigidMotion<N> for InterpolatedRigidMotion<N> {
     fn position_at_time(&self, t: N) -> Isometry<N> {
         self.start.lerp_slerp(&self.end, t)
     }
 }
 
 /// A linear motion from a starting isometry traveling at constant translational velocity.
-pub struct ConstantLinearVelocityRigidMotion<N: RealField> {
+pub struct ConstantLinearVelocityRigidMotion<N: RealField + Copy> {
     /// The time at which this parametrization begins. Can be negative.
     pub t0: N,
     /// The starting isometry at `t = self.t0`.
@@ -52,7 +52,7 @@ pub struct ConstantLinearVelocityRigidMotion<N: RealField> {
     pub velocity: Vector<N>,
 }
 
-impl<N: RealField> ConstantLinearVelocityRigidMotion<N> {
+impl<N: RealField + Copy> ConstantLinearVelocityRigidMotion<N> {
     /// Initialize a linear motion from a starting isometry and a translational velocity.
     pub fn new(t0: N, start: Isometry<N>, velocity: Vector<N>) -> Self {
         ConstantLinearVelocityRigidMotion {
@@ -63,7 +63,7 @@ impl<N: RealField> ConstantLinearVelocityRigidMotion<N> {
     }
 }
 
-impl<N: RealField> RigidMotion<N> for ConstantLinearVelocityRigidMotion<N> {
+impl<N: RealField + Copy> RigidMotion<N> for ConstantLinearVelocityRigidMotion<N> {
     fn position_at_time(&self, t: N) -> Isometry<N> {
         Isometry::from_parts(
             (self.start.translation.vector + self.velocity * (t - self.t0)).into(),
@@ -74,7 +74,7 @@ impl<N: RealField> RigidMotion<N> for ConstantLinearVelocityRigidMotion<N> {
 
 /// A linear motion from a starting isometry traveling at constant translational velocity.
 #[derive(Debug)]
-pub struct ConstantVelocityRigidMotion<N: RealField> {
+pub struct ConstantVelocityRigidMotion<N: RealField + Copy> {
     /// The time at which this parametrization begins. Can be negative.
     pub t0: N,
     /// The starting isometry at `t = self.t0`.
@@ -91,7 +91,7 @@ pub struct ConstantVelocityRigidMotion<N: RealField> {
     pub angvel: Vector<N>,
 }
 
-impl<N: RealField> ConstantVelocityRigidMotion<N> {
+impl<N: RealField + Copy> ConstantVelocityRigidMotion<N> {
     /// Initialize a motion from a starting isometry and linear and angular velocities.
     #[cfg(feature = "dim2")]
     pub fn new(
@@ -129,7 +129,7 @@ impl<N: RealField> ConstantVelocityRigidMotion<N> {
     }
 }
 
-impl<N: RealField> RigidMotion<N> for ConstantVelocityRigidMotion<N> {
+impl<N: RealField + Copy> RigidMotion<N> for ConstantVelocityRigidMotion<N> {
     fn position_at_time(&self, t: N) -> Isometry<N> {
         let scaled_linvel = self.linvel * (t - self.t0);
         let scaled_angvel = self.angvel * (t - self.t0);
@@ -147,7 +147,7 @@ impl<N: RealField> RigidMotion<N> for ConstantVelocityRigidMotion<N> {
  */
 
 /// Trait for composing some rigid motions.
-pub trait RigidMotionComposition<N: RealField>: RigidMotion<N> {
+pub trait RigidMotionComposition<N: RealField + Copy>: RigidMotion<N> {
     /// Prepend a translation to the rigid motion `self`.
     fn prepend_translation(&self, translation: Vector<N>) -> PrependTranslation<N, Self> {
         PrependTranslation {
@@ -168,15 +168,15 @@ pub trait RigidMotionComposition<N: RealField>: RigidMotion<N> {
     }
 }
 
-impl<N: RealField, M: ?Sized + RigidMotion<N>> RigidMotionComposition<N> for M {}
+impl<N: RealField + Copy, M: ?Sized + RigidMotion<N>> RigidMotionComposition<N> for M {}
 
 /// The result of prepending a translation to a rigid motion.
-pub struct PrependTranslation<'a, N: RealField, M: ?Sized> {
+pub struct PrependTranslation<'a, N: RealField + Copy, M: ?Sized> {
     motion: &'a M,
     translation: Vector<N>,
 }
 
-impl<'a, N: RealField, M: ?Sized + RigidMotion<N>> RigidMotion<N> for PrependTranslation<'a, N, M> {
+impl<'a, N: RealField + Copy, M: ?Sized + RigidMotion<N>> RigidMotion<N> for PrependTranslation<'a, N, M> {
     fn position_at_time(&self, t: N) -> Isometry<N> {
         let m = self.motion.position_at_time(t);
         m * Translation::from(self.translation)
@@ -184,12 +184,12 @@ impl<'a, N: RealField, M: ?Sized + RigidMotion<N>> RigidMotion<N> for PrependTra
 }
 
 /// The result of prepending an isometric transformation to a rigid motion.
-pub struct PrependTransformation<'a, N: RealField, M: ?Sized> {
+pub struct PrependTransformation<'a, N: RealField + Copy, M: ?Sized> {
     motion: &'a M,
     transformation: Isometry<N>,
 }
 
-impl<'a, N: RealField, M: ?Sized + RigidMotion<N>> RigidMotion<N>
+impl<'a, N: RealField + Copy, M: ?Sized + RigidMotion<N>> RigidMotion<N>
     for PrependTransformation<'a, N, M>
 {
     fn position_at_time(&self, t: N) -> Isometry<N> {

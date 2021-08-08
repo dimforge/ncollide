@@ -5,12 +5,12 @@ use crate::shape::{Capsule, Shape};
 use na::{self, RealField};
 
 /// Collision detector between a concave shape and another shape.
-pub struct CapsuleShapeManifoldGenerator<N: RealField> {
+pub struct CapsuleShapeManifoldGenerator<N: RealField + Copy> {
     sub_detector: Option<ContactAlgorithm<N>>,
     flip: bool,
 }
 
-impl<N: RealField> CapsuleShapeManifoldGenerator<N> {
+impl<N: RealField + Copy> CapsuleShapeManifoldGenerator<N> {
     /// Creates a new collision detector between a concave shape and another shape.
     pub fn new(flip: bool) -> CapsuleShapeManifoldGenerator<N> {
         CapsuleShapeManifoldGenerator {
@@ -74,7 +74,7 @@ impl<N: RealField> CapsuleShapeManifoldGenerator<N> {
     }
 }
 
-impl<N: RealField> ContactManifoldGenerator<N> for CapsuleShapeManifoldGenerator<N> {
+impl<N: RealField + Copy> ContactManifoldGenerator<N> for CapsuleShapeManifoldGenerator<N> {
     fn generate_contacts(
         &mut self,
         d: &dyn ContactDispatcher<N>,

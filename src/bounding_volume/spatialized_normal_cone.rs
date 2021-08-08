@@ -5,14 +5,14 @@ use na::RealField;
 /// The combination of an AABB with a circular cone to bound both the space occupied by an geometry and its normals.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub struct SpatializedNormalCone<N: RealField> {
+pub struct SpatializedNormalCone<N: RealField + Copy> {
     /// An AABB bounding the space occupied by a geometry.
     pub aabb: AABB<N>,
     /// A circular cone bounding the normals of a geometry.
     pub normals: CircularCone<N>,
 }
 
-impl<N: RealField> BoundingVolume<N> for SpatializedNormalCone<N> {
+impl<N: RealField + Copy> BoundingVolume<N> for SpatializedNormalCone<N> {
     fn center(&self) -> Point<N> {
         self.aabb.center()
     }

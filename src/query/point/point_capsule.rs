@@ -3,7 +3,7 @@ use crate::query::{PointProjection, PointQuery};
 use crate::shape::{Capsule, FeatureId, Segment};
 use na::{self, RealField, Unit};
 
-impl<N: RealField> PointQuery<N> for Capsule<N> {
+impl<N: RealField + Copy> PointQuery<N> for Capsule<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, pt: &Point<N>, solid: bool) -> PointProjection<N> {
         let mut y = Point::origin();

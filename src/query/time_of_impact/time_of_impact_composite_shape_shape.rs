@@ -19,7 +19,7 @@ pub fn time_of_impact_composite_shape_shape<N, G1: ?Sized>(
     target_distance: N,
 ) -> Option<TOI<N>>
 where
-    N: RealField,
+    N: RealField + Copy,
     G1: CompositeShape<N>,
 {
     let mut visitor = CompositeShapeAgainstAnyTOIVisitor::new(
@@ -49,7 +49,7 @@ pub fn time_of_impact_shape_composite_shape<N, G2: ?Sized>(
     target_distance: N,
 ) -> Option<TOI<N>>
 where
-    N: RealField,
+    N: RealField + Copy,
     G2: CompositeShape<N>,
 {
     time_of_impact_composite_shape_shape(
@@ -66,7 +66,7 @@ where
     .map(|toi| toi.swapped())
 }
 
-struct CompositeShapeAgainstAnyTOIVisitor<'a, N: 'a + RealField, G1: ?Sized + 'a> {
+struct CompositeShapeAgainstAnyTOIVisitor<'a, N: 'a + RealField + Copy, G1: ?Sized + 'a> {
     dispatcher: &'a dyn TOIDispatcher<N>,
     msum_shift: Vector<N>,
     msum_margin: Vector<N>,
@@ -84,7 +84,7 @@ struct CompositeShapeAgainstAnyTOIVisitor<'a, N: 'a + RealField, G1: ?Sized + 'a
 
 impl<'a, N, G1: ?Sized> CompositeShapeAgainstAnyTOIVisitor<'a, N, G1>
 where
-    N: RealField,
+    N: RealField + Copy,
     G1: CompositeShape<N>,
 {
     pub fn new(
@@ -124,7 +124,7 @@ where
 impl<'a, N, G1: ?Sized> BestFirstVisitor<N, usize, AABB<N>>
     for CompositeShapeAgainstAnyTOIVisitor<'a, N, G1>
 where
-    N: RealField,
+    N: RealField + Copy,
     G1: CompositeShape<N>,
 {
     type Result = TOI<N>;

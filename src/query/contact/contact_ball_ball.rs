@@ -5,7 +5,7 @@ use na::{self, RealField, Unit};
 
 /// Contact between balls.
 #[inline]
-pub fn contact_ball_ball<N: RealField>(
+pub fn contact_ball_ball<N: RealField + Copy>(
     center1: &Point<N>,
     b1: &Ball<N>,
     center2: &Point<N>,

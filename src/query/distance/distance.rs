@@ -6,7 +6,7 @@ use na::RealField;
 /// Computes the minimum distance separating two shapes.
 ///
 /// Returns `0.0` if the objects are touching or penetrating.
-pub fn distance<N: RealField>(
+pub fn distance<N: RealField + Copy>(
     m1: &Isometry<N>,
     g1: &dyn Shape<N>,
     m2: &Isometry<N>,

@@ -8,12 +8,12 @@ use std::f64;
 /// A 2D convex polygon.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
-pub struct ConvexPolygon<N: RealField> {
+pub struct ConvexPolygon<N: RealField + Copy> {
     points: Vec<Point<N>>,
     normals: Vec<Unit<Vector<N>>>,
 }
 
-impl<N: RealField> ConvexPolygon<N> {
+impl<N: RealField + Copy> ConvexPolygon<N> {
     /// Creates a new 2D convex polygon from an arbitrary set of points.
     ///
     /// This explicitly computes the convex hull of the given set of points. Use
@@ -108,14 +108,14 @@ impl<N: RealField> ConvexPolygon<N> {
     }
 }
 
-impl<N: RealField> SupportMap<N> for ConvexPolygon<N> {
+impl<N: RealField + Copy> SupportMap<N> for ConvexPolygon<N> {
     #[inline]
     fn local_support_point(&self, dir: &Vector<N>) -> Point<N> {
         utils::point_cloud_support_point(dir, self.points())
     }
 }
 
-impl<N: RealField> ConvexPolyhedron<N> for ConvexPolygon<N> {
+impl<N: RealField + Copy> ConvexPolyhedron<N> for ConvexPolygon<N> {
     fn vertex(&self, id: FeatureId) -> Point<N> {
         self.points[id.unwrap_vertex()]
     }

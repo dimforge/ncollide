@@ -2,7 +2,7 @@ use crate::pipeline::object::CollisionObjectSet;
 use na::RealField;
 
 /// A signal handler for contact detection.
-pub trait BroadPhasePairFilter<N: RealField, Set: CollisionObjectSet<N>>: Send + Sync {
+pub trait BroadPhasePairFilter<N: RealField + Copy, Set: CollisionObjectSet<N>>: Send + Sync {
     /// Activate an action for when two objects start or stop to be close to each other.
     fn is_pair_valid(
         &self,
@@ -12,7 +12,7 @@ pub trait BroadPhasePairFilter<N: RealField, Set: CollisionObjectSet<N>>: Send +
     ) -> bool;
 }
 
-impl<N: RealField, Set: CollisionObjectSet<N>> BroadPhasePairFilter<N, Set> for () {
+impl<N: RealField + Copy, Set: CollisionObjectSet<N>> BroadPhasePairFilter<N, Set> for () {
     fn is_pair_valid(
         &self,
         _: Set::CollisionObjectHandle,

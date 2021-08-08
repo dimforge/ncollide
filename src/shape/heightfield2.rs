@@ -9,14 +9,14 @@ use crate::shape::Segment;
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
 /// A 2D heightfield.
-pub struct HeightField<N: RealField> {
+pub struct HeightField<N: RealField + Copy> {
     heights: DVector<N>,
     scale: Vector<N>,
     removed: Vec<bool>,
     aabb: AABB<N>,
 }
 
-impl<N: RealField> HeightField<N> {
+impl<N: RealField + Copy> HeightField<N> {
     /// Creates a new 2D heightfield with the given heights and scale factor.
     pub fn new(heights: DVector<N>, scale: Vector<N>) -> Self {
         assert!(
@@ -213,12 +213,12 @@ impl<N: RealField> HeightField<N> {
 
 #[allow(dead_code)]
 /// The contact preprocessor dedicated to 2D heightfields.
-pub struct HeightFieldTriangleContactPreprocessor<'a, N: RealField> {
+pub struct HeightFieldTriangleContactPreprocessor<'a, N: RealField + Copy> {
     heightfield: &'a HeightField<N>,
     triangle: usize,
 }
 
-impl<'a, N: RealField> HeightFieldTriangleContactPreprocessor<'a, N> {
+impl<'a, N: RealField + Copy> HeightFieldTriangleContactPreprocessor<'a, N> {
     /// Initialize a contact preprocessor for the given triangle of the given heightfield.
     pub fn new(heightfield: &'a HeightField<N>, triangle: usize) -> Self {
         HeightFieldTriangleContactPreprocessor {
@@ -228,7 +228,7 @@ impl<'a, N: RealField> HeightFieldTriangleContactPreprocessor<'a, N> {
     }
 }
 
-impl<'a, N: RealField> ContactPreprocessor<N> for HeightFieldTriangleContactPreprocessor<'a, N> {
+impl<'a, N: RealField + Copy> ContactPreprocessor<N> for HeightFieldTriangleContactPreprocessor<'a, N> {
     fn process_contact(
         &self,
         _c: &mut Contact<N>,

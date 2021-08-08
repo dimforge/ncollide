@@ -6,7 +6,7 @@ use na;
 use na::{Point2, Vector2};
 use simba::scalar::RealField;
 
-impl<N: RealField> ToPolyline<N> for Capsule<N> {
+impl<N: RealField + Copy> ToPolyline<N> for Capsule<N> {
     type DiscretizationParameter = u32;
 
     fn to_polyline(&self, nsubdiv: u32) -> Polyline<N> {

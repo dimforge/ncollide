@@ -50,7 +50,7 @@ impl FeatureId {
 }
 
 /// Trait implemented by all convex polyhedron.
-pub trait ConvexPolyhedron<N: RealField>: SupportMap<N> {
+pub trait ConvexPolyhedron<N: RealField + Copy>: SupportMap<N> {
     /// Gets the specified vertex in the shape local-space.
     fn vertex(&self, id: FeatureId) -> Point<N>;
     /// Fill `face` with the geometric description of the specified face, in the shape's local-space.

@@ -15,7 +15,7 @@ pub fn nonlinear_time_of_impact_plane_support_map<N, G: ?Sized>(
     other: &G,
 ) -> Option<N>
 where
-    N: RealField,
+    N: RealField + Copy,
     G: SupportMap<N>,
 {
     /*
@@ -47,7 +47,7 @@ pub fn nonlinear_time_of_impact_support_map_plane<N, G: ?Sized>(
     plane: &Plane<N>,
 ) -> Option<N>
 where
-    N: RealField,
+    N: RealField + Copy,
     G: SupportMap<N>,
 {
     nonlinear_time_of_impact_plane_support_map(mplane, vel_plane, plane, mother, vel_other, other)

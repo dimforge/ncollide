@@ -5,15 +5,15 @@ use crate::{
 };
 use na::RealField;
 
-impl<N: RealField> HasBoundingVolume<N, AABB<N>> for Triangle<N> {
+impl<N: RealField + Copy> HasBoundingVolume<N, AABB<N>> for Triangle<N> {
     #[inline]
     fn bounding_volume(&self, m: &Isometry<N>) -> AABB<N> {
         let a = m.transform_point(&self.a).coords;
         let b = m.transform_point(&self.b).coords;
         let c = m.transform_point(&self.c).coords;
 
-        let mut min = unsafe { Point::new_uninitialized() };
-        let mut max = unsafe { Point::new_uninitialized() };
+        let mut min = Point::origin();
+        let mut max = Point::origin();
 
         for d in 0..DIM {
             min.coords[d] = a[d].min(b[d]).min(c[d]);
@@ -29,8 +29,8 @@ impl<N: RealField> HasBoundingVolume<N, AABB<N>> for Triangle<N> {
         let b = self.b.coords;
         let c = self.c.coords;
 
-        let mut min = unsafe { Point::new_uninitialized() };
-        let mut max = unsafe { Point::new_uninitialized() };
+        let mut min = Point::origin();
+        let mut max = Point::origin();
 
         for d in 0..DIM {
             min.coords[d] = a[d].min(b[d]).min(c[d]);

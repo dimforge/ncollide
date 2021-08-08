@@ -14,7 +14,7 @@ pub fn closest_points_support_map_support_map<N, G1: ?Sized, G2: ?Sized>(
     prediction: N,
 ) -> ClosestPoints<N>
 where
-    N: RealField,
+    N: RealField + Copy,
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {
@@ -47,7 +47,7 @@ pub fn closest_points_support_map_support_map_with_params<N, G1: ?Sized, G2: ?Si
     init_dir: Option<Vector<N>>,
 ) -> GJKResult<N>
 where
-    N: RealField,
+    N: RealField + Copy,
     G1: SupportMap<N>,
     G2: SupportMap<N>,
 {

@@ -6,7 +6,7 @@ use crate::shape::Compound;
 use na::RealField;
 
 // XXX: if solid == false, this might return internal intersection.
-impl<N: RealField> RayCast<N> for Compound<N> {
+impl<N: RealField + Copy> RayCast<N> for Compound<N> {
     fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, max_toi: N, solid: bool) -> Option<N> {
         let ls_ray = ray.inverse_transform_by(m);
 
@@ -51,14 +51,14 @@ impl<N: RealField> RayCast<N> for Compound<N> {
 /*
  * Costs functions.
  */
-struct CompoundRayToiVisitor<'a, N: 'a + RealField> {
+struct CompoundRayToiVisitor<'a, N: 'a + RealField + Copy> {
     compound: &'a Compound<N>,
     ray: &'a Ray<N>,
     max_toi: N,
     solid: bool,
 }
 
-impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for CompoundRayToiVisitor<'a, N> {
+impl<'a, N: RealField + Copy> BestFirstVisitor<N, usize, AABB<N>> for CompoundRayToiVisitor<'a, N> {
     type Result = N;
 
     #[inline]
@@ -96,14 +96,14 @@ impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for CompoundRayToiVis
     }
 }
 
-struct CompoundRayToiAndNormalVisitor<'a, N: 'a + RealField> {
+struct CompoundRayToiAndNormalVisitor<'a, N: 'a + RealField + Copy> {
     compound: &'a Compound<N>,
     ray: &'a Ray<N>,
     max_toi: N,
     solid: bool,
 }
 
-impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>>
+impl<'a, N: RealField + Copy> BestFirstVisitor<N, usize, AABB<N>>
     for CompoundRayToiAndNormalVisitor<'a, N>
 {
     type Result = RayIntersection<N>;

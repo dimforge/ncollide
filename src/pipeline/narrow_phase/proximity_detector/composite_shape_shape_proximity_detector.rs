@@ -29,7 +29,7 @@ impl<N> CompositeShapeShapeProximityDetector<N> {
     }
 }
 
-impl<N: RealField> CompositeShapeShapeProximityDetector<N> {
+impl<N: RealField + Copy> CompositeShapeShapeProximityDetector<N> {
     fn do_update(
         &mut self,
         dispatcher: &dyn ProximityDispatcher<N>,
@@ -156,7 +156,7 @@ impl<N: RealField> CompositeShapeShapeProximityDetector<N> {
     }
 }
 
-impl<N: RealField> ProximityDetector<N> for CompositeShapeShapeProximityDetector<N> {
+impl<N: RealField + Copy> ProximityDetector<N> for CompositeShapeShapeProximityDetector<N> {
     fn update(
         &mut self,
         dispatcher: &dyn ProximityDispatcher<N>,

@@ -8,7 +8,7 @@ use std::any::Any;
 use crate::pipeline::{BroadPhase, BroadPhaseProxyHandle};
 
 /// Bounding Volume Tree visitor collecting interferences with a given ray.
-pub struct RayIntersectionCostFnVisitor<'a, 'b, N: 'a + RealField, T, BV>
+pub struct RayIntersectionCostFnVisitor<'a, 'b, N: 'a + RealField + Copy, T, BV>
 where
     BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
     T: Any + Send + Sync,
@@ -29,7 +29,7 @@ where
     cost_fn: &'a dyn Fn(T, &'b Ray<N>, N) -> Option<(T, RayIntersection<N>)>,
 }
 
-impl<'a, 'b, N: RealField, T, BV> RayIntersectionCostFnVisitor<'a, 'b, N, T, BV>
+impl<'a, 'b, N: RealField + Copy, T, BV> RayIntersectionCostFnVisitor<'a, 'b, N, T, BV>
 where
     BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
     T: Any + Send + Sync,
@@ -54,7 +54,7 @@ where
 impl<'a, 'b, N, BV, T> BestFirstVisitor<N, BroadPhaseProxyHandle, BV>
     for RayIntersectionCostFnVisitor<'a, 'b, N, T, BV>
 where
-    N: RealField,
+    N: RealField + Copy,
     BV: BoundingVolume<N> + RayCast<N> + PointQuery<N> + Any + Send + Sync + Clone,
     T: Any + Send + Sync + Clone,
 {

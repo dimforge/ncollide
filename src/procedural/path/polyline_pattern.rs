@@ -4,7 +4,7 @@ use crate::procedural::utils;
 use na::{self, Isometry3, Point2, Point3, RealField, Vector3};
 
 /// A pattern composed of polyline and two caps.
-pub struct PolylinePattern<N: RealField, C1, C2> {
+pub struct PolylinePattern<N: RealField + Copy, C1, C2> {
     pattern: Vec<Point3<N>>,
     closed: bool,
     last_start_id: u32,
@@ -13,7 +13,7 @@ pub struct PolylinePattern<N: RealField, C1, C2> {
 }
 
 /// Trait to be implemented by caps compatible with a `PolylinePattern`.
-pub trait PolylineCompatibleCap<N: RealField> {
+pub trait PolylineCompatibleCap<N: RealField + Copy> {
     /// Generates the mesh for the cap at the beginning of a path.
     fn gen_start_cap(
         &self,
@@ -41,7 +41,7 @@ pub trait PolylineCompatibleCap<N: RealField> {
 
 impl<N, C1, C2> PolylinePattern<N, C1, C2>
 where
-    N: RealField,
+    N: RealField + Copy,
     C1: PolylineCompatibleCap<N>,
     C2: PolylineCompatibleCap<N>,
 {
@@ -70,7 +70,7 @@ where
 
 impl<N, C1, C2> StrokePattern<N> for PolylinePattern<N, C1, C2>
 where
-    N: RealField,
+    N: RealField + Copy,
     C1: PolylineCompatibleCap<N>,
     C2: PolylineCompatibleCap<N>,
 {

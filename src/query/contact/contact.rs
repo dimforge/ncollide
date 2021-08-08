@@ -12,7 +12,7 @@ slotmap::new_key_type! {
 /// Geometric description of a contact.
 #[derive(Debug, PartialEq, Copy, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub struct Contact<N: RealField> {
+pub struct Contact<N: RealField + Copy> {
     /// Position of the contact on the first object. The position is expressed in world space.
     pub world1: Point<N>,
 
@@ -26,7 +26,7 @@ pub struct Contact<N: RealField> {
     pub depth: N,
 }
 
-impl<N: RealField> Contact<N> {
+impl<N: RealField + Copy> Contact<N> {
     /// Creates a new contact.
     #[inline]
     pub fn new(world1: Point<N>, world2: Point<N>, normal: Unit<Vector<N>>, depth: N) -> Self {
@@ -46,7 +46,7 @@ impl<N: RealField> Contact<N> {
     }
 }
 
-impl<N: RealField> Contact<N> {
+impl<N: RealField + Copy> Contact<N> {
     /// Reverts the contact normal and swaps `world1` and `world2`.
     #[inline]
     pub fn flip(&mut self) {
@@ -62,7 +62,7 @@ impl<N: RealField> Contact<N> {
 /// they can be seen as the same contact point that moved in-between frames. Two matching
 /// contact points are given the same `id` here.
 #[derive(Copy, Clone, Debug)]
-pub struct TrackedContact<N: RealField> {
+pub struct TrackedContact<N: RealField + Copy> {
     /// The geometric contact information.
     pub contact: Contact<N>,
     /// The local contact kinematic.
@@ -71,7 +71,7 @@ pub struct TrackedContact<N: RealField> {
     pub id: ContactId,
 }
 
-impl<N: RealField> TrackedContact<N> {
+impl<N: RealField + Copy> TrackedContact<N> {
     /// Creates a new tracked contact.
     pub fn new(contact: Contact<N>, kinematic: ContactKinematic<N>) -> Self {
         TrackedContact {
@@ -84,7 +84,7 @@ impl<N: RealField> TrackedContact<N> {
 
 /// The prediction parameters for contact determination.
 #[derive(Clone, Debug, PartialEq)]
-pub struct ContactPrediction<N: RealField> {
+pub struct ContactPrediction<N: RealField + Copy> {
     linear: N,
     angular1: N,
     angular2: N,
@@ -94,7 +94,7 @@ pub struct ContactPrediction<N: RealField> {
     sin_angular2: N,
 }
 
-impl<N: RealField> ContactPrediction<N> {
+impl<N: RealField + Copy> ContactPrediction<N> {
     /// Initialize prediction parameters.
     pub fn new(linear: N, angular1: N, angular2: N) -> Self {
         ContactPrediction {

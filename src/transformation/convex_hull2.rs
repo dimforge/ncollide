@@ -8,7 +8,7 @@ use simba::scalar::RealField;
 
 /// Computes the convex hull of a set of 2d points.
 #[cfg(feature = "dim2")]
-pub fn convex_hull2<N: RealField>(points: &[Point2<N>]) -> Polyline<N> {
+pub fn convex_hull2<N: RealField + Copy>(points: &[Point2<N>]) -> Polyline<N> {
     let idx = convex_hull2_idx(points);
     let mut pts = Vec::new();
 
@@ -21,7 +21,7 @@ pub fn convex_hull2<N: RealField>(points: &[Point2<N>]) -> Polyline<N> {
 
 /// Computes the convex hull of a set of 2d points and returns only the indices of the hull
 /// vertices.
-pub fn convex_hull2_idx<N: RealField>(points: &[Point2<N>]) -> Vec<usize> {
+pub fn convex_hull2_idx<N: RealField + Copy>(points: &[Point2<N>]) -> Vec<usize> {
     let mut undecidable_points = Vec::new();
     let mut segments = get_initial_polyline(points, &mut undecidable_points);
 
@@ -78,7 +78,7 @@ pub fn convex_hull2_idx<N: RealField>(points: &[Point2<N>]) -> Vec<usize> {
     idx
 }
 
-fn get_initial_polyline<N: RealField>(
+fn get_initial_polyline<N: RealField + Copy>(
     points: &[Point2<N>],
     undecidable: &mut Vec<usize>,
 ) -> Vec<SegmentFacet<N>> {
@@ -131,7 +131,7 @@ fn get_initial_polyline<N: RealField>(
     res
 }
 
-fn attach_and_push_facets2<N: RealField>(
+fn attach_and_push_facets2<N: RealField + Copy>(
     prev_facet: usize,
     next_facet: usize,
     point: usize,
@@ -184,7 +184,7 @@ fn attach_and_push_facets2<N: RealField>(
     segments.push(new_facet2);
 }
 
-struct SegmentFacet<N: RealField> {
+struct SegmentFacet<N: RealField + Copy> {
     pub valid: bool,
     pub normal: Vector2<N>,
     pub next: usize,
@@ -194,7 +194,7 @@ struct SegmentFacet<N: RealField> {
     pt_type: PhantomData<Point2<N>>,
 }
 
-impl<N: RealField> SegmentFacet<N> {
+impl<N: RealField + Copy> SegmentFacet<N> {
     pub fn new(
         p1: usize,
         p2: usize,

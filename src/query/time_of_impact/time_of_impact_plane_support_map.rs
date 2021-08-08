@@ -16,7 +16,7 @@ pub fn time_of_impact_plane_support_map<N, G: ?Sized>(
     target_distance: N,
 ) -> Option<TOI<N>>
 where
-    N: RealField,
+    N: RealField + Copy,
     G: SupportMap<N>,
 {
     let vel = *vel_other - *vel_plane;
@@ -70,7 +70,7 @@ pub fn time_of_impact_support_map_plane<N, G: ?Sized>(
     target_distance: N,
 ) -> Option<TOI<N>>
 where
-    N: RealField,
+    N: RealField + Copy,
     G: SupportMap<N>,
 {
     time_of_impact_plane_support_map(

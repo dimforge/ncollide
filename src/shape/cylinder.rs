@@ -14,7 +14,7 @@ pub struct Cylinder<N> {
     pub radius: N,
 }
 
-impl<N: RealField> Cylinder<N> {
+impl<N: RealField + Copy> Cylinder<N> {
     /// Creates a new cylinder.
     ///
     /// # Arguments:
@@ -44,7 +44,7 @@ impl<N: RealField> Cylinder<N> {
     }
 }
 
-impl<N: RealField> SupportMap<N> for Cylinder<N> {
+impl<N: RealField + Copy> SupportMap<N> for Cylinder<N> {
     fn local_support_point(&self, dir: &Vector<N>) -> Point<N> {
         let mut vres = *dir;
 

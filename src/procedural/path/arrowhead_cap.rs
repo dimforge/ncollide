@@ -10,7 +10,7 @@ pub struct ArrowheadCap<N> {
     back_dist_to_head: N,
 }
 
-impl<N: RealField> ArrowheadCap<N> {
+impl<N: RealField + Copy> ArrowheadCap<N> {
     /// Creates a cap that looks like an arrow.
     ///
     /// # Arguments:
@@ -99,7 +99,7 @@ impl<N: RealField> ArrowheadCap<N> {
     }
 }
 
-impl<N: RealField> PolylineCompatibleCap<N> for ArrowheadCap<N> {
+impl<N: RealField + Copy> PolylineCompatibleCap<N> for ArrowheadCap<N> {
     fn gen_end_cap(
         &self,
         attach_id: u32,

@@ -13,7 +13,7 @@ pub fn distance_composite_shape_shape<N, G1: ?Sized>(
     g2: &dyn Shape<N>,
 ) -> N
 where
-    N: RealField,
+    N: RealField + Copy,
     G1: CompositeShape<N>,
 {
     let ls_m2 = m1.inverse() * m2.clone();
@@ -42,13 +42,13 @@ pub fn distance_shape_composite_shape<N, G2: ?Sized>(
     g2: &G2,
 ) -> N
 where
-    N: RealField,
+    N: RealField + Copy,
     G2: CompositeShape<N>,
 {
     distance_composite_shape_shape(m2, g2, m1, g1)
 }
 
-struct CompositeShapeAgainstAnyDistanceVisitor<'a, N: 'a + RealField, G1: ?Sized + 'a> {
+struct CompositeShapeAgainstAnyDistanceVisitor<'a, N: 'a + RealField + Copy, G1: ?Sized + 'a> {
     msum_shift: Vector<N>,
     msum_margin: Vector<N>,
 
@@ -61,7 +61,7 @@ struct CompositeShapeAgainstAnyDistanceVisitor<'a, N: 'a + RealField, G1: ?Sized
 impl<'a, N, G1: ?Sized> BestFirstVisitor<N, usize, AABB<N>>
     for CompositeShapeAgainstAnyDistanceVisitor<'a, N, G1>
 where
-    N: RealField,
+    N: RealField + Copy,
     G1: CompositeShape<N>,
 {
     type Result = N;

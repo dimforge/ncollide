@@ -10,12 +10,12 @@ use std::marker::PhantomData;
 
 /// Collision detector between g1 plane and g1 shape implementing the `SupportMap` trait.
 #[derive(Clone)]
-pub struct PlaneBallManifoldGenerator<N: RealField> {
+pub struct PlaneBallManifoldGenerator<N: RealField + Copy> {
     flip: bool,
     phantom: PhantomData<N>,
 }
 
-impl<N: RealField> PlaneBallManifoldGenerator<N> {
+impl<N: RealField + Copy> PlaneBallManifoldGenerator<N> {
     /// Creates g1 new persistent collision detector between g1 plane and g1 shape with g1 support
     /// mapping function.
     #[inline]
@@ -83,7 +83,7 @@ impl<N: RealField> PlaneBallManifoldGenerator<N> {
     }
 }
 
-impl<N: RealField> ContactManifoldGenerator<N> for PlaneBallManifoldGenerator<N> {
+impl<N: RealField + Copy> ContactManifoldGenerator<N> for PlaneBallManifoldGenerator<N> {
     #[inline]
     fn generate_contacts(
         &mut self,

@@ -5,7 +5,7 @@ use na::{self, RealField};
 
 /// Proximity between balls.
 #[inline]
-pub fn closest_points_ball_ball<N: RealField>(
+pub fn closest_points_ball_ball<N: RealField + Copy>(
     center1: &Point<N>,
     b1: &Ball<N>,
     center2: &Point<N>,

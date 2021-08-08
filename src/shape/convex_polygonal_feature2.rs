@@ -8,7 +8,7 @@ use crate::shape::{FeatureId, Segment, SegmentPointLocation};
 
 /// A feature (face or vertex) of a 2D convex polygon.
 #[derive(Clone, Debug)]
-pub struct ConvexPolygonalFeature<N: RealField> {
+pub struct ConvexPolygonalFeature<N: RealField + Copy> {
     // FIXME: don't keep all those public.
     /// The vertices of this face.
     pub vertices: [Point<N>; 2],
@@ -22,7 +22,7 @@ pub struct ConvexPolygonalFeature<N: RealField> {
     pub vertices_id: [FeatureId; 2],
 }
 
-impl<N: RealField> ConvexPolygonalFeature<N> {
+impl<N: RealField + Copy> ConvexPolygonalFeature<N> {
     /// Creates a new empty convex polygonal faces.
     pub fn new() -> Self {
         ConvexPolygonalFeature {

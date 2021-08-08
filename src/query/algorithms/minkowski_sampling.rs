@@ -20,7 +20,7 @@ pub fn closest_points<N, S, G1: ?Sized, G2: ?Sized>(
     simplex: &mut S,
 ) -> Option<(Point<N>, Point<N>, Unit<Vector<N>>)>
 where
-    N: RealField,
+    N: RealField + Copy,
     M: Isometry<P>,
     S: Simplex<AnnotatedPoint<P>>,
     G1: SupportMap<N>,
@@ -111,7 +111,7 @@ where
 /// The origin is assumed to be inside of the shape.
 pub fn project_origin<N, S, G>(m: &Isometry<N>, g: &G, simplex: &mut S) -> Option<P>
 where
-    N: RealField,
+    N: RealField + Copy,
     M: Isometry<P>,
     S: Simplex<N>,
     G: SupportMap<N>,

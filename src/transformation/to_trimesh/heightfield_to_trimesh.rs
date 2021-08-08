@@ -3,7 +3,7 @@ use crate::procedural::TriMesh;
 use crate::shape;
 use simba::scalar::RealField;
 
-impl<N: RealField> ToTriMesh<N> for shape::HeightField<N> {
+impl<N: RealField + Copy> ToTriMesh<N> for shape::HeightField<N> {
     type DiscretizationParameter = ();
 
     fn to_trimesh(&self, _: ()) -> TriMesh<N> {

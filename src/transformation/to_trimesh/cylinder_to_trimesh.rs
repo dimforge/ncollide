@@ -5,7 +5,7 @@ use crate::shape::Cylinder;
 use na;
 use simba::scalar::RealField;
 
-impl<N: RealField> ToTriMesh<N> for Cylinder<N> {
+impl<N: RealField + Copy> ToTriMesh<N> for Cylinder<N> {
     type DiscretizationParameter = u32;
 
     fn to_trimesh(&self, nsubdiv: u32) -> TriMesh<N> {

@@ -6,13 +6,13 @@ use crate::shape::CompositeShape;
 use na::{self, RealField};
 
 /// Best-first traversal visitor for computing the point closest to a composite shape.
-pub struct CompositeClosestPointVisitor<'a, N: 'a + RealField, S: 'a + CompositeShape<N>> {
+pub struct CompositeClosestPointVisitor<'a, N: 'a + RealField + Copy, S: 'a + CompositeShape<N>> {
     shape: &'a S,
     point: &'a Point<N>,
     solid: bool,
 }
 
-impl<'a, N: RealField, S: CompositeShape<N>> CompositeClosestPointVisitor<'a, N, S> {
+impl<'a, N: RealField + Copy, S: CompositeShape<N>> CompositeClosestPointVisitor<'a, N, S> {
     /// Initializes a visitor that allows the computation of the point closest to `point` on `shape`.
     pub fn new(shape: &'a S, point: &'a Point<N>, solid: bool) -> Self {
         CompositeClosestPointVisitor {
@@ -23,7 +23,7 @@ impl<'a, N: RealField, S: CompositeShape<N>> CompositeClosestPointVisitor<'a, N,
     }
 }
 
-impl<'a, N: RealField, S: CompositeShape<N> + PointQuery<N>> BestFirstVisitor<N, usize, AABB<N>>
+impl<'a, N: RealField + Copy, S: CompositeShape<N> + PointQuery<N>> BestFirstVisitor<N, usize, AABB<N>>
     for CompositeClosestPointVisitor<'a, N, S>
 {
     type Result = PointProjection<N>;

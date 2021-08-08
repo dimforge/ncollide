@@ -7,7 +7,7 @@ use na::{RealField, Unit};
 ///
 /// # Parameters:
 ///   * V - type of the support mapping direction argument and of the returned point.
-pub trait SupportMap<N: RealField> {
+pub trait SupportMap<N: RealField + Copy> {
     // Evaluates the support function of this shape.
     //
     // A support function is a function associating a vector to the shape point which maximizes

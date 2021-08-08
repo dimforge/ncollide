@@ -4,7 +4,7 @@ use crate::num::Bounded;
 use na::{self, RealField};
 
 /// Returns the index of the support point of a list of points.
-pub fn support_point_id<N: RealField, const D: usize>(
+pub fn support_point_id<N: RealField + Copy, const D: usize>(
     direction: &na::SVector<N, D>,
     points: &[na::Point<N, D>],
 ) -> Option<usize> {
@@ -25,7 +25,7 @@ pub fn support_point_id<N: RealField, const D: usize>(
 }
 
 /// Returns the index of the support point of an indexed list of points.
-pub fn indexed_support_point_id<N: RealField, const D: usize>(
+pub fn indexed_support_point_id<N: RealField + Copy, const D: usize>(
     direction: &na::SVector<N, D>,
     points: &[na::Point<N, D>],
     idx: &[usize],
@@ -47,7 +47,7 @@ pub fn indexed_support_point_id<N: RealField, const D: usize>(
 }
 
 /// Scale and center the given set of point depending on their AABB.
-pub fn normalize<N: RealField>(coords: &mut [Point<N>]) -> (Point<N>, N) {
+pub fn normalize<N: RealField + Copy>(coords: &mut [Point<N>]) -> (Point<N>, N) {
     let aabb = bounding_volume::local_point_cloud_aabb(&coords[..]);
     let diag = na::distance(&aabb.mins, &aabb.maxs);
     let center = aabb.center();
@@ -60,7 +60,7 @@ pub fn normalize<N: RealField>(coords: &mut [Point<N>]) -> (Point<N>, N) {
 }
 
 /// Scale and translates the given set of point.
-pub fn denormalize<N: RealField>(coords: &mut [Point<N>], center: &Point<N>, diag: N) {
+pub fn denormalize<N: RealField + Copy>(coords: &mut [Point<N>], center: &Point<N>, diag: N) {
     for c in coords.iter_mut() {
         *c = *c * diag + center.coords;
     }

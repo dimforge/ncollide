@@ -4,7 +4,7 @@ use crate::query::{Ray, RayCast};
 use na::RealField;
 
 /// Bounding Volume Tree visitor collecting interferences with a given ray.
-pub struct RayInterferencesCollector<'a, N: 'a + RealField, T: 'a> {
+pub struct RayInterferencesCollector<'a, N: 'a + RealField + Copy, T: 'a> {
     /// Ray to be tested.
     pub ray: &'a Ray<N>,
     /// The maximum allowed time of impact.
@@ -13,7 +13,7 @@ pub struct RayInterferencesCollector<'a, N: 'a + RealField, T: 'a> {
     pub collector: &'a mut Vec<T>,
 }
 
-impl<'a, N: RealField, T> RayInterferencesCollector<'a, N, T> {
+impl<'a, N: RealField + Copy, T> RayInterferencesCollector<'a, N, T> {
     /// Creates a new `RayInterferencesCollector`.
     #[inline]
     pub fn new(
@@ -31,7 +31,7 @@ impl<'a, N: RealField, T> RayInterferencesCollector<'a, N, T> {
 
 impl<'a, N, T, BV> Visitor<T, BV> for RayInterferencesCollector<'a, N, T>
 where
-    N: RealField,
+    N: RealField + Copy,
     T: Clone,
     BV: RayCast<N>,
 {

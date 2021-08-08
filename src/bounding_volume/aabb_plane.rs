@@ -4,7 +4,7 @@ use crate::num::Bounded;
 use crate::shape::Plane;
 use na::{self, RealField};
 
-impl<N: RealField> HasBoundingVolume<N, AABB<N>> for Plane<N> {
+impl<N: RealField + Copy> HasBoundingVolume<N, AABB<N>> for Plane<N> {
     #[inline]
     fn bounding_volume(&self, _: &Isometry<N>) -> AABB<N> {
         self.local_bounding_volume()

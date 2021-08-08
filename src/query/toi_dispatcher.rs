@@ -10,7 +10,7 @@ use crate::shape::Shape;
 /// Custom implementations allow crates that support an abstract `TOIDispatcher` to handle custom
 /// shapes. Methods take `root_dispatcher` to allow dispatchers to delegate to eachother. Callers
 /// that will not themselves be used to implement a `TOIDispatcher` should pass `self`.
-pub trait TOIDispatcher<N: RealField>: Send + Sync {
+pub trait TOIDispatcher<N: RealField + Copy>: Send + Sync {
     /// Computes the smallest time of impact of two shapes under translational movement.
     fn nonlinear_time_of_impact(
         &self,
@@ -53,7 +53,7 @@ pub trait TOIDispatcher<N: RealField>: Send + Sync {
 #[derive(Debug, Clone)]
 pub struct DefaultTOIDispatcher;
 
-impl<N: RealField> TOIDispatcher<N> for DefaultTOIDispatcher {
+impl<N: RealField + Copy> TOIDispatcher<N> for DefaultTOIDispatcher {
     fn nonlinear_time_of_impact(
         &self,
         root_dispatcher: &dyn TOIDispatcher<N>,
@@ -117,7 +117,7 @@ macro_rules! chain_method {
 
 impl<N, T, U> TOIDispatcher<N> for Chain<T, U>
 where
-    N: RealField,
+    N: RealField + Copy,
     T: TOIDispatcher<N>,
     U: TOIDispatcher<N>,
 {

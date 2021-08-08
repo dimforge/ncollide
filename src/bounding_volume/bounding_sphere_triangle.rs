@@ -4,7 +4,7 @@ use crate::math::Isometry;
 use crate::shape::Triangle;
 use na::RealField;
 
-impl<N: RealField> HasBoundingVolume<N, BoundingSphere<N>> for Triangle<N> {
+impl<N: RealField + Copy> HasBoundingVolume<N, BoundingSphere<N>> for Triangle<N> {
     #[inline]
     fn bounding_volume(&self, m: &Isometry<N>) -> BoundingSphere<N> {
         let bv: BoundingSphere<N> = self.local_bounding_volume();

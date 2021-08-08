@@ -11,12 +11,12 @@ use crate::utils;
 
 /// A cache used for polygonal clipping.
 #[derive(Clone)]
-pub struct ClippingCache<N: RealField> {
+pub struct ClippingCache<N: RealField + Copy> {
     poly1: Vec<Point2<N>>,
     poly2: Vec<Point2<N>>,
 }
 
-impl<N: RealField> ClippingCache<N> {
+impl<N: RealField + Copy> ClippingCache<N> {
     /// Initializes an empty clipping cache.
     pub fn new() -> Self {
         ClippingCache {
@@ -37,7 +37,7 @@ impl<N: RealField> ClippingCache<N> {
 /// It is never checked if the vertices actually form a convex polygon.
 /// If they do not, results of any geometric query may end up being invalid.
 #[derive(Clone, Debug)]
-pub struct ConvexPolygonalFeature<N: RealField> {
+pub struct ConvexPolygonalFeature<N: RealField + Copy> {
     // FIXME: don't keep all those public.
     /// The vertices of this face.
     pub vertices: Vec<Point<N>>,
@@ -53,7 +53,7 @@ pub struct ConvexPolygonalFeature<N: RealField> {
     pub edges_id: Vec<FeatureId>,
 }
 
-impl<N: RealField> ConvexPolygonalFeature<N> {
+impl<N: RealField + Copy> ConvexPolygonalFeature<N> {
     /// Creates a new empty convex polygonal faces.
     pub fn new() -> Self {
         ConvexPolygonalFeature {

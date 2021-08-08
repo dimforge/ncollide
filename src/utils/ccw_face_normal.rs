@@ -6,7 +6,7 @@ use na::{RealField, Unit};
 /// Returns `None` if the segment is degenerate.
 #[inline]
 #[cfg(feature = "dim2")]
-pub fn ccw_face_normal<N: RealField>(pts: [&Point<N>; 2]) -> Option<Unit<Vector<N>>> {
+pub fn ccw_face_normal<N: RealField + Copy>(pts: [&Point<N>; 2]) -> Option<Unit<Vector<N>>> {
     let ab = pts[1] - pts[0];
     let res = Vector::new(ab[1], -ab[0]);
 
@@ -18,7 +18,7 @@ pub fn ccw_face_normal<N: RealField>(pts: [&Point<N>; 2]) -> Option<Unit<Vector<
 /// Returns `None` if the triangle is degenerate.
 #[inline]
 #[cfg(feature = "dim3")]
-pub fn ccw_face_normal<N: RealField>(pts: [&Point<N>; 3]) -> Option<Unit<Vector<N>>> {
+pub fn ccw_face_normal<N: RealField + Copy>(pts: [&Point<N>; 3]) -> Option<Unit<Vector<N>>> {
     let ab = pts[1] - pts[0];
     let ac = pts[2] - pts[0];
     let res = ab.cross(&ac);

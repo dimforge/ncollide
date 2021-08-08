@@ -15,7 +15,7 @@ use std::slice;
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
-struct DeformationInfos<N: RealField> {
+struct DeformationInfos<N: RealField + Copy> {
     margin: N,
     curr_timestamp: usize,
     timestamps: Vec<usize>,
@@ -25,7 +25,7 @@ struct DeformationInfos<N: RealField> {
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
-pub struct PolylineEdge<N: RealField> {
+pub struct PolylineEdge<N: RealField + Copy> {
     pub indices: Point2<usize>,
     bvt_leaf: usize,
     pub normal: Option<Unit<Vector<N>>>, // FIXME: useless in 3D
@@ -41,7 +41,7 @@ pub struct PolylineVertex {
 /// A polygonal line.
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Clone)]
-pub struct Polyline<N: RealField> {
+pub struct Polyline<N: RealField + Copy> {
     bvt: BVT<usize, AABB<N>>,
     points: Vec<Point<N>>,
     vertices: Vec<PolylineVertex>,
@@ -53,7 +53,7 @@ pub struct Polyline<N: RealField> {
     oriented: bool, // FIXME: useless in 3D
 }
 
-impl<N: RealField> Polyline<N> {
+impl<N: RealField + Copy> Polyline<N> {
     /// Builds a new polyline.
     pub fn new(points: Vec<Point<N>>, indices: Option<Vec<Point2<usize>>>) -> Polyline<N> {
         let indices = indices.unwrap_or(
@@ -530,7 +530,7 @@ impl<N: RealField> Polyline<N> {
     }
 }
 
-impl<N: RealField> CompositeShape<N> for Polyline<N> {
+impl<N: RealField + Copy> CompositeShape<N> for Polyline<N> {
     #[inline]
     fn nparts(&self) -> usize {
         self.edges.len()
@@ -573,7 +573,7 @@ impl<N: RealField> CompositeShape<N> for Polyline<N> {
     }
 }
 
-impl<N: RealField> DeformableShape<N> for Polyline<N> {
+impl<N: RealField + Copy> DeformableShape<N> for Polyline<N> {
     fn deformations_type(&self) -> DeformationsType {
         DeformationsType::Vectors
     }
@@ -701,14 +701,14 @@ impl<N: RealField> DeformableShape<N> for Polyline<N> {
 }
 
 #[allow(dead_code)]
-struct PolylineContactProcessor<'a, N: RealField> {
+struct PolylineContactProcessor<'a, N: RealField + Copy> {
     polyline: &'a Polyline<N>,
     pos: &'a Isometry<N>,
     edge_id: usize,
     prediction: &'a ContactPrediction<N>,
 }
 
-impl<'a, N: RealField> PolylineContactProcessor<'a, N> {
+impl<'a, N: RealField + Copy> PolylineContactProcessor<'a, N> {
     pub fn new(
         polyline: &'a Polyline<N>,
         pos: &'a Isometry<N>,
@@ -724,7 +724,7 @@ impl<'a, N: RealField> PolylineContactProcessor<'a, N> {
     }
 }
 
-impl<'a, N: RealField> ContactPreprocessor<N> for PolylineContactProcessor<'a, N> {
+impl<'a, N: RealField + Copy> ContactPreprocessor<N> for PolylineContactProcessor<'a, N> {
     fn process_contact(
         &self,
         _c: &mut Contact<N>,
@@ -777,11 +777,11 @@ impl<'a, N: RealField> ContactPreprocessor<N> for PolylineContactProcessor<'a, N
 }
 
 #[cfg(feature = "dim2")]
-fn xy_point<N: RealField>(x: N, y: N) -> Point<N> {
+fn xy_point<N: RealField + Copy>(x: N, y: N) -> Point<N> {
     Point::new(x, y)
 }
 
 #[cfg(feature = "dim3")]
-fn xy_point<N: RealField>(x: N, y: N) -> Point<N> {
+fn xy_point<N: RealField + Copy>(x: N, y: N) -> Point<N> {
     Point::new(x, y, N::zero())
 }

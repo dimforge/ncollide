@@ -14,7 +14,7 @@ pub type CollisionObjectGraphIndex = NodeIndex<usize>;
 pub type TemporaryInteractionIndex = EdgeIndex<usize>;
 
 /// An interaction between two collision objects.
-pub enum Interaction<N: RealField> {
+pub enum Interaction<N: RealField + Copy> {
     /// A potential contact between two collision objects.
     ///
     /// Generated only for pairs of collision objects both configured
@@ -27,7 +27,7 @@ pub enum Interaction<N: RealField> {
     Proximity(ProximityAlgorithm<N>, Proximity),
 }
 
-impl<N: RealField> Interaction<N> {
+impl<N: RealField + Copy> Interaction<N> {
     /// Checks if this interaction is a potential contact interaction.
     pub fn is_contact(&self) -> bool {
         match self {
@@ -46,11 +46,11 @@ impl<N: RealField> Interaction<N> {
 }
 
 /// A graph where nodes are collision objects and edges are contact or proximity algorithms.
-pub struct InteractionGraph<N: RealField, Handle: CollisionObjectHandle>(
+pub struct InteractionGraph<N: RealField + Copy, Handle: CollisionObjectHandle>(
     pub(crate) UnGraph<Handle, Interaction<N>, usize>,
 );
 
-impl<N: RealField, Handle: CollisionObjectHandle> InteractionGraph<N, Handle> {
+impl<N: RealField + Copy, Handle: CollisionObjectHandle> InteractionGraph<N, Handle> {
     /// Creates a new empty collection of collision objects.
     pub fn new() -> Self {
         InteractionGraph(UnGraph::with_capacity(10, 10))
@@ -401,13 +401,13 @@ impl<N: RealField, Handle: CollisionObjectHandle> InteractionGraph<N, Handle> {
     }
 }
 
-pub struct InteractionsWithMut<'a, N: RealField, Handle: CollisionObjectHandle> {
+pub struct InteractionsWithMut<'a, N: RealField + Copy, Handle: CollisionObjectHandle> {
     graph: &'a mut InteractionGraph<N, Handle>,
     incoming_edge: Option<EdgeIndex<usize>>,
     outgoing_edge: Option<EdgeIndex<usize>>,
 }
 
-impl<'a, N: RealField, Handle: CollisionObjectHandle> Iterator
+impl<'a, N: RealField + Copy, Handle: CollisionObjectHandle> Iterator
     for InteractionsWithMut<'a, N, Handle>
 {
     type Item = (

@@ -11,7 +11,7 @@ pub trait AsBytes {
 
 macro_rules! generic_as_bytes_impl(
     ($t: ident, $dimension: expr) => (
-        impl<N: RealField> AsBytes for $t<N> {
+        impl<N: RealField + Copy> AsBytes for $t<N> {
             #[inline(always)]
             fn as_bytes<'a>(&'a self) -> &'a [u8] {
                 unsafe {

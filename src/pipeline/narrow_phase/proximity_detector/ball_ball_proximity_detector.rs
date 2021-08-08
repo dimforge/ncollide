@@ -21,7 +21,7 @@ impl BallBallProximityDetector {
     }
 }
 
-impl<N: RealField> ProximityDetector<N> for BallBallProximityDetector {
+impl<N: RealField + Copy> ProximityDetector<N> for BallBallProximityDetector {
     fn update(
         &mut self,
         _: &dyn ProximityDispatcher<N>,

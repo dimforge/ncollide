@@ -13,7 +13,7 @@ impl NoCap {
     }
 }
 
-impl<N: RealField> PolylineCompatibleCap<N> for NoCap {
+impl<N: RealField + Copy> PolylineCompatibleCap<N> for NoCap {
     fn gen_start_cap(
         &self,
         _: u32,

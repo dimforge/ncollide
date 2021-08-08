@@ -9,12 +9,12 @@ use na::{RealField, Unit};
 ///
 /// It is based on the GJK algorithm.
 #[derive(Clone)]
-pub struct SupportMapSupportMapProximityDetector<N: RealField> {
+pub struct SupportMapSupportMapProximityDetector<N: RealField + Copy> {
     simplex: VoronoiSimplex<N>,
     sep_axis: Option<Unit<Vector<N>>>,
 }
 
-impl<N: RealField> SupportMapSupportMapProximityDetector<N> {
+impl<N: RealField + Copy> SupportMapSupportMapProximityDetector<N> {
     /// Creates a new persistant proximity detector between two shapes with support mapping
     /// functions.
     ///
@@ -27,7 +27,7 @@ impl<N: RealField> SupportMapSupportMapProximityDetector<N> {
     }
 }
 
-impl<N: RealField> ProximityDetector<N> for SupportMapSupportMapProximityDetector<N> {
+impl<N: RealField + Copy> ProximityDetector<N> for SupportMapSupportMapProximityDetector<N> {
     #[inline]
     fn update(
         &mut self,

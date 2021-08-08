@@ -8,14 +8,14 @@ use na::RealField;
 
 /// A Ray.
 #[derive(Debug, Clone, Copy)]
-pub struct Ray<N: RealField> {
+pub struct Ray<N: RealField + Copy> {
     /// Starting point of the ray.
     pub origin: Point<N>,
     /// Direction of the ray.
     pub dir: Vector<N>,
 }
 
-impl<N: RealField> Ray<N> {
+impl<N: RealField + Copy> Ray<N> {
     /// Creates a new ray starting from `origin` and with the direction `dir`. `dir` must be
     /// normalized.
     pub fn new(origin: Point<N>, dir: Vector<N>) -> Ray<N> {
@@ -58,7 +58,7 @@ impl<N: RealField> Ray<N> {
 /// Structure containing the result of a successful ray cast.
 #[derive(Copy, Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub struct RayIntersection<N: RealField> {
+pub struct RayIntersection<N: RealField + Copy> {
     /// The time of impact of the ray with the object.  The exact contact point can be computed
     /// with: `ray.point_at(toi)` or equivalently `origin + dir * toi` where `origin` is the origin of the ray;
     /// `dir` is its direction and `toi` is the value of this field.
@@ -79,7 +79,7 @@ pub struct RayIntersection<N: RealField> {
     pub uvs: Option<Point2<N>>,
 }
 
-impl<N: RealField> RayIntersection<N> {
+impl<N: RealField + Copy> RayIntersection<N> {
     #[inline]
     /// Creates a new `RayIntersection`.
     #[cfg(feature = "dim3")]
@@ -122,7 +122,7 @@ impl<N: RealField> RayIntersection<N> {
 }
 
 /// Traits of objects which can be transformed and tested for intersection with a ray.
-pub trait RayCast<N: RealField> {
+pub trait RayCast<N: RealField + Copy> {
     /// Computes the time of impact between this transform shape and a ray.
     fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, max_toi: N, solid: bool) -> Option<N> {
         self.toi_and_normal_with_ray(m, ray, max_toi, solid)

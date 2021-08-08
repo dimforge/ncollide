@@ -14,7 +14,7 @@ pub struct BoundingVolumeInterferencesCollector<'a, N: 'a, T: 'a, BV: 'a> {
 
 impl<'a, N, T, BV> BoundingVolumeInterferencesCollector<'a, N, T, BV>
 where
-    N: RealField,
+    N: RealField + Copy,
     BV: BoundingVolume<N>,
 {
     /// Creates a new `BoundingVolumeInterferencesCollector`.
@@ -33,7 +33,7 @@ where
 
 impl<'a, N, T, BV> Visitor<T, BV> for BoundingVolumeInterferencesCollector<'a, N, T, BV>
 where
-    N: RealField,
+    N: RealField + Copy,
     T: Clone,
     BV: BoundingVolume<N>,
 {

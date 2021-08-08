@@ -10,7 +10,7 @@ use na::RealField;
 /// * Contacts + Proximity = proximity test only.
 /// * Proximity + Proximity = proximity test only.
 #[derive(Debug, PartialEq, Clone, Copy)]
-pub enum GeometricQueryType<N: RealField> {
+pub enum GeometricQueryType<N: RealField + Copy> {
     /// This objects can respond to both contact point computation and proximity queries.
     Contacts(N, N),
     /// This object can respond to proximity tests only.
@@ -18,7 +18,7 @@ pub enum GeometricQueryType<N: RealField> {
     // FIXME: not yet implemented: Distance
 }
 
-impl<N: RealField> GeometricQueryType<N> {
+impl<N: RealField + Copy> GeometricQueryType<N> {
     /// The numerical distance limit of relevance for this query.
     ///
     /// If two objects are separated by a distance greater than the sum of their respective

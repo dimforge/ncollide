@@ -14,7 +14,7 @@ pub fn closest_points_composite_shape_shape<N, G1: ?Sized>(
     margin: N,
 ) -> ClosestPoints<N>
 where
-    N: RealField,
+    N: RealField + Copy,
     G1: CompositeShape<N>,
 {
     let mut visitor = CompositeShapeAgainstShapeClosestPointsVisitor::new(m1, g1, m2, g2, margin);
@@ -34,7 +34,7 @@ pub fn closest_points_shape_composite_shape<N, G2: ?Sized>(
     margin: N,
 ) -> ClosestPoints<N>
 where
-    N: RealField,
+    N: RealField + Copy,
     G2: CompositeShape<N>,
 {
     let mut res = closest_points_composite_shape_shape(m2, g2, m1, g1, margin);
@@ -42,7 +42,7 @@ where
     res
 }
 
-struct CompositeShapeAgainstShapeClosestPointsVisitor<'a, N: 'a + RealField, G1: ?Sized + 'a> {
+struct CompositeShapeAgainstShapeClosestPointsVisitor<'a, N: 'a + RealField + Copy, G1: ?Sized + 'a> {
     msum_shift: Vector<N>,
     msum_margin: Vector<N>,
     margin: N,
@@ -55,7 +55,7 @@ struct CompositeShapeAgainstShapeClosestPointsVisitor<'a, N: 'a + RealField, G1:
 
 impl<'a, N, G1: ?Sized> CompositeShapeAgainstShapeClosestPointsVisitor<'a, N, G1>
 where
-    N: RealField,
+    N: RealField + Copy,
     G1: CompositeShape<N>,
 {
     pub fn new(
@@ -83,7 +83,7 @@ where
 impl<'a, N, G1: ?Sized> BestFirstVisitor<N, usize, AABB<N>>
     for CompositeShapeAgainstShapeClosestPointsVisitor<'a, N, G1>
 where
-    N: RealField,
+    N: RealField + Copy,
     G1: CompositeShape<N>,
 {
     type Result = ClosestPoints<N>;

@@ -11,7 +11,7 @@ use crate::shape::{Ball, FeatureId};
 
 #[cfg(feature = "dim3")]
 #[inline]
-fn ball_uv<N: RealField>(normal: &Vector<N>) -> Point2<N> {
+fn ball_uv<N: RealField + Copy>(normal: &Vector<N>) -> Point2<N> {
     let two_pi: N = RealField::two_pi();
     let pi: N = RealField::pi();
     let _0_5: N = na::convert(0.5f64);
@@ -21,7 +21,7 @@ fn ball_uv<N: RealField>(normal: &Vector<N>) -> Point2<N> {
     Point2::new(uvx, uvy)
 }
 
-impl<N: RealField> RayCast<N> for Ball<N> {
+impl<N: RealField + Copy> RayCast<N> for Ball<N> {
     #[inline]
     fn toi_with_ray(&self, m: &Isometry<N>, ray: &Ray<N>, max_toi: N, solid: bool) -> Option<N> {
         ray_toi_with_ball(&Point::from(m.translation.vector), self.radius, ray, solid)
@@ -74,7 +74,7 @@ impl<N: RealField> RayCast<N> for Ball<N> {
 ///
 /// The first result element is `true` if the ray started inside of the ball.
 #[inline]
-pub fn ray_toi_with_ball<N: RealField>(
+pub fn ray_toi_with_ball<N: RealField + Copy>(
     center: &Point<N>,
     radius: N,
     ray: &Ray<N>,
@@ -122,7 +122,7 @@ pub fn ray_toi_with_ball<N: RealField>(
 
 /// Computes the time of impact and contact normal of a ray on a ball.
 #[inline]
-pub fn ray_toi_and_normal_with_ball<N: RealField>(
+pub fn ray_toi_and_normal_with_ball<N: RealField + Copy>(
     center: &Point<N>,
     radius: N,
     ray: &Ray<N>,

@@ -383,7 +383,7 @@ impl CollisionGroupsPairFilter {
     }
 }
 
-impl<N: RealField, Set: CollisionObjectSet<N>> BroadPhasePairFilter<N, Set>
+impl<N: RealField + Copy, Set: CollisionObjectSet<N>> BroadPhasePairFilter<N, Set>
     for CollisionGroupsPairFilter
 {
     fn is_pair_valid(

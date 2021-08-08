@@ -9,7 +9,7 @@ use na::RealField;
 ///
 /// A composite shape is composed of several shapes. Typically, it is a convex decomposition of
 /// a concave shape.
-pub trait CompositeShape<N: RealField> {
+pub trait CompositeShape<N: RealField + Copy> {
     /// The number of sub-shape in this composide shape.
     fn nparts(&self) -> usize;
 

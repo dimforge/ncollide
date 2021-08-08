@@ -6,7 +6,7 @@ use na::{self, RealField};
 
 /// A simplex of dimension up to 2 using Voronoï regions for computing point projections.
 #[derive(Clone, Debug)]
-pub struct VoronoiSimplex<N: RealField> {
+pub struct VoronoiSimplex<N: RealField + Copy> {
     prev_vertices: [usize; 3],
     prev_dim: usize,
     prev_proj: [N; 2],
@@ -16,7 +16,7 @@ pub struct VoronoiSimplex<N: RealField> {
     dim: usize,
 }
 
-impl<N: RealField> VoronoiSimplex<N> {
+impl<N: RealField + Copy> VoronoiSimplex<N> {
     /// Crates a new empty simplex.
     pub fn new() -> VoronoiSimplex<N> {
         VoronoiSimplex {

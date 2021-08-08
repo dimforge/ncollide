@@ -8,7 +8,7 @@ use std::ptr;
 // De-Casteljau algorithm.
 // Evaluates the bezier curve with control points `control_points`.
 #[doc(hidden)]
-pub fn bezier_curve_at<N: RealField>(
+pub fn bezier_curve_at<N: RealField + Copy>(
     control_points: &[Point<N>],
     t: N,
     cache: &mut Vec<Point<N>>,
@@ -44,7 +44,7 @@ pub fn bezier_curve_at<N: RealField>(
 // Evaluates the bezier curve with control points `control_points`.
 #[cfg(feature = "dim3")]
 #[doc(hidden)]
-pub fn bezier_surface_at<N: RealField>(
+pub fn bezier_surface_at<N: RealField + Copy>(
     control_points: &[Point<N>],
     nupoints: usize,
     nvpoints: usize,
@@ -54,7 +54,7 @@ pub fn bezier_surface_at<N: RealField>(
     vcache: &mut Vec<Point<N>>,
 ) -> Point<N>
 where
-    N: RealField,
+    N: RealField + Copy,
 {
     if vcache.len() < nvpoints {
         let diff = nvpoints - vcache.len();
@@ -75,7 +75,7 @@ where
 }
 
 /// Given a set of control points, generates a (non-rational) Bezier curve.
-pub fn bezier_curve<N: RealField>(control_points: &[Point<N>], nsubdivs: usize) -> Vec<Point<N>> {
+pub fn bezier_curve<N: RealField + Copy>(control_points: &[Point<N>], nsubdivs: usize) -> Vec<Point<N>> {
     let mut coords = Vec::with_capacity(nsubdivs);
     let mut cache = Vec::new();
     let tstep = na::convert(1.0 / (nsubdivs as f64));
@@ -91,7 +91,7 @@ pub fn bezier_curve<N: RealField>(control_points: &[Point<N>], nsubdivs: usize) 
 
 /// Given a set of control points, generates a (non-rational) Bezier surface.
 #[cfg(feature = "dim3")]
-pub fn bezier_surface<N: RealField>(
+pub fn bezier_surface<N: RealField + Copy>(
     control_points: &[Point<N>],
     nupoints: usize,
     nvpoints: usize,
@@ -99,7 +99,7 @@ pub fn bezier_surface<N: RealField>(
     vsubdivs: usize,
 ) -> TriMesh<N>
 where
-    N: RealField,
+    N: RealField + Copy,
 {
     assert!(nupoints * nvpoints == control_points.len());
 

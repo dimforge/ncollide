@@ -5,7 +5,7 @@ use crate::query::{visitors::CompositePointContainmentTest, PointProjection, Poi
 use crate::shape::{CompositeShape, Compound, FeatureId};
 use na::{self, RealField};
 
-impl<N: RealField> PointQuery<N> for Compound<N> {
+impl<N: RealField + Copy> PointQuery<N> for Compound<N> {
     // XXX: if solid == false, this might return internal projection.
     #[inline]
     fn project_point(&self, m: &Isometry<N>, point: &Point<N>, solid: bool) -> PointProjection<N> {
@@ -51,13 +51,13 @@ impl<N: RealField> PointQuery<N> for Compound<N> {
 /*
  * Visitors
  */
-struct CompoundPointProjVisitor<'a, N: 'a + RealField> {
+struct CompoundPointProjVisitor<'a, N: 'a + RealField + Copy> {
     compound: &'a Compound<N>,
     point: &'a Point<N>,
     solid: bool,
 }
 
-impl<'a, N: RealField> BestFirstVisitor<N, usize, AABB<N>> for CompoundPointProjVisitor<'a, N> {
+impl<'a, N: RealField + Copy> BestFirstVisitor<N, usize, AABB<N>> for CompoundPointProjVisitor<'a, N> {
     type Result = PointProjection<N>;
 
     #[inline]
