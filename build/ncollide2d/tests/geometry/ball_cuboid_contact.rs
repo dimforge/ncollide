@@ -19,7 +19,7 @@ fn fi40f24_from_f64(val: f64) -> FixedI40F24 {
 
 fn test_collide<T>(type_from_f64: fn(f64) -> T)
 where
-    T: simba::scalar::RealField,
+    T: simba::scalar::RealField + Copy,
 {
     let cuboid = Cuboid::new(Vector2::new(type_from_f64(0.5), type_from_f64(0.5)));
     let cuboid_point = Point2::new(type_from_f64(0.0), type_from_f64(4.0));

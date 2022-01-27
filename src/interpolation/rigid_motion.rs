@@ -176,7 +176,9 @@ pub struct PrependTranslation<'a, N: RealField + Copy, M: ?Sized> {
     translation: Vector<N>,
 }
 
-impl<'a, N: RealField + Copy, M: ?Sized + RigidMotion<N>> RigidMotion<N> for PrependTranslation<'a, N, M> {
+impl<'a, N: RealField + Copy, M: ?Sized + RigidMotion<N>> RigidMotion<N>
+    for PrependTranslation<'a, N, M>
+{
     fn position_at_time(&self, t: N) -> Isometry<N> {
         let m = self.motion.position_at_time(t);
         m * Translation::from(self.translation)

@@ -63,7 +63,7 @@ pub fn hacd<N: RealField + Copy>(
 
                 if !top.exact {
                     // the cost is just an upper bound.
-                    let _max: N = Bounded::max_value();
+                    let _max: N = N::max_value().unwrap();
                     let mut top_cost = -_max;
 
                     loop {
@@ -102,7 +102,7 @@ pub fn hacd<N: RealField + Copy>(
                     &dual_graph[..],
                     &rays[..],
                     &bvt,
-                    Bounded::max_value(),
+                    N::max_value().unwrap(),
                     error,
                 );
 
@@ -460,7 +460,7 @@ impl<N: RealField + Copy> DualGraphEdge<N> {
         let chull1 = v1.chull.as_ref().unwrap();
         let chull2 = v2.chull.as_ref().unwrap();
         let chull = ConvexPair::new(&chull1.coords[..], &chull2.coords[..]);
-        let _max: N = Bounded::max_value();
+        let _max: N = N::max_value().unwrap();
 
         let a1 = v1.ancestors.as_ref().unwrap();
         let a2 = v2.ancestors.as_ref().unwrap();
@@ -484,7 +484,7 @@ impl<N: RealField + Copy> DualGraphEdge<N> {
                 match chull.toi_with_ray(
                     &Isometry::identity(),
                     &Ray::new(outside_point, -ray.dir),
-                    N::max_value(),
+                    N::max_value().unwrap(),
                     true,
                 ) {
                     None => ancestors.push(VertexWithConcavity::new(id, na::zero())),
@@ -553,7 +553,12 @@ impl<N: RealField + Copy> DualGraphEdge<N> {
 
                     // We determine if the point is inside of the convex hull or not.
                     // XXX: use a point-in-implicit test instead of a ray-cast!
-                    match chull.toi_with_ray(&Isometry::identity(), ray, N::max_value(), true) {
+                    match chull.toi_with_ray(
+                        &Isometry::identity(),
+                        ray,
+                        N::max_value().unwrap(),
+                        true,
+                    ) {
                         None => continue,
                         Some(inter) => {
                             if inter.is_zero() {
@@ -675,7 +680,9 @@ fn compute_ray_bvt<N: RealField + Copy>(rays: &[Ray<N>]) -> BVT<usize, AABB<N>> 
     BVT::new_balanced(aabbs)
 }
 
-fn compute_rays<N: RealField + Copy>(mesh: &TriMesh<N>) -> (Vec<Ray<N>>, HashMap<(u32, u32), usize>) {
+fn compute_rays<N: RealField + Copy>(
+    mesh: &TriMesh<N>,
+) -> (Vec<Ray<N>>, HashMap<(u32, u32), usize>) {
     let mut rays = Vec::new();
     let mut raymap = HashMap::new();
 

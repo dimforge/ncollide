@@ -48,7 +48,7 @@ where
         g,
         &Isometry::identity(),
         &ConstantOrigin,
-        N::max_value(),
+        N::max_value().unwrap(),
         true,
         simplex,
     ) {
@@ -102,7 +102,7 @@ where
         return GJKResult::Intersection;
     }
 
-    let mut max_bound = N::max_value();
+    let mut max_bound = N::max_value().unwrap();
     let mut dir;
     let mut niter = 0;
 
@@ -209,17 +209,19 @@ where
     G2: SupportMap<N>,
 {
     let ray = Ray::new(Point::origin(), *dir);
-    minkowski_ray_cast(m1, g1, m2, g2, &ray, N::max_value(), simplex).map(|(toi, normal)| {
-        let witnesses = if !toi.is_zero() {
-            result(simplex, simplex.dimension() == DIM)
-        } else {
-            // If there is penetration, the witness points
-            // are undefined.
-            (Point::origin(), Point::origin())
-        };
+    minkowski_ray_cast(m1, g1, m2, g2, &ray, N::max_value().unwrap(), simplex).map(
+        |(toi, normal)| {
+            let witnesses = if !toi.is_zero() {
+                result(simplex, simplex.dimension() == DIM)
+            } else {
+                // If there is penetration, the witness points
+                // are undefined.
+                (Point::origin(), Point::origin())
+            };
 
-        (toi, normal, witnesses.0, witnesses.1)
-    })
+            (toi, normal, witnesses.0, witnesses.1)
+        },
+    )
 }
 
 // Ray-cast on the Minkowski Difference `m1 * g1 - m2 * g2`.
@@ -258,7 +260,7 @@ where
 
     // FIXME: reset the simplex if it is empty?
     let mut proj = simplex.project_origin_and_reduce();
-    let mut max_bound = N::max_value();
+    let mut max_bound = N::max_value().unwrap();
     let mut dir;
     let mut niter = 0;
     let mut last_chance = false;
@@ -303,14 +305,14 @@ where
 
                     // NOTE: we divide by ray_length instead of doing max_toi * ray_length
                     // because the multiplication may cause an overflow if max_toi is set
-                    // to N::max_value() by users that want to have an infinite ray.
+                    // to N::max_value().unwrap() by users that want to have an infinite ray.
                     if ltoi / ray_length > max_toi {
                         return None;
                     }
 
                     let shift = curr_ray.dir * t;
                     curr_ray.origin += shift;
-                    max_bound = N::max_value();
+                    max_bound = N::max_value().unwrap();
                     simplex.modify_pnts(&|pt| pt.translate_mut(&-shift));
                     last_chance = false;
                 }

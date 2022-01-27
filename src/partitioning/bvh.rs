@@ -105,7 +105,7 @@ pub trait BVH<T, BV> {
     {
         let mut queue: BinaryHeap<WeightedValue<N, Self::Node>> = BinaryHeap::new();
         // The lowest cost collision with actual scene geometry.
-        let mut best_cost = N::max_value();
+        let mut best_cost = N::max_value().unwrap();
         let mut best_result = None;
 
         if let Some(root) = self.root() {

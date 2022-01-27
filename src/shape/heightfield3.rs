@@ -470,7 +470,9 @@ impl<'a, N: RealField + Copy> HeightFieldTriangleContactPreprocessor<'a, N> {
     }
 }
 
-impl<'a, N: RealField + Copy> ContactPreprocessor<N> for HeightFieldTriangleContactPreprocessor<'a, N> {
+impl<'a, N: RealField + Copy> ContactPreprocessor<N>
+    for HeightFieldTriangleContactPreprocessor<'a, N>
+{
     fn process_contact(
         &self,
         _c: &mut Contact<N>,

@@ -84,7 +84,9 @@ struct TriMeshPointProjVisitor<'a, N: 'a + RealField + Copy> {
     point: &'a Point<N>,
 }
 
-impl<'a, N: RealField + Copy> BestFirstVisitor<N, usize, AABB<N>> for TriMeshPointProjVisitor<'a, N> {
+impl<'a, N: RealField + Copy> BestFirstVisitor<N, usize, AABB<N>>
+    for TriMeshPointProjVisitor<'a, N>
+{
     type Result = (PointProjection<N>, (usize, TrianglePointLocation<N>));
 
     #[inline]

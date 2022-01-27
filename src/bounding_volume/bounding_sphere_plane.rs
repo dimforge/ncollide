@@ -12,7 +12,7 @@ impl<N: RealField + Copy> HasBoundingVolume<N, BoundingSphere<N>> for Plane<N> {
 
     #[inline]
     fn local_bounding_volume(&self) -> BoundingSphere<N> {
-        let radius = N::max_value();
+        let radius = N::max_value().unwrap();
 
         BoundingSphere::new(Point::origin(), radius)
     }

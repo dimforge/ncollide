@@ -1,6 +1,6 @@
 use crate::bounding_volume::AABB;
 use crate::math::{Isometry, Point, Vector, DIM};
-use crate::num::{Bounded, Zero};
+use crate::num::Zero;
 use crate::query::{PointProjection, PointQuery};
 use crate::shape::FeatureId;
 use na::{self, RealField};
@@ -24,7 +24,7 @@ impl<N: RealField + Copy> AABB<N> {
         } else if solid {
             (true, ls_pt, shift)
         } else {
-            let _max: N = Bounded::max_value();
+            let _max: N = N::max_value().unwrap();
             let mut best = -_max;
             let mut is_mins = false;
             let mut best_id = 0;

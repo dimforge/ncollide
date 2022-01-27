@@ -44,7 +44,7 @@ where
         simplex.reset(CSOPoint::from_shapes(m1, g1, m2, g2, &Vector::x_axis()));
     }
 
-    match gjk::closest_points(m1, g1, m2, g2, N::max_value(), true, simplex) {
+    match gjk::closest_points(m1, g1, m2, g2, N::max_value().unwrap(), true, simplex) {
         GJKResult::Intersection => N::zero(),
         GJKResult::ClosestPoints(p1, p2, _) => na::distance(&p1, &p2),
         GJKResult::Proximity(_) => unreachable!(),

@@ -57,8 +57,8 @@ impl<N: RealField + Copy> AABB<N> {
     #[inline]
     pub fn new_invalid() -> Self {
         Self::new(
-            Vector::repeat(N::max_value()).into(),
-            Vector::repeat(-N::max_value()).into(),
+            Vector::repeat(N::max_value().unwrap()).into(),
+            Vector::repeat(-N::max_value().unwrap()).into(),
         )
     }
 

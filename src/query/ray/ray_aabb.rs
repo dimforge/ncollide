@@ -1,4 +1,3 @@
-use crate::num::Bounded;
 use std::mem;
 
 #[cfg(feature = "dim3")]
@@ -190,7 +189,7 @@ fn clip_line<N: RealField + Copy>(
     // NOTE: we don't start with tmin = 0 so we can return the correct normal
     // when the ray starts exactly on the object contour.
 
-    let mut tmax: N = Bounded::max_value();
+    let mut tmax: N = N::max_value().unwrap();
     let mut tmin: N = -tmax;
     let mut near_side = 0;
     let mut far_side = 0;

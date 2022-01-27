@@ -103,7 +103,7 @@ impl<N: RealField + Copy> TriMeshTriMeshManifoldGenerator<N> {
             // and do a return instead of breaks).
             'search: loop {
                 let _big: N = na::convert(10000000.0);
-                let mut penetration_depth = (N::max_value(), false);
+                let mut penetration_depth = (N::max_value().unwrap(), false);
                 let mut penetration_dir = Vector::y_axis();
 
                 // First, test normals.

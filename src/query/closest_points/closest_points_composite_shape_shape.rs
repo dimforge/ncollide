@@ -42,7 +42,8 @@ where
     res
 }
 
-struct CompositeShapeAgainstShapeClosestPointsVisitor<'a, N: 'a + RealField + Copy, G1: ?Sized + 'a> {
+struct CompositeShapeAgainstShapeClosestPointsVisitor<'a, N: 'a + RealField + Copy, G1: ?Sized + 'a>
+{
     msum_shift: Vector<N>,
     msum_margin: Vector<N>,
     margin: N,

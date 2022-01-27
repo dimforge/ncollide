@@ -329,7 +329,7 @@ impl<N: RealField + Copy, T> CollisionWorld<N, T> {
                     x.position(),
                     &Vector::zeros(),
                     x.shape().as_ref(),
-                    N::max_value(),
+                    N::max_value().unwrap(),
                     N::zero(),
                 )
                 .unwrap_or(None)
