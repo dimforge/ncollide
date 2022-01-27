@@ -23,7 +23,11 @@ pub fn triangle_area<N: RealField + Copy>(pa: &Point<N>, pb: &Point<N>, pc: &Poi
 
 /// Computes the center of a triangle.
 #[inline]
-pub fn triangle_center<N: RealField + Copy>(pa: &Point<N>, pb: &Point<N>, pc: &Point<N>) -> Point<N> {
+pub fn triangle_center<N: RealField + Copy>(
+    pa: &Point<N>,
+    pb: &Point<N>,
+    pc: &Point<N>,
+) -> Point<N> {
     utils::center(&[*pa, *pb, *pc])
 }
 
@@ -34,7 +38,11 @@ pub fn triangle_perimeter<N: RealField + Copy>(pa: &Point<N>, pb: &Point<N>, pc:
 }
 
 /// Computes the circumcircle of a triangle.
-pub fn circumcircle<N: RealField + Copy>(pa: &Point<N>, pb: &Point<N>, pc: &Point<N>) -> (Point<N>, N) {
+pub fn circumcircle<N: RealField + Copy>(
+    pa: &Point<N>,
+    pb: &Point<N>,
+    pc: &Point<N>,
+) -> (Point<N>, N) {
     let a = *pa - *pc;
     let b = *pb - *pc;
 

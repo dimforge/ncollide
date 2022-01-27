@@ -81,7 +81,9 @@ impl<N: RealField + Copy> PlaneConvexPolyhedronManifoldGenerator<N> {
     }
 }
 
-impl<N: RealField + Copy> ContactManifoldGenerator<N> for PlaneConvexPolyhedronManifoldGenerator<N> {
+impl<N: RealField + Copy> ContactManifoldGenerator<N>
+    for PlaneConvexPolyhedronManifoldGenerator<N>
+{
     fn generate_contacts(
         &mut self,
         _: &dyn ContactDispatcher<N>,

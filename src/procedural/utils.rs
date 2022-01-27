@@ -41,7 +41,12 @@ pub fn push_circle<N: RealField + Copy>(
 /// Pushes a discretized counterclockwise circle to a buffer.
 /// The circle is contained on the plane spanned by the `x` and `y` axis.
 #[inline]
-pub fn push_xy_arc<N: RealField + Copy>(radius: N, nsubdiv: u32, dtheta: N, out: &mut Vec<Point<N>>) {
+pub fn push_xy_arc<N: RealField + Copy>(
+    radius: N,
+    nsubdiv: u32,
+    dtheta: N,
+    out: &mut Vec<Point<N>>,
+) {
     let mut curr_theta = N::zero();
 
     for _ in 0..nsubdiv {

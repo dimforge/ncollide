@@ -6,7 +6,7 @@ use na::{self, RealField};
 impl<N: RealField + Copy> PointQuery<N> for HeightField<N> {
     #[inline]
     fn project_point(&self, m: &Isometry<N>, point: &Point<N>, _: bool) -> PointProjection<N> {
-        let mut smallest_dist = N::max_value();
+        let mut smallest_dist = N::max_value().unwrap();
         let mut best_proj = PointProjection::new(false, *point);
 
         #[cfg(feature = "dim2")]

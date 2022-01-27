@@ -53,6 +53,7 @@ struct Face<N: RealField + Copy> {
     pts: [usize; 3],
     adj: [usize; 3],
     normal: Unit<Vector<N>>,
+    #[allow(dead_code)]
     proj: Point<N>,
     bcoords: [N; 3],
     deleted: bool,
@@ -320,7 +321,7 @@ impl<N: RealField + Copy> EPA<N> {
         }
 
         let mut niter = 0;
-        let mut max_dist = N::max_value();
+        let mut max_dist = N::max_value().unwrap();
         let mut best_face_id = *self.heap.peek().unwrap();
 
         /*

@@ -71,7 +71,7 @@ where
         let pos2 = motion2.position_at_time(result.toi);
 
         // FIXME: use the _with_params version of the closest points query.
-        match closest_points(&pos1, g1, &pos2, g2, N::max_value()) {
+        match closest_points(&pos1, g1, &pos2, g2, N::max_value().unwrap()) {
             ClosestPoints::Intersecting => {
                 if result.toi == N::zero() {
                     result.status = TOIStatus::Penetrating

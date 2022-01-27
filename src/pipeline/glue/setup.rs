@@ -62,8 +62,8 @@ pub fn remove_proxies<'a, N: RealField + Copy, Handle: CollisionObjectHandle>(
 }
 
 /// Allocate a default narrow-phase, configured with the default contact and proximity dispatchers.
-pub fn default_narrow_phase<N: RealField + Copy, Handle: CollisionObjectHandle>() -> NarrowPhase<N, Handle>
-{
+pub fn default_narrow_phase<N: RealField + Copy, Handle: CollisionObjectHandle>(
+) -> NarrowPhase<N, Handle> {
     let coll_dispatcher = Box::new(DefaultContactDispatcher::new());
     let prox_dispatcher = Box::new(DefaultProximityDispatcher::new());
     NarrowPhase::new(coll_dispatcher, prox_dispatcher)

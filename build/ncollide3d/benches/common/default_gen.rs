@@ -52,7 +52,7 @@ impl_rand_default_gen!(f32);
 impl_rand_default_gen!(f64);
 impl_rand_default_gen!(bool);
 
-impl<N: RealField> DefaultGen for Ball<N>
+impl<N: RealField + Copy> DefaultGen for Ball<N>
 where
     Standard: Distribution<N>,
 {
@@ -61,7 +61,7 @@ where
     }
 }
 
-impl<N: RealField> DefaultGen for Cuboid<N>
+impl<N: RealField + Copy> DefaultGen for Cuboid<N>
 where
     Standard: Distribution<Vector3<N>>,
 {
@@ -70,7 +70,7 @@ where
     }
 }
 
-impl<N: RealField> DefaultGen for Capsule<N>
+impl<N: RealField + Copy> DefaultGen for Capsule<N>
 where
     Standard: Distribution<N>,
 {
@@ -79,7 +79,7 @@ where
     }
 }
 
-impl<N: RealField> DefaultGen for Cone<N>
+impl<N: RealField + Copy> DefaultGen for Cone<N>
 where
     Standard: Distribution<N>,
 {
@@ -88,7 +88,7 @@ where
     }
 }
 
-impl<N: RealField> DefaultGen for Cylinder<N>
+impl<N: RealField + Copy> DefaultGen for Cylinder<N>
 where
     Standard: Distribution<N>,
 {
@@ -97,7 +97,7 @@ where
     }
 }
 
-impl<N: RealField> DefaultGen for Segment<N>
+impl<N: RealField + Copy> DefaultGen for Segment<N>
 where
     Standard: Distribution<Point3<N>>,
 {
@@ -106,7 +106,7 @@ where
     }
 }
 
-impl<N: RealField> DefaultGen for Triangle<N>
+impl<N: RealField + Copy> DefaultGen for Triangle<N>
 where
     Standard: Distribution<Point3<N>>,
 {
@@ -115,7 +115,7 @@ where
     }
 }
 
-impl<N: RealField> DefaultGen for ConvexHull<N>
+impl<N: RealField + Copy> DefaultGen for ConvexHull<N>
 where
     Standard: Distribution<Point3<N>>,
 {
@@ -127,7 +127,7 @@ where
     }
 }
 
-impl<N: RealField> DefaultGen for Ray<N>
+impl<N: RealField + Copy> DefaultGen for Ray<N>
 where
     Standard: Distribution<Vector3<N>>,
 {
@@ -138,7 +138,7 @@ where
     }
 }
 
-impl<N: RealField> DefaultGen for AABB<N>
+impl<N: RealField + Copy> DefaultGen for AABB<N>
 where
     Standard: Distribution<Vector3<N>>,
 {
@@ -152,7 +152,7 @@ where
     }
 }
 
-impl<N: RealField> DefaultGen for BoundingSphere<N>
+impl<N: RealField + Copy> DefaultGen for BoundingSphere<N>
 where
     Standard: Distribution<N>,
 {

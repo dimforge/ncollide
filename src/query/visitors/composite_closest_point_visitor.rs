@@ -23,8 +23,8 @@ impl<'a, N: RealField + Copy, S: CompositeShape<N>> CompositeClosestPointVisitor
     }
 }
 
-impl<'a, N: RealField + Copy, S: CompositeShape<N> + PointQuery<N>> BestFirstVisitor<N, usize, AABB<N>>
-    for CompositeClosestPointVisitor<'a, N, S>
+impl<'a, N: RealField + Copy, S: CompositeShape<N> + PointQuery<N>>
+    BestFirstVisitor<N, usize, AABB<N>> for CompositeClosestPointVisitor<'a, N, S>
 {
     type Result = PointProjection<N>;
 

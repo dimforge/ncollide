@@ -279,7 +279,7 @@ impl<N: RealField + Copy> EPA<N> {
         }
 
         let mut niter = 0;
-        let mut max_dist = N::max_value();
+        let mut max_dist = N::max_value().unwrap();
         let mut best_face_id = *self.heap.peek().unwrap();
 
         /*

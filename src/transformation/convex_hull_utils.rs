@@ -1,6 +1,5 @@
 use crate::bounding_volume;
 use crate::math::Point;
-use crate::num::Bounded;
 use na::{self, RealField};
 
 /// Returns the index of the support point of a list of points.
@@ -9,7 +8,7 @@ pub fn support_point_id<N: RealField + Copy, const D: usize>(
     points: &[na::Point<N, D>],
 ) -> Option<usize> {
     let mut argmax = None;
-    let _max: N = Bounded::max_value();
+    let _max: N = N::max_value().unwrap();
     let mut max = -_max;
 
     for (id, pt) in points.iter().enumerate() {
@@ -31,7 +30,7 @@ pub fn indexed_support_point_id<N: RealField + Copy, const D: usize>(
     idx: &[usize],
 ) -> Option<usize> {
     let mut argmax = None;
-    let _max: N = Bounded::max_value();
+    let _max: N = N::max_value().unwrap();
     let mut max = -_max;
 
     for i in idx.iter() {

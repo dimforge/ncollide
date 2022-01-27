@@ -198,7 +198,7 @@ impl<N: RealField + Copy> RayCast<N> for HeightField<N> {
                 let x = self.x_at(cell.1 + 0);
                 ((x - ls_ray.origin.x) / ls_ray.dir.x, false)
             } else {
-                (N::max_value(), false)
+                (N::max_value().unwrap(), false)
             };
 
             let (toi_z, down) = if ls_ray.dir.z > N::zero() {
@@ -208,7 +208,7 @@ impl<N: RealField + Copy> RayCast<N> for HeightField<N> {
                 let z = self.z_at(cell.0 + 0);
                 ((z - ls_ray.origin.z) / ls_ray.dir.z, false)
             } else {
-                (N::max_value(), false)
+                (N::max_value().unwrap(), false)
             };
 
             if toi_x > max_t && toi_z > max_t {

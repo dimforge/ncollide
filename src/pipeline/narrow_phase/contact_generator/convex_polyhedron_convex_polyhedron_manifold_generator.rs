@@ -10,10 +10,10 @@ use crate::shape::{FeatureId, Shape};
 use na::{self, RealField, Unit};
 
 #[cfg(feature = "dim2")]
-#[derive(Clone)]
 pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<N: RealField + Copy> {
     simplex: VoronoiSimplex<N>,
     last_gjk_dir: Option<Unit<Vector<N>>>,
+    #[allow(dead_code)]
     last_optimal_dir: Option<Unit<Vector<N>>>,
     new_contacts: Vec<(Contact<N>, FeatureId, FeatureId)>,
     manifold1: ConvexPolygonalFeature<N>,
@@ -21,10 +21,10 @@ pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<N: RealField + Copy
 }
 
 #[cfg(feature = "dim3")]
-#[derive(Clone)]
 pub struct ConvexPolyhedronConvexPolyhedronManifoldGenerator<N: RealField + Copy> {
     simplex: VoronoiSimplex<N>,
     last_gjk_dir: Option<Unit<Vector<N>>>,
+    #[allow(dead_code)]
     last_optimal_dir: Option<Unit<Vector<N>>>,
     clip_cache: ClippingCache<N>,
     new_contacts: Vec<(Contact<N>, FeatureId, FeatureId)>,

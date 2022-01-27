@@ -57,7 +57,9 @@ struct CompoundPointProjVisitor<'a, N: 'a + RealField + Copy> {
     solid: bool,
 }
 
-impl<'a, N: RealField + Copy> BestFirstVisitor<N, usize, AABB<N>> for CompoundPointProjVisitor<'a, N> {
+impl<'a, N: RealField + Copy> BestFirstVisitor<N, usize, AABB<N>>
+    for CompoundPointProjVisitor<'a, N>
+{
     type Result = PointProjection<N>;
 
     #[inline]

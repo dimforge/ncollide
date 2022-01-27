@@ -75,7 +75,10 @@ where
 }
 
 /// Given a set of control points, generates a (non-rational) Bezier curve.
-pub fn bezier_curve<N: RealField + Copy>(control_points: &[Point<N>], nsubdivs: usize) -> Vec<Point<N>> {
+pub fn bezier_curve<N: RealField + Copy>(
+    control_points: &[Point<N>],
+    nsubdivs: usize,
+) -> Vec<Point<N>> {
     let mut coords = Vec::with_capacity(nsubdivs);
     let mut cache = Vec::new();
     let tstep = na::convert(1.0 / (nsubdivs as f64));

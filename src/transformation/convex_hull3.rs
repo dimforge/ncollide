@@ -10,6 +10,7 @@ use crate::utils;
 use na::{self, Matrix3, Point2, Point3, RealField, Vector3};
 
 /// Computes the convariance matrix of a set of points.
+#[cfg(not(feature = "improved_fixed_point_support"))]
 fn cov<N: RealField + Copy>(pts: &[Point3<N>]) -> Matrix3<N> {
     let center = utils::center(pts);
     let mut cov: Matrix3<N> = na::zero();

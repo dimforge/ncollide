@@ -155,8 +155,12 @@ impl<T, BV> BVT<T, BV> {
     /// If `refit_now` is `false`, no ancestor update will be performed until the
     /// `.refit()` method is called. This is useful to refit the tree only once after
     /// several leaf bounding volume modifications.
-    pub fn set_leaf_bounding_volume<N: RealField + Copy>(&mut self, i: usize, bv: BV, refit_now: bool)
-    where
+    pub fn set_leaf_bounding_volume<N: RealField + Copy>(
+        &mut self,
+        i: usize,
+        bv: BV,
+        refit_now: bool,
+    ) where
         BV: BoundingVolume<N>,
     {
         self.init_deformation_infos();
